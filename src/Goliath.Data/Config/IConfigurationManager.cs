@@ -47,4 +47,10 @@ namespace Goliath.Data.Config
         /// </summary>
         ISessionFactory Init();
     }
+
+    public interface IConfigurationSettings
+    {
+        Mapping.MapConfig Map { get; }
+        //Providers.IDbProvider DbProvider { get; }
+    }
 }

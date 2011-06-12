@@ -54,7 +54,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DataAccessFactoryTests.cs" />
     <Compile Include="LoggerTests.cs" />
+    <Compile Include="Models\Monkey.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

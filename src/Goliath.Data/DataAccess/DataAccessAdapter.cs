@@ -21,7 +21,7 @@ namespace Goliath.Data
         /// Initializes a new instance of the <see cref="DataAccessAdapter&lt;TEntity&gt;"/> class.
         /// </summary>
         /// <param name="dataAccess">The data access.</param>
-        protected DataAccessAdapter(IDbAccess dataAccess)
+        public DataAccessAdapter(IDbAccess dataAccess)
         {
             if (dataAccess == null)
                 throw new ArgumentNullException("dataAccess");

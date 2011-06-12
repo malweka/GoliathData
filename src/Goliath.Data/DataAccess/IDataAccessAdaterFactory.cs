@@ -3,18 +3,26 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Data;
+using Goliath.Data.Diagnostics;
 
 namespace Goliath.Data
 {
     public interface IDataAccessAdaterFactory
     {
-        IDataAccessAdapter<TEntity> Get<TEntity>(System.Data.IDbConnection connection);
+        IDataAccessAdapter<TEntity> Get<TEntity>() where TEntity : class;
+        void RegisterAdapter<TEntity>(Func<IDbAccess, IDataAccessAdapter<TEntity>> factoryMethod) where TEntity : class;
     }
 
     class DataAccessAdapterFactory : IDataAccessAdaterFactory
     {
         IDbAccess db;
         Dictionary<Type, Delegate> factoryList = new Dictionary<Type, Delegate>();
+        static ILogger logger;
+
+        static DataAccessAdapterFactory()
+        {
+            logger = Logger.GetLogger(typeof(DataAccessAdapterFactory));
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DataAccessAdapterFactory"/> class.
@@ -25,7 +33,7 @@ namespace Goliath.Data
             db = dataAccess;
         }
 
-        public void RegisterAdapter<TEntity>(Func<System.Data.IDbConnection, IDataAccessAdapter<TEntity>> factoryMethod)
+        public void RegisterAdapter<TEntity>(Func<IDbAccess, IDataAccessAdapter<TEntity>> factoryMethod) where TEntity : class
         {
             var t = typeof(TEntity);
             factoryList.Add(t, factoryMethod);
@@ -33,21 +41,39 @@ namespace Goliath.Data
 
         #region IDataAccessAdaterFactory Members
 
-        public IDataAccessAdapter<TEntity> Get<TEntity>(System.Data.IDbConnection connection)
+        public IDataAccessAdapter<TEntity> Get<TEntity>() where TEntity : class
         {
             try
             {
                 Delegate dlgMethod;
                 if (factoryList.TryGetValue(typeof(TEntity), out dlgMethod))
                 {
+                    var adapter = dlgMethod.DynamicInvoke(db);
+                    if (adapter is IDataAccessAdapter<TEntity>)
+                        return (IDataAccessAdapter<TEntity>)adapter;
                 }
             }
             catch (Exception ex)
             {
+                logger.Log(string.Format("Error while trying to invoke DataAccessAdapter factory method for {0}", typeof(TEntity)), ex);
             }
-            throw new NotImplementedException();
+
+            return null;
         }
 
         #endregion
+
+        IDataAccessAdapter<TEntity> CreateAdapter<TEntity>(IDbAccess dbAccess)
+        {
+            Type type = typeof(TEntity);
+            var map = Config.ConfigManager.CurrentSettings.Map;
+
+            if (map != null)
+            {
+                
+            }
+
+            throw new Exception();
+        }
     }
 }
