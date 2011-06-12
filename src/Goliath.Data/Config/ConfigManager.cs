@@ -11,12 +11,12 @@ namespace Goliath.Data.Config
     using Providers;
     using DataAccess;
 
-    class ConfigManager : IConfigurationManager
+    class ConfigManager : IConfigurationManager, IConfigurationSettings
     {
         MapConfig mainMap;
         IDbProvider provider;
 
-        public Func<Type, ILogger> LoggerFactory { get; set; }
+        internal Func<Type, ILogger> LoggerFactory { get; set; }
 
         public MapConfig Map
         {
@@ -83,10 +83,19 @@ namespace Goliath.Data.Config
             }
 
             IDbAccess dbAccess = DbProvider.GetDataAccess(mainMap.Settings.ConnectionString);
+            settings = this;
+
             var sessFact = new SessionFactoryImpl(dbAccess);
             return sessFact;
         }
 
         #endregion
+
+        private static IConfigurationSettings settings;
+
+        internal static IConfigurationSettings CurrentSettings
+        {
+            get { return settings; }
+        }
     }
 }

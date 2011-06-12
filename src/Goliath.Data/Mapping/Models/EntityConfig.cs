@@ -23,8 +23,23 @@ namespace Goliath.Data.Mapping
             set { parent = value; }
         }
 
+        string name = string.Empty;
+
         [DataMember]
-        public string Name { get; set; }
+        public string Name
+        {
+            get
+            {
+                if (string.IsNullOrWhiteSpace(name))
+                    return string.Empty;
+                else
+                    return name;
+            }
+            set
+            {
+                name = value; 
+            }
+        }
 
         public string DbName
         {
@@ -92,12 +107,15 @@ namespace Goliath.Data.Mapping
             }
         }
 
-        public string GetFullName()
+        public string FullName
         {
-            if (!string.IsNullOrWhiteSpace(Namespace))
-                return string.Format("{0}.{1}", Namespace, Name);
-            else
-                return Name;
+            get
+            {
+                if (!string.IsNullOrWhiteSpace(Namespace))
+                    return string.Format("{0}.{1}", Namespace, Name);
+                else
+                    return Name;
+            }
         }
 
         internal EntityMap() : this(string.Empty, string.Empty) { }
@@ -157,7 +175,7 @@ namespace Goliath.Data.Mapping
 
         public override int GetHashCode()
         {
-            return GetFullName().GetHashCode();
+            return FullName.GetHashCode();
         }
         public override bool Equals(object obj)
         {
@@ -172,7 +190,7 @@ namespace Goliath.Data.Mapping
             if (other == null)
                 return false;
 
-            return other.GetFullName().Equals(GetFullName());
+            return other.FullName.Equals(FullName);
         }
 
         #endregion
