@@ -15,24 +15,24 @@
         <property name="AcceptNewAnimals" column="AcceptNewAnimals" clrType="System.Boolean" dbType="Boolean" sqlType="bit" scale="0" default="0" nullable="False" />
       </properties>
       <relations>
-        <property name="EmployeesOnAssignedToZooId" column="AssignedToZooId" dbType="AnsiString" scale="0" type="IList" lazy="True" relation="ManyToOne" referenceTable="employees" referenceColumn="" refEntity="Employee" />
-        <property name="AnimalsOnZooId" column="ZooId" dbType="AnsiString" scale="0" type="IList" lazy="True" relation="ManyToOne" referenceTable="animals" referenceColumn="" refEntity="Animal" />
+        <property name="EmployeesOnAssignedToZooId" column="AssignedToZooId" dbType="AnsiString" scale="0" type="IList" lazy="True" relation="ManyToOne" referenceTable="employees" referenceColumn="" refEntity="WebZoo.Data.Sqlite.Employee" />
+        <property name="AnimalsOnZooId" column="ZooId" dbType="AnsiString" scale="0" type="IList" lazy="True" relation="ManyToOne" referenceTable="animals" referenceColumn="" refEntity="WebZoo.Data.Sqlite.Animal" />
       </relations>
     </entity>
     <entity name="AnimalsHandler" extends="WebZoo.Data.BaseEntity" linkTable="True" assembly="WebZoo.Data" entityNamespace="WebZoo.Data.Sqlite" table="animals_handlers" schema="main" tableAbbr="anim">
       <primaryKey>
-        <key name="Animal" column="AnimalId" clrType="System.Guid" dbType="Guid" sqlType="uniqueidentifier" scale="0" unique="True" primaryKey="True" nullable="False" relation="OneToMany" referenceTable="animals" referenceColumn="Id" keyFieldName="AnimalId" refConstraint="fk_animals_handlers_animals1" refEntity="Animal" />
-        <key name="Employee" column="EmployeeId" clrType="System.Guid" dbType="Guid" sqlType="uniqueidentifier" scale="0" unique="True" primaryKey="True" nullable="False" relation="OneToMany" referenceTable="employees" referenceColumn="Id" keyFieldName="EmployeeId" refConstraint="fk_animals_handlers_employees0" refEntity="Employee" />
+        <key name="Animal" column="AnimalId" clrType="System.Guid" dbType="Guid" sqlType="uniqueidentifier" scale="0" unique="True" primaryKey="True" nullable="False" relation="OneToMany" referenceTable="animals" referenceColumn="Id" keyFieldName="AnimalId" refConstraint="fk_animals_handlers_animals1" refEntity="WebZoo.Data.Sqlite.Animal" />
+        <key name="Employee" column="EmployeeId" clrType="System.Guid" dbType="Guid" sqlType="uniqueidentifier" scale="0" unique="True" primaryKey="True" nullable="False" relation="OneToMany" referenceTable="employees" referenceColumn="Id" keyFieldName="EmployeeId" refConstraint="fk_animals_handlers_employees0" refEntity="WebZoo.Data.Sqlite.Employee" />
       </primaryKey>
       <properties />
       <relations>
-        <property name="Animal" column="AnimalId" clrType="System.Guid" dbType="Guid" sqlType="uniqueidentifier" scale="0" unique="True" primaryKey="True" nullable="False" relation="OneToMany" referenceTable="animals" referenceColumn="Id" keyFieldName="AnimalId" refConstraint="fk_animals_handlers_animals1" refEntity="Animal" />
-        <property name="Employee" column="EmployeeId" clrType="System.Guid" dbType="Guid" sqlType="uniqueidentifier" scale="0" unique="True" primaryKey="True" nullable="False" relation="OneToMany" referenceTable="employees" referenceColumn="Id" keyFieldName="EmployeeId" refConstraint="fk_animals_handlers_employees0" refEntity="Employee" />
+        <property name="Animal" column="AnimalId" clrType="System.Guid" dbType="Guid" sqlType="uniqueidentifier" scale="0" unique="True" primaryKey="True" nullable="False" relation="OneToMany" referenceTable="animals" referenceColumn="Id" keyFieldName="AnimalId" refConstraint="fk_animals_handlers_animals1" refEntity="WebZoo.Data.Sqlite.Animal" />
+        <property name="Employee" column="EmployeeId" clrType="System.Guid" dbType="Guid" sqlType="uniqueidentifier" scale="0" unique="True" primaryKey="True" nullable="False" relation="OneToMany" referenceTable="employees" referenceColumn="Id" keyFieldName="EmployeeId" refConstraint="fk_animals_handlers_employees0" refEntity="WebZoo.Data.Sqlite.Employee" />
       </relations>
     </entity>
-    <entity name="Monkey" extends="Animal" assembly="WebZoo.Data" entityNamespace="WebZoo.Data.Sqlite" table="monkeys" schema="main" tableAbbr="monk">
+    <entity name="Monkey" extends="WebZoo.Data.Sqlite.Animal" assembly="WebZoo.Data" entityNamespace="WebZoo.Data.Sqlite" table="monkeys" schema="main" tableAbbr="monk">
       <primaryKey>
-        <key name="Id" column="Id" clrType="System.Guid" dbType="Guid" sqlType="uniqueidentifier" scale="0" unique="True" primaryKey="True" nullable="False" relation="OneToMany" referenceTable="animals" referenceColumn="Id" keyFieldName="Id" refConstraint="fk_monkeys_animals0" refEntity="Animal" />
+        <key name="Id" column="Id" clrType="System.Guid" dbType="Guid" sqlType="uniqueidentifier" scale="0" unique="True" primaryKey="True" nullable="False" relation="OneToMany" referenceTable="animals" referenceColumn="Id" keyFieldName="Id" refConstraint="fk_monkeys_animals0" refEntity="WebZoo.Data.Sqlite.Animal" />
       </primaryKey>
       <properties>
         <property name="Family" column="Family" clrType="System.String" dbType="String" sqlType="nvarchar" length="50" scale="0" />
@@ -53,8 +53,8 @@
         <property name="HiredOn" column="HiredOn" clrType="System.DateTime" dbType="DateTime" sqlType="datetime" scale="0" nullable="False" />
       </properties>
       <relations>
-        <property name="AssignedToZoo" column="AssignedToZooId" clrType="System.Nullable`1[System.Guid]" dbType="Guid" sqlType="uniqueidentifier" scale="0" relation="OneToMany" referenceTable="zoos" referenceColumn="Id" keyFieldName="AssignedToZooId" refConstraint="fk_employees_zoos0" refEntity="Zoo" />
-        <property name="AnimalsOnAnimalsHandler_EmployeeId" column="EmployeeId" dbType="AnsiString" scale="0" type="IList" lazy="True" relation="ManyToMany" referenceTable="animals" referenceColumn="" refEntity="Animal" />
+        <property name="AssignedToZoo" column="AssignedToZooId" clrType="System.Nullable`1[System.Guid]" dbType="Guid" sqlType="uniqueidentifier" scale="0" relation="OneToMany" referenceTable="zoos" referenceColumn="Id" keyFieldName="AssignedToZooId" refConstraint="fk_employees_zoos0" refEntity="WebZoo.Data.Sqlite.Zoo" />
+        <property name="AnimalsOnAnimalsHandler_EmployeeId" column="EmployeeId" dbType="AnsiString" scale="0" type="IList" lazy="True" relation="ManyToMany" referenceTable="animals" referenceColumn="" refEntity="WebZoo.Data.Sqlite.Animal" />
       </relations>
     </entity>
     <entity name="Animal" extends="WebZoo.Data.BaseEntity" assembly="WebZoo.Data" entityNamespace="WebZoo.Data.Sqlite" table="animals" schema="main" tableAbbr="ani1">
@@ -68,8 +68,8 @@
         <property name="ReceivedOn" column="ReceivedOn" clrType="System.DateTime" dbType="DateTime" sqlType="datetime" scale="0" nullable="False" />
       </properties>
       <relations>
-        <property name="Zoo" column="ZooId" clrType="System.Guid" dbType="Guid" sqlType="uniqueidentifier" scale="0" nullable="False" relation="OneToMany" referenceTable="zoos" referenceColumn="Id" keyFieldName="ZooId" refConstraint="fk_animals_zoos0" refEntity="Zoo" />
-        <property name="EmployeesOnAnimalsHandler_AnimalId" column="AnimalId" dbType="AnsiString" scale="0" type="IList" lazy="True" relation="ManyToMany" referenceTable="employees" referenceColumn="" refEntity="Employee" />
+        <property name="Zoo" column="ZooId" clrType="System.Guid" dbType="Guid" sqlType="uniqueidentifier" scale="0" nullable="False" relation="OneToMany" referenceTable="zoos" referenceColumn="Id" keyFieldName="ZooId" refConstraint="fk_animals_zoos0" refEntity="WebZoo.Data.Sqlite.Zoo" />
+        <property name="EmployeesOnAnimalsHandler_AnimalId" column="AnimalId" dbType="AnsiString" scale="0" type="IList" lazy="True" relation="ManyToMany" referenceTable="employees" referenceColumn="" refEntity="WebZoo.Data.Sqlite.Employee" />
       </relations>
     </entity>
   </entities>

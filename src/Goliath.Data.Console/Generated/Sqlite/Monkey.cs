@@ -1,15 +1,14 @@
 ///////////////////////////////////////////////////////////////////
 //	
-//	Goliath.Data Generated Class -  Class Template 1.1.0
+//	Auto generated -  Class Template 1.1.0
 //
 ///////////////////////////////////////////////////////////////////
-
 using System;
 using System.Collections.Generic;
 
 namespace WebZoo.Data.Sqlite
 {
-	public partial class Monkey : Animal
+	public partial class Monkey : WebZoo.Data.Sqlite.Animal
 	{
 		#region Primary Key
 

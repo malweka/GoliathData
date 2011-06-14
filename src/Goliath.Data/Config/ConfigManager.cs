@@ -58,7 +58,7 @@ namespace Goliath.Data.Config
             return this;
         }
 
-        public IConfigurationManager RegisterEntitySerializer<TEntity>(IEntitySerializer serializer)
+        public IConfigurationManager RegisterEntitySerializer<TEntity>(IEntitySerializer<TEntity> serializer)
         {
             return this;
         }

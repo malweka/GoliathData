@@ -7,7 +7,7 @@ using System.Data.Common;
 
 namespace Goliath.Data
 {
-    public interface IEntitySerializer<T> : IEntitySerializer
+    public interface IEntitySerializer<T>
     {
         /// <summary>
         /// Serializes from data reader.
@@ -16,11 +16,5 @@ namespace Goliath.Data
         /// <param name="entityMap">The entity map.</param>
         /// <returns></returns>
         T SerializeFromDataReader(DbDataReader dataReader, Mapping.EntityMap entityMap);
-    }
-
-    public interface IEntitySerializer
-    {
-        Type Type { get; }
-        object SerializeFromDataReader(DbDataReader dataReader, Mapping.EntityMap entityMap);
     }
 }

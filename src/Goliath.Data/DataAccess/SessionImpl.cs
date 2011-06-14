@@ -58,6 +58,7 @@ namespace Goliath.Data.DataAccess
 
                 if (connection == null)
                     connection = dbAccess.CreateNewConnection();
+
                 else if ((connection.State == ConnectionState.Broken) || (connection.State == ConnectionState.Closed))
                 {
                     DisposeOfConnection(connection);

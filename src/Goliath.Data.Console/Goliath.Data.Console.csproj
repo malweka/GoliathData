@@ -52,15 +52,33 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Generated\BaseEntity.cs" />
-    <Compile Include="Generated\Mssql2008\Animal.cs" />
-    <Compile Include="Generated\Mssql2008\Employee.cs" />
-    <Compile Include="Generated\Mssql2008\Monkey.cs" />
-    <Compile Include="Generated\Mssql2008\Zoo.cs" />
-    <Compile Include="Generated\Sqlite\Animal.cs" />
-    <Compile Include="Generated\Sqlite\Employee.cs" />
-    <Compile Include="Generated\Sqlite\Monkey.cs" />
-    <Compile Include="Generated\Sqlite\Zoo.cs" />
+    <Compile Include="Generated\BaseEntity.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Generated\Mssql2008\Animal.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Generated\Mssql2008\Employee.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Generated\Mssql2008\Monkey.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Generated\Mssql2008\Zoo.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Generated\Sqlite\Animal.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Generated\Sqlite\Employee.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Generated\Sqlite\Monkey.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Generated\Sqlite\Zoo.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -69,8 +87,6 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="Class.razt" />
-    <None Include="DataAdapterFactory.razt" />
-    <None Include="DataAdapter.razt" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Goliath.Data\Goliath.Data.csproj">

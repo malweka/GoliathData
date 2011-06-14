@@ -71,7 +71,7 @@ namespace Goliath.Data.Diagnostics
         /// <summary>
         /// 
         /// </summary>
-        All = 0
+        All = Info
     }
 
     /// <summary>

@@ -54,9 +54,36 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\Goliath.Data.Console\Generated\BaseEntity.cs">
+      <Link>Models\BaseEntity.cs</Link>
+    </Compile>
+    <Compile Include="..\Goliath.Data.Console\Generated\Mssql2008\Animal.cs">
+      <Link>Models\SqlServer\Animal.cs</Link>
+    </Compile>
+    <Compile Include="..\Goliath.Data.Console\Generated\Mssql2008\Employee.cs">
+      <Link>Models\SqlServer\Employee.cs</Link>
+    </Compile>
+    <Compile Include="..\Goliath.Data.Console\Generated\Mssql2008\Monkey.cs">
+      <Link>Models\SqlServer\Monkey.cs</Link>
+    </Compile>
+    <Compile Include="..\Goliath.Data.Console\Generated\Mssql2008\Zoo.cs">
+      <Link>Models\SqlServer\Zoo.cs</Link>
+    </Compile>
+    <Compile Include="..\Goliath.Data.Console\Generated\Sqlite\Animal.cs">
+      <Link>Models\Sqlite\Animal.cs</Link>
+    </Compile>
+    <Compile Include="..\Goliath.Data.Console\Generated\Sqlite\Employee.cs">
+      <Link>Models\Sqlite\Employee.cs</Link>
+    </Compile>
+    <Compile Include="..\Goliath.Data.Console\Generated\Sqlite\Monkey.cs">
+      <Link>Models\Sqlite\Monkey.cs</Link>
+    </Compile>
+    <Compile Include="..\Goliath.Data.Console\Generated\Sqlite\Zoo.cs">
+      <Link>Models\Sqlite\Zoo.cs</Link>
+    </Compile>
+    <Compile Include="AssemblyTestFixture.cs" />
     <Compile Include="DataAccessFactoryTests.cs" />
     <Compile Include="LoggerTests.cs" />
-    <Compile Include="Models\Monkey.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -65,6 +92,7 @@
       <Name>Goliath.Data</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

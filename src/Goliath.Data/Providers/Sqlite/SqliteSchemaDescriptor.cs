@@ -19,6 +19,19 @@ namespace Goliath.Data.Providers.Sqlite
         const string SELECT_REFERENCES = @"pragma foreign_key_list('{0}')";
         const string FindIndexForTable = "pragma index_list('{0}')";
         const string IndexInfo = "pragma index_info('{0}')";
+        DbConnection connection;
+        DbConnection Connection
+        {
+            get
+            {
+                if (connection == null)
+                {
+                    connection = db.CreateNewConnection();
+                    connection.Open();
+                }
+                return connection;
+            }
+        }
 
 
         public SqliteSchemaDescriptor(IDbAccess db, SqlMapper mapper, ProjectSettings settings)
@@ -37,7 +50,7 @@ namespace Goliath.Data.Providers.Sqlite
 
             try
             {
-                using (DbDataReader reader = db.ExecuteReader(SELECT_TABLE_FROM_SCHEMA))
+                using (DbDataReader reader = db.ExecuteReader(Connection, SELECT_TABLE_FROM_SCHEMA))
                 {
                     while (reader.Read())
                     {
@@ -86,7 +99,7 @@ namespace Goliath.Data.Providers.Sqlite
         Dictionary<string, Property> ProcessColumns(EntityMap table)
         {
             Dictionary<string, Property> columnList = new Dictionary<string, Property>();
-            using (DbDataReader reader = db.ExecuteReader(string.Format(SELECT_COLUMN, table.TableName)))
+            using (DbDataReader reader = db.ExecuteReader(Connection, string.Format(SELECT_COLUMN, table.TableName)))
             {
                 while (reader.Read())
                 {
@@ -141,7 +154,7 @@ namespace Goliath.Data.Providers.Sqlite
 
         void ProcessReferences(EntityMap table, Dictionary<string, Property> columns)
         {
-            using (var reader = db.ExecuteReader(string.Format(SELECT_REFERENCES, table.TableName)))
+            using (var reader = db.ExecuteReader(Connection, string.Format(SELECT_REFERENCES, table.TableName)))
             {
                 while (reader.Read())
                 {
@@ -177,7 +190,7 @@ namespace Goliath.Data.Providers.Sqlite
         void ProcessIndex(EntityMap table, Dictionary<string, Property> columns)
         {
             List<string> indexes = new List<string>();
-            using (var reader = db.ExecuteReader(string.Format(FindIndexForTable, table.TableName)))
+            using (var reader = db.ExecuteReader(Connection, string.Format(FindIndexForTable, table.TableName)))
             {
 
                 while (reader.Read())
@@ -192,7 +205,7 @@ namespace Goliath.Data.Providers.Sqlite
             }
             foreach (var iName in indexes)
             {
-                using (var reader = db.ExecuteReader(string.Format(IndexInfo, iName)))
+                using (var reader = db.ExecuteReader(Connection, string.Format(IndexInfo, iName)))
                 {
                     while (reader.Read())
                     {
@@ -214,6 +227,10 @@ namespace Goliath.Data.Providers.Sqlite
             if (db != null)
             {
                 db.Dispose();
+            }
+            if (connection != null)
+            {
+                connection.Dispose();
             }
         }
 

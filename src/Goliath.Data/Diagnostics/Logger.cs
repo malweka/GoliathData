@@ -33,9 +33,11 @@ namespace Goliath.Data.Diagnostics
                 }
                 catch
                 {
+                    currentLogType = LogType.Fatal;
                 }
             }
-            currentLogType = LogType.Fatal;
+            else
+                currentLogType = LogType.Fatal;
         }
 
         /// <summary>
