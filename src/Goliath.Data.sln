@@ -5,13 +5,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Goliath.Data", "Goliath.Dat
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Goliath.Data.Console", "Goliath.Data.Console\Goliath.Data.Console.csproj", "{02080BC5-4BB4-4D48-B132-57BCEC010387}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Dependencies", "Dependencies", "{5F746D0C-F3F6-4641-A74B-DF65FC65AC2E}"
-	ProjectSection(SolutionItems) = preProject
-		Dependencies\Razor\RazorEngine.dll = Dependencies\Razor\RazorEngine.dll
-		Dependencies\Sqlite\System.Data.SQLite.DLL = Dependencies\Sqlite\System.Data.SQLite.DLL
-		Dependencies\Razor\System.Web.Razor.dll = Dependencies\Razor\System.Web.Razor.dll
-	EndProjectSection
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Goliath.Data.Tests", "Goliath.Data.Tests\Goliath.Data.Tests.csproj", "{3E44D80D-232F-4A5E-900F-8E2739486444}"
 EndProject
 Global

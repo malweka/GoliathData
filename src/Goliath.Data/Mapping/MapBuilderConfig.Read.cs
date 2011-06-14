@@ -14,7 +14,7 @@ namespace Goliath.Data.Mapping
     /// 
     /// </summary>
     public partial class MapConfig
-    {       
+    {
         class MapReader
         {
             public void Read(XmlReader reader, MapConfig config)
@@ -336,8 +336,8 @@ namespace Goliath.Data.Mapping
                                 if (reader.CanReadElement("key"))
                                 {
                                     var prop = Read_PropertyElement(reader, config, "key");
-                                    if(prop != null)
-                                    keys.Add(prop);
+                                    if (prop != null)
+                                        keys.Add(prop);
 
                                 }
                                 else if (reader.HasReachedEndOfElement("primaryKey"))
@@ -347,7 +347,7 @@ namespace Goliath.Data.Mapping
                                 }
                             }
 
-                            if(!hasReachedEndGracefully)
+                            if (!hasReachedEndGracefully)
                                 throw new MappingSerializationException(typeof(PrimaryKey), "missing a </primaryKey> end tag");
                             entMap.PrimaryKey = new PrimaryKey(keys);
                         }
@@ -454,10 +454,12 @@ namespace Goliath.Data.Mapping
                         switch (currentElement)
                         {
                             case "entities":
-                                Read_EntitiesElements(reader, config);
+                                if (reader.CanReadElement("entities"))
+                                    Read_EntitiesElements(reader, config);
                                 break;
                             case "complexTypes":
-                                Read_ComplexTypesElement(reader, config);
+                                if (reader.CanReadElement("complexTypes"))
+                                    Read_ComplexTypesElement(reader, config);
                                 break;
                             default:
                                 break;

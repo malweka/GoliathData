@@ -42,13 +42,13 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="RazorEngine">
-      <HintPath>..\Dependencies\Razor\RazorEngine.dll</HintPath>
+      <HintPath>..\..\Dependencies\Razor\RazorEngine.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data.SQLite">
-      <HintPath>..\Dependencies\Sqlite\System.Data.SQLite.dll</HintPath>
+      <HintPath>..\..\Dependencies\Sqlite\System.Data.SQLite.DLL</HintPath>
     </Reference>
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Web.Razor">
@@ -64,6 +64,7 @@
     <Compile Include="Config\ConfigManager.cs" />
     <Compile Include="Config\IConfigurationManager.cs" />
     <Compile Include="DataAccess\AdoTransaction.cs" />
+    <Compile Include="DataAccess\EntitySerializerFactory.cs" />
     <Compile Include="DataAccess\QueryImpl.cs" />
     <Compile Include="DataAccess\SessionFactoryImpl.cs" />
     <Compile Include="DataAccess\SessionImpl.cs" />
@@ -80,6 +81,7 @@
     <Compile Include="DataAccess\ITransaction.cs" />
     <Compile Include="DataAccess\DataAccessHelper.cs" />
     <Compile Include="GoliathDataException.cs" />
+    <Compile Include="KeyedCollectionBase.cs" />
     <Compile Include="Mapping\MapBuilderConfig.Read.cs" />
     <Compile Include="Mapping\MapBuilderConfig.Write.cs" />
     <Compile Include="Mapping\MappingException.cs" />
@@ -112,6 +114,7 @@
     <Compile Include="Mapping\Models\PrimaryKey.cs" />
     <Compile Include="Mapping\SqlTypeConverter.cs" />
     <Compile Include="Providers\SchemaDescriptor.cs" />
+    <Compile Include="Providers\Sqlite\SqliteProvider.cs" />
     <Compile Include="Providers\SqlServer\Constants.cs" />
     <Compile Include="Providers\SqlServer\Functions.cs" />
     <Compile Include="Providers\SqlServer\MssqlProvider.cs" />

@@ -65,27 +65,12 @@ namespace Goliath.Data
         DbParameter CreateParameter(QueryParam queryParam);
 
         ///// <summary>
-        ///// Creates the transaction.
+        ///// Executes the non query.
         ///// </summary>
-        //void CreateTransaction();
-
-        ///// <summary>
-        ///// Commits the transaction.
-        ///// </summary>
-        //void CommitTransaction();
-
-        ///// <summary>
-        ///// Rollbacks the transaction.
-        ///// </summary>
-        //void RollbackTransaction();
-
-        /// <summary>
-        /// Executes the non query.
-        /// </summary>
-        /// <param name="sql">The SQL.</param>
-        /// <param name="parameters">The parameters.</param>
-        /// <returns></returns>
-        int ExecuteNonQuery(string sql, params DbParameter[] parameters);
+        ///// <param name="sql">The SQL.</param>
+        ///// <param name="parameters">The parameters.</param>
+        ///// <returns></returns>
+        //int ExecuteNonQuery(string sql, params DbParameter[] parameters);
 
         /// <summary>
         /// Executes the non query.
@@ -96,13 +81,13 @@ namespace Goliath.Data
         /// <returns></returns>
         int ExecuteNonQuery(DbConnection conn, string sql, params DbParameter[] parameters);
 
-        /// <summary>
-        /// Executes the scalar.
-        /// </summary>
-        /// <param name="sql">The SQL.</param>
-        /// <param name="parameters">The parameters.</param>
-        /// <returns></returns>
-        object ExecuteScalar(string sql, params DbParameter[] parameters);
+        ///// <summary>
+        ///// Executes the scalar.
+        ///// </summary>
+        ///// <param name="sql">The SQL.</param>
+        ///// <param name="parameters">The parameters.</param>
+        ///// <returns></returns>
+        //object ExecuteScalar(string sql, params DbParameter[] parameters);
 
         /// <summary>
         /// Executes the scalar.
@@ -113,13 +98,13 @@ namespace Goliath.Data
         /// <returns></returns>
         object ExecuteScalar(DbConnection conn, string sql, params DbParameter[] parameters);
 
-        /// <summary>
-        /// Executes the reader.
-        /// </summary>
-        /// <param name="sql">The SQL.</param>
-        /// <param name="parameters">The parameters.</param>
-        /// <returns></returns>
-        DbDataReader ExecuteReader(string sql, params DbParameter[] parameters);
+        ///// <summary>
+        ///// Executes the reader.
+        ///// </summary>
+        ///// <param name="sql">The SQL.</param>
+        ///// <param name="parameters">The parameters.</param>
+        ///// <returns></returns>
+        //DbDataReader ExecuteReader(string sql, params DbParameter[] parameters);
 
         /// <summary>
         /// Executes the reader.

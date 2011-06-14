@@ -43,12 +43,17 @@ namespace Goliath.Data.Mapping
 
                 foreach (var rel in table.Relations)
                 {
-                    rel.ReferenceEntityName = tableNamer.Transform(null, rel.ReferenceTable);
+                    EntityMap refEnt;
+                    if (entities.TryGetValue(rel.ReferenceTable, out refEnt))
+                    {
+                        rel.ReferenceEntityName = string.Format("{0}.{1}", refEnt.Namespace, tableNamer.Transform(null, rel.ReferenceTable));
+                    }
+
                     relNamer.Transform(rel, rel.ColumnName);
                 }
             }
         }
 
-        
+
     }
 }

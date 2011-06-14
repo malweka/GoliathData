@@ -24,13 +24,13 @@ namespace Goliath.Data
 
             Console.WriteLine("Start run");
 
-            //Sqlite(sqliteWorkingDirectory);
-            //SqlServer(sqlServerWorkingDirectory);
+            Sqlite(sqliteWorkingDirectory);
+            SqlServer(sqlServerWorkingDirectory);
 
             string templatePath = currentDir;
 
-            //Generate(sqlServerWorkingDirectory, templatePath);
-            //Generate(sqliteWorkingDirectory, templatePath);
+            Generate(sqlServerWorkingDirectory, templatePath);
+            Generate(sqliteWorkingDirectory, templatePath);
 
             QueryTest(sqlServerWorkingDirectory);
             Console.WriteLine("done");
@@ -59,24 +59,24 @@ namespace Goliath.Data
                 //}
             }
 
-            foreach (var table in project.EntityConfigs)
-            {
-                if (table.IsLinkTable)
-                    continue;
-                //try
-                //{
-                string fname = Path.Combine(basefolder, table.Name + "Adapter.cs");
-                generator.Generate(Path.Combine(templateFolder, "DataAdapter.razt"), fname, table);
-                //}
-                //catch (Exception ex)
-                //{
-                //    Console.WriteLine(ex.ToString());
-                //}
-            }
+            //foreach (var table in project.EntityConfigs)
+            //{
+            //    if (table.IsLinkTable)
+            //        continue;
+            //    //try
+            //    //{
+            //    string fname = Path.Combine(basefolder, table.Name + "Adapter.cs");
+            //    generator.Generate(Path.Combine(templateFolder, "DataAdapter.razt"), fname, table);
+            //    //}
+            //    //catch (Exception ex)
+            //    //{
+            //    //    Console.WriteLine(ex.ToString());
+            //    //}
+            //}
 
-            generator.Generate(Path.Combine(templateFolder, "DataAdapterFactory.razt"),
-                Path.Combine(basefolder, "DataAccessAdapterFactory.cs"),
-                project);
+            //generator.Generate(Path.Combine(templateFolder, "DataAdapterFactory.razt"),
+            //    Path.Combine(basefolder, "DataAccessAdapterFactory.cs"),
+            //    project);
         }
 
         static void Sqlite(string workingFolder)

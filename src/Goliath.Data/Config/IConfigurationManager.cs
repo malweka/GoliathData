@@ -34,7 +34,7 @@ namespace Goliath.Data.Config
         /// <typeparam name="TEntity">The type of the entity.</typeparam>
         /// <param name="serializer">The serializer.</param>
         /// <returns></returns>
-        IConfigurationManager RegisterEntitySerializer<TEntity>(IEntitySerializer serializer);
+        IConfigurationManager RegisterEntitySerializer<TEntity>(IEntitySerializer<TEntity> serializer);
         /// <summary>
         /// Loggers the specified logger.
         /// </summary>

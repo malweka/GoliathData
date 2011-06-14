@@ -77,7 +77,12 @@ namespace Goliath.Data
         {
             try
             {
-                return dataAccess.ExecuteNonQuery(sql, GetParameters(filters));
+                using (DbConnection connection = dataAccess.CreateNewConnection())
+                {
+                    return dataAccess.ExecuteNonQuery(connection, sql, GetParameters(filters));
+                }
+
+                
             }
             catch (Exception ex)
             {

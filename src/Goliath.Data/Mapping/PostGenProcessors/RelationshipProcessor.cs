@@ -34,7 +34,7 @@ namespace Goliath.Data.Mapping
                                     LazyLoad = true,
                                     ColumnName = aRel.ColumnName ?? string.Empty,
                                     PropertyName = string.Format("{0}On{1}_{2}", bEnt.Name.Pluralize(), ent.Name, aRel.ColumnName),
-                                    ReferenceEntityName = bEnt.Name,
+                                    ReferenceEntityName = bEnt.FullName,
                                     ComplexTypeName = "IList",
                                     ReferenceTable = bEnt.TableName,
                                     RelationType = RelationshipType.ManyToMany,
@@ -47,7 +47,7 @@ namespace Goliath.Data.Mapping
                                     LazyLoad = true,
                                     PropertyName = string.Format("{0}On{1}_{2}", aEnt.Name.Pluralize(), ent.Name, bRel.ColumnName),
                                     ComplexTypeName = "IList",
-                                    ReferenceEntityName = aEnt.Name,
+                                    ReferenceEntityName = aEnt.FullName,
                                     ReferenceTable = aEnt.TableName,
                                     RelationType = RelationshipType.ManyToMany,
                                 });
@@ -60,7 +60,9 @@ namespace Goliath.Data.Mapping
                         {
                             var reference = ent.Relations[i];
                             if (reference.RelationType != RelationshipType.OneToMany)
+                            {
                                 continue;
+                            }
 
                             EntityMap other;
                             if (entityList.TryGetValue(reference.ReferenceTable, out other))
@@ -68,7 +70,7 @@ namespace Goliath.Data.Mapping
                                 if (reference.IsPrimaryKey)
                                 {
                                     //we have a one to one.
-                                    ent.Extends = other.Name;
+                                    ent.Extends = other.FullName;
                                 }
                                 else
                                 {
@@ -81,7 +83,7 @@ namespace Goliath.Data.Mapping
                                         ComplexTypeName = "IList",
                                         ReferenceTable = ent.TableName,
                                         RelationType = RelationshipType.ManyToOne,
-                                        ReferenceEntityName = ent.Name,
+                                        ReferenceEntityName = ent.FullName,
                                     });
                                 }
                             }
@@ -91,6 +93,5 @@ namespace Goliath.Data.Mapping
                 catch { }
             }
         }
-
     }
 }

@@ -79,50 +79,9 @@ namespace Goliath.Data
 
         #region Database Connection methods
 
-        //protected DbConnection GetConnection()
-        //{
-        //    if (transactedConnection != null)
-        //        return transactedConnection;
-
-        //    else if ((Connection == null) || (Connection.State == ConnectionState.Closed))
-        //    {
-        //        Connection = CreateNewConnection();
-        //    }
-
-        //    return Connection;
-        //}
-
-        ///// <summary>
-        ///// Creates the transaction.
-        ///// </summary>
-        //public void CreateTransaction()
-        //{
-        //    transactedConnection = GetConnection();
-        //    if ((transaction == null) || (transaction.Connection == null))
-        //    {
-        //        transaction = transactedConnection.BeginTransaction();
-        //        transactionCount = 1;
-        //    }
-        //    else
-        //        transactionCount++;
-        //}
-
         #endregion
 
         #region Data access methods
-
-        ///// <summary>
-        ///// Commits the transaction.
-        ///// </summary>
-        //public void CommitTransaction()
-        //{
-        //    if (--transactionCount == 0)
-        //    {
-        //        transaction.Commit();
-        //        disposeTransaction();
-        //        //Commands.Clear();
-        //    }
-        //}
 
         /// <summary>
         /// Disposes the transaction.
@@ -135,19 +94,6 @@ namespace Goliath.Data
             //Commands.Clear();
         }
 
-        ///// <summary>
-        ///// Rollbacks the transaction.
-        ///// </summary>
-        //public void RollbackTransaction()
-        //{
-        //    if (transaction != null)
-        //    {
-        //        transaction.Rollback();
-        //        disposeTransaction();
-        //    }
-        //    if (--transactionCount > 0)
-        //        throw new Exception("Inner transaction failed");
-        //}
 
         /// <summary>
         /// Executes the non query.
@@ -181,21 +127,6 @@ namespace Goliath.Data
         /// <summary>
         /// Executes the scalar.
         /// </summary>
-        /// <param name="sql">The SQL.</param>
-        /// <param name="parameters">The parameters.</param>
-        /// <returns></returns>
-        public object ExecuteScalar(string sql, params DbParameter[] parameters)
-        {
-            using (DbConnection conn = CreateNewConnection())
-            {
-                conn.Open();
-                return ExecuteScalar(conn, sql, parameters);
-            }
-        }
-
-        /// <summary>
-        /// Executes the scalar.
-        /// </summary>
         /// <param name="conn">The conn.</param>
         /// <param name="sql">The SQL.</param>
         /// <param name="parameters">The parameters.</param>
@@ -221,20 +152,20 @@ namespace Goliath.Data
             }
         }
 
-        /// <summary>
-        /// Executes the reader.
-        /// </summary>
-        /// <param name="sql">The SQL.</param>
-        /// <param name="parameters">The parameters.</param>
-        /// <returns></returns>
-        public DbDataReader ExecuteReader(string sql, params DbParameter[] parameters)
-        {
-            using (DbConnection conn = CreateNewConnection())
-            {
-                conn.Open();
-                return ExecuteReader(conn, sql, parameters);
-            }
-        }
+        ///// <summary>
+        ///// Executes the reader.
+        ///// </summary>
+        ///// <param name="sql">The SQL.</param>
+        ///// <param name="parameters">The parameters.</param>
+        ///// <returns></returns>
+        //public DbDataReader ExecuteReader(string sql, params DbParameter[] parameters)
+        //{
+        //    using (DbConnection conn = CreateNewConnection())
+        //    {
+        //        conn.Open();
+        //        return ExecuteReader(conn, sql, parameters);
+        //    }
+        //}
 
         /// <summary>
         /// Executes the reader.
@@ -266,18 +197,18 @@ namespace Goliath.Data
             }
         }
 
-        /// <summary>
-        /// Executes the non query.
-        /// </summary>
-        /// <param name="sql">The SQL.</param>
-        /// <param name="parameters">The parameters.</param>
-        public int ExecuteNonQuery(string sql, params DbParameter[] parameters)
-        {
-            using (DbConnection conn = CreateNewConnection())
-            {
-                return ExecuteNonQuery(conn, sql, parameters);
-            }
-        }
+        ///// <summary>
+        ///// Executes the non query.
+        ///// </summary>
+        ///// <param name="sql">The SQL.</param>
+        ///// <param name="parameters">The parameters.</param>
+        //public int ExecuteNonQuery(string sql, params DbParameter[] parameters)
+        //{
+        //    using (DbConnection conn = CreateNewConnection())
+        //    {
+        //        return ExecuteNonQuery(conn, sql, parameters);
+        //    }
+        //}
 
         #endregion
 

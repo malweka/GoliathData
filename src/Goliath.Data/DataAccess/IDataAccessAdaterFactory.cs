@@ -4,19 +4,21 @@ using System.Linq;
 using System.Text;
 using System.Data;
 using Goliath.Data.Diagnostics;
+using Goliath.Data.Mapping;
 
 namespace Goliath.Data
 {
     public interface IDataAccessAdaterFactory
     {
-        IDataAccessAdapter<TEntity> Get<TEntity>() where TEntity : class;
+        IDataAccessAdapter<TEntity> Get<TEntity>();
         void RegisterAdapter<TEntity>(Func<IDbAccess, IDataAccessAdapter<TEntity>> factoryMethod) where TEntity : class;
     }
 
     class DataAccessAdapterFactory : IDataAccessAdaterFactory
     {
         IDbAccess db;
-        Dictionary<Type, Delegate> factoryList = new Dictionary<Type, Delegate>();
+        static Dictionary<Type, Delegate> factoryList = new Dictionary<Type, Delegate>();
+        static object lockFactoryList = new object();
         static ILogger logger;
 
         static DataAccessAdapterFactory()
@@ -41,39 +43,68 @@ namespace Goliath.Data
 
         #region IDataAccessAdaterFactory Members
 
-        public IDataAccessAdapter<TEntity> Get<TEntity>() where TEntity : class
+        public IDataAccessAdapter<TEntity> Get<TEntity>() 
         {
             try
             {
                 Delegate dlgMethod;
-                if (factoryList.TryGetValue(typeof(TEntity), out dlgMethod))
+                IDataAccessAdapter<TEntity> adapter = null;
+                Type type = typeof(TEntity);
+                Func<IDbAccess, IDataAccessAdapter<TEntity>> factoryMethod = null;
+
+                lock (lockFactoryList)
                 {
-                    var adapter = dlgMethod.DynamicInvoke(db);
-                    if (adapter is IDataAccessAdapter<TEntity>)
-                        return (IDataAccessAdapter<TEntity>)adapter;
+                    if (factoryList.TryGetValue(type, out dlgMethod))
+                    {
+                        if (dlgMethod is Func<IDbAccess, IDataAccessAdapter<TEntity>>)
+                            factoryMethod = (Func<IDbAccess, IDataAccessAdapter<TEntity>>)dlgMethod;
+                        else
+                            throw new GoliathDataException("unknown factory method");
+                    }
+                    else
+                    {
+                        factoryMethod = CreateAdapter<TEntity>();
+                        factoryList.Add(type, factoryMethod);
+                    }
                 }
+
+                adapter = factoryMethod.Invoke(db);
+                return adapter;
+               
+            }
+            catch (GoliathDataException ex)
+            {
+                logger.Log(string.Format("Error while trying to invoke DataAccessAdapter factory method for {0}", typeof(TEntity)), ex);
+                throw;
             }
             catch (Exception ex)
             {
-                logger.Log(string.Format("Error while trying to invoke DataAccessAdapter factory method for {0}", typeof(TEntity)), ex);
+                string errorMessage = string.Format("Error while trying to invoke DataAccessAdapter factory method for {0}", typeof(TEntity));
+                logger.Log(errorMessage, ex);
+                throw new GoliathDataException(errorMessage, ex); ;
             }
-
-            return null;
         }
 
         #endregion
 
-        IDataAccessAdapter<TEntity> CreateAdapter<TEntity>(IDbAccess dbAccess)
+        internal Func<IDbAccess, IDataAccessAdapter<TEntity>> CreateAdapter<TEntity>()
         {
             Type type = typeof(TEntity);
             var map = Config.ConfigManager.CurrentSettings.Map;
 
             if (map != null)
             {
-                
+                EntityMap ent;
+                if (map.EntityConfigs.TryGetValue(type.FullName, out ent))
+                {
+                    Func<IDbAccess, IDataAccessAdapter<TEntity>> myfunc = x => { return new DataAccessAdapter<TEntity>(x); };
+                    return myfunc;
+                }
+
+                throw new GoliathDataException(string.Format("{0} is not a mapped typed", type.FullName));
             }
 
-            throw new Exception();
+            throw new GoliathDataException("Not entities map defined");
         }
     }
 }

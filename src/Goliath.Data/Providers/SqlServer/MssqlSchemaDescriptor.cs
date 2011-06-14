@@ -6,11 +6,13 @@ using System.Data;
 using System.Data.Common;
 using Goliath.Data.Transformers;
 using Goliath.Data.Mapping;
+using Goliath.Data.Diagnostics;
 
 namespace Goliath.Data.Providers.SqlServer
 {
     public class MssqlSchemaDescriptor : SchemaDescriptor
     {
+        static ILogger logger;
         IDbAccess db;
         SqlMapper mapper;
         const string SELECT_TABLE_FROM_SCHEMA = "SELECT TABLE_NAME, TABLE_SCHEMA FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE'";
@@ -59,25 +61,23 @@ INNER JOIN INFORMATION_SCHEMA.KEY_COLUMN_USAGE FK_COLS ON REF_CONST.CONSTRAINT_N
 INNER JOIN INFORMATION_SCHEMA.KEY_COLUMN_USAGE PK_COLS ON PK.CONSTRAINT_NAME = PK_COLS.CONSTRAINT_NAME
 WHERE FK.TABLE_NAME = @tableName";
 
-        ProjectSettings projectSettings;
-        //ITableNameAbbreviator tableAbbreviator;
-        //INameTransformer<EntityMap> entityNameTransformer;
-        //NameTransformerFactory transfactory;
-
-        public ProjectSettings ProjectSettings
+        DbConnection connection;
+        DbConnection Connection
         {
             get
             {
-                //if (projectSettings == null)
-                //{
-                //   projectSettings = ProjectSettings.CurrentSettings;
-                //}
-                return projectSettings;
+                if (connection == null)
+                {
+                    connection = db.CreateNewConnection();
+                    connection.Open();
+                }
+                return connection;
             }
-            set
-            {
-                projectSettings = value;
-            }
+        }
+
+        static MssqlSchemaDescriptor()
+        {
+            logger = Logger.GetLogger(typeof(MssqlSchemaDescriptor));
         }
 
         public MssqlSchemaDescriptor(IDbAccess db, SqlMapper mapper, ProjectSettings settings)
@@ -93,13 +93,13 @@ WHERE FK.TABLE_NAME = @tableName";
             Dictionary<string, EntityMap> tables = new Dictionary<string, EntityMap>();
             try
             {
-                using (DbDataReader reader = db.ExecuteReader(SELECT_TABLE_FROM_SCHEMA))
+                using (DbDataReader reader = db.ExecuteReader(Connection, SELECT_TABLE_FROM_SCHEMA))
                 {
                     while (reader.Read())
                     {
                         string name = reader.GetValueAsString("TABLE_NAME");
                         string schemaName = reader.GetValueAsString("TABLE_SCHEMA");
-                        Console.WriteLine("reading table {0}", name);
+                        logger.Log(LogType.Info, string.Format("reading table {0}", name));
                         EntityMap table = new EntityMap(name, name);
                         table.Namespace = ProjectSettings.Namespace;
                         table.SchemaName = schemaName;
@@ -110,25 +110,20 @@ WHERE FK.TABLE_NAME = @tableName";
                 }
                 foreach (var table in tables.Values)
                 {
-                    Console.WriteLine("processing table {0}", table.Name);
+                    logger.Log(LogType.Info, string.Format("processing table {0}", table.Name));
                     var columns = ProcessColumns(table);
                     ProcessConstraints(table, columns);
                     ProcessForeignKeys(table);
                     ProcessReferences(table, columns);
 
                     table.AddColumnRange(columns.Values);
-                    //table.AddConstraintRange(constraints.Values);
                 }
-
-                //var processor = new DataModelProcessor();
-                //processor.ProcessRelationships(tables);
 
             }
             catch (Exception ex)
             {
-                //TODO log exception
-                Console.Write(ex.ToString());
-                //db.RollbackTransaction();
+                logger.Log("Error while getting table structure", ex);
+                throw;
             }
             return tables;
         }
@@ -136,7 +131,7 @@ WHERE FK.TABLE_NAME = @tableName";
         Dictionary<string, Property> ProcessColumns(EntityMap table)
         {
             Dictionary<string, Property> columnList = new Dictionary<string, Property>();
-            using (DbDataReader reader = db.ExecuteReader(SELECT_COLUMNS, db.CreateParameter("tableName", table.TableName)))
+            using (DbDataReader reader = db.ExecuteReader(Connection, SELECT_COLUMNS, db.CreateParameter("tableName", table.TableName)))
             {
                 while (reader.Read())
                 {
@@ -146,7 +141,7 @@ WHERE FK.TABLE_NAME = @tableName";
                     int? precision = reader.GetValueAsInt("NUMERIC_PRECISION");
                     int? scale = reader.GetValueAsInt("NUMERIC_SCALE");
 
-                    Console.WriteLine("\t column: {0} {1}({2})", colName, dataType, length ?? 0);
+                    logger.Log(LogType.Info, string.Format("\t column: {0} {1}({2})", colName, dataType, length ?? 0));
                     Property col = null;
                     if (length.HasValue)
                     {
@@ -190,7 +185,7 @@ WHERE FK.TABLE_NAME = @tableName";
         void ProcessConstraints(EntityMap table, Dictionary<string, Property> columnList)
         {
             List<string> constraints = new List<string>();
-            using (var reader = db.ExecuteReader(SELECT_CONSTRAINTS, db.CreateParameter("tableName", table.TableName)))
+            using (var reader = db.ExecuteReader(Connection, SELECT_CONSTRAINTS, db.CreateParameter("tableName", table.TableName)))
             {
                 while (reader.Read())
                 {
@@ -241,7 +236,7 @@ WHERE FK.TABLE_NAME = @tableName";
 
         void ProcessReferences(EntityMap table, Dictionary<string, Property> columns)
         {
-            using (var reader = db.ExecuteReader(SELECT_REFERENCES, db.CreateParameter("tableName", table.TableName)))
+            using (var reader = db.ExecuteReader(Connection, SELECT_REFERENCES, db.CreateParameter("tableName", table.TableName)))
             {
                 while (reader.Read())
                 {
@@ -284,7 +279,7 @@ WHERE FK.TABLE_NAME = @tableName";
 
         void ProcessForeignKeys(EntityMap table)
         {
-            using (var reader = db.ExecuteReader(FIND_FOREIGN_KEYS, db.CreateParameter("tableName", table.TableName)))
+            using (var reader = db.ExecuteReader(Connection, FIND_FOREIGN_KEYS, db.CreateParameter("tableName", table.TableName)))
             {
                 while (reader.Read())
                 {
@@ -350,6 +345,10 @@ WHERE FK.TABLE_NAME = @tableName";
             if (db != null)
             {
                 db.Dispose();
+            }
+            if (connection != null)
+            {
+                connection.Dispose();
             }
         }
 
