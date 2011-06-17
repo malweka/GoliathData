@@ -175,7 +175,7 @@ namespace Goliath.Data
         /// <param name="parameters">The parameters.</param>
         /// <returns></returns>
         public DbDataReader ExecuteReader(DbConnection conn, string sql, params DbParameter[] parameters)
-        {
+        {            
             using (DbCommand cmd = conn.CreateCommand())
             {
                 cmd.CommandText = sql;

@@ -208,6 +208,13 @@ namespace Goliath.Data.Mapping
             return print;
         }
 
+        internal string GetQueryName(EntityMap map)
+        {
+            if (map == null)
+                throw new ArgumentNullException("map");
+            return string.Format("{0}_{1}", map.TableAbbreviation, ColumnName);
+        }
+
         /// <summary>
         /// Performs an implicit conversion from <see cref="Goliath.Data.Mapping.PrimaryKeyProperty"/> to <see cref="Goliath.Data.Mapping.Property"/>.
         /// </summary>

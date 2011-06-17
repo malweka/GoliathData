@@ -8,8 +8,8 @@
     <ProjectGuid>{02080BC5-4BB4-4D48-B132-57BCEC010387}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>BatisMapBuilder</RootNamespace>
-    <AssemblyName>BatisMapBuilder</AssemblyName>
+    <RootNamespace>Goliath.Data.Console</RootNamespace>
+    <AssemblyName>Goliath.Data.Console</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <TargetFrameworkProfile>
     </TargetFrameworkProfile>

@@ -15,7 +15,7 @@ namespace Goliath.Data.Mapping
         /// Gets the keys.
         /// </summary>
         [DataMember]
-        public IList<PrimaryKeyProperty> Keys { get; private set; }
+        public PrimaryKeyPropertyCollection Keys { get; private set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PrimaryKey"/> class.
@@ -25,12 +25,12 @@ namespace Goliath.Data.Mapping
         {
             if (keys != null)
             {
-                var list = new List<PrimaryKeyProperty>(keys.Length);
+                var list = new PrimaryKeyPropertyCollection();
                 list.AddRange(keys);
                 Keys = list;
             }
             else
-                Keys = new List<PrimaryKeyProperty>();
+                Keys = new PrimaryKeyPropertyCollection();
         }
 
         internal PrimaryKey(IList<Property> keys)
@@ -41,7 +41,8 @@ namespace Goliath.Data.Mapping
             {
                 list.Add(k);
             }
-            Keys = new System.Collections.ObjectModel.ReadOnlyCollection<PrimaryKeyProperty>(list);
+            Keys = new PrimaryKeyPropertyCollection();
+            Keys.AddRange(list);
 
         }
     }
@@ -53,10 +54,10 @@ namespace Goliath.Data.Mapping
     }
 
     [Serializable]
-    public class PrimaryKeyProperty
+    public class PrimaryKeyProperty //: ISerializable
     {
         [DataMember]
-        public Property Key { get; set; }
+        public Property Key { get; internal set; }
         [DataMember]
         public string KeyGenerationStrategy { get; set; }
 
@@ -65,6 +66,16 @@ namespace Goliath.Data.Mapping
         {
             Key = property;
             KeyGenerationStrategy = keygenStrategy;
+        }
+
+        internal string GetQueryName(EntityMap map)
+        {
+            if (Key == null)
+                return string.Empty;
+
+            if (map == null)
+                throw new ArgumentNullException("map");
+            return string.Format("{0}_{1}", map.TableAbbreviation, Key.ColumnName);
         }
 
         /// <summary>
@@ -77,6 +88,23 @@ namespace Goliath.Data.Mapping
         public static implicit operator PrimaryKeyProperty(Property property)
         {
             return new PrimaryKeyProperty(property, null);
+        }
+
+    }
+
+    public class PrimaryKeyPropertyCollection : System.Collections.ObjectModel.KeyedCollection<string, PrimaryKeyProperty>
+    {
+        internal void AddRange(IEnumerable<PrimaryKeyProperty> list)
+        {
+            foreach (var cmp in list)
+            {
+                Add(cmp);
+            }
+        }
+
+        protected override string GetKeyForItem(PrimaryKeyProperty item)
+        {
+            return item.Key.Name;
         }
     }
 }
