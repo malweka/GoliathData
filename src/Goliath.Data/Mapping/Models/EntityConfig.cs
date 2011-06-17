@@ -37,7 +37,7 @@ namespace Goliath.Data.Mapping
             }
             set
             {
-                name = value; 
+                name = value;
             }
         }
 
@@ -162,8 +162,13 @@ namespace Goliath.Data.Mapping
                 return Properties[propertyName];
             if (Relations.Contains(propertyName))
                 return Relations[propertyName];
+            if (PrimaryKey != null)
+            {
+                if (PrimaryKey.Keys.Contains(propertyName))
+                    return PrimaryKey.Keys[propertyName];
+            }
 
-            else return null;
+            return null;
         }
 
         #region IEquatable<EntityConfig> Members

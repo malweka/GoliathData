@@ -5,7 +5,7 @@ using System.Text;
 using System.Data;
 using Goliath.Data.Diagnostics;
 using Goliath.Data.Mapping;
-
+using System.Collections.Concurrent;
 namespace Goliath.Data
 {
     public interface IDataAccessAdaterFactory
@@ -17,7 +17,7 @@ namespace Goliath.Data
     class DataAccessAdapterFactory : IDataAccessAdaterFactory
     {
         IDbAccess db;
-        static Dictionary<Type, Delegate> factoryList = new Dictionary<Type, Delegate>();
+        static ConcurrentDictionary<Type, Delegate> factoryList = new ConcurrentDictionary<Type, Delegate>();
         static object lockFactoryList = new object();
         static ILogger logger;
 
@@ -38,12 +38,12 @@ namespace Goliath.Data
         public void RegisterAdapter<TEntity>(Func<IDbAccess, IDataAccessAdapter<TEntity>> factoryMethod) where TEntity : class
         {
             var t = typeof(TEntity);
-            factoryList.Add(t, factoryMethod);
+            factoryList.TryAdd(t, factoryMethod);
         }
 
         #region IDataAccessAdaterFactory Members
 
-        public IDataAccessAdapter<TEntity> Get<TEntity>() 
+        public IDataAccessAdapter<TEntity> Get<TEntity>()
         {
             try
             {
@@ -52,29 +52,27 @@ namespace Goliath.Data
                 Type type = typeof(TEntity);
                 Func<IDbAccess, IDataAccessAdapter<TEntity>> factoryMethod = null;
 
-                lock (lockFactoryList)
+                if (factoryList.TryGetValue(type, out dlgMethod))
                 {
-                    if (factoryList.TryGetValue(type, out dlgMethod))
-                    {
-                        if (dlgMethod is Func<IDbAccess, IDataAccessAdapter<TEntity>>)
-                            factoryMethod = (Func<IDbAccess, IDataAccessAdapter<TEntity>>)dlgMethod;
-                        else
-                            throw new GoliathDataException("unknown factory method");
-                    }
+                    if (dlgMethod is Func<IDbAccess, IDataAccessAdapter<TEntity>>)
+                        factoryMethod = (Func<IDbAccess, IDataAccessAdapter<TEntity>>)dlgMethod;
                     else
-                    {
-                        factoryMethod = CreateAdapter<TEntity>();
-                        factoryList.Add(type, factoryMethod);
-                    }
+                        throw new GoliathDataException("unknown factory method");
                 }
+                else
+                {
+                    factoryMethod = CreateAdapter<TEntity>();
+                    factoryList.TryAdd(type, factoryMethod);
+                }
+
 
                 adapter = factoryMethod.Invoke(db);
                 return adapter;
-               
+
             }
             catch (GoliathDataException ex)
             {
-                logger.Log(string.Format("Error while trying to invoke DataAccessAdapter factory method for {0}", typeof(TEntity)), ex);
+                //logger.Log(string.Format("Error while trying to invoke DataAccessAdapter factory method for {0}", typeof(TEntity)), ex);
                 throw;
             }
             catch (Exception ex)

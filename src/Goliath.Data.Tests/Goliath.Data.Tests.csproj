@@ -83,6 +83,7 @@
     </Compile>
     <Compile Include="AssemblyTestFixture.cs" />
     <Compile Include="DataAccessFactoryTests.cs" />
+    <Compile Include="EntitySerializerFactoryTests.cs" />
     <Compile Include="LoggerTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
