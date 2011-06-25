@@ -26,7 +26,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;DOT_NET_4</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -65,6 +65,7 @@
     <Compile Include="Config\IConfigurationManager.cs" />
     <Compile Include="DataAccess\AdoTransaction.cs" />
     <Compile Include="DataAccess\EntitySerializerFactory.cs" />
+    <Compile Include="DataAccess\GetSetStore.cs" />
     <Compile Include="DataAccess\QueryImpl.cs" />
     <Compile Include="DataAccess\SessionFactoryImpl.cs" />
     <Compile Include="DataAccess\SessionImpl.cs" />
@@ -82,6 +83,7 @@
     <Compile Include="DataAccess\DataAccessHelper.cs" />
     <Compile Include="GoliathDataException.cs" />
     <Compile Include="KeyedCollectionBase.cs" />
+    <Compile Include="Libs\Fasterflect.cs" />
     <Compile Include="Mapping\MapBuilderConfig.Read.cs" />
     <Compile Include="Mapping\MapBuilderConfig.Write.cs" />
     <Compile Include="Mapping\MappingException.cs" />

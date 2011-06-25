@@ -208,11 +208,23 @@ namespace Goliath.Data.Mapping
             return print;
         }
 
-        internal string GetQueryName(EntityMap map)
+        internal  string GetQueryName(EntityMap map)
         {
             if (map == null)
                 throw new ArgumentNullException("map");
-            return string.Format("{0}_{1}", map.TableAbbreviation, ColumnName);
+            return string.Format("{0}_{1}", map.TableAbbreviation, PropertyName);
+        }
+
+        internal static string GetPropNameFromQueryName(string queryName, EntityMap map)
+        {
+            if (map == null)
+                throw new ArgumentNullException("map");
+
+            if (string.IsNullOrWhiteSpace(queryName))
+                throw new ArgumentNullException("queryName");
+
+            var pname = queryName.Substring(map.TableAbbreviation.Length+1);
+            return pname;
         }
 
         /// <summary>

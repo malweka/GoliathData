@@ -26,7 +26,7 @@ from zoos zoo";
 
                 var ent = map.EntityConfigs.Where(c => string.Equals(c.Name, "Zoo", StringComparison.InvariantCultureIgnoreCase))
                     .FirstOrDefault();
-                dataReader.Read();
+                //dataReader.Read();
 
                 EntitySerializerFactory serializer = new EntitySerializerFactory();
                 var zoo = serializer.Serialize<WebZoo.Data.Sqlite.Zoo>(dataReader, ent);
