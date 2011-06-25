@@ -4,11 +4,13 @@ using System.Collections.Concurrent;
 using System.Linq;
 using System.Text;
 using System.Data;
+using System.Reflection;
+using System.Reflection.Emit;
+
 using Goliath.Data.Mapping;
 using System.Data.Common;
 using Goliath.Data.Diagnostics;
-using System.Reflection;
-using System.Reflection.Emit;
+
 
 namespace Goliath.Data.DataAccess
 {
@@ -74,108 +76,48 @@ namespace Goliath.Data.DataAccess
             return entity;
         }
 
+        GetSetStore getSetStore = new GetSetStore();
         #endregion
 
         //Dapper .Net inspired
         Func<DbDataReader, EntityMap, TEntity> CreateSerializerMethod<TEntity>(EntityMap entityMap)
         {
-            Type[] args = { typeof(DbDataReader), typeof(EntityMap)};
-            Type type = typeof(TEntity);
-            DynamicMethod dm = new DynamicMethod(string.Format("Srlz_{0}", Guid.NewGuid()), type, args, true);
-            ILGenerator il = dm.GetILGenerator();
-            //il.DeclareLocal(typeof(int));
-            //il.DeclareLocal(type);
-
-            //il.Emit(OpCodes.Stloc_0);            
-            
-
-            var properties = type
-                .GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
-                .Select(p => new _Prop
-                {
-                    Name = p.Name,
-                    Setter = p.DeclaringType == type ? p.GetSetMethod(true) : p.DeclaringType.GetProperty(p.Name).GetSetMethod(true),
-                    Type = p.PropertyType
-                })
-                .Where(info => info.Setter != null)
-                .ToList();
-            
-            var fields = type.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-        
-            List<_PropSetter> setters = new List<_PropSetter>();
-            if (entityMap.PrimaryKey != null)
+            Func<DbDataReader, EntityMap, TEntity> func = (dbReader, entMap) =>
             {
-                setters = (from n in entityMap.Properties
-                                let prop = properties.FirstOrDefault(p => string.Equals(p.Name, n.Name, StringComparison.InvariantCulture))
-                                let field = prop != null ? null : (fields.FirstOrDefault(p => string.Equals(p.Name, n.Name, StringComparison.InvariantCulture)))
-                                select new _PropSetter { Prop = prop, Field = field, Property = n }).ToList();
-            }
+                Type type = typeof(TEntity);
+                Dictionary<string, int> colums = new Dictionary<string, int>();
+                for (int i = 0; i < dbReader.FieldCount; i++)
+                {
+                    var fieldName = dbReader.GetName(i);
+                    var colName = Property.GetPropNameFromQueryName(fieldName, entMap);
+                    colums.Add(colName, i);
+                }
 
-            var pSetters = (from n in entityMap.Properties
-                          let prop = properties.FirstOrDefault(p=>string.Equals(p.Name, n.Name,  StringComparison.InvariantCulture))
-                          let field = prop != null ? null : (fields.FirstOrDefault(p => !n.IsPrimaryKey && string.Equals(p.Name, n.Name, StringComparison.InvariantCulture)))
-                            select new _PropSetter { Prop = prop, Field = field, Property = n }).ToList();
+                EntityGetSetInfo getSetInfo;
+                if (!getSetStore.TryGetValue(type, out getSetInfo))
+                {
+                    getSetInfo = new EntityGetSetInfo(type);
+                    getSetInfo.Load(entMap);
+                }
 
-            var rSetters = (from n in entityMap.Relations
-                            let prop = properties.FirstOrDefault(p => string.Equals(p.Name, n.Name, StringComparison.InvariantCulture))
-                           let field = prop != null ? null : (fields.FirstOrDefault(p => !n.IsPrimaryKey && string.Equals(p.Name, n.Name, StringComparison.InvariantCulture) && (n.RelationType == RelationshipType.OneToMany)))
-                            select new _PropSetter { Prop = prop, Field = field, Property = n }).ToList();
+                while (dbReader.Read())
+                {
+                    foreach (var keyVal in getSetInfo.Setters)
+                    {
+                        var prop = entityMap[keyVal.Key];
+                        int ordinal;
+                        if ((prop != null) && colums.TryGetValue(keyVal.Key, out ordinal))
+                        {
+                            var val = dbReader[ordinal];
+                            logger.Log(LogType.Info, "voila");
+                        }
+                    }
+                }
 
-            setters.AddRange(pSetters);
-            setters.AddRange(rSetters);
-            //il.Emit(OpCodes.Stloc_0);  
-            //il.BeginExceptionBlock();
-            il.Emit(OpCodes.Newobj, type.GetConstructor(Type.EmptyTypes));
-            
+                return default(TEntity);
+            };
 
-            ////var allDone = il.DefineLabel();
-
-            //foreach (var item in setters)
-            //{
-            //    if (item.Property != null) //|| (item.Field != null))
-            //    {
-            //        il.Emit(OpCodes.Ldloc_0);
-            //        il.Emit(OpCodes.Ldarg_0);
-            //        il.Emit(OpCodes.Ldstr, item.Property.GetQueryName(entityMap));
-            //        il.Emit(OpCodes.Callvirt, getItem);
-
-            //        switch (item.Prop.Type.Name)
-            //        {
-            //            case "Int16":
-            //                il.Emit(OpCodes.Call, typeof(Convert).GetMethod("ToInt16", new Type[] { typeof(object) }));
-            //                break;
-            //            case "Int32":
-            //                il.Emit(OpCodes.Call, typeof(Convert).GetMethod("ToInt32", new Type[] { typeof(object) }));
-            //                break;
-            //            case "Int64":
-            //                il.Emit(OpCodes.Call, typeof(Convert).GetMethod("ToInt64", new Type[] { typeof(object) }));
-            //                break;
-            //            case "Boolean":
-            //                il.Emit(OpCodes.Call, typeof(Convert).GetMethod("ToBoolean", new Type[] { typeof(object) }));
-            //                break;
-            //            case "String":
-            //                il.Emit(OpCodes.Callvirt, typeof(string).GetMethod("ToString", new Type[] { }));
-            //                break;
-            //            case "DateTime":
-            //                il.Emit(OpCodes.Call, typeof(Convert).GetMethod("ToDateTime", new Type[] { typeof(object) }));
-            //                break;
-            //            case "Decimal":
-            //                il.Emit(OpCodes.Call, typeof(Convert).GetMethod("ToDecimal", new Type[] { typeof(object) }));
-            //                break;
-            //            default:
-            //                // Don't set the field value as it's an unsupported type
-            //                continue;
-            //        }
-
-            //        il.Emit(OpCodes.Callvirt, item.Prop.Setter);              
-            //    }
-            //}
-
-            //il.Emit(OpCodes.Ldloc_0);
-            il.Emit(OpCodes.Ret);
-
-            return (Func<DbDataReader, EntityMap, TEntity>)dm.CreateDelegate(typeof(Func<DbDataReader, EntityMap, TEntity>));
-            //throw new NotImplementedException();
+            return func;
         }
 
         public static void DataReaderColumnList(IDataReader dataReader, EntityMap entMap)
@@ -185,55 +127,6 @@ namespace Goliath.Data.DataAccess
             {
             }
         }
-
-        static readonly MethodInfo
-                    enumParse = typeof(Enum).GetMethod("Parse", new Type[] { typeof(Type), typeof(string), typeof(bool) }),
-                    getItem = typeof(IDataRecord).GetProperties(BindingFlags.Instance | BindingFlags.Public)
-                        .Where(p => p.GetIndexParameters().Any() && p.GetIndexParameters()[0].ParameterType == typeof(int))
-                        .Select(p => p.GetGetMethod()).First();
-        static MethodInfo fnGetValue = typeof(IDataRecord).GetMethod("GetValue", new Type[] { typeof(int) });
-        static MethodInfo fnIsDBNull = typeof(IDataRecord).GetMethod("IsDBNull");
-        static MethodInfo fnListGetItem = typeof(List<Func<object, object>>).GetProperty("Item").GetGetMethod();
-        static MethodInfo fnInvoke = typeof(Func<object, object>).GetMethod("Invoke");
-
-        private static void EmitInt32(ILGenerator il, int value)
-        {
-            switch (value)
-            {
-                case -1: il.Emit(OpCodes.Ldc_I4_M1); break;
-                case 0: il.Emit(OpCodes.Ldc_I4_0); break;
-                case 1: il.Emit(OpCodes.Ldc_I4_1); break;
-                case 2: il.Emit(OpCodes.Ldc_I4_2); break;
-                case 3: il.Emit(OpCodes.Ldc_I4_3); break;
-                case 4: il.Emit(OpCodes.Ldc_I4_4); break;
-                case 5: il.Emit(OpCodes.Ldc_I4_5); break;
-                case 6: il.Emit(OpCodes.Ldc_I4_6); break;
-                case 7: il.Emit(OpCodes.Ldc_I4_7); break;
-                case 8: il.Emit(OpCodes.Ldc_I4_8); break;
-                default:
-                    if (value >= -128 && value <= 127)
-                    {
-                        il.Emit(OpCodes.Ldc_I4_S, (sbyte)value);
-                    }
-                    else
-                    {
-                        il.Emit(OpCodes.Ldc_I4, value);
-                    }
-                    break;
-            }
-        }
-        class _Prop
-        {
-            public string Name;
-            public MethodInfo Setter;
-            public Type Type;
-        }
-
-        struct _PropSetter
-        {
-            public _Prop Prop;
-            public FieldInfo Field;
-            public Property Property;
-        }
+       
     }
 }
