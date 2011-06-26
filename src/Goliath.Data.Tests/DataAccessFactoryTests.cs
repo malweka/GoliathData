@@ -5,6 +5,7 @@ using Gallio.Framework;
 using MbUnit.Framework;
 using MbUnit.Framework.ContractVerifiers;
 using WebZoo.Data.Sqlite;
+using Goliath.Data.DataAccess;
 
 namespace Goliath.Data.Tests
 {
