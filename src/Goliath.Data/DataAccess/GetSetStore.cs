@@ -5,6 +5,7 @@ using System.Text;
 using System.Collections.Concurrent;
 using Fasterflect;
 using Goliath.Data.Mapping;
+using System.Reflection;
 
 namespace Goliath.Data.DataAccess
 {
@@ -32,21 +33,29 @@ namespace Goliath.Data.DataAccess
 
     }
 
+    struct PropInfo
+    {
+        public MemberSetter Setter { get; set; }
+        public MemberGetter Getter { get; set; }
+        public Type PropertType { get; set; }
+        public string Name { get; set; }
+    }
+
     class EntityGetSetInfo
     {
-        readonly Dictionary<string, MemberSetter> setters;
-        readonly Dictionary<string, MemberGetter> getters;
+        readonly Dictionary<string, PropInfo> properties;
+        //readonly Dictionary<string, MemberGetter> getters;
         object lockStore = new object();
 
-        public Dictionary<string, MemberSetter> Setters
+        public Dictionary<string, PropInfo> Properties
         {
-            get { return setters; }
+            get { return properties; }
         }
 
-        public Dictionary<string, MemberGetter> Getters
-        {
-            get { return getters; }
-        }
+        //public Dictionary<string, MemberGetter> Getters
+        //{
+        //    get { return getters; }
+        //}
 
         public EntityGetSetInfo(Type entityType)
         {
@@ -55,52 +64,35 @@ namespace Goliath.Data.DataAccess
 
             EntityType = entityType;
 
-            getters = new Dictionary<string, MemberGetter>();
-            setters = new Dictionary<string, MemberSetter>();
+            properties = new Dictionary<string, PropInfo>();
 
         }
 
         bool loaded;
         public void Load(EntityMap map)
         {
+            var propertiesInfo = EntityType.GetProperties(BindingFlags.Public | BindingFlags.SetProperty | BindingFlags.Instance);
+
             if (!loaded)
             {
                 lock (lockStore)
                 {
-
-                    if (map.PrimaryKey != null)
+                    foreach (var pinfo in propertiesInfo)
                     {
-                        foreach (var k in map.PrimaryKey.Keys)
+                        var prop = map[pinfo.Name];
+                        if (prop != null)
                         {
-                            var prop = k.Key;
+                            if (pinfo.PropertyType.Implements<System.Collections.ICollection>())
+                                continue;
+
+                            prop.ClrType = pinfo.PropertyType;
                             MemberSetter setter = EntityType.DelegateForSetPropertyValue(prop.PropertyName);
                             MemberGetter getter = EntityType.DelegateForGetPropertyValue(prop.PropertyName);
 
-                            getters.Add(prop.PropertyName, getter);
-                            setters.Add(prop.PropertyName, setter);
+                            PropInfo propInfo = new PropInfo { Getter = getter, Setter = setter, Name = prop.PropertyName, PropertType = pinfo.PropertyType };
+                            Properties.Add(prop.PropertyName, propInfo);
                         }
-                    }
-
-                    foreach (var prop in map.Properties)
-                    {
-                        MemberSetter setter = EntityType.DelegateForSetPropertyValue(prop.PropertyName);
-                        MemberGetter getter = EntityType.DelegateForGetPropertyValue(prop.PropertyName);
-
-                        getters.Add(prop.PropertyName, getter);
-                        setters.Add(prop.PropertyName, setter);
-                    }
-
-                    foreach (var prop in map.Relations)
-                    {
-                        if (prop.RelationType != RelationshipType.OneToMany)
-                            continue;
-
-                        MemberSetter setter = EntityType.DelegateForSetPropertyValue(prop.PropertyName);
-                        MemberGetter getter = EntityType.DelegateForGetPropertyValue(prop.PropertyName);
-
-                        getters.Add(prop.PropertyName, getter);
-                        setters.Add(prop.PropertyName, setter);
-                    }
+                    }                    
 
                     loaded = true;
                 }
