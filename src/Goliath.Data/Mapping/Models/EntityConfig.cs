@@ -11,7 +11,7 @@ namespace Goliath.Data.Mapping
 
     [Serializable]
     [DataContract]
-    public class EntityMap : IMapModel, IEquatable<EntityMap>
+    public class EntityMap : IMapModel, IEquatable<EntityMap>, IEnumerable<Property>, ICollection<Property>
     {
 
         MapConfig parent;
@@ -80,6 +80,8 @@ namespace Goliath.Data.Mapping
         [DataMember]
         public RelationCollection Relations { get; set; }
 
+        PropertyCollection AllProperties { get; set; }
+
         IMapModel baseModel = null;
         public IMapModel BaseModel
         {
@@ -127,16 +129,14 @@ namespace Goliath.Data.Mapping
             Namespace = string.Empty;
             Properties = new PropertyCollection();
             Relations = new RelationCollection();
+            AllProperties = new PropertyCollection();
         }
 
         public void AddColumnRange(IEnumerable<Property> properties)
         {
             foreach (var prop in properties)
             {
-                if (prop is Relation)
-                    Relations.Add(prop as Relation);
-                else
-                    Properties.Add(prop);
+                Add(prop);
             }
         }
 
@@ -158,15 +158,18 @@ namespace Goliath.Data.Mapping
         /// <returns></returns>
         public Property GetProperty(string propertyName)
         {
-            if (Properties.Contains(propertyName))
-                return Properties[propertyName];
-            if (Relations.Contains(propertyName))
-                return Relations[propertyName];
-            if (PrimaryKey != null)
-            {
-                if (PrimaryKey.Keys.Contains(propertyName))
-                    return PrimaryKey.Keys[propertyName];
-            }
+            //if (Properties.Contains(propertyName))
+            //    return Properties[propertyName];
+            //if (Relations.Contains(propertyName))
+            //    return Relations[propertyName];
+            //if (PrimaryKey != null)
+            //{
+            //    if (PrimaryKey.Keys.Contains(propertyName))
+            //        return PrimaryKey.Keys[propertyName];
+            //}
+
+            if (AllProperties.Contains(propertyName))
+                return AllProperties[propertyName];
 
             return null;
         }
@@ -196,6 +199,109 @@ namespace Goliath.Data.Mapping
                 return false;
 
             return other.FullName.Equals(FullName);
+        }
+
+        #endregion
+
+        #region IEnumerable<Property> Members
+
+        public IEnumerator<Property> GetEnumerator()
+        {
+            return AllProperties.GetEnumerator();
+        }
+
+        #endregion
+
+        #region IEnumerable Members
+
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+
+        #endregion
+
+        #region ICollection<Property> Members
+
+        public void Add(Property item)
+        {
+            if (item == null)
+                throw new ArgumentNullException("item");
+
+            if (item.IsPrimaryKey)
+            {
+                if (PrimaryKey == null)
+                    PrimaryKey = new PrimaryKey();
+
+                PrimaryKey.Keys.Add(new PrimaryKeyProperty(item, string.Empty));
+            }
+
+            else if (item is Relation)
+                Relations.Add(item as Relation);
+            else
+                Properties.Add(item);
+
+            AllProperties.Add(item);
+        }
+
+        public void Clear()
+        {
+            if (PrimaryKey != null)
+            {
+                PrimaryKey.Keys.Clear();
+                PrimaryKey = null;
+            }
+            Properties.Clear();
+            Relations.Clear();
+            AllProperties.Clear();
+        }
+
+        public bool Contains(Property item)
+        {
+            return AllProperties.Contains(item);
+        }
+
+        public void CopyTo(Property[] array, int arrayIndex)
+        {
+            AllProperties.CopyTo(array, arrayIndex);
+        }
+
+        public int Count
+        {
+            get { return AllProperties.Count; }
+        }
+
+        public bool IsReadOnly
+        {
+            get { return true; }
+        }
+
+        public bool Remove(Property item)
+        {
+            if ((item == null) || string.IsNullOrWhiteSpace(item.PropertyName))
+                return false;
+            if (PrimaryKey != null)
+            {
+                if (PrimaryKey.Keys.Contains(item.PropertyName))
+                {
+                    PrimaryKey.Keys.Remove(item.PropertyName);
+                    return true;
+                }
+                
+            }
+
+            if (Properties.Contains(item.PropertyName))
+            {
+                Properties.Remove(item.PropertyName);
+                return true;
+            }
+            else if (Relations.Contains(item.PropertyName))
+            {
+                Relations.Remove(item.PropertyName);
+                return true;
+            }
+
+            return false;
         }
 
         #endregion

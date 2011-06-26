@@ -86,15 +86,23 @@ namespace Goliath.Data.DataAccess
                 {
                     var instanceEntity = Activator.CreateInstance(type);
 
-                    foreach (var keyVal in getSetInfo.Setters)
+                    foreach (var keyVal in getSetInfo.Properties)
                     {
                         var prop = entityMap[keyVal.Key];
                         int ordinal;
                         if ((prop != null) && colums.TryGetValue(keyVal.Key, out ordinal))
                         {
                             var val = dbReader[ordinal];
-                            keyVal.Value(instanceEntity, val);
-                            logger.Log(LogType.Info, "voila");
+                            var fieldType = dbReader.GetFieldType(ordinal);
+                            if (fieldType.Equals(keyVal.Value.PropertType))
+                            {
+                                keyVal.Value.Setter(instanceEntity, val);
+                                logger.Log(LogType.Info, "voila");
+                            }
+                            else
+                            {
+                                logger.Log(LogType.Info, "need a type converter");
+                            }
                         }
                     }
 

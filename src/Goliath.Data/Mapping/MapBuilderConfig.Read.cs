@@ -349,7 +349,7 @@ namespace Goliath.Data.Mapping
 
                             if (!hasReachedEndGracefully)
                                 throw new MappingSerializationException(typeof(PrimaryKey), "missing a </primaryKey> end tag");
-                            entMap.PrimaryKey = new PrimaryKey(keys);
+                            entMap.AddColumnRange(keys);
                         }
 
                         else if (reader.CanReadElement("properties"))
@@ -361,7 +361,7 @@ namespace Goliath.Data.Mapping
                                 {
                                     var prop = Read_PropertyElement(reader, config, "property");
                                     if (prop != null)
-                                        entMap.Properties.Add(prop);
+                                        entMap.Add(prop);
 
                                 }
                                 else if (reader.HasReachedEndOfElement("properties"))
@@ -384,7 +384,7 @@ namespace Goliath.Data.Mapping
                                 {
                                     var prop = Read_PropertyElement(reader, config, "property", true) as Relation;
                                     if (prop != null)
-                                        entMap.Relations.Add(prop);
+                                        entMap.Add(prop);
 
                                 }
                                 else if (reader.HasReachedEndOfElement("relations"))
