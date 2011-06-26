@@ -64,8 +64,10 @@
     <Compile Include="Config\ConfigManager.cs" />
     <Compile Include="Config\IConfigurationManager.cs" />
     <Compile Include="DataAccess\AdoTransaction.cs" />
+    <Compile Include="DataAccess\DataAccessAdapterFactory.cs" />
     <Compile Include="DataAccess\EntitySerializerFactory.cs" />
     <Compile Include="DataAccess\GetSetStore.cs" />
+    <Compile Include="DataAccess\IEntitySerializerFactory.cs" />
     <Compile Include="DataAccess\QueryImpl.cs" />
     <Compile Include="DataAccess\SessionFactoryImpl.cs" />
     <Compile Include="DataAccess\SessionImpl.cs" />
@@ -91,7 +93,6 @@
     <Compile Include="Mapping\DataModelGenerator.cs" />
     <Compile Include="Mapping\Enums.cs" />
     <Compile Include="Mapping\PostGenProcessors\IPostGenerationProcessor.cs" />
-    <Compile Include="Mapping\ISqlTypeConverter.cs" />
     <Compile Include="Mapping\MappingExtensions.cs" />
     <Compile Include="Mapping\PostGenProcessors\NamePostProcessor.cs" />
     <Compile Include="Mapping\Models\ProjectSettings.cs" />
@@ -114,7 +115,6 @@
     <Compile Include="Mapping\Models\Relation.cs" />
     <Compile Include="Mapping\PostGenProcessors\RelationshipProcessor.cs" />
     <Compile Include="Mapping\Models\PrimaryKey.cs" />
-    <Compile Include="Mapping\SqlTypeConverter.cs" />
     <Compile Include="Providers\SchemaDescriptor.cs" />
     <Compile Include="Providers\Sqlite\SqliteProvider.cs" />
     <Compile Include="Providers\SqlServer\Constants.cs" />
@@ -144,7 +144,7 @@
     <Compile Include="Utilities\DbExtensionMethods.cs" />
     <Compile Include="Utilities\EnumComparer.cs" />
     <Compile Include="Utilities\Extensions.cs" />
-    <Compile Include="Utilities\Inflector.cs" />
+    <Compile Include="Libs\Inflector.cs" />
     <Compile Include="Utilities\StringHelpers.cs" />
   </ItemGroup>
   <ItemGroup />

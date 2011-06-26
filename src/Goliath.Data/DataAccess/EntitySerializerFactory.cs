@@ -14,27 +14,7 @@ using Goliath.Data.Diagnostics;
 
 namespace Goliath.Data.DataAccess
 {
-    /// <summary>
-    /// 
-    /// </summary>
-    public interface IEntitySerializerFactory
-    {
-        /// <summary>
-        /// Registers the entity serializer.
-        /// </summary>
-        /// <typeparam name="TEntity">The type of the entity.</typeparam>
-        /// <param name="factoryMethod">The factory method.</param>
-        void RegisterEntitySerializer<TEntity>(Func<DbDataReader, EntityMap, TEntity> factoryMethod);
-        /// <summary>
-        /// Serializes the specified data reader.
-        /// </summary>
-        /// <typeparam name="TEntity">The type of the entity.</typeparam>
-        /// <param name="dataReader">The data reader.</param>
-        /// <param name="entityMap">The entity map.</param>
-        /// <returns></returns>
-        TEntity Serialize<TEntity>(DbDataReader dataReader, EntityMap entityMap);
-    }
-
+    
     class EntitySerializerFactory : IEntitySerializerFactory
     {
 
@@ -54,15 +34,15 @@ namespace Goliath.Data.DataAccess
             throw new NotImplementedException();
         }
 
-        public TEntity Serialize<TEntity>(DbDataReader dataReader, EntityMap entityMap)
+        public IList<TEntity> Serialize<TEntity>(DbDataReader dataReader, EntityMap entityMap)
         {
             Delegate dlgMethod;
             Type type = typeof(TEntity);
-            Func<DbDataReader, EntityMap, TEntity> factoryMethod = null;
+            Func<DbDataReader, EntityMap, IList<TEntity>> factoryMethod = null;
             if (factoryList.TryGetValue(type, out dlgMethod))
             {
                 if (dlgMethod is Func<DbDataReader, EntityMap, TEntity>)
-                    factoryMethod = (Func<DbDataReader, EntityMap, TEntity>)dlgMethod;
+                    factoryMethod = (Func<DbDataReader, EntityMap, IList<TEntity>>)dlgMethod;
                 else
                     throw new GoliathDataException("unknown factory method");
             }
@@ -72,18 +52,20 @@ namespace Goliath.Data.DataAccess
                 factoryList.TryAdd(type, factoryMethod);
             }           
 
-            TEntity entity = factoryMethod.Invoke(dataReader, entityMap);
-            return entity;
+            IList<TEntity> entityList = factoryMethod.Invoke(dataReader, entityMap);
+            return entityList;
         }
 
         GetSetStore getSetStore = new GetSetStore();
         #endregion
 
         //Dapper .Net inspired
-        Func<DbDataReader, EntityMap, TEntity> CreateSerializerMethod<TEntity>(EntityMap entityMap)
+        Func<DbDataReader, EntityMap, IList<TEntity>> CreateSerializerMethod<TEntity>(EntityMap entityMap)
         {
-            Func<DbDataReader, EntityMap, TEntity> func = (dbReader, entMap) =>
+            Func<DbDataReader, EntityMap, IList<TEntity>> func = (dbReader, entMap) =>
             {
+                List<TEntity> list = new List<TEntity>();
+
                 Type type = typeof(TEntity);
                 Dictionary<string, int> colums = new Dictionary<string, int>();
                 for (int i = 0; i < dbReader.FieldCount; i++)
@@ -102,6 +84,8 @@ namespace Goliath.Data.DataAccess
 
                 while (dbReader.Read())
                 {
+                    var instanceEntity = Activator.CreateInstance(type);
+
                     foreach (var keyVal in getSetInfo.Setters)
                     {
                         var prop = entityMap[keyVal.Key];
@@ -109,12 +93,15 @@ namespace Goliath.Data.DataAccess
                         if ((prop != null) && colums.TryGetValue(keyVal.Key, out ordinal))
                         {
                             var val = dbReader[ordinal];
+                            keyVal.Value(instanceEntity, val);
                             logger.Log(LogType.Info, "voila");
                         }
                     }
+
+                    list.Add((TEntity)instanceEntity);
                 }
 
-                return default(TEntity);
+                return list;
             };
 
             return func;
