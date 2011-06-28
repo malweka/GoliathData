@@ -59,7 +59,6 @@ namespace Goliath.Data.DataAccess
         GetSetStore getSetStore = new GetSetStore();
         #endregion
 
-        //Dapper .Net inspired
         Func<DbDataReader, EntityMap, IList<TEntity>> CreateSerializerMethod<TEntity>(EntityMap entityMap)
         {
             Func<DbDataReader, EntityMap, IList<TEntity>> func = (dbReader, entMap) =>

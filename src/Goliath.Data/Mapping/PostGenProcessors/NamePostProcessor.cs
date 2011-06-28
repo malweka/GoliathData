@@ -41,15 +41,20 @@ namespace Goliath.Data.Mapping
                 table.Name = tableNamer.Transform(table, table.Name);
                 table.TableAbbreviation = tableAbbreviator.Abbreviate(table.Name);
 
-                foreach (var rel in table.Relations)
+                foreach (var prop in table)
                 {
-                    EntityMap refEnt;
-                    if (entities.TryGetValue(rel.ReferenceTable, out refEnt))
+                    if (prop is Relation)
                     {
-                        rel.ReferenceEntityName = string.Format("{0}.{1}", refEnt.Namespace, tableNamer.Transform(null, rel.ReferenceTable));
-                    }
+                        var rel = (Relation)prop;
 
-                    relNamer.Transform(rel, rel.ColumnName);
+                        EntityMap refEnt;
+                        if (entities.TryGetValue(rel.ReferenceTable, out refEnt))
+                        {
+                            rel.ReferenceEntityName = string.Format("{0}.{1}", refEnt.Namespace, tableNamer.Transform(null, rel.ReferenceTable));
+                        }
+
+                        relNamer.Transform(rel, rel.ColumnName);
+                    }
                 }
             }
         }

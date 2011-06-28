@@ -45,7 +45,7 @@ namespace Goliath.Data.Sql
 
             foreach (var col in entMap.Relations)
             {
-                if (col.RelationType == RelationshipType.OneToMany)
+                if (col.RelationType == RelationshipType.ManyToOne)
                 {
                     var tuple = Tuple.Create<string, string>(sqlMapper.CreateParameterName(col.Name), CreateColumnName(entMap.TableAbbreviation, col.ColumnName));
                     this.columns.Add(col.ColumnName, tuple);

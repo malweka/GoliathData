@@ -15,12 +15,17 @@ namespace Goliath.Data.Mapping
                 try
                 {
                     //find link tables
-                    if ((ent.Properties.Count == 0) && (ent.Relations.Count >= 2)
-                       && ent.Relations[0].IsPrimaryKey && ent.Relations[1].IsPrimaryKey)
+                    if ((ent.Properties.Count == 0) && (ent.Relations.Count == 0)
+                       && (ent.PrimaryKey != null) && (ent.PrimaryKey.Keys.Count >= 2) && ent.PrimaryKey.Keys[0].Key.IsPrimaryKey && ent.PrimaryKey.Keys[1].Key.IsPrimaryKey)
                     {
+
+                        var aRel = ent.PrimaryKey.Keys[0].Key as Relation;
+                        var bRel = ent.PrimaryKey.Keys[1].Key as Relation;
+
+                        if ((aRel == null) || (bRel == null))
+                            continue;
+
                         ent.IsLinkTable = true;
-                        var aRel = ent.Relations[0];
-                        var bRel = ent.Relations[1];
 
                         EntityMap aEnt;
                         EntityMap bEnt;
@@ -32,10 +37,13 @@ namespace Goliath.Data.Mapping
                                 {
                                     IsComplexType = true,
                                     LazyLoad = true,
-                                    ColumnName = aRel.ColumnName ?? string.Empty,
+                                    ReferenceColumn = aRel.ReferenceColumn ?? string.Empty,
+                                    CollectionType = Mapping.CollectionType.List,
+                                    MapTableName = ent.TableName,
+                                    MapColumn = aRel.ColumnName ?? string.Empty,
                                     PropertyName = string.Format("{0}On{1}_{2}", bEnt.Name.Pluralize(), ent.Name, aRel.ColumnName),
                                     ReferenceEntityName = bEnt.FullName,
-                                    ComplexTypeName = "IList",
+                                    //ComplexTypeName = "IList",
                                     ReferenceTable = bEnt.TableName,
                                     RelationType = RelationshipType.ManyToMany,
                                 });
@@ -43,10 +51,13 @@ namespace Goliath.Data.Mapping
                                 bEnt.Relations.Add(new Relation()
                                 {
                                     IsComplexType = true,
-                                    ColumnName = bRel.ColumnName ?? string.Empty,
+                                    ReferenceColumn = bRel.ReferenceColumn ?? string.Empty,
+                                    MapTableName = ent.TableName,
+                                    MapColumn = bRel.ColumnName ?? string.Empty,
+                                    CollectionType = Mapping.CollectionType.List,
                                     LazyLoad = true,
                                     PropertyName = string.Format("{0}On{1}_{2}", aEnt.Name.Pluralize(), ent.Name, bRel.ColumnName),
-                                    ComplexTypeName = "IList",
+                                    //ComplexTypeName = "IList",
                                     ReferenceEntityName = aEnt.FullName,
                                     ReferenceTable = aEnt.TableName,
                                     RelationType = RelationshipType.ManyToMany,
@@ -59,7 +70,7 @@ namespace Goliath.Data.Mapping
                         for (int i = 0; i < ent.Relations.Count; i++)
                         {
                             var reference = ent.Relations[i];
-                            if (reference.RelationType != RelationshipType.OneToMany)
+                            if (reference.RelationType != RelationshipType.ManyToOne)
                             {
                                 continue;
                             }
@@ -80,10 +91,11 @@ namespace Goliath.Data.Mapping
                                         LazyLoad = true,
                                         ColumnName = reference.ColumnName,
                                         PropertyName = string.Format("{0}On{1}", ent.Name.Pluralize(), reference.ColumnName),
-                                        ComplexTypeName = "IList",
+                                        //ComplexTypeName = "IList",
                                         ReferenceTable = ent.TableName,
-                                        RelationType = RelationshipType.ManyToOne,
+                                        RelationType = RelationshipType.OneToMany,
                                         ReferenceEntityName = ent.FullName,
+                                        CollectionType = CollectionType.List, 
                                     });
                                 }
                             }
