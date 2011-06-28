@@ -12,6 +12,129 @@ namespace Goliath.Data.Mapping
 {
     public partial class MapConfig
     {
+
+        /// <summary>
+        /// Saves the model into the specified stream.
+        /// </summary>
+        /// <param name="stream">The stream.</param>
+        /// <param name="readable">if set to <c>true</c> the file will be formated to be readable by humans.</param>
+        public void Save(Stream stream, bool readable)
+        {
+            using (XmlTextWriter xmlWriter = new XmlTextWriter(stream, Encoding.UTF8))
+            {
+                if (readable)
+                    xmlWriter.Formatting = Formatting.Indented;
+                else
+                    xmlWriter.Formatting = Formatting.None;
+
+                xmlWriter.WriteStartElement("goliath.data", XmlNameSpace);
+                xmlWriter.WriteStartAttribute("version");
+                xmlWriter.WriteString(this.GetType().Assembly.GetName().Version.ToString());
+                xmlWriter.WriteEndAttribute();
+
+                xmlWriter.WriteStartElement("connectionString");
+                xmlWriter.WriteString(Settings.ConnectionString);
+                xmlWriter.WriteEndElement();
+
+                xmlWriter.WriteStartElement("tablePrefixes");
+                xmlWriter.WriteString(Settings.TablePrefixes);
+                xmlWriter.WriteEndElement();
+
+                xmlWriter.WriteStartElement("namespace");
+                xmlWriter.WriteString(Settings.Namespace);
+                xmlWriter.WriteEndElement();
+
+                xmlWriter.WriteStartElement("baseModel");
+                xmlWriter.WriteString(Settings.BaseModel);
+                xmlWriter.WriteEndElement();
+
+                if (!string.IsNullOrWhiteSpace(GeneratedBy))
+                {
+                    xmlWriter.WriteStartElement("generatedBy");
+                    xmlWriter.WriteString(GeneratedBy);
+                    xmlWriter.WriteEndElement();
+                }
+
+                xmlWriter.WriteStartElement("entities");
+                foreach (var entity in EntityConfigs)
+                {
+                    xmlWriter.WriteStartElement("entity");
+
+                    xmlWriter.WriteStartAttribute("name");
+                    xmlWriter.WriteString(entity.Name);
+                    xmlWriter.WriteEndAttribute();
+
+                    if (!string.IsNullOrWhiteSpace(entity.Extends))
+                    {
+                        xmlWriter.WriteStartAttribute("extends");
+                        xmlWriter.WriteString(entity.Extends);
+                        xmlWriter.WriteEndAttribute();
+                    }
+
+                    if (entity.IsLinkTable)
+                    {
+                        xmlWriter.WriteStartAttribute("linkTable");
+                        xmlWriter.WriteString(entity.IsLinkTable.ToString());
+                        xmlWriter.WriteEndAttribute();
+                    }
+
+                    xmlWriter.WriteStartAttribute("assembly");
+                    xmlWriter.WriteString(entity.AssemblyName);
+                    xmlWriter.WriteEndAttribute();
+
+                    xmlWriter.WriteStartAttribute("entityNamespace");
+                    xmlWriter.WriteString(entity.Namespace);
+                    xmlWriter.WriteEndAttribute();
+
+                    xmlWriter.WriteStartAttribute("table");
+                    xmlWriter.WriteString(entity.TableName);
+                    xmlWriter.WriteEndAttribute();
+
+                    xmlWriter.WriteStartAttribute("schema");
+                    xmlWriter.WriteString(entity.SchemaName);
+                    xmlWriter.WriteEndAttribute();
+
+                    xmlWriter.WriteStartAttribute("tableAbbr");
+                    xmlWriter.WriteString(entity.TableAbbreviation);
+                    xmlWriter.WriteEndAttribute();
+
+                    //primary key
+                    if (entity.PrimaryKey != null)
+                    {
+                        xmlWriter.WriteStartElement("primaryKey");
+                        WritePrimaryKey(xmlWriter, entity.PrimaryKey);
+                        xmlWriter.WriteEndElement();
+                    }
+
+                    WriteTransformations(xmlWriter, entity);
+
+                    xmlWriter.WriteEndElement();//entity
+                }
+                xmlWriter.WriteEndElement();//end entities
+
+                xmlWriter.WriteStartElement("complexTypes");
+                foreach (var complex in ComplexTypes)
+                {
+                    xmlWriter.WriteStartElement("type");
+
+                    xmlWriter.WriteStartAttribute("fullname");
+                    xmlWriter.WriteString(complex.FullName);
+                    xmlWriter.WriteEndAttribute();
+
+                    xmlWriter.WriteStartAttribute("enum");
+                    xmlWriter.WriteString(complex.IsEnum.ToString());
+                    xmlWriter.WriteEndAttribute();
+
+                    WriteTransformations(xmlWriter, complex);
+
+                    xmlWriter.WriteEndElement();
+                }
+                xmlWriter.WriteEndElement();//end complexTypes
+
+                xmlWriter.WriteEndElement();//end Goliath.Data
+            }
+        }
+
         void WritePrimaryKey(XmlTextWriter xmlWriter, PrimaryKey pk)
         {
             foreach (var key in pk.Keys)
@@ -240,14 +363,72 @@ namespace Goliath.Data.Mapping
                 xmlWriter.WriteEndElement();//end property
         }
 
-        void WriteTransformations(XmlTextWriter xmlWriter, IEnumerable<Property> transformations)
+        void WriteTransformations(XmlTextWriter xmlWriter, EntityMap entity)
         {
             xmlWriter.WriteStartElement("properties");
-            foreach (var trans in transformations)
+            foreach (var trans in entity.Properties)
             {
                 WriteTransformations(xmlWriter, trans);
             }
-            xmlWriter.WriteEndElement();//end properties
+
+            foreach (var rel in entity.Relations)
+            {
+                if (rel.CollectionType == CollectionType.None)
+                    WriteTransformations(xmlWriter, rel, "reference");
+                else
+                    WriteList(xmlWriter, rel);
+            }
+            xmlWriter.WriteEndElement();//relations
+        }
+
+        void WriteList(XmlTextWriter xmlWriter, Relation relation)
+        {
+            switch (relation.CollectionType)
+            {
+                case CollectionType.List:
+                    xmlWriter.WriteStartElement("list");
+                    break;
+                case CollectionType.Map:
+                    xmlWriter.WriteStartElement("map");
+                    break;
+                case CollectionType.Set:
+                    xmlWriter.WriteStartElement("set");
+                    break;
+                default:
+                    return;
+            }
+
+            WriteTransformations(xmlWriter, relation, "list", false);
+
+            if (relation.RelationType == RelationshipType.ManyToMany)
+            {
+                if (!string.IsNullOrWhiteSpace(relation.MapColumn))
+                {
+                    xmlWriter.WriteStartAttribute("mapColumn");
+                    xmlWriter.WriteString(relation.MapColumn);
+                    xmlWriter.WriteEndAttribute();
+                }
+
+                if (!string.IsNullOrWhiteSpace(relation.MapTableName))
+                {
+                    xmlWriter.WriteStartAttribute("mapTable");
+                    xmlWriter.WriteString(relation.MapTableName);
+                    xmlWriter.WriteEndAttribute();
+                }
+            }            
+            xmlWriter.WriteEndElement();
+        }
+
+        void WriteTransformations(XmlTextWriter xmlWriter, ComplexType cType)
+        {
+            xmlWriter.WriteStartElement("properties");
+            foreach (var trans in cType.Properties)
+            {
+                WriteTransformations(xmlWriter, trans);
+            }
+
+            
+            xmlWriter.WriteEndElement();//relations
         }
     }
 }

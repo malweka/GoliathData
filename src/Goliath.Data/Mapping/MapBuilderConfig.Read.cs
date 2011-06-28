@@ -19,7 +19,7 @@ namespace Goliath.Data.Mapping
         {
             public void Read(XmlReader reader, MapConfig config)
             {
-                while (reader.ReadToFollowing("goliath.data"))
+                while (reader.ReadToFollowing("goliath.data", XmlNameSpace))
                 {
                     switch (reader.NodeType)
                     {
@@ -207,6 +207,14 @@ namespace Goliath.Data.Mapping
                                 InitializeRelObject(ref rel, property);
                                 rel.Exclude = ReadBool(reader.Value);
                                 break;
+                            case "mapColumn":
+                                InitializeRelObject(ref rel, property);
+                                rel.MapColumn = reader.Value;
+                                break;
+                            case "mapTable":
+                                InitializeRelObject(ref rel, property);
+                                rel.MapTableName = reader.Value;
+                                break;
                             default:
                                 break;
                         }
@@ -364,6 +372,40 @@ namespace Goliath.Data.Mapping
                                         entMap.Add(prop);
 
                                 }
+                                else if (reader.CanReadElement("reference"))
+                                {
+                                    var prop = Read_PropertyElement(reader, config, "reference", true) as Relation;
+                                    if (prop != null)
+                                        entMap.Add(prop);
+
+                                }
+                                else if (reader.CanReadElement("list"))
+                                {
+                                    var prop = Read_List(reader, config, CollectionType.List);
+                                    if (prop != null)
+                                    {
+                                        entMap.Add(prop);
+                                    }
+
+                                }
+                                else if (reader.CanReadElement("map"))
+                                {
+                                    var prop = Read_List(reader, config, CollectionType.Map);
+                                    if (prop != null)
+                                    {
+                                        entMap.Add(prop);
+                                    }
+
+                                }
+                                else if (reader.CanReadElement("set"))
+                                {
+                                    var prop = Read_List(reader, config, CollectionType.Set);
+                                    if (prop != null)
+                                    {
+                                        entMap.Add(prop);
+                                    }
+
+                                }
                                 else if (reader.HasReachedEndOfElement("properties"))
                                 {
                                     hasReachedEndGracefully = true;
@@ -402,6 +444,30 @@ namespace Goliath.Data.Mapping
                     throw new MappingSerializationException(typeof(EntityMap), "missing a </entity> end tag");
                 }
                 return null;
+            }
+
+            Relation Read_List(XmlReader reader, MapConfig config, CollectionType listType)
+            {
+                Relation rel = null;
+                string elementName = null;
+                switch (listType)
+                {
+                    case CollectionType.List:
+                        elementName = "list";
+                        break;
+                    case CollectionType.Map:
+                        elementName = "map";
+                        break;
+                    case CollectionType.Set:
+                        elementName = "set";
+                        break;
+                    default:
+                        return null;
+                }
+
+                rel = Read_PropertyElement(reader, config, elementName, true) as Relation;
+                rel.CollectionType = listType;
+                return rel;
             }
 
             void Read_EntitiesElements(XmlReader reader, MapConfig config)

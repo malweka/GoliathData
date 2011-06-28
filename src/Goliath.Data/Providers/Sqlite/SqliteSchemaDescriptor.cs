@@ -174,7 +174,7 @@ namespace Goliath.Data.Providers.Sqlite
                         rel.ReferenceTableSchemaName = refSchema;
                         rel.ReferenceConstraintName = refconstName;
                         rel.ReferenceEntityName = refTable;
-                        rel.RelationType = RelationshipType.OneToMany;
+                        rel.RelationType = RelationshipType.ManyToOne;
                         columns.Remove(colName);
                         columns.Add(colName, rel);
 

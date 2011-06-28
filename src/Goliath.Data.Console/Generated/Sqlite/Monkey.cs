@@ -8,11 +8,10 @@ using System.Collections.Generic;
 
 namespace WebZoo.Data.Sqlite
 {
-	public partial class Monkey : WebZoo.Data.Sqlite.Animal
+	public partial class Monkey : WebZoo.Data.BaseEntity
 	{
 		#region Primary Key
 
-		public virtual Guid Id { get; set; }
 
 		#endregion
 

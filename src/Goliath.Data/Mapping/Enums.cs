@@ -26,11 +26,25 @@ namespace Goliath.Data.Mapping
         [EnumMember]
         None = 0,
         [EnumMember]
-        OneToMany = 1,
+        ManyToOne = 1,
         [EnumMember]
-        ManyToOne = 2,
+        OneToMany = 2,
         [EnumMember]
         ManyToMany = 3,
+    }
+
+    [Serializable]
+    [DataContract]
+    public enum CollectionType
+    {
+        [EnumMember]
+        None = 0,
+        [EnumMember]
+        List,
+        [EnumMember]
+        Map,
+        [EnumMember]
+        Set,
     }
 
 }

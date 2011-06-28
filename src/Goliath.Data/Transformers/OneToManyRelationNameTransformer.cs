@@ -19,7 +19,7 @@ namespace Goliath.Data.Transformers
             if (string.IsNullOrWhiteSpace(original))
                 throw new ArgumentNullException("original");
 
-            if (mapModel.RelationType != RelationshipType.OneToMany)
+            if (mapModel.RelationType != RelationshipType.ManyToOne)
                 return original;
 
             try

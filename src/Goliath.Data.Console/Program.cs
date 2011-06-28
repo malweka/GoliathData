@@ -32,7 +32,7 @@ namespace Goliath.Data
             Generate(sqlServerWorkingDirectory, templatePath);
             Generate(sqliteWorkingDirectory, templatePath);
 
-            QueryTest(sqlServerWorkingDirectory);
+            //QueryTest(sqlServerWorkingDirectory);
             Console.WriteLine("done");
             //Console.ReadKey();
         }

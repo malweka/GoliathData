@@ -55,5 +55,11 @@ namespace Goliath.Data.Mapping
         public string ReferenceConstraintName { get; set; }
         [DataMember]
         public string ReferenceEntityName { get; set; }
+        [DataMember]
+        public string MapTableName { get; set; }
+        [DataMember]
+        public string MapColumn { get; set; }
+        [DataMember]
+        public CollectionType CollectionType { get; set; }
     }
 }

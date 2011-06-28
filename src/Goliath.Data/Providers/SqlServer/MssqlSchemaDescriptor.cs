@@ -254,7 +254,7 @@ WHERE FK.TABLE_NAME = @tableName";
                         rel.ReferenceTable = refTable;
                         rel.ReferenceTableSchemaName = refSchema;
                         rel.ReferenceConstraintName = refconstName;
-                        rel.RelationType = RelationshipType.OneToMany;
+                        rel.RelationType = RelationshipType.ManyToOne;
 
                         rel.ReferenceEntityName = refTable;// entityNameTransformer.Transform(null, refTable);
                         //namefactory.Transform(rel, colName);

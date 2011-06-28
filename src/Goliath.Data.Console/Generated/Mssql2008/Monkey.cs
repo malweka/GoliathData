@@ -8,11 +8,10 @@ using System.Collections.Generic;
 
 namespace WebZoo.Data.SqlServer
 {
-	public partial class Monkey : WebZoo.Data.SqlServer.Animal
+	public partial class Monkey : WebZoo.Data.BaseEntity
 	{
 		#region Primary Key
 
-		public virtual Guid Id { get; set; }
 
 		#endregion
 
