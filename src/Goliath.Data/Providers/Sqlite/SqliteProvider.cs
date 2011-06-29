@@ -14,9 +14,9 @@ namespace Goliath.Data.Providers.Sqlite
             get { return Constants.ProviderName; }
         }
 
-        public IDbAccess GetDataAccess(string connectionString)
+        public IDbConnector GetDatabaseConnector(string connectionString)
         {
-            return new SqliteDataAccess(connectionString);
+            return new SqliteDbConnector(connectionString);
         }
 
         public SqlMapper SqlMapper

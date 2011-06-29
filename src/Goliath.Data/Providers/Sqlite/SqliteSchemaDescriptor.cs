@@ -13,6 +13,7 @@ namespace Goliath.Data.Providers.Sqlite
     {
         IDbAccess db;
         SqlMapper mapper;
+        IDbConnector dbConnector;
 
         const string SELECT_TABLE_FROM_SCHEMA = @"select * from sqlite_master where type = 'table' and tbl_name not like 'sqlite_%'";
         const string SELECT_COLUMN = @"pragma table_info('{0}')";
@@ -20,13 +21,14 @@ namespace Goliath.Data.Providers.Sqlite
         const string FindIndexForTable = "pragma index_list('{0}')";
         const string IndexInfo = "pragma index_info('{0}')";
         DbConnection connection;
+
         DbConnection Connection
         {
             get
             {
                 if (connection == null)
                 {
-                    connection = db.CreateNewConnection();
+                    connection = dbConnector.CreateNewConnection();
                     connection.Open();
                 }
                 return connection;
@@ -34,11 +36,12 @@ namespace Goliath.Data.Providers.Sqlite
         }
 
 
-        public SqliteSchemaDescriptor(IDbAccess db, SqlMapper mapper, ProjectSettings settings)
+        public SqliteSchemaDescriptor(IDbAccess db, IDbConnector dbConnector, SqlMapper mapper, ProjectSettings settings)
             : base(Constants.ProviderName)
         {
             this.db = db;
-            this.mapper = mapper;
+            this.dbConnector = dbConnector;
+            this.mapper = mapper;            
             ProjectSettings = settings;
         }
 
@@ -72,9 +75,6 @@ namespace Goliath.Data.Providers.Sqlite
                     ProcessIndex(table, columns);
                     table.AddColumnRange(columns.Values);
                 }
-
-                //var processor = new DataModelProcessor();
-                //processor.ProcessRelationships(tables);
             }
             catch (Exception ex)
             {
@@ -170,7 +170,7 @@ namespace Goliath.Data.Providers.Sqlite
                         string refconstName = string.Format("fk_{0}_{1}{2}", table.Name, refTable, id);
                         rel.ReferenceColumn = refColName;
                         rel.ReferenceTable = refTable;
-                        rel.KeyFieldName = colName;
+                        //rel.KeyFieldName = colName;
                         rel.ReferenceTableSchemaName = refSchema;
                         rel.ReferenceConstraintName = refconstName;
                         rel.ReferenceEntityName = refTable;
@@ -224,10 +224,10 @@ namespace Goliath.Data.Providers.Sqlite
 
         public override void Dispose()
         {
-            if (db != null)
-            {
-                db.Dispose();
-            }
+            //if (db != null)
+            //{
+            //    db.Dispose();
+            //}
             if (connection != null)
             {
                 connection.Dispose();

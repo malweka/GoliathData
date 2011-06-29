@@ -18,16 +18,16 @@ namespace WebZoo.Data.Sqlite
 		#region properties
 
 		public virtual string Name { get; set; }
-		public virtual float Age { get; set; }
+		public virtual double Age { get; set; }
 		public virtual string Location { get; set; }
 		public virtual DateTime ReceivedOn { get; set; }
+		public virtual Guid ZooId { get; set; }
 
 		#endregion
 
 		#region relations
 
-		public virtual WebZoo.Data.Sqlite.Zoo Zoo { get; set; }
-		public virtual Guid ZooId { get; set; }
+		public virtual WebZoo.Data.Sqlite.Zoo Zoo { get; set; }		
 		public virtual IList<WebZoo.Data.Sqlite.Employee> EmployeesOnAnimalsHandler_AnimalId { get; set; }
 
 		#endregion

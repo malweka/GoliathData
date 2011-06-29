@@ -323,12 +323,12 @@ namespace Goliath.Data.Mapping
                 xmlWriter.WriteString(rel.ReferenceColumn);
                 xmlWriter.WriteEndAttribute();
 
-                if (!string.IsNullOrWhiteSpace(rel.KeyFieldName))
-                {
-                    xmlWriter.WriteStartAttribute("keyFieldName");
-                    xmlWriter.WriteString(rel.KeyFieldName);
-                    xmlWriter.WriteEndAttribute();
-                }
+                //if (!string.IsNullOrWhiteSpace(rel.KeyFieldName))
+                //{
+                //    xmlWriter.WriteStartAttribute("keyFieldName");
+                //    xmlWriter.WriteString(rel.KeyFieldName);
+                //    xmlWriter.WriteEndAttribute();
+                //}
 
                 if (!string.IsNullOrWhiteSpace(rel.ReferenceConstraintName))
                 {

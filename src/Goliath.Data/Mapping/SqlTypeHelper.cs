@@ -39,9 +39,9 @@ namespace Goliath.Data
             return "smallint";
          else if (type == typeof(int))
             return "int";
-         else if (type == typeof(long))
+         else if (type == typeof(int))
             return "bigint";
-         else if (type == typeof(double))
+         else if (type == typeof(long))
             return "float";
          else if (type == typeof(float))
             return "real";
@@ -159,9 +159,9 @@ namespace Goliath.Data
                break;
             case DbType.Single:
                if (isNullable)
-                  clrType = typeof(float?);
+                  clrType = typeof(double?);
                else
-                  clrType = typeof(float);
+                  clrType = typeof(double);
                break;
             case DbType.UInt16:
                clrType = typeof(UInt16);

@@ -20,7 +20,7 @@ namespace Goliath.Data
         {
             var currentDir = AppDomain.CurrentDomain.BaseDirectory.Substring(0, AppDomain.CurrentDomain.BaseDirectory.LastIndexOf("bin"));
             string sqlServerWorkingDirectory = Path.Combine(currentDir, "Generated", "Mssql2008");
-            string sqliteWorkingDirectory = Path.Combine(currentDir, "Generated", "Sqlite"); 
+            string sqliteWorkingDirectory = Path.Combine(currentDir, "Generated", "Sqlite");
 
             Console.WriteLine("Start run");
 
@@ -90,10 +90,10 @@ namespace Goliath.Data
             settings.BaseModel = "WebZoo.Data.BaseEntity";
 
             SqlMapper mapper = new SqliteSqlMapper();
-            IDbAccess db = new SqliteDataAccess(settings.ConnectionString);
-            db.ConnectionString = settings.ConnectionString;
+            IDbConnector dbConnector = new SqliteDbConnector(settings.ConnectionString);
+            IDbAccess db = new DbAccess(dbConnector);
 
-            using (ISchemaDescriptor schema = new SqliteSchemaDescriptor(db, mapper, settings))
+            using (ISchemaDescriptor schema = new SqliteSchemaDescriptor(db, dbConnector, mapper, settings))
             {
                 schema.ProjectSettings = settings;
                 DataModelGenerator generator = new DataModelGenerator(schema, new NameTransformerFactory(settings), new DefaultTableNameAbbreviator());
@@ -122,11 +122,12 @@ namespace Goliath.Data
             settings.Version = "1.0";
             settings.AssemblyName = "WebZoo.Data";
             settings.BaseModel = "WebZoo.Data.BaseEntity";
-            IDbAccess db = new MssqlDataAccess(settings.ConnectionString);
+            IDbConnector dbConnector = new MssqlDbConnector(settings.ConnectionString);
+            IDbAccess db = new DbAccess(dbConnector);
 
             SqlMapper mapper = new Mssq2008SqlMapper();
 
-            using (ISchemaDescriptor schemaDescriptor = new MssqlSchemaDescriptor(db, mapper, settings))
+            using (ISchemaDescriptor schemaDescriptor = new MssqlSchemaDescriptor(db, dbConnector, mapper, settings))
             {
                 schemaDescriptor.ProjectSettings = settings;
                 DataModelGenerator generator = new DataModelGenerator(schemaDescriptor, new NameTransformerFactory(settings), new DefaultTableNameAbbreviator());

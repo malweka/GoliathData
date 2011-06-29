@@ -152,6 +152,17 @@ namespace Goliath.Data.Mapping
         }
 
         /// <summary>
+        /// Gets the <see cref="Goliath.Data.Mapping.Property"/> at the specified index.
+        /// </summary>
+        public Property this[int index]
+        {
+            get
+            {
+                return AllProperties[index];
+            }
+        }
+
+        /// <summary>
         /// Gets the property or relation
         /// </summary>
         /// <param name="propertyName">Name of the property.</param>
@@ -280,28 +291,36 @@ namespace Goliath.Data.Mapping
         {
             if ((item == null) || string.IsNullOrWhiteSpace(item.PropertyName))
                 return false;
+            bool res = false;
+
             if (PrimaryKey != null)
             {
                 if (PrimaryKey.Keys.Contains(item.PropertyName))
                 {
                     PrimaryKey.Keys.Remove(item.PropertyName);
-                    return true;
+                    res = true;
                 }
-                
+
             }
 
             if (Properties.Contains(item.PropertyName))
             {
                 Properties.Remove(item.PropertyName);
-                return true;
+                res = true;
             }
             else if (Relations.Contains(item.PropertyName))
             {
                 Relations.Remove(item.PropertyName);
-                return true;
+                res = true;
             }
 
-            return false;
+            if (AllProperties.Contains(item.PropertyName))
+            {
+                AllProperties.Remove(item.PropertyName);
+                res = true;
+            }
+
+            return res;
         }
 
         #endregion

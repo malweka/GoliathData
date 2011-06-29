@@ -15,6 +15,7 @@ namespace Goliath.Data.Providers.SqlServer
         static ILogger logger;
         IDbAccess db;
         SqlMapper mapper;
+        IDbConnector dbConnector;
         const string SELECT_TABLE_FROM_SCHEMA = "SELECT TABLE_NAME, TABLE_SCHEMA FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE'";
         const string SELECT_COLUMNS = "SELECT *, COLUMNPROPERTY(OBJECT_ID(TABLE_SCHEMA + '.' + TABLE_NAME), COLUMN_NAME, 'IsIdentity') AS IsIdentity, IDENT_SEED(TABLE_NAME) AS IdentitySeed, IDENT_INCR(TABLE_NAME) AS IdentityIncrement FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = @tableName ORDER BY ORDINAL_POSITION";
         const string SELECT_CONSTRAINTS = @"SELECT COLUMN_NAME, CONSTRAINT_TYPE, a.CONSTRAINT_NAME as ConstraintName,
@@ -68,7 +69,7 @@ WHERE FK.TABLE_NAME = @tableName";
             {
                 if (connection == null)
                 {
-                    connection = db.CreateNewConnection();
+                    connection = dbConnector.CreateNewConnection();
                     connection.Open();
                 }
                 return connection;
@@ -80,10 +81,11 @@ WHERE FK.TABLE_NAME = @tableName";
             logger = Logger.GetLogger(typeof(MssqlSchemaDescriptor));
         }
 
-        public MssqlSchemaDescriptor(IDbAccess db, SqlMapper mapper, ProjectSettings settings)
+        public MssqlSchemaDescriptor(IDbAccess db, IDbConnector dbConnector, SqlMapper mapper, ProjectSettings settings)
             : base(Constants.ProviderName)
         {
             this.db = db;
+            this.dbConnector = dbConnector;
             this.mapper = mapper;
             ProjectSettings = settings;
         }
@@ -131,7 +133,7 @@ WHERE FK.TABLE_NAME = @tableName";
         Dictionary<string, Property> ProcessColumns(EntityMap table)
         {
             Dictionary<string, Property> columnList = new Dictionary<string, Property>();
-            using (DbDataReader reader = db.ExecuteReader(Connection, SELECT_COLUMNS, db.CreateParameter("tableName", table.TableName)))
+            using (DbDataReader reader = db.ExecuteReader(Connection, SELECT_COLUMNS, dbConnector.CreateParameter("tableName", table.TableName)))
             {
                 while (reader.Read())
                 {
@@ -185,7 +187,7 @@ WHERE FK.TABLE_NAME = @tableName";
         void ProcessConstraints(EntityMap table, Dictionary<string, Property> columnList)
         {
             List<string> constraints = new List<string>();
-            using (var reader = db.ExecuteReader(Connection, SELECT_CONSTRAINTS, db.CreateParameter("tableName", table.TableName)))
+            using (var reader = db.ExecuteReader(Connection, SELECT_CONSTRAINTS, dbConnector.CreateParameter("tableName", table.TableName)))
             {
                 while (reader.Read())
                 {
@@ -236,7 +238,7 @@ WHERE FK.TABLE_NAME = @tableName";
 
         void ProcessReferences(EntityMap table, Dictionary<string, Property> columns)
         {
-            using (var reader = db.ExecuteReader(Connection, SELECT_REFERENCES, db.CreateParameter("tableName", table.TableName)))
+            using (var reader = db.ExecuteReader(Connection, SELECT_REFERENCES, dbConnector.CreateParameter("tableName", table.TableName)))
             {
                 while (reader.Read())
                 {
@@ -279,7 +281,7 @@ WHERE FK.TABLE_NAME = @tableName";
 
         void ProcessForeignKeys(EntityMap table)
         {
-            using (var reader = db.ExecuteReader(Connection, FIND_FOREIGN_KEYS, db.CreateParameter("tableName", table.TableName)))
+            using (var reader = db.ExecuteReader(Connection, FIND_FOREIGN_KEYS, dbConnector.CreateParameter("tableName", table.TableName)))
             {
                 while (reader.Read())
                 {
@@ -342,10 +344,6 @@ WHERE FK.TABLE_NAME = @tableName";
 
         public override void Dispose()
         {
-            if (db != null)
-            {
-                db.Dispose();
-            }
             if (connection != null)
             {
                 connection.Dispose();

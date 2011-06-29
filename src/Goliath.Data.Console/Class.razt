@@ -58,8 +58,7 @@ namespace @Model.Namespace
 				var other = Model.Parent.EntityConfigs[p.ReferenceEntityName];
 				if((int)p.RelationType < 2)
 				{
-		@:public virtual @other.FullName @p.PropertyName { get; set; }
-		@:public virtual @p.GetClrTypeAsString(Model) @p.KeyFieldName { get; set; }
+		@:public virtual @other.FullName @p.PropertyName { get; set; }		
 				}
 				else
 				{
@@ -90,10 +89,6 @@ namespace @Model.Namespace
 				}
 				foreach(var p in Model.Relations)
 				{
-					if(!p.IsPrimaryKey && ((int)p.RelationType < 2))
-					{
-			@:public const string @p.KeyFieldName = "@p.KeyFieldName";
-					}
 			@:public const string @p.PropertyName = "@p.PropertyName";
 				}
 			}

@@ -23,13 +23,13 @@ namespace WebZoo.Data.SqlServer
 		public virtual string Telephone { get; set; }
 		public virtual string Title { get; set; }
 		public virtual DateTime HiredOn { get; set; }
+		public virtual Guid? AssignedToZooId { get; set; }
 
 		#endregion
 
 		#region relations
 
-		public virtual WebZoo.Data.SqlServer.Zoo AssignedToZoo { get; set; }
-		public virtual Guid? AssignedToZooId { get; set; }
+		public virtual WebZoo.Data.SqlServer.Zoo AssignedToZoo { get; set; }		
 		public virtual IList<WebZoo.Data.SqlServer.Animal> AnimalsOnAnimalsHandler_EmployeeId { get; set; }
 
 		#endregion

@@ -41,8 +41,9 @@ namespace Goliath.Data.Mapping
                 table.Name = tableNamer.Transform(table, table.Name);
                 table.TableAbbreviation = tableAbbreviator.Abbreviate(table.Name);
 
-                foreach (var prop in table)
+                for(int i=0; i<table.Count; i++)//foreach (var prop in table)
                 {
+                    var prop = table[i];
                     if (prop is Relation)
                     {
                         var rel = (Relation)prop;
@@ -53,7 +54,22 @@ namespace Goliath.Data.Mapping
                             rel.ReferenceEntityName = string.Format("{0}.{1}", refEnt.Namespace, tableNamer.Transform(null, rel.ReferenceTable));
                         }
 
-                        relNamer.Transform(rel, rel.ColumnName);
+                        string name = relNamer.Transform(rel, rel.ColumnName);
+                        if (!string.Equals(rel.ColumnName, name) && !rel.IsPrimaryKey)
+                        {
+                            //rel.PropertyName = name;
+                            if (rel.RelationType == RelationshipType.ManyToOne)
+                            {
+                                Property newProperty = rel.Clone();
+                                newProperty.PropertyName = rel.ColumnName;
+                                table.Remove(rel);
+                                rel.PropertyName = name;
+                                table.Add(rel);
+                                table.Add(newProperty);
+                            }
+                        }
+                        else
+                            rel.PropertyName = name;
                     }
                 }
             }

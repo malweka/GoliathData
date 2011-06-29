@@ -18,12 +18,14 @@ namespace Goliath.Data.Providers
         /// </summary>
         /// <value>The name.</value>
         string Name { get; }
+
         /// <summary>
-        /// Gets the data access.
+        /// Gets the database connector.
         /// </summary>
         /// <param name="connectionString">The connection string.</param>
         /// <returns></returns>
-        IDbAccess GetDataAccess(string connectionString);
+        IDbConnector GetDatabaseConnector(string connectionString);
+
         /// <summary>
         /// Gets the SQL mapper.
         /// </summary>

@@ -53,17 +53,17 @@ namespace Goliath.Data.DataAccess
         {
             get
             {
-                if (!weOwnConnection)
-                    return connection;
+                //if (!weOwnConnection)
+                //    return connection;
 
-                if (connection == null)
-                    connection = dbAccess.CreateNewConnection();
+                //if (connection == null)
+                //    connection = dbAccess.CreateNewConnection();
 
-                else if ((connection.State == ConnectionState.Broken) || (connection.State == ConnectionState.Closed))
-                {
-                    DisposeOfConnection(connection);
-                    connection = dbAccess.CreateNewConnection();
-                }
+                //else if ((connection.State == ConnectionState.Broken) || (connection.State == ConnectionState.Closed))
+                //{
+                //    DisposeOfConnection(connection);
+                //    connection = dbAccess.CreateNewConnection();
+                //}
 
                 return connection;
             }

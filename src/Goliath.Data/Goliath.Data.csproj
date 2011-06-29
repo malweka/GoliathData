@@ -67,6 +67,7 @@
     <Compile Include="DataAccess\DataAccessAdapterFactory.cs" />
     <Compile Include="DataAccess\EntitySerializerFactory.cs" />
     <Compile Include="DataAccess\GetSetStore.cs" />
+    <Compile Include="DataAccess\IDbConnector.cs" />
     <Compile Include="DataAccess\IEntitySerializerFactory.cs" />
     <Compile Include="DataAccess\QueryImpl.cs" />
     <Compile Include="DataAccess\SessionFactoryImpl.cs" />
@@ -111,6 +112,7 @@
     <Compile Include="DataAccess\IDbProvider.cs" />
     <Compile Include="Generators\ICodeGenerator.cs" />
     <Compile Include="DataAccess\IMigrationGenerator.cs" />
+    <Compile Include="Providers\DbConnector.cs" />
     <Compile Include="Providers\ISchemaDescriptor.cs" />
     <Compile Include="Mapping\Models\Relation.cs" />
     <Compile Include="Mapping\PostGenProcessors\RelationshipProcessor.cs" />

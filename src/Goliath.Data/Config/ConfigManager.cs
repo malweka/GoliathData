@@ -82,10 +82,10 @@ namespace Goliath.Data.Config
                 LoggerFactory = x => { return new ConsoleLogger(); };
             }
 
-            IDbAccess dbAccess = DbProvider.GetDataAccess(mainMap.Settings.ConnectionString);
+            var dbConnector = DbProvider.GetDatabaseConnector(mainMap.Settings.ConnectionString);
             settings = this;
 
-            var sessFact = new SessionFactoryImpl(dbAccess);
+            var sessFact = new SessionFactoryImpl(dbConnector, new DbAccess(dbConnector));
             return sessFact;
         }
 
