@@ -27,21 +27,21 @@ namespace Goliath.Data.Transformers
                 string prefix = "Id";
                 if (prefix.Equals(original, StringComparison.InvariantCultureIgnoreCase))
                 {
-                    mapModel.KeyFieldName = original;
-                    mapModel.PropertyName = original;
+                    //mapModel.KeyFieldName = original;
+                    //mapModel.PropertyName = original;
                     return original;
                 }
 
                 if (original.EndsWith(prefix, StringComparison.InvariantCultureIgnoreCase))
                 {
                     string name = original.Substring(0, original.IndexOf("Id", StringComparison.InvariantCultureIgnoreCase));
-                    mapModel.PropertyName = name;
-                    mapModel.KeyFieldName = original;
+                    //mapModel.PropertyName = name;
+                    //mapModel.KeyFieldName = original;
                     return name;
                 }
                 else
                 {
-                    mapModel.KeyFieldName = mapModel.PropertyName + "_Key";
+                    //mapModel.KeyFieldName = mapModel.PropertyName + "_Key";
                     return original;
                 }
             }

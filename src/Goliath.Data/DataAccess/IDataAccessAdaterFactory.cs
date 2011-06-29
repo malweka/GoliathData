@@ -20,7 +20,7 @@ namespace Goliath.Data
         /// </summary>
         /// <typeparam name="TEntity">The type of the entity.</typeparam>
         /// <param name="factoryMethod">The factory method.</param>
-        void RegisterAdapter<TEntity>(Func<IDbAccess, IDataAccessAdapter<TEntity>> factoryMethod) where TEntity : class;
+        void RegisterAdapter<TEntity>(Func<IDbAccess, IDbConnector, IDataAccessAdapter<TEntity>> factoryMethod) where TEntity : class;
     }
 
     

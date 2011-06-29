@@ -11,38 +11,19 @@ namespace Goliath.Data
     /// <summary>
     /// 
     /// </summary>
-    public abstract class DbAccess : IDbAccess
+    public class DbAccess : IDbAccess
     {
         #region properties and variables
 
-        string connectionString;
-        public string ConnectionString
+        IDbConnector dbConnector;
+
+        int? CommandTimeout
         {
             get
             {
-                //if (string.IsNullOrWhiteSpace(connectionString))
-                //{
-                //    if (!string.IsNullOrWhiteSpace(ProjectSettings.CurrentSettings.ConnectionString))
-                //        connectionString = ProjectSettings.CurrentSettings.ConnectionString;
-                //}
-                return connectionString;
+                return dbConnector.CommandTimeout;
             }
-            set { connectionString = value; }
         }
-
-        public DbConnection Connection { get; protected set; }
-        DbConnection transactedConnection;
-        DbTransaction transaction;
-        private int? commandTimeout;
-        int transactionCount;
-
-        public int? CommandTimeout
-        {
-            get { return commandTimeout; }
-            set { commandTimeout = value; }
-        }
-
-        public string DatabaseProviderName { get; private set; }
 
         #endregion
 
@@ -52,27 +33,32 @@ namespace Goliath.Data
         /// Initializes a new instance of the <see cref="DbAccess"/> class.
         /// </summary>
         /// <param name="dbProviderName">Name of the db provider.</param>
-        protected DbAccess(string dbProviderName)
+        public DbAccess(IDbConnector dbConnector)
         {
-            DatabaseProviderName = dbProviderName;
+            this.dbConnector = dbConnector;
         }
 
         #endregion
 
         #region Abstract methods
 
-        public abstract DbConnection CreateNewConnection();
+        //public abstract DbConnection CreateNewConnection();
 
-        public abstract DbParameter CreateParameter(int i, object value);
+        //public abstract DbParameter CreateParameter(int i, object value);
 
-        public abstract DbParameter CreateParameter(string parameterName, object value);
+        //public abstract DbParameter CreateParameter(string parameterName, object value);
 
-        public virtual DbParameter CreateParameter(QueryParam queryParam)
+        public DbParameter CreateParameter(int i, object value)
+        {
+            return dbConnector.CreateParameter(i.ToString(), value);
+        }
+
+        public DbParameter CreateParameter(QueryParam queryParam)
         {
             if (queryParam == null)
                 throw new ArgumentNullException("queryParam");
 
-            return CreateParameter(queryParam.Name, queryParam.Value);
+            return dbConnector.CreateParameter(queryParam.Name, queryParam.Value);
         }
 
         #endregion
@@ -82,18 +68,6 @@ namespace Goliath.Data
         #endregion
 
         #region Data access methods
-
-        /// <summary>
-        /// Disposes the transaction.
-        /// </summary>
-        private void disposeTransaction()
-        {
-            transaction = null;
-            transactedConnection.Dispose();
-            transactedConnection = null;
-            //Commands.Clear();
-        }
-
 
         /// <summary>
         /// Executes the non query.
@@ -109,8 +83,6 @@ namespace Goliath.Data
                 cmd.Connection = conn;
                 if (CommandTimeout != null)
                     cmd.CommandTimeout = CommandTimeout.Value;
-                if (transactedConnection != null)
-                    cmd.Transaction = transaction;
 
                 if (parameters != null)
                 {
@@ -139,8 +111,7 @@ namespace Goliath.Data
                 cmd.Connection = conn;
                 if (CommandTimeout != null)
                     cmd.CommandTimeout = CommandTimeout.Value;
-                if (transactedConnection != null)
-                    cmd.Transaction = transaction;
+
                 if (parameters != null)
                 {
                     for (int i = 0; i < parameters.Length; i++)
@@ -182,9 +153,7 @@ namespace Goliath.Data
                 cmd.Connection = conn;
                 if (CommandTimeout != null)
                     cmd.CommandTimeout = CommandTimeout.Value;
-                //if (transactedConnection != null)
-                //    cmd.Transaction = transaction;
-
+  
                 if (parameters != null)
                 {
                     for (int i = 0; i < parameters.Length; i++)
@@ -212,44 +181,6 @@ namespace Goliath.Data
 
         #endregion
 
-        #region IDisposable Members
-
-        public void Dispose()
-        {
-            Dispose(true);
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                if (Connection != null)
-                {
-                    try
-                    {
-                        Connection.Dispose();
-                    }
-                    catch { }
-                }
-
-                if (transactedConnection != null)
-                {
-                    try
-                    {
-                        transactedConnection.Dispose();
-                    }
-                    catch { }
-                }
-
-                if (transaction != null)
-                {
-                    transaction.Dispose();
-                }
-            }
-
-        }
-
-        #endregion
 
     }
 }

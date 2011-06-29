@@ -13,6 +13,7 @@ namespace Goliath.Data.Mapping
     public class Relation : Property
     {
         public Relation() { }
+
         public Relation(Property prop)
         {
             LazyLoad = prop.LazyLoad;
@@ -43,8 +44,8 @@ namespace Goliath.Data.Mapping
         public RelationshipType RelationType { get; set; }
         [DataMember]
         public bool Exclude { get; set; }
-        [DataMember]
-        public string KeyFieldName { get; set; }
+        //[DataMember]
+        //public string KeyFieldName { get; set; }
         [DataMember]
         public string ReferenceTable { get; set; }
         [DataMember]

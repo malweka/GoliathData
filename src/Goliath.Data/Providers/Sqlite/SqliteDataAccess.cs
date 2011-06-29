@@ -6,13 +6,20 @@ using System.Data.SQLite;
 
 namespace Goliath.Data.Providers.Sqlite
 {
-    public class SqliteDataAccess : DbAccess
+    public class SqliteDbConnector : DbConnector
     {
-        public SqliteDataAccess(string connectionString) : base(Constants.ProviderName)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SqliteDbConnector"/> class.
+        /// </summary>
+        /// <param name="connectionString">The connection string.</param>
+        public SqliteDbConnector(string connectionString) : base(connectionString, Constants.ProviderName)
         {
-            ConnectionString = connectionString;
         }
 
+        /// <summary>
+        /// Creates the new connection.
+        /// </summary>
+        /// <returns></returns>
         public override System.Data.Common.DbConnection CreateNewConnection()
         {
             SQLiteConnection connection;
@@ -21,11 +28,12 @@ namespace Goliath.Data.Providers.Sqlite
             return connection;
         }
 
-        public override System.Data.Common.DbParameter CreateParameter(int i, object value)
-        {
-            return new SQLiteParameter("@" + i, value);
-        }
-
+        /// <summary>
+        /// Creates the parameter.
+        /// </summary>
+        /// <param name="parameterName">Name of the parameter.</param>
+        /// <param name="value">The value.</param>
+        /// <returns></returns>
         public override System.Data.Common.DbParameter CreateParameter(string parameterName, object value)
         {
             if (string.IsNullOrEmpty(parameterName))

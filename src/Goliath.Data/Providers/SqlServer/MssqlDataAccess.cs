@@ -8,32 +8,35 @@ using System.Data.SqlClient;
 
 namespace Goliath.Data.Providers.SqlServer
 {
-    public class MssqlDataAccess : DbAccess 
+    public class MssqlDbConnector : DbConnector
     {
-        public MssqlDataAccess(string connectionString): base(Constants.ProviderName)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MssqlDbConnector"/> class.
+        /// </summary>
+        /// <param name="connectionString">The connection string.</param>
+        public MssqlDbConnector(string connectionString)
+            : base(connectionString, Constants.ProviderName)
         {
-            ConnectionString = connectionString;
         }
-        //dispose of created connection? pool them if need be
-        public override System.Data.Common.DbConnection CreateNewConnection()
+
+        //dispose of created connection? pool them if need be?
+        /// <summary>
+        /// Creates the new connection.
+        /// </summary>
+        /// <returns></returns>
+        public override DbConnection CreateNewConnection()
         {
             DbConnection retVal;
             retVal = new SqlConnection(ConnectionString);
-            //retVal.Open();
             return retVal;
         }
 
         /// <summary>
         /// Creates the parameter.
         /// </summary>
-        /// <param name="i">The i.</param>
+        /// <param name="parameterName">Name of the parameter.</param>
         /// <param name="value">The value.</param>
         /// <returns></returns>
-        public override System.Data.Common.DbParameter CreateParameter(int i, object value)
-        {
-            return new SqlParameter("@" + i, value);
-        }
-
         public override DbParameter CreateParameter(string parameterName, object value)
         {
             if (string.IsNullOrEmpty(parameterName))

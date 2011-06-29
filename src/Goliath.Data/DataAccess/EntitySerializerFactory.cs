@@ -89,18 +89,21 @@ namespace Goliath.Data.DataAccess
                     {
                         var prop = entityMap[keyVal.Key];
                         int ordinal;
-                        if ((prop != null) && colums.TryGetValue(keyVal.Key, out ordinal))
+                        if (prop != null)
                         {
-                            var val = dbReader[ordinal];
-                            var fieldType = dbReader.GetFieldType(ordinal);
-                            if (fieldType.Equals(keyVal.Value.PropertType))
+                            if (colums.TryGetValue(keyVal.Key, out ordinal))
                             {
-                                keyVal.Value.Setter(instanceEntity, val);
-                                logger.Log(LogType.Info, "voila");
-                            }
-                            else
-                            {
-                                logger.Log(LogType.Info, "need a type converter");
+                                var val = dbReader[ordinal];
+                                var fieldType = dbReader.GetFieldType(ordinal);
+                                if (fieldType.Equals(keyVal.Value.PropertType))
+                                {
+                                    keyVal.Value.Setter(instanceEntity, val);
+                                    logger.Log(LogType.Info, "voila");
+                                }
+                                else
+                                {
+                                    logger.Log(LogType.Info, "need a type converter");
+                                }
                             }
                         }
                     }

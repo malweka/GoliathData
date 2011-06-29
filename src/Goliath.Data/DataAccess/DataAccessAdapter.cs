@@ -16,17 +16,19 @@ namespace Goliath.Data
         /// data access o
         /// </summary>
         protected IDbAccess dataAccess;
+        private IDbConnector dbConnector;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DataAccessAdapter&lt;TEntity&gt;"/> class.
         /// </summary>
         /// <param name="dataAccess">The data access.</param>
-        public DataAccessAdapter(IDbAccess dataAccess)
+        public DataAccessAdapter(IDbConnector dbConnector, IDbAccess dataAccess)
         {
             if (dataAccess == null)
                 throw new ArgumentNullException("dataAccess");
 
             this.dataAccess = dataAccess;
+            this.dbConnector = dbConnector;
         }
 
         protected DbParameter[] GetParameters(QueryParam[] filters)
@@ -77,7 +79,7 @@ namespace Goliath.Data
         {
             try
             {
-                using (DbConnection connection = dataAccess.CreateNewConnection())
+                using (DbConnection connection = dbConnector.CreateNewConnection())
                 {
                     return dataAccess.ExecuteNonQuery(connection, sql, GetParameters(filters));
                 }
@@ -94,7 +96,7 @@ namespace Goliath.Data
         {
             try
             {
-                using (DbConnection connection = dataAccess.CreateNewConnection())
+                using (DbConnection connection = dbConnector.CreateNewConnection())
                 {
                     return ExecuteUpdate(connection, entity, filters);
                 }
@@ -123,9 +125,8 @@ namespace Goliath.Data
             try
             {
                 int executed = 0;
-                using (DbConnection connection = dataAccess.CreateNewConnection())
+                using (DbConnection connection = dbConnector.CreateNewConnection())
                 {
-
                     executed = ExecuteUpdate(connection, entity, filters);
 
                 }
@@ -142,7 +143,7 @@ namespace Goliath.Data
             try
             {
                 int executed = 0;
-                using (DbConnection connection = dataAccess.CreateNewConnection())
+                using (DbConnection connection = dbConnector.CreateNewConnection())
                 {
 
                     using (DbTransaction dbTrans = connection.BeginTransaction())
@@ -167,7 +168,7 @@ namespace Goliath.Data
             try
             {
                 int executed = 0;
-                using (DbConnection connection = dataAccess.CreateNewConnection())
+                using (DbConnection connection = dbConnector.CreateNewConnection())
                 {
 
                     executed = dataAccess.ExecuteNonQuery(connection, InsertSql, CreateParameters(entity));
@@ -203,7 +204,7 @@ namespace Goliath.Data
         protected virtual IList<TEntity> SelectInternal(string sql, params DbParameter[] parameters)
         {
             List<TEntity> list = new List<TEntity>();
-            using (DbConnection conn = dataAccess.CreateNewConnection())
+            using (DbConnection conn = dbConnector.CreateNewConnection())
             {
                 try
                 {

@@ -23,10 +23,11 @@
       </primaryKey>
       <properties>
         <property name="Name" column="Name" clrType="System.String" dbType="String" sqlType="nvarchar" length="50" nullable="False" />
-        <property name="Age" column="Age" clrType="System.Single" dbType="Single" sqlType="float" precision="53" nullable="False" />
+        <property name="Age" column="Age" clrType="System.Double" dbType="Single" sqlType="float" precision="53" nullable="False" />
         <property name="Location" column="Location" clrType="System.String" dbType="AnsiStringFixedLength" sqlType="char" length="10" />
         <property name="ReceivedOn" column="ReceivedOn" clrType="System.DateTime" dbType="DateTime" sqlType="datetime" nullable="False" />
-        <reference name="Zoo" column="ZooId" clrType="System.Guid" dbType="Guid" sqlType="uniqueidentifier" constraint="FK__animals__ZooId__1367E606" nullable="False" relation="ManyToOne" referenceTable="zoos" referenceColumn="Id" keyFieldName="ZooId" refConstraint="FK__animals__ZooId__1367E606" refEntity="WebZoo.Data.SqlServer.Zoo" />
+        <property name="ZooId" column="ZooId" clrType="System.Guid" dbType="Guid" sqlType="uniqueidentifier" constraint="FK__animals__ZooId__1367E606" nullable="False" />
+        <reference name="Zoo" column="ZooId" clrType="System.Guid" dbType="Guid" sqlType="uniqueidentifier" constraint="FK__animals__ZooId__1367E606" nullable="False" relation="ManyToOne" referenceTable="zoos" referenceColumn="Id" refConstraint="FK__animals__ZooId__1367E606" refEntity="WebZoo.Data.SqlServer.Zoo" />
         <list name="EmployeesOnAnimalsHandler_AnimalId" dbType="AnsiString" scale="0" type="" lazy="True" relation="ManyToMany" referenceTable="employees" referenceColumn="Id" refEntity="WebZoo.Data.SqlServer.Employee" mapColumn="AnimalId" mapTable="animals_handlers" />
       </properties>
     </entity>
@@ -41,20 +42,21 @@
         <property name="Telephone" column="Telephone" clrType="System.String" dbType="String" sqlType="nvarchar" length="50" />
         <property name="Title" column="Title" clrType="System.String" dbType="String" sqlType="nvarchar" length="150" />
         <property name="HiredOn" column="HiredOn" clrType="System.DateTime" dbType="DateTime" sqlType="datetime" nullable="False" />
-        <reference name="AssignedToZoo" column="AssignedToZooId" clrType="System.Nullable`1[System.Guid]" dbType="Guid" sqlType="uniqueidentifier" constraint="FK__employees__Assig__182C9B23" relation="ManyToOne" referenceTable="zoos" referenceColumn="Id" keyFieldName="AssignedToZooId" refConstraint="FK__employees__Assig__182C9B23" refEntity="WebZoo.Data.SqlServer.Zoo" />
+        <property name="AssignedToZooId" column="AssignedToZooId" clrType="System.Nullable`1[System.Guid]" dbType="Guid" sqlType="uniqueidentifier" constraint="FK__employees__Assig__182C9B23" />
+        <reference name="AssignedToZoo" column="AssignedToZooId" clrType="System.Nullable`1[System.Guid]" dbType="Guid" sqlType="uniqueidentifier" constraint="FK__employees__Assig__182C9B23" relation="ManyToOne" referenceTable="zoos" referenceColumn="Id" refConstraint="FK__employees__Assig__182C9B23" refEntity="WebZoo.Data.SqlServer.Zoo" />
         <list name="AnimalsOnAnimalsHandler_EmployeeId" dbType="AnsiString" scale="0" type="" lazy="True" relation="ManyToMany" referenceTable="animals" referenceColumn="Id" refEntity="WebZoo.Data.SqlServer.Animal" mapColumn="EmployeeId" mapTable="animals_handlers" />
       </properties>
     </entity>
     <entity name="AnimalsHandler" extends="WebZoo.Data.BaseEntity" linkTable="True" assembly="WebZoo.Data" entityNamespace="WebZoo.Data.SqlServer" table="animals_handlers" schema="dbo" tableAbbr="ani1">
       <primaryKey>
-        <key name="Animal" column="AnimalId" clrType="System.Guid" dbType="Guid" sqlType="uniqueidentifier" unique="True" primaryKey="True" constraint="PK__animals___A5B777F61B0907CE" nullable="False" relation="ManyToOne" referenceTable="animals" referenceColumn="Id" keyFieldName="AnimalId" refConstraint="FK__animals_h__Anima__1CF15040" refEntity="WebZoo.Data.SqlServer.Animal" />
-        <key name="Employee" column="EmployeeId" clrType="System.Guid" dbType="Guid" sqlType="uniqueidentifier" unique="True" primaryKey="True" constraint="PK__animals___A5B777F61B0907CE" nullable="False" relation="ManyToOne" referenceTable="employees" referenceColumn="Id" keyFieldName="EmployeeId" refConstraint="FK__animals_h__Emplo__1DE57479" refEntity="WebZoo.Data.SqlServer.Employee" />
+        <key name="Animal" column="AnimalId" clrType="System.Guid" dbType="Guid" sqlType="uniqueidentifier" unique="True" primaryKey="True" constraint="PK__animals___A5B777F61B0907CE" nullable="False" relation="ManyToOne" referenceTable="animals" referenceColumn="Id" refConstraint="FK__animals_h__Anima__1CF15040" refEntity="WebZoo.Data.SqlServer.Animal" />
+        <key name="Employee" column="EmployeeId" clrType="System.Guid" dbType="Guid" sqlType="uniqueidentifier" unique="True" primaryKey="True" constraint="PK__animals___A5B777F61B0907CE" nullable="False" relation="ManyToOne" referenceTable="employees" referenceColumn="Id" refConstraint="FK__animals_h__Emplo__1DE57479" refEntity="WebZoo.Data.SqlServer.Employee" />
       </primaryKey>
       <properties />
     </entity>
     <entity name="Monkey" extends="WebZoo.Data.BaseEntity" assembly="WebZoo.Data" entityNamespace="WebZoo.Data.SqlServer" table="monkeys" schema="dbo" tableAbbr="monk">
       <primaryKey>
-        <key name="Id" column="Id" clrType="System.Guid" dbType="Guid" sqlType="uniqueidentifier" unique="True" primaryKey="True" constraint="PK__monkeys__3214EC0720C1E124" nullable="False" relation="ManyToOne" referenceTable="animals" referenceColumn="Id" keyFieldName="Id" refConstraint="FK__monkeys__Id__239E4DCF" refEntity="WebZoo.Data.SqlServer.Animal" />
+        <key name="Id" column="Id" clrType="System.Guid" dbType="Guid" sqlType="uniqueidentifier" unique="True" primaryKey="True" constraint="PK__monkeys__3214EC0720C1E124" nullable="False" relation="ManyToOne" referenceTable="animals" referenceColumn="Id" refConstraint="FK__monkeys__Id__239E4DCF" refEntity="WebZoo.Data.SqlServer.Animal" />
       </primaryKey>
       <properties>
         <property name="Family" column="Family" clrType="System.String" dbType="String" sqlType="nvarchar" length="50" />

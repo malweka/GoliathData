@@ -89,7 +89,7 @@ namespace Goliath.Data.DataAccess
                             MemberSetter setter = EntityType.DelegateForSetPropertyValue(prop.PropertyName);
                             MemberGetter getter = EntityType.DelegateForGetPropertyValue(prop.PropertyName);
 
-                            PropInfo propInfo = new PropInfo { Getter = getter, Setter = setter, Name = prop.PropertyName, PropertType = pinfo.PropertyType };
+                            PropInfo propInfo = new PropInfo { Getter = getter, Setter = setter, Name = prop.PropertyName, PropertType = pinfo.PropertyType};
                             Properties.Add(prop.PropertyName, propInfo);
                         }
                     }                    

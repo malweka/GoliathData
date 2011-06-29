@@ -10,36 +10,14 @@ namespace Goliath.Data
     /// <summary>
     /// 
     /// </summary>
-    public interface IDbAccess : IDisposable
+    public interface IDbAccess //: IDisposable
     {
         /// <summary>
-        /// Gets the name of the database provider.
+        /// Creates the parameter.
         /// </summary>
-        /// <value>
-        /// The name of the database provider.
-        /// </value>
-        string DatabaseProviderName { get; }
-
-        /// <summary>
-        /// Gets or sets the connection string.
-        /// </summary>
-        /// <value>
-        /// The connection string.
-        /// </value>
-        string ConnectionString { get; set; }
-
-        ///// <summary>
-        ///// Gets the connection.
-        ///// </summary>
-        //DbConnection Connection { get; }
-
-        #region Data access
-
-        /// <summary>
-        /// Creates the new connection.
-        /// </summary>
+        /// <param name="queryParam">The query param.</param>
         /// <returns></returns>
-        DbConnection CreateNewConnection();
+        DbParameter CreateParameter(QueryParam queryParam);
 
         /// <summary>
         /// Creates the parameter.
@@ -49,20 +27,14 @@ namespace Goliath.Data
         /// <returns></returns>
         DbParameter CreateParameter(int i, object value);
 
-        /// <summary>
-        /// Creates the parameter.
-        /// </summary>
-        /// <param name="parameterName">Name of the parameter.</param>
-        /// <param name="value">The value.</param>
-        /// <returns></returns>
-        DbParameter CreateParameter(string parameterName, object value);
+        #region Data access
 
-        /// <summary>
-        /// Creates the parameter.
-        /// </summary>
-        /// <param name="queryParam">The query param.</param>
-        /// <returns></returns>
-        DbParameter CreateParameter(QueryParam queryParam);
+        ///// <summary>
+        ///// Gets the current connection.
+        ///// </summary>
+        //DbConnection CurrentConnection { get; }
+
+
 
         ///// <summary>
         ///// Executes the non query.
@@ -114,8 +86,6 @@ namespace Goliath.Data
         /// <param name="parameters">The parameters.</param>
         /// <returns></returns>
         DbDataReader ExecuteReader(DbConnection conn, string sql, params DbParameter[] parameters);
-
-
 
         #endregion
     }

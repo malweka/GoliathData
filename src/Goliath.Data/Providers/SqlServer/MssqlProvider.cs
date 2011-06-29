@@ -14,9 +14,9 @@ namespace Goliath.Data.Providers.SqlServer
             get { return Constants.ProviderName; }
         }
 
-        public IDbAccess GetDataAccess(string connectionString)
+        public IDbConnector GetDatabaseConnector(string connectionString)
         {
-            return new MssqlDataAccess(connectionString);
+            return new MssqlDbConnector(connectionString);
         }
 
         public SqlMapper SqlMapper
