@@ -72,6 +72,7 @@
     <Compile Include="DataAccess\QueryImpl.cs" />
     <Compile Include="DataAccess\SessionFactoryImpl.cs" />
     <Compile Include="DataAccess\SessionImpl.cs" />
+    <Compile Include="DataAccess\TypeConverter.cs" />
     <Compile Include="Database.cs" />
     <Compile Include="Diagnostics\ConsoleLogger.cs" />
     <Compile Include="Diagnostics\ILogger.cs" />

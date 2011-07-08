@@ -9,6 +9,7 @@ using Goliath.Data.Generators;
 using System.IO;
 using Goliath.Data.Mapping;
 using Goliath.Data.Transformers;
+using Goliath.Data.DataAccess;
 
 namespace Goliath.Data
 {
@@ -24,15 +25,15 @@ namespace Goliath.Data
 
             Console.WriteLine("Start run");
 
-            Sqlite(sqliteWorkingDirectory);
-            SqlServer(sqlServerWorkingDirectory);
+            //Sqlite(sqliteWorkingDirectory);
+            //SqlServer(sqlServerWorkingDirectory);
 
-            string templatePath = currentDir;
+            //string templatePath = currentDir;
 
-            Generate(sqlServerWorkingDirectory, templatePath);
-            Generate(sqliteWorkingDirectory, templatePath);
+            //Generate(sqlServerWorkingDirectory, templatePath);
+            //Generate(sqliteWorkingDirectory, templatePath);
 
-            //QueryTest(sqlServerWorkingDirectory);
+            QueryTest(sqlServerWorkingDirectory);
             Console.WriteLine("done");
             //Console.ReadKey();
         }
@@ -159,6 +160,40 @@ namespace Goliath.Data
                 .Provider(new MssqlProvider()).Init();
 
             var sess = sessionFactory.OpenSession();
+            MapConfig map = MapConfig.Create(mapfile);
+
+            var dbConnector = new Providers.SqlServer.MssqlDbConnector("Data Source=localhost;Initial Catalog=DbZoo;Integrated Security=True");
+            var dbAccess = new DbAccess(dbConnector);
+            using (var conn = dbConnector.CreateNewConnection())
+            {
+                conn.Open();
+                string zooQuery = @"select zoo.Id as zoo_Id, zoo.Name as zoo_Name, zoo.City as zoo_City, zoo.AcceptNewAnimals as zoo_AcceptNewAnimals 
+                from zoos zoo";
+
+                string sqlQuery = @"select ani1.ZooId as ani1_ZooId, ani1.Id as ani1_Id, ani1.Name as ani1_Name, ani1.Age as ani1_Age, ani1.Location as ani1_Location, ani1.ReceivedOn as ani1_ReceivedOn  from animals ani1";
+
+                var dataReader = dbAccess.ExecuteReader(conn, sqlQuery);
+
+                var animalEntMap = map.EntityConfigs.Where(c => string.Equals(c.Name, "Animal", StringComparison.InvariantCultureIgnoreCase))
+                    .FirstOrDefault();
+
+                var zooEntMap = map.EntityConfigs.Where(c => string.Equals(c.Name, "Zoo", StringComparison.InvariantCultureIgnoreCase))
+                    .FirstOrDefault();
+                //dataReader.Read();
+
+                EntitySerializerFactory serializer = new EntitySerializerFactory();
+                var animals = serializer.Serialize<WebZoo.Data.SqlServer.Animal>(dataReader, animalEntMap);
+                dataReader.Dispose();
+
+                dataReader = dbAccess.ExecuteReader(conn, zooQuery);
+                var zoos = serializer.Serialize<WebZoo.Data.SqlServer.Zoo>(dataReader, zooEntMap);
+                dataReader.Dispose();
+
+                dataReader = dbAccess.ExecuteReader(conn, sqlQuery);
+                serializer.Serialize<WebZoo.Data.SqlServer.Animal>(dataReader, animalEntMap);
+                dataReader.Dispose();
+
+            }
 
             Console.WriteLine("we have sessions");
         }

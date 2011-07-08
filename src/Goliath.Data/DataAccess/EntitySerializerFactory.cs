@@ -14,8 +14,8 @@ using Goliath.Data.Diagnostics;
 
 namespace Goliath.Data.DataAccess
 {
-    
-    class EntitySerializerFactory : IEntitySerializerFactory
+    //TODO make this internal class
+    public class EntitySerializerFactory : IEntitySerializerFactory
     {
 
         static ConcurrentDictionary<Type, Delegate> factoryList = new ConcurrentDictionary<Type, Delegate>();
@@ -41,16 +41,17 @@ namespace Goliath.Data.DataAccess
             Func<DbDataReader, EntityMap, IList<TEntity>> factoryMethod = null;
             if (factoryList.TryGetValue(type, out dlgMethod))
             {
-                if (dlgMethod is Func<DbDataReader, EntityMap, TEntity>)
-                    factoryMethod = (Func<DbDataReader, EntityMap, IList<TEntity>>)dlgMethod;
-                else
+                factoryMethod = dlgMethod as Func<DbDataReader, EntityMap, IList<TEntity>>;
+                if (factoryMethod == null)
+                {
                     throw new GoliathDataException("unknown factory method");
+                }
             }
             else
             {
                 factoryMethod = CreateSerializerMethod<TEntity>(entityMap);
                 factoryList.TryAdd(type, factoryMethod);
-            }           
+            }
 
             IList<TEntity> entityList = factoryMethod.Invoke(dataReader, entityMap);
             return entityList;
@@ -98,11 +99,11 @@ namespace Goliath.Data.DataAccess
                                 if (fieldType.Equals(keyVal.Value.PropertType))
                                 {
                                     keyVal.Value.Setter(instanceEntity, val);
-                                    logger.Log(LogType.Info, "voila");
+                                    logger.Log(LogType.Info, string.Format("Read {0}: {1}", keyVal.Key, val));
                                 }
                                 else
                                 {
-                                    logger.Log(LogType.Info, "need a type converter");
+                                    logger.Log(LogType.Info, string.Format("Couldn't read {0}: value was {1}", keyVal.Key, val));
                                 }
                             }
                         }
@@ -124,6 +125,6 @@ namespace Goliath.Data.DataAccess
             {
             }
         }
-       
+
     }
 }
