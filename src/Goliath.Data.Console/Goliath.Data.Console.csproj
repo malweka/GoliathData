@@ -97,7 +97,9 @@
   <ItemGroup />
   <ItemGroup>
     <Content Include="Generated\Mssql2008\GoData.Map.xml" />
-    <Content Include="Generated\Sqlite\GoData.Map.xml" />
+    <Content Include="Generated\Sqlite\GoData.Map.xml">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Scripts\Mssql2008\01_animals.sql" />
     <Content Include="Scripts\Mssql2008\00_zoos.sql" />
     <Content Include="Scripts\Mssql2008\02_employees.sql" />
