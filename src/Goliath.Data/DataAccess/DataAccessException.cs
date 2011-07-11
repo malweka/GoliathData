@@ -10,7 +10,6 @@ namespace Goliath.Data
     /// </summary>
     public class DataAccessException : GoliathDataException
     {
-
         public DataAccessException(string messageFormat, params object[] args) : base(string.Format(messageFormat, args)) { } 
 
         public DataAccessException(string message, Exception innerException) : base(message, innerException) { }

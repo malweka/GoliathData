@@ -24,6 +24,24 @@ namespace Goliath.Data.DataAccess
             //Datetime
             AddConverter(typeof(Nullable<DateTime>), ReadNullableDateTime);
             AddConverter(typeof(DateTime), ReadDateTime);
+            //char
+            AddConverter(typeof(Nullable<char>), ReadNullableChar);
+            AddConverter(typeof(char), ReadChar);
+            //boolean
+            AddConverter(typeof(Nullable<bool>), ReadNullableBoolean);
+            AddConverter(typeof(bool), ReadBoolean);
+            //Guids
+            AddConverter(typeof(Nullable<Guid>), ReadNullableGuid);
+            AddConverter(typeof(Guid), ReadGuid);
+            //single
+            AddConverter(typeof(Nullable<float>), ReadNullableSingle);
+            AddConverter(typeof(float), ReadSingle);
+            //double
+            AddConverter(typeof(Nullable<double>), ReadNullableDouble);
+            AddConverter(typeof(double), ReadDouble);
+            //decimal
+            AddConverter(typeof(Nullable<decimal>), ReadNullableDecimal);
+            AddConverter(typeof(decimal), ReadDecimal);
         }
 
         internal void AddConverter(Type toType, Func<Object, Object> convertMethod)
@@ -141,16 +159,146 @@ namespace Goliath.Data.DataAccess
         #endregion
 
         #region Convert Chars
+
+        static object ReadNullableChar(object value)
+        {
+            if (value == DBNull.Value)
+                return null;
+            if (value is char)
+                return value;
+            return Convert.ToChar(value);
+        }
+
+        static object ReadChar(object value)
+        {
+            var obj = ReadNullableChar(value);
+            if (obj == null)
+                return default(char);
+            else
+                return obj;
+        }
+
         #endregion
 
         #region double precision
+
+        static object ReadNullableSingle(object value)
+        {
+            if (value == DBNull.Value)
+                return null;
+            if (value is float)
+                return value;
+            return Convert.ToSingle(value);
+        }
+
+        static object ReadSingle(object value)
+        {
+            var obj = ReadNullableSingle(value);
+            if (obj == null)
+                return default(float);
+            else
+                return obj;
+        }
+
+        static object ReadNullableDouble(object value)
+        {
+            if (value == DBNull.Value)
+                return null;
+            if (value is double)
+                return value;
+            return Convert.ToDouble(value);
+        }
+        static object ReadDouble(object value)
+        {
+            var obj = ReadNullableDouble(value);
+            if (obj == null)
+                return default(double);
+            else
+                return obj;
+        }
+
+        static object ReadNullableDecimal(object value)
+        {
+            if (value == DBNull.Value)
+                return null;
+            if (value is decimal)
+                return value;
+            return Convert.ToDecimal(value);
+        }
+
+        static object ReadDecimal(object value)
+        {
+            var obj = ReadNullableDecimal(value);
+            if (obj == null)
+                return default(decimal);
+            else
+                return obj;
+        }
+
         #endregion
 
         #region binaries
         
         #endregion
 
+        #region GUIDs
+
+        static object ReadNullableGuid(object value)
+        {
+            if (value == DBNull.Value)
+                return null;
+            if (value is Guid)
+                return value;
+            if(value is string)
+                return new Guid((string)value);
+            if (value is byte[])
+                return new Guid((byte[])value);
+
+            throw new TypeConversionException(value.GetType(), typeof(Guid));
+            
+        }
+
+        static object ReadGuid(object value)
+        {
+            var obj = ReadNullableGuid(value);
+            if (obj == null)
+                return Guid.Empty;
+            else
+                return obj;                
+        }
+
+        #endregion
+
         #region booleans
+
+        static object ReadNullableBoolean(object value)
+        {
+            if (value == DBNull.Value)
+                return null;
+            if (value is bool)
+                return value;
+
+            if ((value is int) || (value is long) || (value is short))
+            {
+                long lv = (long)value;
+                if (lv > 0)
+                    return true;
+                else
+                    return false;
+            }
+
+            return Convert.ToBoolean(value);
+        }
+
+        static object ReadBoolean(object value)
+        {
+            var obj = ReadNullableBoolean(value);
+            if (obj == null)
+                return false;
+            else
+                return obj;
+        }
+
         #endregion
     }
 }
