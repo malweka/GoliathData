@@ -21,10 +21,28 @@ namespace Goliath.Data.DataAccess
         static ConcurrentDictionary<Type, Delegate> factoryList = new ConcurrentDictionary<Type, Delegate>();
         static object lockFactoryList = new object();
         static ILogger logger;
+        ITypeConverter typeConverter;
 
         static EntitySerializerFactory()
         {
             logger = Logger.GetLogger(typeof(EntitySerializerFactory));
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="EntitySerializerFactory"/> class.
+        /// </summary>
+        public EntitySerializerFactory() : this(null) { }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="EntitySerializerFactory"/> class.
+        /// </summary>
+        /// <param name="typeConverter">The type converter.</param>
+        public EntitySerializerFactory(ITypeConverter typeConverter)
+        {
+            if (typeConverter == null)
+                typeConverter = new TypeConverter();
+
+            this.typeConverter = typeConverter;
         }
 
         #region IEntitySerializerFactory Members
@@ -101,10 +119,21 @@ namespace Goliath.Data.DataAccess
                                     keyVal.Value.Setter(instanceEntity, val);
                                     logger.Log(LogType.Info, string.Format("Read {0}: {1}", keyVal.Key, val));
                                 }
-                                else
+                                else if (keyVal.Value.PropertType.IsEnum)
                                 {
-                                    logger.Log(LogType.Info, string.Format("Couldn't read {0}: value was {1}", keyVal.Key, val));
+                                    var enumVal = typeConverter.ConvertToEnum(keyVal.Value.PropertType, val);
+                                    keyVal.Value.Setter(instanceEntity, enumVal);
+                                    logger.Log(LogType.Info, string.Format("read {0}: value was {1}", keyVal.Key, enumVal));
                                 }
+                                else
+                                { 
+                                    var converter = typeConverter.GetConverter(keyVal.Value.PropertType);
+                                    keyVal.Value.Setter(instanceEntity, converter.Invoke(val));
+                                }
+                            }
+                            else if (prop is Relation)
+                            {
+                                logger.Log(LogType.Info, string.Format("Read {0} is a relation", keyVal.Key));
                             }
                         }
                     }

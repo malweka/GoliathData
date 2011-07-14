@@ -5,9 +5,13 @@ using System.Text;
 
 namespace Goliath.Data.DataAccess
 {
-    class TypeConverter
+    class TypeConverter : ITypeConverter
     {
         Dictionary<Type, Func<Object, Object>> converters = new Dictionary<Type, Func<Object, Object>>();
+        public TypeConverter()
+        {
+            Load();
+        }
 
         void Load()
         {
@@ -44,10 +48,16 @@ namespace Goliath.Data.DataAccess
             AddConverter(typeof(decimal), ReadDecimal);
         }
 
-        internal void AddConverter(Type toType, Func<Object, Object> convertMethod)
+        /// <summary>
+        /// Adds the converter.
+        /// </summary>
+        /// <param name="toType">To type.</param>
+        /// <param name="convertMethod">The convert method.</param>
+        public void AddConverter(Type toType, Func<Object, Object> convertMethod)
         {
             if (convertMethod == null)
                 throw new ArgumentNullException("convertMethod");
+
             if (toType == null)
                 throw new ArgumentNullException("toType");
 
@@ -55,6 +65,57 @@ namespace Goliath.Data.DataAccess
                 converters.Remove(toType);
 
             converters.Add(toType, convertMethod);
+        }
+
+        /// <summary>
+        /// Gets the converter.
+        /// </summary>
+        /// <param name="from">From.</param>
+        /// <returns></returns>
+        public Func<Object, Object> GetConverter(Type from)
+        {
+            if (from == null)
+                throw new ArgumentNullException("from");
+
+            Func<Object, Object> converter;
+            if (converters.TryGetValue(from, out converter))
+            {
+                return converter;
+            }
+            else
+                throw new DataAccessException("No converter for type {0} was found", from);
+        }
+
+        /// <summary>
+        /// Converts to enum.
+        /// </summary>
+        /// <param name="enumType">Type of the enum.</param>
+        /// <param name="value">The value.</param>
+        /// <returns></returns>
+        public object ConvertToEnum(Type enumType, object value)
+        {
+            if (enumType == null)
+                throw new ArgumentNullException("enumType");
+
+            if (value == DBNull.Value)
+                return null;
+
+            Object enumVal = null;
+
+            if (value is string)
+            {
+                enumVal = Enum.Parse(enumType, value.ToString(), true);
+            }
+            else if ((value is Int16) || (value is Int32) || (value is Int64))
+            {
+                enumVal = Enum.ToObject(enumType, value);
+            }
+            else
+            {
+                throw new TypeConversionException(value.GetType(), enumType);
+            }
+
+            return enumVal;
         }
 
         static object ReadString(object value)

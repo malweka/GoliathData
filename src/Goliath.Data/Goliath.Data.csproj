@@ -69,6 +69,7 @@
     <Compile Include="DataAccess\GetSetStore.cs" />
     <Compile Include="DataAccess\IDbConnector.cs" />
     <Compile Include="DataAccess\IEntitySerializerFactory.cs" />
+    <Compile Include="DataAccess\ITypeConverter.cs" />
     <Compile Include="DataAccess\QueryImpl.cs" />
     <Compile Include="DataAccess\SessionFactoryImpl.cs" />
     <Compile Include="DataAccess\SessionImpl.cs" />
@@ -135,11 +136,16 @@
     <Compile Include="Providers\Sqlite\SqliteSqlMapper.cs" />
     <Compile Include="Providers\SqlMapper.cs" />
     <Compile Include="Providers\Sqlite\Constants.cs" />
+    <Compile Include="Sql\Enums.cs" />
+    <Compile Include="Sql\GroupBy.cs" />
     <Compile Include="Sql\ISqlFunction.cs" />
+    <Compile Include="Sql\OrderBy.cs" />
+    <Compile Include="Sql\SelectSqlBuilder.cs" />
     <Compile Include="Sql\SqlFunction.cs" />
     <Compile Include="Sql\SqlJoin.cs" />
     <Compile Include="Sql\SqlPart.cs" />
     <Compile Include="Sql\SqlStatement.cs" />
+    <Compile Include="Sql\WhereStatement.cs" />
     <Compile Include="Transformers\Abbreviator.cs" />
     <Compile Include="Transformers\DefaultTableEntityNameTransformer.cs" />
     <Compile Include="Transformers\ITransformer.cs" />
