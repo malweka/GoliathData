@@ -35,4 +35,5 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyVersion("1.0.1.15")]
 [assembly: AssemblyFileVersion("1.0.1.15")]
 [assembly: InternalsVisibleTo ("Goliath.Data.Tests")]
+[assembly: InternalsVisibleTo("Goliath.Data.Console")]
 

@@ -245,7 +245,12 @@ namespace Goliath.Data.Mapping
         {
             if (map == null)
                 throw new ArgumentNullException("map");
-            return string.Format("{0}_{1}", map.TableAbbreviation, PropertyName);
+            return PropertyQueryName(map.TableAbbreviation, PropertyName);
+        }
+
+        internal static string PropertyQueryName(string propertyName, string tableAbbreviation)
+        {
+            return string.Format("{0}_{1}", tableAbbreviation, propertyName);
         }
 
         internal static string GetPropNameFromQueryName(string queryName, EntityMap map)
@@ -296,6 +301,11 @@ namespace Goliath.Data.Mapping
             }
             
             return sqlSb.ToString();
+        }
+
+        public override string ToString()
+        {
+            return ColumnName;
         }
     }
 

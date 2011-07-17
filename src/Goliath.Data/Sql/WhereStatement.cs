@@ -11,9 +11,19 @@ namespace Goliath.Data.Sql
         public Operand LeftOperand { get; private set; }
         public Operand RightOperand { get; private set; }
 
-        public WhereStatement(string column) : base(column)
+        public WhereStatement(string column)
+            : base(column)
         {
-            LeftOperand = new Operand(column);
+            LeftOperand = new StringOperand(column);            
+        }
+
+        public WhereStatement(Operand leftOperand) : base(null)
+        {
+            if (leftOperand == null)
+                throw new ArgumentNullException("leftOperand");
+
+            LeftOperand = leftOperand;
+            innerValue = leftOperand.ToString();
         }
 
         public WhereStatement Equals(string parameterizedValue)
@@ -73,18 +83,71 @@ namespace Goliath.Data.Sql
 
         void SetOperand(string parameterizedValue, ComparisonOperator @operator)
         {
-            RightOperand = new Operand(parameterizedValue);
+            RightOperand = new StringOperand(parameterizedValue);
             Operator = @operator;
+        }
+
+        public override string ToString()
+        {
+            string wString = string.Format("{0} {1} {2}", LeftOperand, OperatorToString(Operator), RightOperand);
+            return wString;
+        }
+
+        string OperatorToString(ComparisonOperator @operator)
+        {
+            switch (@operator)
+            {
+                case ComparisonOperator.Equals:
+                    return "=";
+                case ComparisonOperator.GreaterOrEquals:
+                    return ">=";
+                case ComparisonOperator.GreaterThan:
+                    return ">";
+                case ComparisonOperator.In:
+                    return "in({0})";
+                case ComparisonOperator.LessOrEquals:
+                    return "<=";
+                case ComparisonOperator.LessThan:
+                    return "<";
+                case ComparisonOperator.Like:
+                    return "LIKE";
+                case ComparisonOperator.NotEquals:
+                    return "<>";
+                case ComparisonOperator.NotLike:
+                    return "NOT LIKE";
+                case ComparisonOperator.And:
+                    return "AND";
+                case ComparisonOperator.IsNotNull:
+                    return "IS NOT NULL";
+                case ComparisonOperator.IsNull:
+                    return "IS NULL";
+                case ComparisonOperator.Or:
+                    return "OR";
+            }
+
+            return string.Empty;
+
+
         }
     }
 
-    class Operand
+    abstract class Operand
     {
-        string innerValue;
-        public Operand(string value)
+        protected string innerValue;
+        protected Operand(string value)
         {
             innerValue = value;
         }
+
+        public override string ToString()
+        {
+            return innerValue;
+        }
+    }
+
+    class StringOperand : Operand
+    {
+        public StringOperand(string value) : base(value) { }
     }
 
     class InOperand<T> : Operand
