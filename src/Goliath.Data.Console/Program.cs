@@ -35,7 +35,7 @@ namespace Goliath.Data
             //Generate(sqlServerWorkingDirectory, templatePath);
             //Generate(sqliteWorkingDirectory, templatePath);
 
-            QueryTest(sqlServerWorkingDirectory);
+            QueryTest(sqliteWorkingDirectory);
             Console.WriteLine("done");
             //Console.ReadKey();
         }
@@ -85,7 +85,7 @@ namespace Goliath.Data
         static void Sqlite(string workingFolder)
         {
             ProjectSettings settings = new ProjectSettings();
-            string dbfile = Path.Combine(@"C:\Junk\Goliath.Data", "WebZoo.db");
+            string dbfile = Path.Combine(@"\Goliath.Data", "WebZoo.db");
             settings.ConnectionString = string.Format("Data Source={0}; Version=3", dbfile);
             settings.Namespace = "WebZoo.Data.Sqlite";
             settings.Version = "1.0";
@@ -158,17 +158,20 @@ namespace Goliath.Data
         static void QueryTest(string workingFolder)
         {
 
-            
+            //string sf = "/Users/hamsman/development";
+			string dbfile = Path.Combine(@"/Users/hamsman/development", "WebZoo.db");
+            string cs = string.Format("Data Source={0}; Version=3", dbfile);
             
             string mapfile = Path.Combine(workingFolder, MapFileName);
-            var sessionFactory = new Database().Configure(mapfile)
-                .Provider(new MssqlProvider()).Init();
+            var sessionFactory = new Database().Configure(mapfile, cs)
+                .Provider(new SqliteProvider()).Init();
 
             var sess = sessionFactory.OpenSession();
             MapConfig map = MapConfig.Create(mapfile);
 
-            var dbConnector = new Providers.SqlServer.MssqlDbConnector("Data Source=localhost;Initial Catalog=DbZoo;Integrated Security=True");
-            var dbAccess = new DbAccess(dbConnector);
+            //var dbConnector = new Providers.SqlServer.MssqlDbConnector("Data Source=localhost;Initial Catalog=DbZoo;Integrated Security=True");
+            var dbConnector = new Providers.Sqlite.SqliteDbConnector(cs);
+			var dbAccess = new DbAccess(dbConnector);
             
 
             using (var conn = dbConnector.CreateNewConnection())
@@ -188,11 +191,12 @@ namespace Goliath.Data
                     .FirstOrDefault();
                 //dataReader.Read();
 
-                Providers.SqlServer.Mssq2008SqlMapper mapper = new Mssq2008SqlMapper();
-                SelectSqlBuilder select = new SelectSqlBuilder(mapper, animalEntMap)
+                //Providers.SqlServer.Mssq2008SqlMapper mapper = new Mssq2008SqlMapper();
+				SqliteSqlMapper mapper = new SqliteSqlMapper();
+                SelectSqlBuilder selectBuilder = new SelectSqlBuilder(mapper, animalEntMap)
                 .Where(new WhereStatement("Name").Equals("@Name"));
 
-                string sstring = select.ToString();
+                string sstring = selectBuilder.ToString();
                 EntitySerializerFactory serializer = new EntitySerializerFactory();
                 var animals = serializer.Serialize<WebZoo.Data.SqlServer.Animal>(dataReader, animalEntMap);
                 dataReader.Dispose();
