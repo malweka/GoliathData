@@ -10,9 +10,21 @@ namespace Goliath.Data.Sql
     {
         SqlMapper sqlMapper;
         EntityMap entMap;
-        Dictionary<string, Tuple<string, string>> columns = new Dictionary<string, Tuple<string, string>>();
-        List<SqlJoin> joins = new List<SqlJoin>();
+
+        readonly Dictionary<string, string> columns = new Dictionary<string, string>();
+        internal Dictionary<string, string> Columns
+        {
+            get { return columns; }
+        }
+
+        readonly List<SqlJoin> joins = new List<SqlJoin>();
+        internal List<SqlJoin> Joins
+        {
+            get { return joins; }
+        }
+
         WhereStatement where;
+        OrderBy orderBy;
 
         //TODO: mechanism to cache select builder
         /// <summary>
@@ -48,13 +60,35 @@ namespace Goliath.Data.Sql
                     }
                 }
 
-                var tuple = Tuple.Create<string, string>(sqlMapper.CreateParameterName(col.Name), CreateColumnName(entMap, col));
-                this.columns.Add(col.ColumnName, tuple);
+                string colKey = string.Format("{0}.{1}", entMap.TableAbbreviation, col.ColumnName);
+                //var tuple = Tuple.Create<string, string>(sqlMapper.CreateParameterName(col.Name), CreateColumnName(entMap, col));
+                if (!columns.ContainsKey(colKey))
+                    this.columns.Add(colKey, BuildColumnSelectString(col.ColumnName, entMap.TableAbbreviation));
             }
-           
+
         }
 
-        //public 
+        internal string BuildColumnSelectString(string columnName, string tableAbbreviation)
+        {
+            return string.Format("{2}.{0} AS {1}", columnName, Property.PropertyQueryName(columnName, tableAbbreviation), tableAbbreviation);
+        }
+
+        internal string BuildTableFromString(string tableName, string tableAbbreviation)
+        {
+            return string.Format("{0} {1}", tableName, tableAbbreviation);
+        }
+
+        public SelectSqlBuilder Where(WhereStatement where)
+        {
+            this.where = where;
+            return this;
+        }
+
+        public SelectSqlBuilder OrderBy(OrderBy orderby)
+        {
+            this.orderBy = orderby;
+            return this;
+        }
 
         /// <summary>
         /// Adds the join.
@@ -64,11 +98,40 @@ namespace Goliath.Data.Sql
         public SelectSqlBuilder AddJoin(SqlJoin join)
         {
             //SqlJoin join = new SqlJoin(joinType);
-            joins.Add(join); 
+            joins.Add(join);
             return this;
         }
 
-        
+        public override string ToString()
+        {
+            //TODO use recursive function to get column list
+            StringBuilder sb = new StringBuilder("SELECT ");
+            List<string> printColumns = new List<string>();
+            printColumns.AddRange(Columns.Values);
+
+
+            if (Joins.Count > 0)
+            {
+                foreach (var sqlJoin in Joins)
+                {
+                    SelectSqlBuilder selBuilder = new SelectSqlBuilder(this.sqlMapper, sqlJoin.OnEntityMap);
+                    printColumns.AddRange(selBuilder.Columns.Values);
+                }
+            }
+
+            sb.Append(string.Join(", ", printColumns));
+            sb.AppendFormat(" FROM {0}", BuildTableFromString(entMap.TableName, entMap.TableAbbreviation));
+
+            if (where != null)
+            {
+                sb.Append(" WHERE ");
+                sb.Append(where.ToString());
+            }
+
+            return sb.ToString();
+        }
+
+
         internal static string CreateColumnName(EntityMap entity, Property column)
         {
             return string.Format("{1}.{0} AS {2}", column.ColumnName, entity.TableAbbreviation, column.GetQueryName(entity));

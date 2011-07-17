@@ -29,7 +29,11 @@ namespace Goliath.Data.Sql
         GreaterOrEquals,
         LessThan,
         LessOrEquals,
-        In
+        And = 400,
+        Or = 401,
+        IsNull = 500,
+        IsNotNull=501,
+        In = 600
     }
 
     enum SortType

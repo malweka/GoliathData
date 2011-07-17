@@ -10,6 +10,8 @@ using System.IO;
 using Goliath.Data.Mapping;
 using Goliath.Data.Transformers;
 using Goliath.Data.DataAccess;
+using Goliath.Data.Sql;
+
 
 namespace Goliath.Data
 {
@@ -155,6 +157,9 @@ namespace Goliath.Data
 
         static void QueryTest(string workingFolder)
         {
+
+            
+            
             string mapfile = Path.Combine(workingFolder, MapFileName);
             var sessionFactory = new Database().Configure(mapfile)
                 .Provider(new MssqlProvider()).Init();
@@ -164,6 +169,8 @@ namespace Goliath.Data
 
             var dbConnector = new Providers.SqlServer.MssqlDbConnector("Data Source=localhost;Initial Catalog=DbZoo;Integrated Security=True");
             var dbAccess = new DbAccess(dbConnector);
+            
+
             using (var conn = dbConnector.CreateNewConnection())
             {
                 conn.Open();
@@ -181,6 +188,11 @@ namespace Goliath.Data
                     .FirstOrDefault();
                 //dataReader.Read();
 
+                Providers.SqlServer.Mssq2008SqlMapper mapper = new Mssq2008SqlMapper();
+                SelectSqlBuilder select = new SelectSqlBuilder(mapper, animalEntMap)
+                .Where(new WhereStatement("Name").Equals("@Name"));
+
+                string sstring = select.ToString();
                 EntitySerializerFactory serializer = new EntitySerializerFactory();
                 var animals = serializer.Serialize<WebZoo.Data.SqlServer.Animal>(dataReader, animalEntMap);
                 dataReader.Dispose();
