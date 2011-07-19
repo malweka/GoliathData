@@ -15,15 +15,26 @@ namespace Goliath.Data
     public class Database
     {
         IConfigurationManager configManager;
+		
+		public IConfigurationManager Configure(string mapFile)
+        {
+            return Configure(mapFile, null);
+        }
 
         /// <summary>
         /// Configures the specified map file.
         /// </summary>
         /// <param name="mapFile">The map file.</param>
         /// <returns></returns>
-        public IConfigurationManager Configure(string mapFile)
+        public IConfigurationManager Configure(string mapFile, string connectionString)
         {
+			if(string.IsNullOrWhiteSpace(mapFile))
+				throw new ArgumentNullException("mapFile");
+			
             MapConfig map = MapConfig.Create(mapFile);
+			if(!string.IsNullOrWhiteSpace(connectionString))
+				map.Settings.ConnectionString = connectionString;
+			
             return Configure(map);
         }
 
