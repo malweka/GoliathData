@@ -76,6 +76,7 @@ namespace Goliath.Data.DataAccess
         }
 
         GetSetStore getSetStore = new GetSetStore();
+
         #endregion
 
         Func<DbDataReader, EntityMap, IList<TEntity>> CreateSerializerMethod<TEntity>(EntityMap entityMap)
@@ -85,59 +86,20 @@ namespace Goliath.Data.DataAccess
                 List<TEntity> list = new List<TEntity>();
 
                 Type type = typeof(TEntity);
-                Dictionary<string, int> colums = new Dictionary<string, int>();
-                for (int i = 0; i < dbReader.FieldCount; i++)
-                {
-                    var fieldName = dbReader.GetName(i);
-                    var colName = Property.GetPropNameFromQueryName(fieldName, entMap);
-                    colums.Add(colName, i);
-                }
+                Dictionary<string, int> columns = GetColumnNames(dbReader, entMap);
 
                 EntityGetSetInfo getSetInfo;
+
                 if (!getSetStore.TryGetValue(type, out getSetInfo))
                 {
                     getSetInfo = new EntityGetSetInfo(type);
                     getSetInfo.Load(entMap);
+                    getSetStore.Add(type, getSetInfo);
                 }
 
                 while (dbReader.Read())
                 {
-                    var instanceEntity = Activator.CreateInstance(type);
-
-                    foreach (var keyVal in getSetInfo.Properties)
-                    {
-                        var prop = entityMap[keyVal.Key];
-                        int ordinal;
-                        if (prop != null)
-                        {
-                            if (colums.TryGetValue(keyVal.Key, out ordinal))
-                            {
-                                var val = dbReader[ordinal];
-                                var fieldType = dbReader.GetFieldType(ordinal);
-                                if (fieldType.Equals(keyVal.Value.PropertType))
-                                {
-                                    keyVal.Value.Setter(instanceEntity, val);
-                                    logger.Log(LogType.Info, string.Format("Read {0}: {1}", keyVal.Key, val));
-                                }
-                                else if (keyVal.Value.PropertType.IsEnum)
-                                {
-                                    var enumVal = typeConverter.ConvertToEnum(keyVal.Value.PropertType, val);
-                                    keyVal.Value.Setter(instanceEntity, enumVal);
-                                    logger.Log(LogType.Info, string.Format("read {0}: value was {1}", keyVal.Key, enumVal));
-                                }
-                                else
-                                { 
-                                    var converter = typeConverter.GetConverter(keyVal.Value.PropertType);
-                                    keyVal.Value.Setter(instanceEntity, converter.Invoke(val));
-                                }
-                            }
-                            else if (prop is Relation)
-                            {
-                                logger.Log(LogType.Info, string.Format("Read {0} is a relation", keyVal.Key));
-                            }
-                        }
-                    }
-
+                    var instanceEntity = SerializeSingle(type, entityMap, getSetInfo, columns, dbReader);
                     list.Add((TEntity)instanceEntity);
                 }
 
@@ -145,6 +107,88 @@ namespace Goliath.Data.DataAccess
             };
 
             return func;
+        }
+
+        Dictionary<string, int> GetColumnNames(DbDataReader dbReader, EntityMap entityMap)
+        {
+            Dictionary<string, int> columns = new Dictionary<string, int>();
+            for (int i = 0; i < dbReader.FieldCount; i++)
+            {
+                var fieldName = dbReader.GetName(i);
+                string tabb = string.Format("{0}_", entityMap.TableAbbreviation);
+                if (fieldName.StartsWith(tabb))
+                {
+                    var colName = Property.GetPropNameFromQueryName(fieldName, entityMap);
+                    columns.Add(colName, i);
+                }
+            }
+            return columns;
+        }
+
+        object SerializeSingle(Type type, EntityMap entityMap, EntityGetSetInfo getSetInfo, Dictionary<string, int> columns, DbDataReader dbReader)
+        {
+            //Type type = typeof(TEntity);
+            var instanceEntity = Activator.CreateInstance(type);
+
+            foreach (var keyVal in getSetInfo.Properties)
+            {
+                var prop = entityMap[keyVal.Key];
+                int ordinal;
+                if (prop != null)
+                {
+                    if (columns.TryGetValue(keyVal.Key, out ordinal))
+                    {
+                        var val = dbReader[ordinal];
+                        var fieldType = dbReader.GetFieldType(ordinal);
+                        if (fieldType.Equals(keyVal.Value.PropertType))
+                        {
+                            keyVal.Value.Setter(instanceEntity, val);
+                            logger.Log(LogType.Info, string.Format("Read {0}: {1}", keyVal.Key, val));
+                        }
+                        else if (keyVal.Value.PropertType.IsEnum)
+                        {
+                            var enumVal = typeConverter.ConvertToEnum(keyVal.Value.PropertType, val);
+                            keyVal.Value.Setter(instanceEntity, enumVal);
+                            logger.Log(LogType.Info, string.Format("read {0}: value was {1}", keyVal.Key, enumVal));
+                        }
+                        else
+                        {
+                            var converter = typeConverter.GetConverter(keyVal.Value.PropertType);
+                            keyVal.Value.Setter(instanceEntity, converter.Invoke(val));
+                        }
+                    }
+                    else if (prop is Relation)
+                    {
+                        logger.Log(LogType.Info, string.Format("Read {0} is a relation", keyVal.Key));
+                        Relation rel = (Relation)prop;
+                        if (!rel.LazyLoad)
+                        {
+                            if (rel.RelationType == RelationshipType.ManyToOne)
+                            {
+                                var relEntMap = entityMap.Parent.EntityConfigs[rel.ReferenceEntityName];
+                                if (relEntMap == null)
+                                    throw new MappingException(string.Format("couldn't find referenced entity name {0} while try to build {1}", rel.ReferenceEntityName, entityMap.Name));
+
+                                var relColumns = GetColumnNames(dbReader, relEntMap);
+                                EntityGetSetInfo relGetSetInfo;
+                                Type relType = keyVal.Value.PropertType;
+                                if (!getSetStore.TryGetValue(relType, out relGetSetInfo))
+                                {
+                                    relGetSetInfo = new EntityGetSetInfo(relType);
+                                    relGetSetInfo.Load(relEntMap);
+                                    getSetStore.Add(relType, relGetSetInfo);
+                                }
+
+                                object relIstance = SerializeSingle(relType, relEntMap, relGetSetInfo, relColumns, dbReader);
+                                keyVal.Value.Setter(instanceEntity, relIstance);
+                                logger.Log(LogType.Info, string.Format("\t\t{0} is a ManyToOne", keyVal.Key));
+                            }
+                        }
+                    }
+                }
+            }
+
+            return instanceEntity;
         }
 
         public static void DataReaderColumnList(IDataReader dataReader, EntityMap entMap)

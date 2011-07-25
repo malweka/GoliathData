@@ -18,12 +18,20 @@ namespace Goliath.Data.DataAccess
             store = new ConcurrentDictionary<Type, EntityGetSetInfo>();
         }
 
-        public void Add<T>(EntityGetSetInfo getSetterInfo)
+        public void Add(Type type, EntityGetSetInfo getSetterInfo)
         {
+            if (type == null)
+                throw new ArgumentNullException("type");
+
             if (getSetterInfo == null)
                 throw new ArgumentNullException("getSetterInfo");
 
-            store.TryAdd(typeof(T), getSetterInfo);
+            store.TryAdd(type, getSetterInfo);
+        }
+
+        public void Add<T>(EntityGetSetInfo getSetterInfo)
+        {          
+            Add(typeof(T), getSetterInfo);
         }
 
         public bool TryGetValue(Type key, out EntityGetSetInfo getSetterInfo)
