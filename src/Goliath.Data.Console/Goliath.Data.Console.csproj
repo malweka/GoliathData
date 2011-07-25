@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -22,7 +22,7 @@
     </SccProvider>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
-    <PlatformTarget>x86</PlatformTarget>
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -85,6 +85,7 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="Class.razt" />
+    <None Include="Data\WebZoo.db" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Goliath.Data\Goliath.Data.csproj">
@@ -98,6 +99,7 @@
     <Content Include="Generated\Sqlite\GoData.Map.xml">
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="Scripts\05_data_insert.sql" />
     <Content Include="Scripts\Mssql2008\01_animals.sql" />
     <Content Include="Scripts\Mssql2008\00_zoos.sql" />
     <Content Include="Scripts\Mssql2008\02_employees.sql" />

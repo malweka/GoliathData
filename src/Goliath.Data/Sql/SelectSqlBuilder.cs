@@ -4,12 +4,14 @@ using System.Linq;
 using System.Text;
 using Goliath.Data.Providers;
 using Goliath.Data.Mapping;
+
 namespace Goliath.Data.Sql
 {
     class SelectSqlBuilder
     {
         SqlMapper sqlMapper;
         EntityMap entMap;
+        PagingInfo? paging;
 
         readonly Dictionary<string, string> columns = new Dictionary<string, string>();
         internal Dictionary<string, string> Columns
@@ -24,7 +26,7 @@ namespace Goliath.Data.Sql
         }
 
         WhereStatement where;
-        OrderBy orderBy;
+        List<OrderBy> sortList = new List<OrderBy>();
 
         //TODO: mechanism to cache select builder
         /// <summary>
@@ -54,7 +56,7 @@ namespace Goliath.Data.Sql
                     {
                         var rightTable = entMap.Parent.EntityConfigs[rel.ReferenceEntityName];
                         //var rightColumn = rightTable[rel.ReferenceColumn];
-                        AddJoin(new SqlJoin(JoinType.Inner).OnTable(rightTable)
+                        AddJoin(new SqlJoin(entMap, JoinType.Inner).OnTable(rightTable)
                             .OnRightColumn(rel.ReferenceColumn)
                             .OnLeftColumn(rel));
                     }
@@ -84,9 +86,14 @@ namespace Goliath.Data.Sql
             return this;
         }
 
-        public SelectSqlBuilder OrderBy(OrderBy orderby)
+        public SelectSqlBuilder OrderBy(OrderBy orderby, params OrderBy[] sorts)
         {
-            this.orderBy = orderby;
+            sortList.Add(orderby);
+            if ((sorts != null) && (sorts.Length > 0))
+            {
+                for (int i = 0; i < sorts.Length; i++)
+                    sortList.Add(sorts[i]);
+            }
             return this;
         }
 
@@ -102,35 +109,70 @@ namespace Goliath.Data.Sql
             return this;
         }
 
-        public override string ToString()
+        public SelectSqlBuilder WithPaging(int limit, int offset)
         {
-            //TODO use recursive function to get column list
-            StringBuilder sb = new StringBuilder("SELECT ");
+            paging = new PagingInfo() { Limit = limit, Offset = offset };
+            return this;
+        }
+
+        public string Build()
+        {
             List<string> printColumns = new List<string>();
+            List<SqlJoin> sJoins = new List<SqlJoin>();
+            sJoins.AddRange(Joins);
             printColumns.AddRange(Columns.Values);
 
+            SqlQueryBody queryBody = new SqlQueryBody();
 
             if (Joins.Count > 0)
             {
-                foreach (var sqlJoin in Joins)
+                for (int i = 0; i < sJoins.Count; i++)
                 {
-                    SelectSqlBuilder selBuilder = new SelectSqlBuilder(this.sqlMapper, sqlJoin.OnEntityMap);
-                    printColumns.AddRange(selBuilder.Columns.Values);
+                    BuildColumsAndJoins(sJoins[i].OnEntityMap, printColumns, sJoins);
                 }
             }
 
-            sb.Append(string.Join(", ", printColumns));
-            sb.AppendFormat(" FROM {0}", BuildTableFromString(entMap.TableName, entMap.TableAbbreviation));
+            queryBody.ColumnEnumeration = string.Join(", ", printColumns);
+            queryBody.From = BuildTableFromString(entMap.TableName, entMap.TableAbbreviation);
+
+            if (sJoins.Count > 0)
+            {
+                queryBody.JoinEnumeration = string.Join(", ", sJoins);
+            }
 
             if (where != null)
             {
-                sb.Append(" WHERE ");
-                sb.Append(where.ToString());
+                queryBody.WhereExpression = where.ToString();
             }
 
-            return sb.ToString();
+            if (paging != null)
+            {
+                return sqlMapper.QueryWithPaging(queryBody, paging.Value);
+            }
+
+            return queryBody.ToString();
         }
 
+        void BuildColumsAndJoins(EntityMap entMap, List<string> cols, List<SqlJoin> sjoins)
+        {
+            SelectSqlBuilder selBuilder = new SelectSqlBuilder(sqlMapper, entMap);
+            cols.AddRange(selBuilder.Columns.Values);
+            for (int i = 0; i < selBuilder.Joins.Count; i++)
+            {
+                var jn = selBuilder.Joins[i];
+                BuildColumsAndJoins(jn.OnEntityMap, cols, sjoins);
+                sjoins.Add(jn);
+            }
+        }
+
+        public override string ToString()
+        {
+#if DEBUG
+            return base.ToString();
+#else 
+            return Build();
+#endif
+        }
 
         internal static string CreateColumnName(EntityMap entity, Property column)
         {
@@ -140,6 +182,30 @@ namespace Goliath.Data.Sql
         internal static string CreateTableName(string tableAbbreviation, string tableName)
         {
             return string.Format("{0} {1}", tableName, tableAbbreviation);
+        }
+    }
+
+    public struct SqlQueryBody
+    {
+        public string ColumnEnumeration { get; set; }
+        public string From { get; set; }
+        public string JoinEnumeration { get; set; }
+        public string WhereExpression { get; set; }
+        public string SortExpression { get; set; }
+        public string AggregateExpression { get; set; }
+
+        public override string ToString()
+        {
+            StringBuilder sb = new StringBuilder("SELECT ");
+            sb.Append(ColumnEnumeration);
+            sb.AppendFormat("\nFROM {0}", From);
+
+            if (!string.IsNullOrWhiteSpace(JoinEnumeration))
+                sb.Append(JoinEnumeration);
+            if (!string.IsNullOrWhiteSpace(WhereExpression))
+                sb.AppendFormat("\nWHERE {0}\n", WhereExpression);
+
+            return sb.ToString();
         }
     }
 }

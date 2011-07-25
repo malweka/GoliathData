@@ -302,25 +302,25 @@ WHERE FK.TABLE_NAME = @tableName";
                 switch (defaultValue.ToLower())
                 {
                     case "newid":
-                        defaultValue = Sql.Functions.NewGuid;
+                        defaultValue = Sql.FunctionNames.NewGuid;
                         break;
                     case "getdate":
-                        defaultValue = Sql.Functions.GetDate;
+                        defaultValue = Sql.FunctionNames.GetDate;
                         break;
                     case "getutcdate":
-                        defaultValue = Sql.Functions.GetUtcDate;
+                        defaultValue = Sql.FunctionNames.GetUtcDate;
                         break;
                     case "suser_sname":
-                        defaultValue = Sql.Functions.GetUserName;
+                        defaultValue = Sql.FunctionNames.GetUserName;
                         break;
                     case "host_name":
-                        defaultValue = Sql.Functions.GetHostName;
+                        defaultValue = Sql.FunctionNames.GetHostName;
                         break;
                     case "app_name":
-                        defaultValue = Sql.Functions.GetAppName;
+                        defaultValue = Sql.FunctionNames.GetAppName;
                         break;
                     case "db_name":
-                        defaultValue = Sql.Functions.GetDatabaseName;
+                        defaultValue = Sql.FunctionNames.GetDatabaseName;
                         break;
                     default:
                         break;
