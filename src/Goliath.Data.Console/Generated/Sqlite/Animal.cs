@@ -27,8 +27,9 @@ namespace WebZoo.Data.Sqlite
 
 		#region relations
 
-		public virtual WebZoo.Data.Sqlite.Zoo Zoo { get; set; }		
+		//public virtual WebZoo.Data.Sqlite.Zoo Zoo { get; set; }		
 		public virtual IList<WebZoo.Data.Sqlite.Employee> EmployeesOnAnimalsHandler_AnimalId { get; set; }
+        public Lazy<Zoo> Zoo { get; set; }
 
 		#endregion
 
