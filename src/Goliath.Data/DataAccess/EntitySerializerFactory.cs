@@ -184,6 +184,15 @@ namespace Goliath.Data.DataAccess
                                 logger.Log(LogType.Info, string.Format("\t\t{0} is a ManyToOne", keyVal.Key));
                             }
                         }
+                        else if (keyVal.Value.PropertType.IsGenericType)
+                        {
+                            var genArgs = keyVal.Value.PropertType.GetGenericArguments();
+                            var lazyType = typeof(Lazy<>).MakeGenericType(genArgs);
+                            if (keyVal.Value.PropertType.Equals(lazyType))
+                            {
+                                
+                            }
+                        }
                     }
                 }
             }
