@@ -10,7 +10,7 @@ using System.Reflection.Emit;
 using Goliath.Data.Mapping;
 using System.Data.Common;
 using Goliath.Data.Diagnostics;
-
+using Fasterflect;
 
 namespace Goliath.Data.DataAccess
 {
@@ -125,6 +125,13 @@ namespace Goliath.Data.DataAccess
             return columns;
         }
 
+        internal T SerializeOne<T>(EntityMap entityMap, EntityGetSetInfo getSetInfo, Dictionary<string, int> columns, DbDataReader dbReader)
+        {
+            Type type = typeof(T);
+            object instance = SerializeSingle(type, entityMap, getSetInfo, columns, dbReader);
+            return (T)instance;
+        }
+
         object SerializeSingle(Type type, EntityMap entityMap, EntityGetSetInfo getSetInfo, Dictionary<string, int> columns, DbDataReader dbReader)
         {
             //Type type = typeof(TEntity);
@@ -186,11 +193,33 @@ namespace Goliath.Data.DataAccess
                         }
                         else if (keyVal.Value.PropertType.IsGenericType)
                         {
-                            var genArgs = keyVal.Value.PropertType.GetGenericArguments();
-                            var lazyType = typeof(Lazy<>).MakeGenericType(genArgs);
-                            if (keyVal.Value.PropertType.Equals(lazyType))
+                            if (rel.RelationType == RelationshipType.ManyToOne)
                             {
-                                
+
+                                var genArgs = keyVal.Value.PropertType.GetGenericArguments();
+                                var lazyType = typeof(Lazy<>).MakeGenericType(genArgs);
+                                if (keyVal.Value.PropertType.Equals(lazyType))
+                                {
+                                    var methInvoker = this.GetType().DelegateForCallMethod(genArgs, "SerializeOne", new Type[] { typeof(EntityMap), typeof(Dictionary<string, int>), typeof(DbDataReader) });
+
+                                    var relEntMap = entityMap.Parent.EntityConfigs[rel.ReferenceEntityName];
+                                    if (relEntMap == null)
+                                        throw new MappingException(string.Format("couldn't find referenced entity name {0} while try to build {1}", rel.ReferenceEntityName, entityMap.Name));
+
+                                    var relColumns = GetColumnNames(dbReader, relEntMap);
+                                    EntityGetSetInfo relGetSetInfo;
+                                    Type relType = keyVal.Value.PropertType;
+                                    if (!getSetStore.TryGetValue(relType, out relGetSetInfo))
+                                    {
+                                        relGetSetInfo = new EntityGetSetInfo(relType);
+                                        relGetSetInfo.Load(relEntMap);
+                                        getSetStore.Add(relType, relGetSetInfo);
+                                    }
+
+                                    var inx = methInvoker.Invoke(this, relEntMap, relGetSetInfo, relColumns, dbReader);
+                                    var relInt = Activator.CreateInstance(lazyType);
+                                    Console.WriteLine("dl");
+                                }
                             }
                         }
                     }
