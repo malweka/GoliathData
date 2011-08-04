@@ -44,5 +44,10 @@ namespace Goliath.Data.Providers.Sqlite
       {        
          return "autoincrement";
       }
+
+      public override string CreateParameterName(string variableName)
+      {
+          return string.Format("${0}", variableName);
+      }
    }
 }

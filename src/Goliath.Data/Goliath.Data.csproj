@@ -71,6 +71,8 @@
     <Compile Include="DataAccess\IDbConnector.cs" />
     <Compile Include="DataAccess\IEntitySerializerFactory.cs" />
     <Compile Include="DataAccess\ITypeConverter.cs" />
+    <Compile Include="DynamicProxy\IProxyHydrator.cs" />
+    <Compile Include="DynamicProxy\ProxySerializer.cs" />
     <Compile Include="DataAccess\QueryImpl.cs" />
     <Compile Include="DataAccess\SessionFactoryImpl.cs" />
     <Compile Include="DataAccess\SessionImpl.cs" />
@@ -88,6 +90,8 @@
     <Compile Include="DataAccess\ISessionFactory.cs" />
     <Compile Include="DataAccess\ITransaction.cs" />
     <Compile Include="DataAccess\DataAccessHelper.cs" />
+    <Compile Include="DynamicProxy\ProxyBuilder.cs" />
+    <Compile Include="DynamicProxy\ProxyCache.cs" />
     <Compile Include="GoliathDataException.cs" />
     <Compile Include="KeyedCollectionBase.cs" />
     <Compile Include="Libs\Fasterflect.cs" />
@@ -131,6 +135,7 @@
     <Compile Include="Providers\SqlServer\MssqlSqlMapper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Mapping\SqlTypeHelper.cs" />
+    <Compile Include="QueryInfo.cs" />
     <Compile Include="QueryParam.cs" />
     <Compile Include="Providers\Sqlite\SqliteDataAccess.cs" />
     <Compile Include="Providers\Sqlite\SqliteSchemaDescriptor.cs" />

@@ -184,15 +184,28 @@ namespace Goliath.Data
 //                string sqlQuery = @"select ani1.ZooId as ani1_ZooId, ani1.Id as ani1_Id, ani1.Name as ani1_Name, ani1.Age as ani1_Age, ani1.Location as ani1_Location, ani1.ReceivedOn as ani1_ReceivedOn  from animals ani1";
                 SqliteSqlMapper mapper = new SqliteSqlMapper();               
 
-                var animalEntMap = map.EntityConfigs.Where(c => string.Equals(c.Name, "Animal", StringComparison.InvariantCultureIgnoreCase))
+                var animalEntMap = map.EntityConfigs.Where(c => string.Equals(c.Name, "Animal", StringComparison.Ordinal))
                     .FirstOrDefault();
 
-                var zooEntMap = map.EntityConfigs.Where(c => string.Equals(c.Name, "Zoo", StringComparison.InvariantCultureIgnoreCase))
+                var zooEntMap = map.EntityConfigs.Where(c => string.Equals(c.Name, "Zoo", StringComparison.Ordinal))
                     .FirstOrDefault();
 
                 SelectSqlBuilder selectBuilder = new SelectSqlBuilder(mapper, animalEntMap)
                 .Where(new WhereStatement("Name").Equals("@Name"));
                 string sstring = selectBuilder.Build();
+
+                QueryParam qp = new QueryParam(string.Format("{0}{1}", zooEntMap.TableAbbreviation, "Id")) { Value = "CAF24C81-C7A1-4B5F-8CDA-D85D8ED5F2AF" };
+
+                SelectSqlBuilder sqlBuilder = new SelectSqlBuilder(mapper, zooEntMap)
+                   .Where(new WhereStatement(string.Format("{0}.{1}", zooEntMap.TableAbbreviation, "Id"))
+                            .Equals(mapper.CreateParameterName(qp.Name)));
+
+                QueryInfo qInfo = new QueryInfo();
+                qInfo.QuerySqlText = sqlBuilder.Build();
+                qInfo.Parameters = new QueryParam[] { qp };
+                System.Data.Common.DbParameter[]  px = dbAccess.CreateParameters(qInfo.Parameters).ToArray();
+                var xreader = dbAccess.ExecuteReader(conn, qInfo.QuerySqlText, px);
+                Console.WriteLine(xreader.HasRows);
 
                 //dataReader.Read();
                 //Providers.SqlServer.Mssq2008SqlMapper mapper = new Mssq2008SqlMapper();
@@ -200,17 +213,17 @@ namespace Goliath.Data
                 var animalQuery = new SelectSqlBuilder(mapper, animalEntMap).WithPaging(15, 0).Build();
                 var zooQuery = new SelectSqlBuilder(mapper, zooEntMap).Build();                
              
-                EntitySerializerFactory serializer = new EntitySerializerFactory();
+                EntitySerializerFactory serializer = new EntitySerializerFactory(mapper);
                 var dataReader = dbAccess.ExecuteReader(conn, animalQuery);
-                var animals = serializer.Serialize<WebZoo.Data.Sqlite.Animal>(dataReader, animalEntMap);
+                var animals = serializer.SerializeAll<WebZoo.Data.Sqlite.Animal>(dataReader, animalEntMap);
                 dataReader.Dispose();
 
                 dataReader = dbAccess.ExecuteReader(conn, zooQuery);
-                var zoos = serializer.Serialize<WebZoo.Data.Sqlite.Zoo>(dataReader, zooEntMap);
+                var zoos = serializer.SerializeAll<WebZoo.Data.Sqlite.Zoo>(dataReader, zooEntMap);
                 dataReader.Dispose();
 
                 dataReader = dbAccess.ExecuteReader(conn, animalQuery);
-                serializer.Serialize<WebZoo.Data.Sqlite.Animal>(dataReader, animalEntMap);
+                serializer.SerializeAll<WebZoo.Data.Sqlite.Animal>(dataReader, animalEntMap);
                 dataReader.Dispose();
 
             }

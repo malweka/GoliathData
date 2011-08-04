@@ -33,8 +33,8 @@ namespace Goliath.Data.Tests
                     .FirstOrDefault();
                 //dataReader.Read();
 
-                EntitySerializerFactory serializer = new EntitySerializerFactory();
-                var zoo = serializer.Serialize<WebZoo.Data.Sqlite.Animal>(dataReader, ent);
+                EntitySerializerFactory serializer = new EntitySerializerFactory(null);
+                var zoo = serializer.SerializeAll<WebZoo.Data.Sqlite.Animal>(dataReader, ent);
                 Assert.IsNotNull(zoo);
                 dataReader.Dispose();
             }

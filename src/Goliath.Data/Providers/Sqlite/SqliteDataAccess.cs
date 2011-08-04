@@ -42,7 +42,7 @@ namespace Goliath.Data.Providers.Sqlite
             if (value == null)
                 value = DBNull.Value;
 
-            SQLiteParameter param = new SQLiteParameter(string.Format("@{0}", parameterName), value);
+            SQLiteParameter param = new SQLiteParameter(string.Format("${0}", parameterName), value);
             return param;
         }
     }

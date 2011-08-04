@@ -38,6 +38,8 @@ namespace Goliath.Data
             this.dbConnector = dbConnector;
         }
 
+
+
         #endregion
 
         #region Abstract methods
@@ -47,6 +49,10 @@ namespace Goliath.Data
         //public abstract DbParameter CreateParameter(int i, object value);
 
         //public abstract DbParameter CreateParameter(string parameterName, object value);
+        public DbConnection CreateConnection()
+        {
+            return dbConnector.CreateNewConnection();
+        }
 
         public DbParameter CreateParameter(int i, object value)
         {
@@ -59,6 +65,22 @@ namespace Goliath.Data
                 throw new ArgumentNullException("queryParam");
 
             return dbConnector.CreateParameter(queryParam.Name, queryParam.Value);
+        }
+
+        /// <summary>
+        /// Creates the parameters.
+        /// </summary>
+        /// <param name="queryParams">The query params.</param>
+        /// <returns></returns>
+        public ICollection<DbParameter> CreateParameters(IEnumerable<QueryParam> queryParams)
+        {
+            if(queryParams == null)
+                throw new ArgumentNullException("queryParams");
+            List<DbParameter> parameters = new List<DbParameter>();
+            foreach (var qp in queryParams)
+                parameters.Add(CreateParameter(qp));
+
+            return parameters;
         }
 
         #endregion
@@ -161,7 +183,7 @@ namespace Goliath.Data
                         cmd.Parameters.Add(parameters[i]);
                     }
                 }
-
+                
                 return cmd.ExecuteReader();
             }
         }

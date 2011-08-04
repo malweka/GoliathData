@@ -89,6 +89,13 @@ namespace Goliath.Data.Config
             return sessFact;
         }
 
+        DbAccess IConfigurationSettings.CreateAccessor()
+        {
+            var dbConnector = DbProvider.GetDatabaseConnector(mainMap.Settings.ConnectionString);
+            var dbAccess = new DbAccess(dbConnector);
+            return dbAccess;
+        }
+
         #endregion
 
         private static IConfigurationSettings settings;

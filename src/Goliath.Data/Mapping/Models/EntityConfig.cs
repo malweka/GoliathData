@@ -185,6 +185,11 @@ namespace Goliath.Data.Mapping
             return null;
         }
 
+        public bool ContainsProperty(string propertyName)
+        {
+            return AllProperties.Contains(propertyName);
+        }
+
         #region IEquatable<EntityConfig> Members
 
         public override string ToString()

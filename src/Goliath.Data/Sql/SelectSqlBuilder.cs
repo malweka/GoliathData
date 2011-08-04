@@ -176,7 +176,12 @@ namespace Goliath.Data.Sql
 
         internal static string CreateColumnName(EntityMap entity, Property column)
         {
-            return string.Format("{1}.{0} AS {2}", column.ColumnName, entity.TableAbbreviation, column.GetQueryName(entity));
+            return CreateColumnName(entity, column.ColumnName);
+        }
+
+        internal static string CreateColumnName(EntityMap entity, string columnName)
+        {
+            return string.Format("{1}.{0} AS {1}_{0}", columnName, entity.TableAbbreviation);
         }
 
         internal static string CreateTableName(string tableAbbreviation, string tableName)

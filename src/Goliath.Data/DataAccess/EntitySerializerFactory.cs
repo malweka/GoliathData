@@ -10,18 +10,24 @@ using System.Reflection.Emit;
 using Goliath.Data.Mapping;
 using System.Data.Common;
 using Goliath.Data.Diagnostics;
-
+using Goliath.Data.DynamicProxy;
+using Goliath.Data.Sql;
+using Goliath.Data.Providers;
 
 namespace Goliath.Data.DataAccess
 {
     //TODO make this internal class
+    //TODO use singleton for entitySerializerFactory;
     public class EntitySerializerFactory : IEntitySerializerFactory
     {
 
         static ConcurrentDictionary<Type, Delegate> factoryList = new ConcurrentDictionary<Type, Delegate>();
+
         static object lockFactoryList = new object();
         static ILogger logger;
         ITypeConverter typeConverter;
+        SqlMapper sqlMapper;
+        //DbAccess dbAccess;
 
         static EntitySerializerFactory()
         {
@@ -31,17 +37,23 @@ namespace Goliath.Data.DataAccess
         /// <summary>
         /// Initializes a new instance of the <see cref="EntitySerializerFactory"/> class.
         /// </summary>
-        public EntitySerializerFactory() : this(null) { }
+        public EntitySerializerFactory(SqlMapper sqlMapper) : this(sqlMapper, null) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="EntitySerializerFactory"/> class.
         /// </summary>
         /// <param name="typeConverter">The type converter.</param>
-        public EntitySerializerFactory(ITypeConverter typeConverter)
+        public EntitySerializerFactory(SqlMapper sqlMapper,ITypeConverter typeConverter)
         {
+            if (sqlMapper == null)
+                throw new ArgumentNullException("sqlMapper");
+            //if (dbAccess == null)
+            //    throw new ArgumentNullException("dbAccess");
             if (typeConverter == null)
                 typeConverter = new TypeConverter();
 
+            this.sqlMapper = sqlMapper;
+            //this.dbAccess = dbAccess;
             this.typeConverter = typeConverter;
         }
 
@@ -52,7 +64,7 @@ namespace Goliath.Data.DataAccess
             throw new NotImplementedException();
         }
 
-        public IList<TEntity> Serialize<TEntity>(DbDataReader dataReader, EntityMap entityMap)
+        public IList<TEntity> SerializeAll<TEntity>(DbDataReader dataReader, EntityMap entityMap)
         {
             Delegate dlgMethod;
             Type type = typeof(TEntity);
@@ -73,6 +85,25 @@ namespace Goliath.Data.DataAccess
 
             IList<TEntity> entityList = factoryMethod.Invoke(dataReader, entityMap);
             return entityList;
+        }
+
+        public void Hydrate(object instanceToHydrate, Type typeOfInstance, EntityMap entityMap, DbDataReader dataReader)
+        {
+            if (dataReader.HasRows)
+            {
+                Dictionary<string, int> columns = GetColumnNames(dataReader, entityMap);
+                EntityGetSetInfo getSetInfo;
+
+                if (!getSetStore.TryGetValue(typeOfInstance, out getSetInfo))
+                {
+                    getSetInfo = new EntityGetSetInfo(typeOfInstance);
+                    getSetInfo.Load(entityMap);
+                    getSetStore.Add(typeOfInstance, getSetInfo);
+                }
+
+                dataReader.Read();
+                SerializeSingle(instanceToHydrate, typeOfInstance, entityMap, getSetInfo, columns, dataReader);
+            }
         }
 
         GetSetStore getSetStore = new GetSetStore();
@@ -99,7 +130,8 @@ namespace Goliath.Data.DataAccess
 
                 while (dbReader.Read())
                 {
-                    var instanceEntity = SerializeSingle(type, entityMap, getSetInfo, columns, dbReader);
+                    var instanceEntity = Activator.CreateInstance(type);
+                    SerializeSingle(instanceEntity, type, entityMap, getSetInfo, columns, dbReader);
                     list.Add((TEntity)instanceEntity);
                 }
 
@@ -125,11 +157,8 @@ namespace Goliath.Data.DataAccess
             return columns;
         }
 
-        object SerializeSingle(Type type, EntityMap entityMap, EntityGetSetInfo getSetInfo, Dictionary<string, int> columns, DbDataReader dbReader)
+        internal void SerializeSingle(object instanceEntity, Type type, EntityMap entityMap, EntityGetSetInfo getSetInfo, Dictionary<string, int> columns, DbDataReader dbReader)
         {
-            //Type type = typeof(TEntity);
-            var instanceEntity = Activator.CreateInstance(type);
-
             foreach (var keyVal in getSetInfo.Properties)
             {
                 var prop = entityMap[keyVal.Key];
@@ -179,25 +208,46 @@ namespace Goliath.Data.DataAccess
                                     getSetStore.Add(relType, relGetSetInfo);
                                 }
 
-                                object relIstance = SerializeSingle(relType, relEntMap, relGetSetInfo, relColumns, dbReader);
+                                object relIstance = Activator.CreateInstance(relType);
+                                SerializeSingle(relIstance, relType, relEntMap, relGetSetInfo, relColumns, dbReader);
                                 keyVal.Value.Setter(instanceEntity, relIstance);
                                 logger.Log(LogType.Info, string.Format("\t\t{0} is a ManyToOne", keyVal.Key));
                             }
                         }
-                        else if (keyVal.Value.PropertType.IsGenericType)
+                        else //if (keyVal.Value.PropertType.IsGenericType)
                         {
-                            var genArgs = keyVal.Value.PropertType.GetGenericArguments();
-                            var lazyType = typeof(Lazy<>).MakeGenericType(genArgs);
-                            if (keyVal.Value.PropertType.Equals(lazyType))
+                            if (rel.RelationType == RelationshipType.ManyToOne)
                             {
+                                ProxyBuilder pbuilder = new ProxyBuilder();
+
+                                var relEntMap = entityMap.Parent.EntityConfigs[rel.ReferenceEntityName];
+                                if (relEntMap == null)
+                                    throw new MappingException(string.Format("couldn't find referenced entity name {0} while try to build {1}", rel.ReferenceEntityName, entityMap.Name));
                                 
+                                if (columns.TryGetValue(rel.ColumnName, out ordinal))
+                                {
+                                    var val = dbReader[ordinal];
+                                    QueryParam qp = new QueryParam(string.Format("{0}_{1}", relEntMap.TableAbbreviation, rel.ReferenceColumn)) { Value = val };
+
+                                    SelectSqlBuilder sqlBuilder = new SelectSqlBuilder(sqlMapper, relEntMap)
+                                       .Where(new WhereStatement(string.Format("{0}.{1}", relEntMap.TableAbbreviation, rel.ReferenceColumn))
+                                                .Equals(sqlMapper.CreateParameterName(qp.Name)));
+
+                                    QueryInfo qInfo = new QueryInfo();
+                                    qInfo.QuerySqlText = sqlBuilder.Build();
+                                    qInfo.Parameters = new QueryParam[] { qp };
+
+                                    IProxyHydrator hydrator = new ProxySerializer(qInfo, keyVal.Value.PropertType, relEntMap, this);
+                                    var proxyType = pbuilder.CreateProxy(keyVal.Value.PropertType, relEntMap);
+                                    object proxyobj = Activator.CreateInstance(proxyType, new object[] { keyVal.Value.PropertType, hydrator });
+                                    keyVal.Value.Setter(instanceEntity, proxyobj);
+                                }
+                               
                             }
                         }
                     }
                 }
             }
-
-            return instanceEntity;
         }
 
         public static void DataReaderColumnList(IDataReader dataReader, EntityMap entMap)

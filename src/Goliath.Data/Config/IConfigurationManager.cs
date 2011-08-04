@@ -48,9 +48,9 @@ namespace Goliath.Data.Config
         ISessionFactory Init();
     }
 
-    public interface IConfigurationSettings
+    interface IConfigurationSettings
     {
         Mapping.MapConfig Map { get; }
-        //Providers.IDbProvider DbProvider { get; }
+        DbAccess CreateAccessor();
     }
 }
