@@ -49,7 +49,7 @@ namespace Goliath.Data.DataAccess
         public string Name { get; set; }
     }
 
-    class EntityGetSetInfo
+     class EntityGetSetInfo
     {
         readonly Dictionary<string, PropInfo> properties;
         //readonly Dictionary<string, MemberGetter> getters;
