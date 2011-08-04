@@ -1,0 +1,100 @@
+﻿@using Goliath.Data.Mapping
+@using Goliath.Data.Diagnostics
+///////////////////////////////////////////////////////////////////
+//	
+//	Auto generated -  Class Template 1.1.0
+//
+///////////////////////////////////////////////////////////////////
+using System;
+using System.Collections.Generic;
+@{
+	ILogger logger = Logger.GetLogger(this.GetType());
+	string _extends = string.Empty;
+	if(!string.IsNullOrWhiteSpace(Model.Extends))
+		_extends = string.Format(": {0}", Model.Extends);
+}
+
+namespace @Model.Namespace
+{
+	public partial class @Model.Name @(_extends)
+	{
+		#region Primary Key
+
+		@{
+			if(Model.PrimaryKey != null)
+			{
+				foreach(var k in Model.PrimaryKey.Keys)
+				{
+					Property p = k;
+					if(!p.CanPrint(Model))
+						continue;
+		@:public virtual @p.GetClrTypeAsString(Model) @p.PropertyName { get; set; }
+				}
+			}
+		}
+
+		#endregion
+
+		#region properties
+
+		@{
+			foreach(var p in Model.Properties)
+			{
+				if(!p.CanPrint(Model))
+					continue;
+		@:public virtual @p.GetClrTypeAsString(Model) @p.PropertyName { get; set; }
+			}
+		}
+
+		#endregion
+
+		#region relations
+
+		@{
+			foreach(var p in Model.Relations)
+			{
+				if(!p.CanPrint(Model))
+					continue;
+				var other = Model.Parent.EntityConfigs[p.ReferenceEntityName];
+				if((int)p.RelationType < 2)
+				{
+		@:public virtual @other.FullName @p.PropertyName { get; set; }		
+				}
+				else
+				{
+		@:public virtual IList<@other.FullName> @p.PropertyName { get; set; }
+				}
+			}
+		}
+
+		#endregion
+
+		#region metadata
+
+		public struct PropertyNames
+		{
+			@{
+				if(Model.PrimaryKey != null)
+				{
+					foreach(var k in Model.PrimaryKey.Keys)
+					{
+						Property p = k;
+			@:public const string @p.PropertyName = "@p.PropertyName";
+					}
+				}
+
+				foreach(var p in Model.Properties)
+				{
+			@:public const string @p.PropertyName = "@p.PropertyName";
+				}
+				foreach(var p in Model.Relations)
+				{
+			@:public const string @p.PropertyName = "@p.PropertyName";
+				}
+			}
+		}
+
+		#endregion
+	}
+}
+
