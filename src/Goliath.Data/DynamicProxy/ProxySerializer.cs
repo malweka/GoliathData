@@ -48,7 +48,7 @@ namespace Goliath.Data.DynamicProxy
 
                 logger.Log(LogType.Debug, string.Format("executing query {0}", query.QuerySqlText));
                 var dataReader = dbAccess.ExecuteReader(conn, query.QuerySqlText, parameters);
-                logger.Log(LogType.Debug, string.Format("datareader has row? {0}", dataReader.HasRows));
+                //logger.Log(LogType.Debug, string.Format("datareader has row? {0}", dataReader.HasRows));
                 serialFactory.Hydrate(instance, type, entityMap, dataReader);
                 dataReader.Dispose();
             }

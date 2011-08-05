@@ -29,7 +29,6 @@ namespace WebZoo.Data.Sqlite
 
 		public virtual WebZoo.Data.Sqlite.Zoo Zoo { get; set; }		
 		public virtual IList<WebZoo.Data.Sqlite.Employee> EmployeesOnAnimalsHandler_AnimalId { get; set; }
-        //public Lazy<Zoo> Zoo { get; set; }
 
 		#endregion
 
@@ -46,9 +45,6 @@ namespace WebZoo.Data.Sqlite
 			public const string Zoo = "Zoo";
 			public const string EmployeesOnAnimalsHandler_AnimalId = "EmployeesOnAnimalsHandler_AnimalId";
 		}
-
-        public void MethodIsPublic() { }
-        protected void MethodIsProtected() { }
 
 		#endregion
 	}

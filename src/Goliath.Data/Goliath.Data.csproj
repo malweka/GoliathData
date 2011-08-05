@@ -62,6 +62,7 @@
     <Reference Include="System.Configuration" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Collections\ILazyList.cs" />
     <Compile Include="Config\ConfigManager.cs" />
     <Compile Include="Config\IConfigurationManager.cs" />
     <Compile Include="DataAccess\AdoTransaction.cs" />
@@ -94,6 +95,7 @@
     <Compile Include="DynamicProxy\ProxyCache.cs" />
     <Compile Include="GoliathDataException.cs" />
     <Compile Include="KeyedCollectionBase.cs" />
+    <Compile Include="Collections\LazyList.cs" />
     <Compile Include="Libs\Fasterflect.cs" />
     <Compile Include="Mapping\MapBuilderConfig.Read.cs" />
     <Compile Include="Mapping\MapBuilderConfig.Write.cs" />

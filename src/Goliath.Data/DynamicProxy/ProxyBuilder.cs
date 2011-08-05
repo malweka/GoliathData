@@ -271,9 +271,9 @@ namespace Goliath.Data.DynamicProxy
             ParameterBuilder value = method.DefineParameter(1, ParameterAttributes.None, "value");
             ILGenerator gen = method.GetILGenerator();
             // Writing body
-            gen.Emit(OpCodes.Nop);
-            gen.Emit(OpCodes.Ldarg_0);
-            gen.Emit(OpCodes.Call, loadMeMethodBuilder);
+            //gen.Emit(OpCodes.Nop);
+            //gen.Emit(OpCodes.Ldarg_0);
+            //gen.Emit(OpCodes.Call, loadMeMethodBuilder);
             gen.Emit(OpCodes.Nop);
             gen.Emit(OpCodes.Ldarg_0);
             gen.Emit(OpCodes.Ldarg_1);

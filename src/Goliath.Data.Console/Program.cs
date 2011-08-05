@@ -27,15 +27,15 @@ namespace Goliath.Data
 
             Console.WriteLine("Start run");
 
-            //Sqlite(sqliteWorkingDirectory);
-            //SqlServer(sqlServerWorkingDirectory);
+            Sqlite(sqliteWorkingDirectory);
+            SqlServer(sqlServerWorkingDirectory);
 
-            //string templatePath = currentDir;
+            string templatePath = currentDir;
 
-            //Generate(sqlServerWorkingDirectory, templatePath);
-            //Generate(sqliteWorkingDirectory, templatePath);
+            Generate(sqlServerWorkingDirectory, templatePath);
+            Generate(sqliteWorkingDirectory, templatePath);
 
-            QueryTest(sqliteWorkingDirectory);
+            //QueryTest(sqliteWorkingDirectory);
             Console.WriteLine("done");
             //Console.ReadKey();
         }
@@ -85,7 +85,8 @@ namespace Goliath.Data
         static void Sqlite(string workingFolder)
         {
             ProjectSettings settings = new ProjectSettings();
-            string dbfile = Path.Combine(@"\Goliath.Data", "WebZoo.db");
+            string pdir = AppDomain.CurrentDomain.BaseDirectory.Substring(0, AppDomain.CurrentDomain.BaseDirectory.IndexOf("bin"));
+            string dbfile = Path.Combine(pdir, "Data", "WebZoo.db");
             settings.ConnectionString = string.Format("Data Source={0}; Version=3", dbfile);
             settings.Namespace = "WebZoo.Data.Sqlite";
             settings.Version = "1.0";

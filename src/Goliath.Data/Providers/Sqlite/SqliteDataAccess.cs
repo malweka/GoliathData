@@ -12,7 +12,8 @@ namespace Goliath.Data.Providers.Sqlite
         /// Initializes a new instance of the <see cref="SqliteDbConnector"/> class.
         /// </summary>
         /// <param name="connectionString">The connection string.</param>
-        public SqliteDbConnector(string connectionString) : base(connectionString, Constants.ProviderName)
+        public SqliteDbConnector(string connectionString)
+            : base(connectionString, Constants.ProviderName)
         {
         }
 
@@ -24,7 +25,6 @@ namespace Goliath.Data.Providers.Sqlite
         {
             SQLiteConnection connection;
             connection = new SQLiteConnection(ConnectionString);
-            //connection.Open();
             return connection;
         }
 
@@ -42,8 +42,19 @@ namespace Goliath.Data.Providers.Sqlite
             if (value == null)
                 value = DBNull.Value;
 
-            SQLiteParameter param = new SQLiteParameter(string.Format("${0}", parameterName), value);
+            SQLiteParameter param;
+            if (value is Guid)
+            {
+                Console.WriteLine("=== guid translating to string");
+                param = new SQLiteParameter(string.Format("${0}", parameterName), value.ToString().ToUpper());
+                Console.WriteLine("=== param name = {0}", param.ParameterName);
+                Console.WriteLine("=== param value = {0}", param.Value);
+                Console.WriteLine("=== param type = {0}", param.DbType);
+            }
+            else
+                param = new SQLiteParameter(string.Format("${0}", parameterName), value);
             return param;
         }
+
     }
 }
