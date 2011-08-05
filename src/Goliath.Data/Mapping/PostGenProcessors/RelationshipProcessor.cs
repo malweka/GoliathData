@@ -37,13 +37,13 @@ namespace Goliath.Data.Mapping
                                 {
                                     IsComplexType = true,
                                     LazyLoad = true,
-                                    ReferenceColumn = aRel.ReferenceColumn ?? string.Empty,
+                                    ColumnName = aRel.ReferenceColumn ?? string.Empty,
+                                    ReferenceColumn = bRel.ReferenceColumn ?? string.Empty,
                                     CollectionType = Mapping.CollectionType.List,
                                     MapTableName = ent.TableName,
                                     MapColumn = aRel.ColumnName ?? string.Empty,
                                     PropertyName = string.Format("{0}On{1}_{2}", bEnt.Name.Pluralize(), ent.Name, aRel.ColumnName),
                                     ReferenceEntityName = bEnt.FullName,
-                                    //ComplexTypeName = "IList",
                                     ReferenceTable = bEnt.TableName,
                                     RelationType = RelationshipType.ManyToMany,
                                 });
@@ -51,13 +51,13 @@ namespace Goliath.Data.Mapping
                                 bEnt.Relations.Add(new Relation()
                                 {
                                     IsComplexType = true,
-                                    ReferenceColumn = bRel.ReferenceColumn ?? string.Empty,
+                                    ColumnName = bRel.ReferenceColumn ?? string.Empty,
+                                    ReferenceColumn = aRel.ReferenceColumn ?? string.Empty,
                                     MapTableName = ent.TableName,
                                     MapColumn = bRel.ColumnName ?? string.Empty,
                                     CollectionType = Mapping.CollectionType.List,
                                     LazyLoad = true,
                                     PropertyName = string.Format("{0}On{1}_{2}", aEnt.Name.Pluralize(), ent.Name, bRel.ColumnName),
-                                    //ComplexTypeName = "IList",
                                     ReferenceEntityName = aEnt.FullName,
                                     ReferenceTable = aEnt.TableName,
                                     RelationType = RelationshipType.ManyToMany,
@@ -89,9 +89,9 @@ namespace Goliath.Data.Mapping
                                     {
                                         IsComplexType = true,
                                         LazyLoad = true,
-                                        ColumnName = reference.ColumnName,
+                                        ColumnName = reference.ReferenceColumn,
+                                        ReferenceColumn = reference.ColumnName,
                                         PropertyName = string.Format("{0}On{1}", ent.Name.Pluralize(), reference.ColumnName),
-                                        //ComplexTypeName = "IList",
                                         ReferenceTable = ent.TableName,
                                         RelationType = RelationshipType.OneToMany,
                                         ReferenceEntityName = ent.FullName,

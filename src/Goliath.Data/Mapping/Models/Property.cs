@@ -253,15 +253,15 @@ namespace Goliath.Data.Mapping
             return string.Format("{0}_{1}", tableAbbreviation, propertyName);
         }
 
-        internal static string GetPropNameFromQueryName(string queryName, EntityMap map)
+        internal static string GetPropNameFromQueryName(string queryName, string tableAbbreviation)
         {
-            if (map == null)
-                throw new ArgumentNullException("map");
+            if (string.IsNullOrWhiteSpace(tableAbbreviation))
+                throw new ArgumentNullException("tableAbbreviation");
 
             if (string.IsNullOrWhiteSpace(queryName))
                 throw new ArgumentNullException("queryName");
 
-            var pname = queryName.Substring(map.TableAbbreviation.Length+1);
+            var pname = queryName.Substring(tableAbbreviation.Length + 1);
             return pname;
         }
 

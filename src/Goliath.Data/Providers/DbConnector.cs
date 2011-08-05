@@ -54,6 +54,7 @@ namespace Goliath.Data.Providers
         /// <returns></returns>
         public abstract DbParameter CreateParameter(string parameterName, object value);
 
+
         ///// <summary>
         ///// Creates the parameter.
         ///// </summary>

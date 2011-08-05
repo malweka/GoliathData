@@ -44,11 +44,6 @@ namespace Goliath.Data
 
         #region Abstract methods
 
-        //public abstract DbConnection CreateNewConnection();
-
-        //public abstract DbParameter CreateParameter(int i, object value);
-
-        //public abstract DbParameter CreateParameter(string parameterName, object value);
         public DbConnection CreateConnection()
         {
             return dbConnector.CreateNewConnection();
