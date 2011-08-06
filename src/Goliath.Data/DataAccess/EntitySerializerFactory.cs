@@ -211,7 +211,7 @@ namespace Goliath.Data.DataAccess
                                         QueryParam qp = new QueryParam(ParameterNameBuilderHelper.ColumnQueryName(relEntMap.TableAlias, rel.ReferenceColumn)) { Value = val };
 
                                         SelectSqlBuilder sqlBuilder = new SelectSqlBuilder(sqlMapper, relEntMap)
-                                           .Where(new WhereStatement(string.Format("{0}.{1}", relEntMap.TableAlias, rel.ReferenceColumn))
+                                           .Where(new WhereStatement(ParameterNameBuilderHelper.ColumnWithTableAlias(relEntMap.TableAlias, rel.ReferenceColumn))
                                                     .Equals(sqlMapper.CreateParameterName(qp.Name)));
 
                                         QueryInfo qInfo = new QueryInfo();
@@ -247,7 +247,18 @@ namespace Goliath.Data.DataAccess
                                         var val = dbReader[ordinal];
                                         if (val != null)
                                         {
+                                            QueryParam qp = new QueryParam(ParameterNameBuilderHelper.ColumnQueryName(relEntMap.TableAlias, rel.ReferenceColumn)) { Value = val };
+                                            SelectSqlBuilder sqlBuilder = new SelectSqlBuilder(sqlMapper, relEntMap)
+                                           .Where(new WhereStatement(ParameterNameBuilderHelper.ColumnWithTableAlias(relEntMap.TableAlias, rel.ReferenceColumn))
+                                                    .Equals(sqlMapper.CreateParameterName(qp.Name)));
+
+                                            QueryInfo qInfo = new QueryInfo();
+                                            qInfo.QuerySqlText = sqlBuilder.Build();
+                                            qInfo.Parameters = new QueryParam[] { qp };
+
                                             var collectionType = typeof(Collections.LazyList<>).MakeGenericType(new Type[] { refEntityType });
+                                            var lazyCol = Activator.CreateInstance(collectionType, qInfo, relEntMap, this);
+                                            keyVal.Value.Setter(instanceEntity, lazyCol);
                                         }
                                         else
                                         {

@@ -88,7 +88,7 @@ namespace Goliath.Data.Sql
         {
             var str = string.Format("\n{0} {1} ON {2}.{3} = {4}.{5}", 
                                     JoinTypeToString(JoinType),
-                                    ParameterNameBuilderHelper.CreateColumnNameForSelectQuery(OnEntityMap.TableAlias, OnEntityMap.TableName),
+                                    ParameterNameBuilderHelper.CreateTableNameWithAlias(OnEntityMap.TableAlias, OnEntityMap.TableName),
                                     Table.TableAlias, 
                                     LeftColumn.ColumnName,
                                     OnEntityMap.TableAlias,
