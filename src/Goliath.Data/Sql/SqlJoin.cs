@@ -87,11 +87,11 @@ namespace Goliath.Data.Sql
         public override string ToString()
         {
             var str = string.Format("\n{0} {1} ON {2}.{3} = {4}.{5}", 
-                                    JoinTypeToString(JoinType), 
-                                    SelectSqlBuilder.CreateTableName(OnEntityMap.TableAbbreviation, OnEntityMap.TableName),
-                                    Table.TableAbbreviation, 
+                                    JoinTypeToString(JoinType),
+                                    ParameterNameBuilderHelper.CreateColumnNameForSelectQuery(OnEntityMap.TableAlias, OnEntityMap.TableName),
+                                    Table.TableAlias, 
                                     LeftColumn.ColumnName,
-                                    OnEntityMap.TableAbbreviation,
+                                    OnEntityMap.TableAlias,
                                     RightColumn);
             return str;
         }

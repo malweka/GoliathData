@@ -27,15 +27,15 @@ namespace Goliath.Data
 
             Console.WriteLine("Start run");
 
-            Sqlite(sqliteWorkingDirectory);
-            SqlServer(sqlServerWorkingDirectory);
+            //Sqlite(sqliteWorkingDirectory);
+            //SqlServer(sqlServerWorkingDirectory);
 
-            string templatePath = currentDir;
+            //string templatePath = currentDir;
 
-            Generate(sqlServerWorkingDirectory, templatePath);
-            Generate(sqliteWorkingDirectory, templatePath);
+            //Generate(sqlServerWorkingDirectory, templatePath);
+            //Generate(sqliteWorkingDirectory, templatePath);
 
-            //QueryTest(sqliteWorkingDirectory);
+            QueryTest(sqliteWorkingDirectory);
             Console.WriteLine("done");
             //Console.ReadKey();
         }
@@ -195,10 +195,10 @@ namespace Goliath.Data
                 .Where(new WhereStatement("Name").Equals("@Name"));
                 string sstring = selectBuilder.Build();
 
-                QueryParam qp = new QueryParam(string.Format("{0}{1}", zooEntMap.TableAbbreviation, "Id")) { Value = "CAF24C81-C7A1-4B5F-8CDA-D85D8ED5F2AF" };
+                QueryParam qp = new QueryParam(string.Format("{0}{1}", zooEntMap.TableAlias, "Id")) { Value = "CAF24C81-C7A1-4B5F-8CDA-D85D8ED5F2AF" };
 
                 SelectSqlBuilder sqlBuilder = new SelectSqlBuilder(mapper, zooEntMap)
-                   .Where(new WhereStatement(string.Format("{0}.{1}", zooEntMap.TableAbbreviation, "Id"))
+                   .Where(new WhereStatement(string.Format("{0}.{1}", zooEntMap.TableAlias, "Id"))
                             .Equals(mapper.CreateParameterName(qp.Name)));
 
                 QueryInfo qInfo = new QueryInfo();

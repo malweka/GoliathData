@@ -91,7 +91,7 @@ namespace Goliath.Data.DataAccess
         {
             if (dataReader.HasRows)
             {
-                Dictionary<string, int> columns = GetColumnNames(dataReader, entityMap.TableAbbreviation);
+                Dictionary<string, int> columns = GetColumnNames(dataReader, entityMap.TableAlias);
                 EntityGetSetInfo getSetInfo;
 
                 if (!getSetStore.TryGetValue(typeOfInstance, out getSetInfo))
@@ -117,7 +117,7 @@ namespace Goliath.Data.DataAccess
                 List<TEntity> list = new List<TEntity>();
 
                 Type type = typeof(TEntity);
-                Dictionary<string, int> columns = GetColumnNames(dbReader, entMap.TableAbbreviation);
+                Dictionary<string, int> columns = GetColumnNames(dbReader, entMap.TableAlias);
 
                 EntityGetSetInfo getSetInfo;
 
@@ -150,7 +150,7 @@ namespace Goliath.Data.DataAccess
                 string tabb = string.Format("{0}_", tableAbbreviation);
                 if (fieldName.StartsWith(tabb))
                 {
-                    var colName = Property.GetPropNameFromQueryName(fieldName, tableAbbreviation);
+                    var colName = ParameterNameBuilderHelper.GetPropNameFromQueryName(fieldName, tableAbbreviation);
                     columns.Add(colName, i);
                 }
             }
@@ -164,7 +164,7 @@ namespace Goliath.Data.DataAccess
                 var prop = entityMap[keyVal.Key];
                 int ordinal;
                 if (prop != null)
-                {                    
+                {
                     if (prop is Relation)
                     {
                         logger.Log(LogType.Info, string.Format("Read {0} is a relation", keyVal.Key));
@@ -177,7 +177,7 @@ namespace Goliath.Data.DataAccess
                                 if (relEntMap == null)
                                     throw new MappingException(string.Format("couldn't find referenced entity name {0} while try to build {1}", rel.ReferenceEntityName, entityMap.Name));
 
-                                var relColumns = GetColumnNames(dbReader, relEntMap.TableAbbreviation);
+                                var relColumns = GetColumnNames(dbReader, relEntMap.TableAlias);
                                 EntityGetSetInfo relGetSetInfo;
                                 Type relType = keyVal.Value.PropertType;
                                 if (!getSetStore.TryGetValue(relType, out relGetSetInfo))
@@ -208,10 +208,10 @@ namespace Goliath.Data.DataAccess
                                     var val = dbReader[ordinal];
                                     if (val != null)
                                     {
-                                        QueryParam qp = new QueryParam(string.Format("{0}_{1}", relEntMap.TableAbbreviation, rel.ReferenceColumn)) { Value = val };
+                                        QueryParam qp = new QueryParam(ParameterNameBuilderHelper.ColumnQueryName(relEntMap.TableAlias, rel.ReferenceColumn)) { Value = val };
 
                                         SelectSqlBuilder sqlBuilder = new SelectSqlBuilder(sqlMapper, relEntMap)
-                                           .Where(new WhereStatement(string.Format("{0}.{1}", relEntMap.TableAbbreviation, rel.ReferenceColumn))
+                                           .Where(new WhereStatement(string.Format("{0}.{1}", relEntMap.TableAlias, rel.ReferenceColumn))
                                                     .Equals(sqlMapper.CreateParameterName(qp.Name)));
 
                                         QueryInfo qInfo = new QueryInfo();
@@ -242,12 +242,24 @@ namespace Goliath.Data.DataAccess
 
                                 if (propType.Equals(typeof(IList<>).MakeGenericType(new Type[] { refEntityType })))
                                 {
-                                    var collectionType = typeof(Collections.LazyList<>).MakeGenericType(new Type[] { refEntityType });
+                                    if (columns.TryGetValue(rel.ColumnName, out ordinal))
+                                    {
+                                        var val = dbReader[ordinal];
+                                        if (val != null)
+                                        {
+                                            var collectionType = typeof(Collections.LazyList<>).MakeGenericType(new Type[] { refEntityType });
+                                        }
+                                        else
+                                        {
+                                            var collectionType = typeof(List<>).MakeGenericType(new Type[] { refEntityType });
+                                            keyVal.Value.Setter(instanceEntity, Activator.CreateInstance(collectionType));
+                                        }
+                                    }
 
                                 }
                                 else
                                     throw new MappingException(string.Format("property type mismatch: {0} should be IList<T>", rel.PropertyName));
-                                
+
                             }
                         }
                     }

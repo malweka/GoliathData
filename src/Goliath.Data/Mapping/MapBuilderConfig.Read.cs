@@ -317,8 +317,8 @@ namespace Goliath.Data.Mapping
                             case "schema":
                                 entMap.SchemaName = reader.Value;
                                 break;
-                            case "tableAbbr":
-                                entMap.TableAbbreviation = reader.Value;
+                            case "alias":
+                                entMap.TableAlias = reader.Value;
                                 break;
                             case "linkTable":
                                 bool isLinkTable;

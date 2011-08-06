@@ -94,8 +94,8 @@ namespace Goliath.Data.Mapping
                     xmlWriter.WriteString(entity.SchemaName);
                     xmlWriter.WriteEndAttribute();
 
-                    xmlWriter.WriteStartAttribute("tableAbbr");
-                    xmlWriter.WriteString(entity.TableAbbreviation);
+                    xmlWriter.WriteStartAttribute("alias");
+                    xmlWriter.WriteString(entity.TableAlias);
                     xmlWriter.WriteEndAttribute();
 
                     //primary key
