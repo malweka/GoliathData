@@ -245,25 +245,10 @@ namespace Goliath.Data.Mapping
         {
             if (map == null)
                 throw new ArgumentNullException("map");
-            return PropertyQueryName(map.TableAbbreviation, PropertyName);
+            return ParameterNameBuilderHelper.ColumnQueryName(map.TableAlias, PropertyName);
         }
 
-        internal static string PropertyQueryName(string propertyName, string tableAbbreviation)
-        {
-            return string.Format("{0}_{1}", tableAbbreviation, propertyName);
-        }
-
-        internal static string GetPropNameFromQueryName(string queryName, string tableAbbreviation)
-        {
-            if (string.IsNullOrWhiteSpace(tableAbbreviation))
-                throw new ArgumentNullException("tableAbbreviation");
-
-            if (string.IsNullOrWhiteSpace(queryName))
-                throw new ArgumentNullException("queryName");
-
-            var pname = queryName.Substring(tableAbbreviation.Length + 1);
-            return pname;
-        }
+       
 
         /// <summary>
         /// Performs an implicit conversion from <see cref="Goliath.Data.Mapping.PrimaryKeyProperty"/> to <see cref="Goliath.Data.Mapping.Property"/>.

@@ -58,7 +58,7 @@ namespace Goliath.Data.Mapping
         [DataMember]
         public string SchemaName { get; set; }
         [DataMember]
-        public string TableAbbreviation { get; set; }
+        public string TableAlias { get; set; }
 
         string extends;
         [DataMember]

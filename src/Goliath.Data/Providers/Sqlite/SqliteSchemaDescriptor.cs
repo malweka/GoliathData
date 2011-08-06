@@ -63,7 +63,7 @@ namespace Goliath.Data.Providers.Sqlite
                         table.Namespace = ProjectSettings.Namespace;
                         table.SchemaName = schemaName;
                         table.AssemblyName = ProjectSettings.AssemblyName;
-                        table.TableAbbreviation = name;
+                        table.TableAlias = name;
                         tables.Add(name, table);
                     }
                 }

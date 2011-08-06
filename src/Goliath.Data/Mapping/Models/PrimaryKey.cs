@@ -75,7 +75,7 @@ namespace Goliath.Data.Mapping
 
             if (map == null)
                 throw new ArgumentNullException("map");
-            return string.Format("{0}_{1}", map.TableAbbreviation, Key.ColumnName);
+            return string.Format("{0}_{1}", map.TableAlias, Key.ColumnName);
         }
 
         /// <summary>

@@ -62,17 +62,17 @@ namespace Goliath.Data.Sql
                     }
                 }
 
-                string colKey = string.Format("{0}.{1}", entMap.TableAbbreviation, col.ColumnName);
+                string colKey = string.Format("{0}.{1}", entMap.TableAlias, col.ColumnName);
                 //var tuple = Tuple.Create<string, string>(sqlMapper.CreateParameterName(col.Name), CreateColumnName(entMap, col));
                 if (!columns.ContainsKey(colKey))
-                    this.columns.Add(colKey, BuildColumnSelectString(col.ColumnName, entMap.TableAbbreviation));
+                    this.columns.Add(colKey, BuildColumnSelectString(col.ColumnName, entMap.TableAlias));
             }
 
         }
 
         internal string BuildColumnSelectString(string columnName, string tableAbbreviation)
         {
-            return string.Format("{2}.{0} AS {1}", columnName, Property.PropertyQueryName(columnName, tableAbbreviation), tableAbbreviation);
+            return string.Format("{2}.{0} AS {1}", columnName, ParameterNameBuilderHelper.ColumnQueryName(columnName, tableAbbreviation), tableAbbreviation);
         }
 
         internal string BuildTableFromString(string tableName, string tableAbbreviation)
@@ -133,7 +133,7 @@ namespace Goliath.Data.Sql
             }
 
             queryBody.ColumnEnumeration = string.Join(", ", printColumns);
-            queryBody.From = BuildTableFromString(entMap.TableName, entMap.TableAbbreviation);
+            queryBody.From = BuildTableFromString(entMap.TableName, entMap.TableAlias);
 
             if (sJoins.Count > 0)
             {
@@ -174,20 +174,20 @@ namespace Goliath.Data.Sql
 #endif
         }
 
-        internal static string CreateColumnName(EntityMap entity, Property column)
-        {
-            return CreateColumnName(entity, column.ColumnName);
-        }
+        //internal static string CreateColumnName(EntityMap entity, Property column)
+        //{
+        //    return CreateColumnName(entity, column.ColumnName);
+        //}
 
-        internal static string CreateColumnName(EntityMap entity, string columnName)
-        {
-            return string.Format("{1}.{0} AS {1}_{0}", columnName, entity.TableAbbreviation);
-        }
+        //internal static string CreateColumnName(EntityMap entity, string columnName)
+        //{
+        //    return string.Format("{1}.{0} AS {1}_{0}", columnName, entity.TableAbbreviation);
+        //}
 
-        internal static string CreateTableName(string tableAbbreviation, string tableName)
-        {
-            return string.Format("{0} {1}", tableName, tableAbbreviation);
-        }
+        //internal static string CreateTableName(string tableAbbreviation, string tableName)
+        //{
+        //    return string.Format("{0} {1}", tableName, tableAbbreviation);
+        //}
     }
 
     public struct SqlQueryBody

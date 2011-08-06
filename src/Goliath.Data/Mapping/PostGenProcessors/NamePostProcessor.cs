@@ -39,7 +39,7 @@ namespace Goliath.Data.Mapping
             foreach (var table in entities.Values)
             {
                 table.Name = tableNamer.Transform(table, table.Name);
-                table.TableAbbreviation = tableAbbreviator.Abbreviate(table.Name);
+                table.TableAlias = tableAbbreviator.Abbreviate(table.Name);
 
                 for(int i=0; i<table.Count; i++)//foreach (var prop in table)
                 {
