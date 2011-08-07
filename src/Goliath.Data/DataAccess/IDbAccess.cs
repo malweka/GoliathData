@@ -27,22 +27,14 @@ namespace Goliath.Data
         /// <returns></returns>
         DbParameter CreateParameter(int i, object value);
 
+        /// <summary>
+        /// Creates the parameters.
+        /// </summary>
+        /// <param name="queryParams">The query params.</param>
+        /// <returns></returns>
+        ICollection<DbParameter> CreateParameters(IEnumerable<QueryParam> queryParams);
+
         #region Data access
-
-        ///// <summary>
-        ///// Gets the current connection.
-        ///// </summary>
-        //DbConnection CurrentConnection { get; }
-
-
-
-        ///// <summary>
-        ///// Executes the non query.
-        ///// </summary>
-        ///// <param name="sql">The SQL.</param>
-        ///// <param name="parameters">The parameters.</param>
-        ///// <returns></returns>
-        //int ExecuteNonQuery(string sql, params DbParameter[] parameters);
 
         /// <summary>
         /// Executes the non query.
@@ -53,13 +45,6 @@ namespace Goliath.Data
         /// <returns></returns>
         int ExecuteNonQuery(DbConnection conn, string sql, params DbParameter[] parameters);
 
-        ///// <summary>
-        ///// Executes the scalar.
-        ///// </summary>
-        ///// <param name="sql">The SQL.</param>
-        ///// <param name="parameters">The parameters.</param>
-        ///// <returns></returns>
-        //object ExecuteScalar(string sql, params DbParameter[] parameters);
 
         /// <summary>
         /// Executes the scalar.
@@ -69,14 +54,6 @@ namespace Goliath.Data
         /// <param name="parameters">The parameters.</param>
         /// <returns></returns>
         object ExecuteScalar(DbConnection conn, string sql, params DbParameter[] parameters);
-
-        ///// <summary>
-        ///// Executes the reader.
-        ///// </summary>
-        ///// <param name="sql">The SQL.</param>
-        ///// <param name="parameters">The parameters.</param>
-        ///// <returns></returns>
-        //DbDataReader ExecuteReader(string sql, params DbParameter[] parameters);
 
         /// <summary>
         /// Executes the reader.

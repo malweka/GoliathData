@@ -5,10 +5,10 @@ using System.Text;
 
 namespace Goliath.Data.DataAccess
 {
-    class TypeConverter : ITypeConverter
+    public class TypeConverterFactory : ITypeConverterFactory
     {
         Dictionary<Type, Func<Object, Object>> converters = new Dictionary<Type, Func<Object, Object>>();
-        public TypeConverter()
+        public TypeConverterFactory()
         {
             Load();
         }
@@ -72,7 +72,7 @@ namespace Goliath.Data.DataAccess
         /// </summary>
         /// <param name="from">From.</param>
         /// <returns></returns>
-        public Func<Object, Object> GetConverter(Type from)
+        public Func<Object, Object> GetConverterFactoryMethod(Type from)
         {
             if (from == null)
                 throw new ArgumentNullException("from");

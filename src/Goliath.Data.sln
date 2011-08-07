@@ -5,9 +5,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Goliath.Data", "Goliath.Dat
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Goliath.Data.Console", "Goliath.Data.Console\Goliath.Data.Console.csproj", "{02080BC5-4BB4-4D48-B132-57BCEC010387}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Goliath.Data.Tests", "Goliath.Data.Tests\Goliath.Data.Tests.csproj", "{3E44D80D-232F-4A5E-900F-8E2739486444}"
-EndProject
 Global
+	GlobalSection(MercurialSourceControlSolutionProperties) = preSolution
+		SolutionIsControlled = True
+		SolutionBindings = <Solution Location In Database>
+	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Debug|Mixed Platforms = Debug|Mixed Platforms
@@ -17,6 +19,16 @@ Global
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B3FC3122-EF38-45D1-8019-4D889283B4DC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B3FC3122-EF38-45D1-8019-4D889283B4DC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B3FC3122-EF38-45D1-8019-4D889283B4DC}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{B3FC3122-EF38-45D1-8019-4D889283B4DC}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{B3FC3122-EF38-45D1-8019-4D889283B4DC}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{B3FC3122-EF38-45D1-8019-4D889283B4DC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B3FC3122-EF38-45D1-8019-4D889283B4DC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B3FC3122-EF38-45D1-8019-4D889283B4DC}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{B3FC3122-EF38-45D1-8019-4D889283B4DC}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{B3FC3122-EF38-45D1-8019-4D889283B4DC}.Release|x86.ActiveCfg = Release|Any CPU
 		{02080BC5-4BB4-4D48-B132-57BCEC010387}.Debug|Any CPU.ActiveCfg = Debug|x86
 		{02080BC5-4BB4-4D48-B132-57BCEC010387}.Debug|Any CPU.Build.0 = Debug|x86
 		{02080BC5-4BB4-4D48-B132-57BCEC010387}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
@@ -29,35 +41,11 @@ Global
 		{02080BC5-4BB4-4D48-B132-57BCEC010387}.Release|Mixed Platforms.Build.0 = Release|x86
 		{02080BC5-4BB4-4D48-B132-57BCEC010387}.Release|x86.ActiveCfg = Release|x86
 		{02080BC5-4BB4-4D48-B132-57BCEC010387}.Release|x86.Build.0 = Release|x86
-		{3E44D80D-232F-4A5E-900F-8E2739486444}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{3E44D80D-232F-4A5E-900F-8E2739486444}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{3E44D80D-232F-4A5E-900F-8E2739486444}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
-		{3E44D80D-232F-4A5E-900F-8E2739486444}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
-		{3E44D80D-232F-4A5E-900F-8E2739486444}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{3E44D80D-232F-4A5E-900F-8E2739486444}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{3E44D80D-232F-4A5E-900F-8E2739486444}.Release|Any CPU.Build.0 = Release|Any CPU
-		{3E44D80D-232F-4A5E-900F-8E2739486444}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
-		{3E44D80D-232F-4A5E-900F-8E2739486444}.Release|Mixed Platforms.Build.0 = Release|Any CPU
-		{3E44D80D-232F-4A5E-900F-8E2739486444}.Release|x86.ActiveCfg = Release|Any CPU
-		{B3FC3122-EF38-45D1-8019-4D889283B4DC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B3FC3122-EF38-45D1-8019-4D889283B4DC}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B3FC3122-EF38-45D1-8019-4D889283B4DC}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
-		{B3FC3122-EF38-45D1-8019-4D889283B4DC}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
-		{B3FC3122-EF38-45D1-8019-4D889283B4DC}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{B3FC3122-EF38-45D1-8019-4D889283B4DC}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B3FC3122-EF38-45D1-8019-4D889283B4DC}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B3FC3122-EF38-45D1-8019-4D889283B4DC}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
-		{B3FC3122-EF38-45D1-8019-4D889283B4DC}.Release|Mixed Platforms.Build.0 = Release|Any CPU
-		{B3FC3122-EF38-45D1-8019-4D889283B4DC}.Release|x86.ActiveCfg = Release|Any CPU
-	EndGlobalSection
-	GlobalSection(MonoDevelopProperties) = preSolution
-		StartupItem = Goliath.Data.Console\Goliath.Data.Console.csproj
-	EndGlobalSection
-	GlobalSection(MercurialSourceControlSolutionProperties) = preSolution
-		SolutionIsControlled = True
-		SolutionBindings = <Solution Location In Database>
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(MonoDevelopProperties) = preSolution
+		StartupItem = Goliath.Data.Console\Goliath.Data.Console.csproj
 	EndGlobalSection
 EndGlobal

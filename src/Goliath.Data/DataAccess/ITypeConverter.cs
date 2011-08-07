@@ -8,7 +8,7 @@ namespace Goliath.Data.DataAccess
     /// <summary>
     /// 
     /// </summary>
-    public interface ITypeConverter
+    public interface ITypeConverterFactory
     {
         /// <summary>
         /// Adds the converter.
@@ -17,11 +17,11 @@ namespace Goliath.Data.DataAccess
         /// <param name="convertMethod">The convert method.</param>
         void AddConverter(Type toType, Func<Object, Object> convertMethod);
         /// <summary>
-        /// Gets the converter.
+        /// Gets the converter factory method.
         /// </summary>
         /// <param name="from">From.</param>
         /// <returns></returns>
-        Func<Object, Object> GetConverter(Type from);
+        Func<Object, Object> GetConverterFactoryMethod(Type from);
         /// <summary>
         /// Converts to enum.
         /// </summary>

@@ -15,7 +15,9 @@ namespace Goliath.Data.Config
     {
         MapConfig mainMap;
         IDbProvider provider;
-
+        IDataAccessAdapterFactory dataAccessAdapterFactory;
+        ITypeConverterFactory typeConverterFactory;
+        IEntitySerializerFactory entitySerializerFactory;
         internal Func<Type, ILogger> LoggerFactory { get; set; }
 
         public MapConfig Map
@@ -34,7 +36,12 @@ namespace Goliath.Data.Config
 
         public ConfigManager(MapConfig config)
         {
+            if (config == null)
+                throw new ArgumentNullException("config");
+
             mainMap = config;
+            dataAccessAdapterFactory = new DataAccessAdapterFactory();
+            typeConverterFactory = new TypeConverterFactory();
         }
 
         #region IConfigurationManager Members
@@ -47,6 +54,9 @@ namespace Goliath.Data.Config
 
         public IConfigurationManager Load(MapConfig map)
         {
+            if (map == null)
+                throw new ArgumentNullException("map");
+
             mainMap.EntityConfigs.AddRange(map.EntityConfigs, mainMap);
             mainMap.ComplexTypes.AddRange(map.ComplexTypes, mainMap);
             return this;
@@ -54,18 +64,69 @@ namespace Goliath.Data.Config
 
         public IConfigurationManager Provider(IDbProvider provider)
         {
+            if (provider == null)
+                throw new ArgumentNullException("provider");
+
             DbProvider = provider;
             return this;
         }
 
-        public IConfigurationManager RegisterEntitySerializer<TEntity>(IEntitySerializer<TEntity> serializer)
-        {
-            return this;
-        }
-
+        /// <summary>
+        /// Loggers the specified logger.
+        /// </summary>
+        /// <param name="createLogger">The create logger.</param>
+        /// <returns></returns>
         public IConfigurationManager LoggerFactoryMethod(Func<Type, ILogger> createLogger)
         {
             LoggerFactory = createLogger;
+            return this;
+        }
+
+        /// <summary>
+        /// Overrides the data access adapter factory.
+        /// </summary>
+        /// <param name="dataAccessAdapter">The data access adapter.</param>
+        /// <returns></returns>
+        public IConfigurationManager OverrideDataAccessAdapterFactory(IDataAccessAdapterFactory dataAccessAdapter)
+        {
+            if (dataAccessAdapter == null)
+                throw new ArgumentNullException("dataAccessAdapter");
+            this.dataAccessAdapterFactory = dataAccessAdapter;
+            return this;
+        }
+
+        public IConfigurationManager OverrideTypeConverterFactory(ITypeConverterFactory typeConverterFactory)
+        {
+            if (typeConverterFactory == null)
+                throw new ArgumentNullException("typeConverterFactory");
+
+            this.typeConverterFactory = typeConverterFactory;
+            return this;
+        }
+
+        /// <summary>
+        /// Overrides the entity serialize factory.
+        /// </summary>
+        /// <param name="entitySerializerFactory">The entity serializer factory.</param>
+        /// <returns></returns>
+        public IConfigurationManager OverrideEntitySerializeFactory(IEntitySerializerFactory entitySerializerFactory)
+        {
+            if (entitySerializerFactory == null)
+                throw new ArgumentNullException("entitySerializerFactory");
+
+            this.entitySerializerFactory = entitySerializerFactory;
+            return this;
+        }
+
+        /// <summary>
+        /// Registers the type converter.
+        /// </summary>
+        /// <typeparam name="TEntity">The type of the entity.</typeparam>
+        /// <param name="typeConverterFactoryMethod">The type converter factory method.</param>
+        /// <returns></returns>
+        public IConfigurationManager RegisterTypeConverter<TEntity>(Func<Object, Object> typeConverterFactoryMethod)
+        {
+            typeConverterFactory.AddConverter(typeof(TEntity), typeConverterFactoryMethod);
             return this;
         }
 
@@ -81,11 +142,15 @@ namespace Goliath.Data.Config
             {
                 LoggerFactory = x => { return new ConsoleLogger(); };
             }
+            if (entitySerializerFactory == null)
+            {
+                entitySerializerFactory = new EntitySerializerFactory(DbProvider.SqlMapper, typeConverterFactory);
+            }
 
             var dbConnector = DbProvider.GetDatabaseConnector(mainMap.Settings.ConnectionString);
             settings = this;
 
-            var sessFact = new SessionFactoryImpl(dbConnector, new DbAccess(dbConnector));
+            var sessFact = new SessionFactoryImpl(dbConnector, new DbAccess(dbConnector), dataAccessAdapterFactory);
             return sessFact;
         }
 
