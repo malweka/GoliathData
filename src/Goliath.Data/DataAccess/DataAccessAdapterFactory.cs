@@ -17,6 +17,8 @@ namespace Goliath.Data.DataAccess
         static ConcurrentDictionary<Type, Delegate> factoryList = new ConcurrentDictionary<Type, Delegate>();
         static object lockFactoryList = new object();
         static ILogger logger;
+        IEntitySerializerFactory serializerFactory;
+        bool isReady;
 
         static DataAccessAdapterFactory()
         {
@@ -26,14 +28,23 @@ namespace Goliath.Data.DataAccess
         /// <summary>
         /// Initializes a new instance of the <see cref="DataAccessAdapterFactory"/> class.
         /// </summary>
-        /// <param name="dataAccess">The data access.</param>
         public DataAccessAdapterFactory()
         {
             //db = dataAccess;
             //this.dbConnector = dbConnector;
+            
         }
 
-        public void RegisterAdapter<TEntity>(Func<IDbAccess, IDbConnection, IDataAccessAdapter<TEntity>> factoryMethod) where TEntity : class
+        public void SetSerializerFactory(IEntitySerializerFactory serializerFactory)
+        {
+            if (serializerFactory == null)
+                throw new ArgumentNullException("serializerFactory");
+
+            this.serializerFactory = serializerFactory;
+            isReady = true;
+        }
+
+        public void RegisterAdapter<TEntity>(Func<IEntitySerializerFactory, IDbAccess, IDbConnection, IDataAccessAdapter<TEntity>> factoryMethod) where TEntity : class
         {
             var t = typeof(TEntity);
             factoryList.TryAdd(t, factoryMethod);
@@ -48,12 +59,12 @@ namespace Goliath.Data.DataAccess
                 Delegate dlgMethod;
                 IDataAccessAdapter<TEntity> adapter = null;
                 Type type = typeof(TEntity);
-                Func<IDbAccess, IDbConnection, IDataAccessAdapter<TEntity>> factoryMethod = null;
+                Func<IEntitySerializerFactory, IDbAccess, IDbConnection, IDataAccessAdapter<TEntity>> factoryMethod = null;
 
                 if (factoryList.TryGetValue(type, out dlgMethod))
                 {
-                    if (dlgMethod is Func<IDbAccess, IDbConnection, IDataAccessAdapter<TEntity>>)
-                        factoryMethod = (Func<IDbAccess, IDbConnection, IDataAccessAdapter<TEntity>>)dlgMethod;
+                    if (dlgMethod is Func<IEntitySerializerFactory, IDbAccess, IDbConnection, IDataAccessAdapter<TEntity>>)
+                        factoryMethod = (Func<IEntitySerializerFactory, IDbAccess, IDbConnection, IDataAccessAdapter<TEntity>>)dlgMethod;
                     else
                         throw new GoliathDataException("unknown factory method");
                 }
@@ -63,8 +74,10 @@ namespace Goliath.Data.DataAccess
                     factoryList.TryAdd(type, factoryMethod);
                 }
 
+                if (!isReady)
+                    throw new DataAccessException("DataAccessAdapter not ready. EntitySerializer was not set.", new InvalidOperationException("serializerFactory is null and not set."));
 
-                adapter = factoryMethod.Invoke(dataAccess, connection);
+                adapter = factoryMethod.Invoke(serializerFactory, dataAccess, connection);
                 return adapter;
 
             }
@@ -83,7 +96,7 @@ namespace Goliath.Data.DataAccess
 
         #endregion
 
-        internal Func<IDbAccess, IDbConnection, IDataAccessAdapter<TEntity>> CreateAdapter<TEntity>()
+        internal Func<IEntitySerializerFactory, IDbAccess, IDbConnection, IDataAccessAdapter<TEntity>> CreateAdapter<TEntity>()
         {
             Type type = typeof(TEntity);
             var map = Config.ConfigManager.CurrentSettings.Map;
@@ -93,7 +106,7 @@ namespace Goliath.Data.DataAccess
                 EntityMap ent;
                 if (map.EntityConfigs.TryGetValue(type.FullName, out ent))
                 {
-                    Func<IDbAccess, IDbConnection, IDataAccessAdapter<TEntity>> myfunc = (dAccess, conn) => { return new DataAccessAdapter<TEntity>(conn, dAccess); };
+                    Func<IEntitySerializerFactory, IDbAccess, IDbConnection, IDataAccessAdapter<TEntity>> myfunc = (sfactory, dAccess, conn) => { return new DataAccessAdapter<TEntity>(sfactory, dAccess, conn); };
                     return myfunc;
                 }
 

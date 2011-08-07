@@ -26,7 +26,7 @@ namespace Goliath.Data.DataAccess
         static object lockFactoryList = new object();
         static ILogger logger;
 
-        internal ITypeConverterFactory TypeConverterFactory { get; set; }
+        internal ITypeConverterStore TypeConverterStore { get; set; }
         internal SqlMapper SqlMapper { get; set; }
 
         //DbAccess dbAccess;
@@ -44,19 +44,20 @@ namespace Goliath.Data.DataAccess
         /// <summary>
         /// Initializes a new instance of the <see cref="EntitySerializerFactory"/> class.
         /// </summary>
-        /// <param name="typeConverter">The type converter.</param>
-        public EntitySerializerFactory(SqlMapper sqlMapper, ITypeConverterFactory typeConverter)
+        /// <param name="sqlMapper">The SQL mapper.</param>
+        /// <param name="typeConverterStore">The type converter.</param>
+        public EntitySerializerFactory(SqlMapper sqlMapper, ITypeConverterStore typeConverterStore)
         {
             if (sqlMapper == null)
                 throw new ArgumentNullException("sqlMapper");
             //if (dbAccess == null)
             //    throw new ArgumentNullException("dbAccess");
-            if (typeConverter == null)
-                typeConverter = new TypeConverterFactory();
+            if (typeConverterStore == null)
+                typeConverterStore = new TypeConverterStore();
 
             this.SqlMapper = sqlMapper;
             //this.dbAccess = dbAccess;
-            this.TypeConverterFactory = typeConverter;
+            this.TypeConverterStore = typeConverterStore;
         }
 
         #region IEntitySerializerFactory Members
@@ -287,13 +288,13 @@ namespace Goliath.Data.DataAccess
                         }
                         else if (keyVal.Value.PropertType.IsEnum)
                         {
-                            var enumVal = TypeConverterFactory.ConvertToEnum(keyVal.Value.PropertType, val);
+                            var enumVal = TypeConverterStore.ConvertToEnum(keyVal.Value.PropertType, val);
                             keyVal.Value.Setter(instanceEntity, enumVal);
                             logger.Log(LogType.Info, string.Format("read {0}: value was {1}", keyVal.Key, enumVal));
                         }
                         else
                         {
-                            var converter = TypeConverterFactory.GetConverterFactoryMethod(keyVal.Value.PropertType);
+                            var converter = TypeConverterStore.GetConverterFactoryMethod(keyVal.Value.PropertType);
                             keyVal.Value.Setter(instanceEntity, converter.Invoke(val));
                         }
                     }

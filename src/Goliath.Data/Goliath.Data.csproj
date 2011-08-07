@@ -97,6 +97,8 @@
     <Compile Include="KeyedCollectionBase.cs" />
     <Compile Include="Collections\LazyList.cs" />
     <Compile Include="Libs\Fasterflect.cs" />
+    <Compile Include="Generators\IKeyGenerator.cs" />
+    <Compile Include="Generators\KeyGeneratorStore.cs" />
     <Compile Include="Mapping\MapBuilderConfig.Read.cs" />
     <Compile Include="Mapping\MapBuilderConfig.Write.cs" />
     <Compile Include="Mapping\MappingException.cs" />
@@ -122,6 +124,8 @@
     <Compile Include="DataAccess\IDbProvider.cs" />
     <Compile Include="Generators\ICodeGenerator.cs" />
     <Compile Include="DataAccess\IMigrationGenerator.cs" />
+    <Compile Include="Mapping\Models\PrimaryKeyPropertyCollection.cs" />
+    <Compile Include="Mapping\Models\PrimaryKeyProperty.cs" />
     <Compile Include="Providers\DbConnector.cs" />
     <Compile Include="Providers\ISchemaDescriptor.cs" />
     <Compile Include="Mapping\Models\Relation.cs" />

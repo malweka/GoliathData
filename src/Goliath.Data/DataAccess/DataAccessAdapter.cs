@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Data;
 using System.Data.Common;
+using Goliath.Data.DataAccess;
 
 namespace Goliath.Data
 {
@@ -17,17 +18,18 @@ namespace Goliath.Data
         /// data access o
         /// </summary>
         protected IDbAccess dataAccess;
-        private IDbConnection dbConnection;
+        IDbConnection dbConnection;
+        IEntitySerializerFactory serializerFactory;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DataAccessAdapter&lt;TEntity&gt;"/> class.
         /// </summary>
         /// <param name="dataAccess">The data access.</param>
-        public DataAccessAdapter(IDbConnection dbConnection, IDbAccess dataAccess)
+        public DataAccessAdapter(IEntitySerializerFactory serializerFactory, IDbAccess dataAccess, IDbConnection dbConnection)
         {
             if (dataAccess == null)
                 throw new ArgumentNullException("dataAccess");
-
+            this.serializerFactory = serializerFactory;
             this.dataAccess = dataAccess;
             this.dbConnection = dbConnection;
         }

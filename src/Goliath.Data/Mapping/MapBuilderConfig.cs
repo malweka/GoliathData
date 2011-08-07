@@ -18,6 +18,7 @@ namespace Goliath.Data.Mapping
     public partial class MapConfig
     {
         internal const string XmlNameSpace = "http://schemas.hamsman.com/goliath/data/1.1";
+
         #region Properties
         /// <summary>
         /// Gets or sets the entity maps.
@@ -45,6 +46,8 @@ namespace Goliath.Data.Mapping
         [DataMember]
         public ProjectSettings Settings { get; set; }
 
+        public KeyGeneratorStore PrimaryKeyGeneratorStore { get; set; }
+
         #endregion
 
         /// <summary>
@@ -55,6 +58,7 @@ namespace Goliath.Data.Mapping
             EntityConfigs = new EntityCollection();
             ComplexTypes = new ComplexTypeCollection();
             Settings = new ProjectSettings();
+            PrimaryKeyGeneratorStore = new KeyGeneratorStore();
         }
 
         /// <summary>
