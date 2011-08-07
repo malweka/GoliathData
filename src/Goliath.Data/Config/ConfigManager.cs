@@ -16,7 +16,7 @@ namespace Goliath.Data.Config
         MapConfig mainMap;
         IDbProvider provider;
         IDataAccessAdapterFactory dataAccessAdapterFactory;
-        ITypeConverterFactory typeConverterFactory;
+        ITypeConverterStore typeConverterStore;
         IEntitySerializerFactory entitySerializerFactory;
         internal Func<Type, ILogger> LoggerFactory { get; set; }
 
@@ -41,7 +41,7 @@ namespace Goliath.Data.Config
 
             mainMap = config;
             dataAccessAdapterFactory = new DataAccessAdapterFactory();
-            typeConverterFactory = new TypeConverterFactory();
+            typeConverterStore = new TypeConverterStore();
         }
 
         #region IConfigurationManager Members
@@ -95,12 +95,12 @@ namespace Goliath.Data.Config
             return this;
         }
 
-        public IConfigurationManager OverrideTypeConverterFactory(ITypeConverterFactory typeConverterFactory)
+        public IConfigurationManager OverrideTypeConverterStore(ITypeConverterStore typeConverterStore)
         {
-            if (typeConverterFactory == null)
+            if (typeConverterStore == null)
                 throw new ArgumentNullException("typeConverterFactory");
 
-            this.typeConverterFactory = typeConverterFactory;
+            this.typeConverterStore = typeConverterStore;
             return this;
         }
 
@@ -126,7 +126,7 @@ namespace Goliath.Data.Config
         /// <returns></returns>
         public IConfigurationManager RegisterTypeConverter<TEntity>(Func<Object, Object> typeConverterFactoryMethod)
         {
-            typeConverterFactory.AddConverter(typeof(TEntity), typeConverterFactoryMethod);
+            typeConverterStore.AddConverter(typeof(TEntity), typeConverterFactoryMethod);
             return this;
         }
 
@@ -144,8 +144,10 @@ namespace Goliath.Data.Config
             }
             if (entitySerializerFactory == null)
             {
-                entitySerializerFactory = new EntitySerializerFactory(DbProvider.SqlMapper, typeConverterFactory);
+                entitySerializerFactory = new EntitySerializerFactory(DbProvider.SqlMapper, typeConverterStore);
             }
+
+            dataAccessAdapterFactory.SetSerializerFactory(entitySerializerFactory);
 
             var dbConnector = DbProvider.GetDatabaseConnector(mainMap.Settings.ConnectionString);
             settings = this;

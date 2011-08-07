@@ -5,10 +5,10 @@ using System.Text;
 
 namespace Goliath.Data.DataAccess
 {
-    public class TypeConverterFactory : ITypeConverterFactory
+    public class TypeConverterStore : ITypeConverterStore
     {
         Dictionary<Type, Func<Object, Object>> converters = new Dictionary<Type, Func<Object, Object>>();
-        public TypeConverterFactory()
+        public TypeConverterStore()
         {
             Load();
         }

@@ -8,7 +8,7 @@ namespace Goliath.Data.DataAccess
     /// <summary>
     /// 
     /// </summary>
-    public interface ITypeConverterFactory
+    public interface ITypeConverterStore
     {
         /// <summary>
         /// Adds the converter.
