@@ -17,13 +17,14 @@ namespace Goliath.Data.DataAccess
         IDbConnection connection;
         ITransaction currentTransaction;
         bool weOwnConnection = true;
+        IDataAccessAdapterFactory adapterFactory;
 
         static SessionImpl()
         {
             logger = Logger.GetLogger(typeof(SessionImpl));
         }
 
-        public SessionImpl(IDbAccess dbAccess, IDbConnection connection)
+        public SessionImpl(IDbAccess dbAccess, IDataAccessAdapterFactory adapterFactory, IDbConnection connection)
         {
             this.dbAccess = dbAccess;
             id = Guid.NewGuid().ToString().Replace("-", string.Empty).ToLower();
@@ -32,6 +33,7 @@ namespace Goliath.Data.DataAccess
                 this.connection = connection;
                 weOwnConnection = false;
             }
+            this.adapterFactory = adapterFactory;
         }
 
         void DisposeOfConnection(IDbConnection connection)
@@ -92,7 +94,7 @@ namespace Goliath.Data.DataAccess
 
         public IDataAccessAdapter<T> CreateDataAccessAdapter<T>()
         {
-            throw new NotImplementedException();
+            return adapterFactory.Create<T>(dbAccess, connection);
         }
 
         #endregion

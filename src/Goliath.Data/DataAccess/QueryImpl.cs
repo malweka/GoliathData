@@ -11,10 +11,10 @@
 
     class QueryImpl<T> : IQuery<T>
     {
-        IDataAccessAdaterFactory dbAccessFactory;
+        IDataAccessAdapterFactory dbAccessFactory;
         IDbConnection connection;
 
-        public QueryImpl(IDbConnection connection, IDataAccessAdaterFactory dbAccessFactory)
+        public QueryImpl(IDbConnection connection, IDataAccessAdapterFactory dbAccessFactory)
         {
             this.dbAccessFactory = dbAccessFactory;
             this.connection = connection;

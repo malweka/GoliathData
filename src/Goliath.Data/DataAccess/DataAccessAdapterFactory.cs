@@ -9,10 +9,10 @@ using System.Collections.Concurrent;
 
 namespace Goliath.Data.DataAccess
 {
-    class DataAccessAdapterFactory : IDataAccessAdaterFactory
+    class DataAccessAdapterFactory : IDataAccessAdapterFactory
     {
-        IDbAccess db;
-        IDbConnector dbConnector;
+        //IDbAccess db;
+        //IDbConnector dbConnector;
 
         static ConcurrentDictionary<Type, Delegate> factoryList = new ConcurrentDictionary<Type, Delegate>();
         static object lockFactoryList = new object();
@@ -27,13 +27,13 @@ namespace Goliath.Data.DataAccess
         /// Initializes a new instance of the <see cref="DataAccessAdapterFactory"/> class.
         /// </summary>
         /// <param name="dataAccess">The data access.</param>
-        public DataAccessAdapterFactory(IDbAccess dataAccess, IDbConnector dbConnector)
+        public DataAccessAdapterFactory()
         {
-            db = dataAccess;
-            this.dbConnector = dbConnector;
+            //db = dataAccess;
+            //this.dbConnector = dbConnector;
         }
 
-        public void RegisterAdapter<TEntity>(Func<IDbAccess, IDbConnector, IDataAccessAdapter<TEntity>> factoryMethod) where TEntity : class
+        public void RegisterAdapter<TEntity>(Func<IDbAccess, IDbConnection, IDataAccessAdapter<TEntity>> factoryMethod) where TEntity : class
         {
             var t = typeof(TEntity);
             factoryList.TryAdd(t, factoryMethod);
@@ -41,19 +41,19 @@ namespace Goliath.Data.DataAccess
 
         #region IDataAccessAdaterFactory Members
 
-        public IDataAccessAdapter<TEntity> Get<TEntity>()
+        public IDataAccessAdapter<TEntity> Create<TEntity>(IDbAccess dataAccess, IDbConnection connection)
         {
             try
             {
                 Delegate dlgMethod;
                 IDataAccessAdapter<TEntity> adapter = null;
                 Type type = typeof(TEntity);
-                Func<IDbAccess, IDbConnector, IDataAccessAdapter<TEntity>> factoryMethod = null;
+                Func<IDbAccess, IDbConnection, IDataAccessAdapter<TEntity>> factoryMethod = null;
 
                 if (factoryList.TryGetValue(type, out dlgMethod))
                 {
-                    if (dlgMethod is Func<IDbAccess, IDbConnector, IDataAccessAdapter<TEntity>>)
-                        factoryMethod = (Func<IDbAccess, IDbConnector, IDataAccessAdapter<TEntity>>)dlgMethod;
+                    if (dlgMethod is Func<IDbAccess, IDbConnection, IDataAccessAdapter<TEntity>>)
+                        factoryMethod = (Func<IDbAccess, IDbConnection, IDataAccessAdapter<TEntity>>)dlgMethod;
                     else
                         throw new GoliathDataException("unknown factory method");
                 }
@@ -64,7 +64,7 @@ namespace Goliath.Data.DataAccess
                 }
 
 
-                adapter = factoryMethod.Invoke(db,dbConnector);
+                adapter = factoryMethod.Invoke(dataAccess, connection);
                 return adapter;
 
             }
@@ -83,7 +83,7 @@ namespace Goliath.Data.DataAccess
 
         #endregion
 
-        internal Func<IDbAccess, IDbConnector, IDataAccessAdapter<TEntity>> CreateAdapter<TEntity>()
+        internal Func<IDbAccess, IDbConnection, IDataAccessAdapter<TEntity>> CreateAdapter<TEntity>()
         {
             Type type = typeof(TEntity);
             var map = Config.ConfigManager.CurrentSettings.Map;
@@ -93,7 +93,7 @@ namespace Goliath.Data.DataAccess
                 EntityMap ent;
                 if (map.EntityConfigs.TryGetValue(type.FullName, out ent))
                 {
-                    Func<IDbAccess, IDbConnector, IDataAccessAdapter<TEntity>> myfunc = (dbAccess, dbConnector) => { return new DataAccessAdapter<TEntity>(dbConnector, dbAccess); };
+                    Func<IDbAccess, IDbConnection, IDataAccessAdapter<TEntity>> myfunc = (dAccess, conn) => { return new DataAccessAdapter<TEntity>(conn, dAccess); };
                     return myfunc;
                 }
 

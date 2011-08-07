@@ -169,6 +169,8 @@ namespace Goliath.Data
                 .Provider(new SqliteProvider()).Init();
 
             var sess = sessionFactory.OpenSession();
+            var dataAccessAdapter = sess.CreateDataAccessAdapter<WebZoo.Data.Sqlite.Animal>();
+
             MapConfig map = MapConfig.Create(mapfile);
 
             //var dbConnector = new Providers.SqlServer.MssqlDbConnector("Data Source=localhost;Initial Catalog=DbZoo;Integrated Security=True");

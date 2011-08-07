@@ -25,8 +25,10 @@ namespace Goliath.Data.DataAccess
 
         static object lockFactoryList = new object();
         static ILogger logger;
-        ITypeConverter typeConverter;
-        SqlMapper sqlMapper;
+
+        internal ITypeConverterFactory TypeConverterFactory { get; set; }
+        internal SqlMapper SqlMapper { get; set; }
+
         //DbAccess dbAccess;
 
         static EntitySerializerFactory()
@@ -43,25 +45,25 @@ namespace Goliath.Data.DataAccess
         /// Initializes a new instance of the <see cref="EntitySerializerFactory"/> class.
         /// </summary>
         /// <param name="typeConverter">The type converter.</param>
-        public EntitySerializerFactory(SqlMapper sqlMapper, ITypeConverter typeConverter)
+        public EntitySerializerFactory(SqlMapper sqlMapper, ITypeConverterFactory typeConverter)
         {
             if (sqlMapper == null)
                 throw new ArgumentNullException("sqlMapper");
             //if (dbAccess == null)
             //    throw new ArgumentNullException("dbAccess");
             if (typeConverter == null)
-                typeConverter = new TypeConverter();
+                typeConverter = new TypeConverterFactory();
 
-            this.sqlMapper = sqlMapper;
+            this.SqlMapper = sqlMapper;
             //this.dbAccess = dbAccess;
-            this.typeConverter = typeConverter;
+            this.TypeConverterFactory = typeConverter;
         }
 
         #region IEntitySerializerFactory Members
 
         public void RegisterEntitySerializer<TEntity>(Func<DbDataReader, EntityMap, TEntity> factoryMethod)
         {
-            throw new NotImplementedException();
+            factoryList.TryAdd(typeof(TEntity), factoryMethod);
         }
 
         public IList<TEntity> SerializeAll<TEntity>(DbDataReader dataReader, EntityMap entityMap)
@@ -210,9 +212,9 @@ namespace Goliath.Data.DataAccess
                                     {
                                         QueryParam qp = new QueryParam(ParameterNameBuilderHelper.ColumnQueryName(relEntMap.TableAlias, rel.ReferenceColumn)) { Value = val };
 
-                                        SelectSqlBuilder sqlBuilder = new SelectSqlBuilder(sqlMapper, relEntMap)
+                                        SelectSqlBuilder sqlBuilder = new SelectSqlBuilder(SqlMapper, relEntMap)
                                            .Where(new WhereStatement(ParameterNameBuilderHelper.ColumnWithTableAlias(relEntMap.TableAlias, rel.ReferenceColumn))
-                                                    .Equals(sqlMapper.CreateParameterName(qp.Name)));
+                                                    .Equals(SqlMapper.CreateParameterName(qp.Name)));
 
                                         QueryInfo qInfo = new QueryInfo();
                                         qInfo.QuerySqlText = sqlBuilder.Build();
@@ -248,9 +250,9 @@ namespace Goliath.Data.DataAccess
                                         if (val != null)
                                         {
                                             QueryParam qp = new QueryParam(ParameterNameBuilderHelper.ColumnQueryName(relEntMap.TableAlias, rel.ReferenceColumn)) { Value = val };
-                                            SelectSqlBuilder sqlBuilder = new SelectSqlBuilder(sqlMapper, relEntMap)
+                                            SelectSqlBuilder sqlBuilder = new SelectSqlBuilder(SqlMapper, relEntMap)
                                            .Where(new WhereStatement(ParameterNameBuilderHelper.ColumnWithTableAlias(relEntMap.TableAlias, rel.ReferenceColumn))
-                                                    .Equals(sqlMapper.CreateParameterName(qp.Name)));
+                                                    .Equals(SqlMapper.CreateParameterName(qp.Name)));
 
                                             QueryInfo qInfo = new QueryInfo();
                                             qInfo.QuerySqlText = sqlBuilder.Build();
@@ -285,13 +287,13 @@ namespace Goliath.Data.DataAccess
                         }
                         else if (keyVal.Value.PropertType.IsEnum)
                         {
-                            var enumVal = typeConverter.ConvertToEnum(keyVal.Value.PropertType, val);
+                            var enumVal = TypeConverterFactory.ConvertToEnum(keyVal.Value.PropertType, val);
                             keyVal.Value.Setter(instanceEntity, enumVal);
                             logger.Log(LogType.Info, string.Format("read {0}: value was {1}", keyVal.Key, enumVal));
                         }
                         else
                         {
-                            var converter = typeConverter.GetConverter(keyVal.Value.PropertType);
+                            var converter = TypeConverterFactory.GetConverterFactoryMethod(keyVal.Value.PropertType);
                             keyVal.Value.Setter(instanceEntity, converter.Invoke(val));
                         }
                     }

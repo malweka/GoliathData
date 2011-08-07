@@ -123,6 +123,9 @@ namespace Goliath.Data.Mapping
         /// <returns></returns>
         public static MapConfig Create(string filename)
         {
+            if (string.IsNullOrWhiteSpace(filename))
+                throw new ArgumentNullException("filename");
+
             using (var filestream = File.Open(filename, FileMode.Open, FileAccess.Read))
             {
                 return Create(filestream);

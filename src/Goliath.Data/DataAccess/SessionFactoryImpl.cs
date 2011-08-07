@@ -12,18 +12,19 @@ namespace Goliath.Data.DataAccess
     {
         IDbAccess dbAccess;
         IDbConnector dbConnector;
-
-        public SessionFactoryImpl(IDbConnector dbConnector, IDbAccess dbAccess)
+        IDataAccessAdapterFactory adapterFactory;
+        public SessionFactoryImpl(IDbConnector dbConnector, IDbAccess dbAccess, IDataAccessAdapterFactory adapterFactory)
         {
             this.dbConnector = dbConnector;
             this.dbAccess = dbAccess;
+            this.adapterFactory = adapterFactory;
         }
 
         #region ISessionFactory Members
 
         public ISession OpenSession(System.Data.IDbConnection connection)
         {
-            var sess = new SessionImpl(dbAccess, connection);
+            var sess = new SessionImpl(dbAccess, adapterFactory, connection);
             return sess;
         }
 
