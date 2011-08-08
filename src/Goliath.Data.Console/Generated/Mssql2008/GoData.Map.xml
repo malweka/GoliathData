@@ -7,7 +7,7 @@
   <entities>
     <entity name="Animal" extends="WebZoo.Data.BaseEntity" assembly="WebZoo.Data" entityNamespace="WebZoo.Data.SqlServer" table="animals" schema="dbo" alias="anim">
       <primaryKey>
-        <key name="Id" column="Id" clrType="System.Guid" dbType="Guid" sqlType="uniqueidentifier" unique="True" primaryKey="True" constraint="PK__animals__3214EC070425A276" nullable="False" />
+        <key name="Id" column="Id" clrType="System.Guid" dbType="Guid" sqlType="uniqueidentifier" unique="True" primaryKey="True" constraint="PK__animals__3214EC070425A276" nullable="False" unsaved_value="00000000-0000-0000-0000-000000000000" key_generator="Guid_Comb" />
       </primaryKey>
       <properties>
         <property name="Name" column="Name" clrType="System.String" dbType="String" sqlType="nvarchar" length="50" nullable="False" />
@@ -21,7 +21,7 @@
     </entity>
     <entity name="Employee" extends="WebZoo.Data.BaseEntity" assembly="WebZoo.Data" entityNamespace="WebZoo.Data.SqlServer" table="employees" schema="dbo" alias="empl">
       <primaryKey>
-        <key name="Id" column="Id" clrType="System.Guid" dbType="Guid" sqlType="uniqueidentifier" unique="True" primaryKey="True" constraint="PK__employee__3214EC0708EA5793" nullable="False" />
+        <key name="Id" column="Id" clrType="System.Guid" dbType="Guid" sqlType="uniqueidentifier" unique="True" primaryKey="True" constraint="PK__employee__3214EC0708EA5793" nullable="False" unsaved_value="00000000-0000-0000-0000-000000000000" key_generator="Guid_Comb" />
       </primaryKey>
       <properties>
         <property name="FirstName" column="FirstName" clrType="System.String" dbType="String" sqlType="nvarchar" length="50" nullable="False" />
@@ -37,14 +37,14 @@
     </entity>
     <entity name="AnimalsHandler" extends="WebZoo.Data.BaseEntity" linkTable="True" assembly="WebZoo.Data" entityNamespace="WebZoo.Data.SqlServer" table="animals_handlers" schema="dbo" alias="ani1">
       <primaryKey>
-        <key name="Animal" column="AnimalId" clrType="System.Guid" dbType="Guid" sqlType="uniqueidentifier" unique="True" primaryKey="True" constraint="PK__animals___A5B777F60DAF0CB0" nullable="False" relation="ManyToOne" referenceTable="animals" referenceColumn="Id" refConstraint="FK__animals_h__Anima__0F975522" refEntity="WebZoo.Data.SqlServer.Animal" />
-        <key name="Employee" column="EmployeeId" clrType="System.Guid" dbType="Guid" sqlType="uniqueidentifier" unique="True" primaryKey="True" constraint="PK__animals___A5B777F60DAF0CB0" nullable="False" relation="ManyToOne" referenceTable="employees" referenceColumn="Id" refConstraint="FK__animals_h__Emplo__108B795B" refEntity="WebZoo.Data.SqlServer.Employee" />
+        <key name="Animal" column="AnimalId" clrType="System.Guid" dbType="Guid" sqlType="uniqueidentifier" unique="True" primaryKey="True" constraint="PK__animals___A5B777F60DAF0CB0" nullable="False" relation="ManyToOne" referenceTable="animals" referenceColumn="Id" refConstraint="FK__animals_h__Anima__0F975522" refEntity="WebZoo.Data.SqlServer.Animal" unsaved_value="00000000-0000-0000-0000-000000000000" key_generator="Guid_Comb" />
+        <key name="Employee" column="EmployeeId" clrType="System.Guid" dbType="Guid" sqlType="uniqueidentifier" unique="True" primaryKey="True" constraint="PK__animals___A5B777F60DAF0CB0" nullable="False" relation="ManyToOne" referenceTable="employees" referenceColumn="Id" refConstraint="FK__animals_h__Emplo__108B795B" refEntity="WebZoo.Data.SqlServer.Employee" unsaved_value="00000000-0000-0000-0000-000000000000" key_generator="Guid_Comb" />
       </primaryKey>
       <properties />
     </entity>
     <entity name="Monkey" extends="WebZoo.Data.BaseEntity" assembly="WebZoo.Data" entityNamespace="WebZoo.Data.SqlServer" table="monkeys" schema="dbo" alias="monk">
       <primaryKey>
-        <key name="Id" column="Id" clrType="System.Guid" dbType="Guid" sqlType="uniqueidentifier" unique="True" primaryKey="True" constraint="PK__monkeys__3214EC071367E606" nullable="False" relation="ManyToOne" referenceTable="animals" referenceColumn="Id" refConstraint="FK__monkeys__Id__164452B1" refEntity="WebZoo.Data.SqlServer.Animal" />
+        <key name="Id" column="Id" clrType="System.Guid" dbType="Guid" sqlType="uniqueidentifier" unique="True" primaryKey="True" constraint="PK__monkeys__3214EC071367E606" nullable="False" relation="ManyToOne" referenceTable="animals" referenceColumn="Id" refConstraint="FK__monkeys__Id__164452B1" refEntity="WebZoo.Data.SqlServer.Animal" unsaved_value="00000000-0000-0000-0000-000000000000" key_generator="Guid_Comb" />
       </primaryKey>
       <properties>
         <property name="Family" column="Family" clrType="System.String" dbType="String" sqlType="nvarchar" length="50" />
@@ -53,7 +53,7 @@
     </entity>
     <entity name="Zoo" extends="WebZoo.Data.BaseEntity" assembly="WebZoo.Data" entityNamespace="WebZoo.Data.SqlServer" table="zoos" schema="dbo" alias="zoo">
       <primaryKey>
-        <key name="Id" column="Id" clrType="System.Guid" dbType="Guid" sqlType="uniqueidentifier" unique="True" primaryKey="True" constraint="PK__zoos__3214EC077F60ED59" nullable="False" />
+        <key name="Id" column="Id" clrType="System.Guid" dbType="Guid" sqlType="uniqueidentifier" unique="True" primaryKey="True" constraint="PK__zoos__3214EC077F60ED59" nullable="False" unsaved_value="00000000-0000-0000-0000-000000000000" key_generator="Guid_Comb" />
       </primaryKey>
       <properties>
         <property name="Name" column="Name" clrType="System.String" dbType="String" sqlType="nvarchar" length="50" nullable="False" />
