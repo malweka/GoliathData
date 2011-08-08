@@ -111,10 +111,17 @@ namespace Goliath.Data.Mapping
 
             Property Read_PropertyElement(XmlReader reader, MapConfig config, string entityName, bool forceReturnRel = false)
             {
+                return Read_PropertyElement(reader, config, entityName, null, forceReturnRel);
+            }
+
+            Property Read_PropertyElement(XmlReader reader, MapConfig config, string entityName, PrimaryKeyProperty pk, bool forceReturnRel = false)
+            {
                 if (reader.CanReadElement(entityName))
                 {
                     Property property = new Property();
                     Relation rel = null;
+                    string keyGen = null;
+                    string unsavedValue = null;
 
                     while (reader.MoveToNextAttribute())
                     {
@@ -190,11 +197,7 @@ namespace Goliath.Data.Mapping
                             case "referenceColumn":
                                 InitializeRelObject(ref rel, property);
                                 rel.ReferenceColumn = reader.Value;
-                                break;
-                            //case "keyFieldName":
-                            //    InitializeRelObject(ref rel, property);
-                            //    rel.KeyFieldName = reader.Value;
-                            //    break;
+                                break;                            
                             case "refConstraint":
                                 InitializeRelObject(ref rel, property);
                                 rel.ReferenceConstraintName = reader.Value;
@@ -215,9 +218,23 @@ namespace Goliath.Data.Mapping
                                 InitializeRelObject(ref rel, property);
                                 rel.MapTableName = reader.Value;
                                 break;
+                            //primary key attributes
+                            case "unsaved_value":
+                                unsavedValue = reader.Value;
+                                break;
+                            case "key_generator":
+                                keyGen = reader.Value;
+                                break;
                             default:
                                 break;
                         }
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(entityName) && entityName.Equals("key", StringComparison.OrdinalIgnoreCase)
+                        && pk != null)
+                    {
+                        pk.KeyGenerationStrategy = keyGen;
+                        pk.UnsavedValue = unsavedValue;
                     }
 
                     if (rel != null)
@@ -338,14 +355,18 @@ namespace Goliath.Data.Mapping
                         else if (reader.CanReadElement("primaryKey"))
                         {
                             bool hasReachedEndGracefully = false;
-                            List<Property> keys = new List<Property>();
+                            List<PrimaryKeyProperty> keys = new List<PrimaryKeyProperty>();
                             while (reader.Read())
                             {
                                 if (reader.CanReadElement("key"))
                                 {
-                                    var prop = Read_PropertyElement(reader, config, "key");
+                                    PrimaryKeyProperty pk = new PrimaryKeyProperty();
+                                    var prop = Read_PropertyElement(reader, config, "key", pk);
                                     if (prop != null)
-                                        keys.Add(prop);
+                                    {
+                                        pk.Key = prop;
+                                        keys.Add(pk);
+                                    }
 
                                 }
                                 else if (reader.HasReachedEndOfElement("primaryKey"))
@@ -357,7 +378,8 @@ namespace Goliath.Data.Mapping
 
                             if (!hasReachedEndGracefully)
                                 throw new MappingSerializationException(typeof(PrimaryKey), "missing a </primaryKey> end tag");
-                            entMap.AddColumnRange(keys);
+
+                            entMap.AddKeyRange(keys);
                         }
 
                         else if (reader.CanReadElement("properties"))

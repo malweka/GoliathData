@@ -31,7 +31,6 @@ namespace WebZoo.Data.SqlServer
 
 		public struct PropertyNames
 		{
-			public const string Id = "Id";
 			public const string Family = "Family";
 			public const string CanDoTricks = "CanDoTricks";
 		}

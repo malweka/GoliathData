@@ -44,6 +44,7 @@ namespace Goliath.Data.Mapping
                 for(int i=0; i<table.Count; i++)//foreach (var prop in table)
                 {
                     var prop = table[i];
+                    
                     if (prop is Relation)
                     {
                         var rel = (Relation)prop;
@@ -72,6 +73,19 @@ namespace Goliath.Data.Mapping
                             rel.PropertyName = name;
                     }
                 }
+
+                if (!table.IsLinkTable && table.PrimaryKey != null)
+                {
+                    foreach (var pk in table.PrimaryKey.Keys)
+                    {
+                        if(pk.Key.DbType == System.Data.DbType.Guid)
+                        {
+                            pk.KeyGenerationStrategy = Generators.GuidCombGenerator.GeneratorName;
+                            pk.UnsavedValue = Guid.Empty.ToString();
+                        }
+                    }
+                }
+
             }
         }
 

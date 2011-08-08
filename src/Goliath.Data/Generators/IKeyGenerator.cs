@@ -21,6 +21,13 @@ namespace Goliath.Data.Mapping
         /// </summary>
         /// <returns></returns>
         Object GenerateKey();
+        /// <summary>
+        /// Gets a value indicating whether this instance is database generated.
+        /// </summary>
+        /// <value>
+        /// 	<c>true</c> if this instance is database generated; otherwise, <c>false</c>.
+        /// </value>
+        bool IsDatabaseGenerated { get; }
     }
 
     /// <summary>

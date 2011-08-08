@@ -141,11 +141,17 @@ namespace Goliath.Data.Mapping
             {
                 xmlWriter.WriteStartElement("key");
                 WriteTransformations(xmlWriter, key.Key, "key", false);
+                if (!string.IsNullOrWhiteSpace(key.UnsavedValue))
+                {
+                    xmlWriter.WriteStartAttribute("unsaved_value");
+                    xmlWriter.WriteString(key.UnsavedValue);
+                    xmlWriter.WriteEndAttribute();
+                }
                 if (!string.IsNullOrWhiteSpace(key.KeyGenerationStrategy))
                 {
-                    xmlWriter.WriteStartElement("GeneratorStrategy");
+                    xmlWriter.WriteStartAttribute("key_generator");
                     xmlWriter.WriteString(key.KeyGenerationStrategy);
-                    xmlWriter.WriteEndElement();
+                    xmlWriter.WriteEndAttribute();
                 }
                 xmlWriter.WriteEndElement();
             }

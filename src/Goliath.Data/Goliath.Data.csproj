@@ -93,6 +93,7 @@
     <Compile Include="DataAccess\DataAccessHelper.cs" />
     <Compile Include="DynamicProxy\ProxyBuilder.cs" />
     <Compile Include="DynamicProxy\ProxyCache.cs" />
+    <Compile Include="Generators\GuidCombGenerator.cs" />
     <Compile Include="GoliathDataException.cs" />
     <Compile Include="KeyedCollectionBase.cs" />
     <Compile Include="Collections\LazyList.cs" />
