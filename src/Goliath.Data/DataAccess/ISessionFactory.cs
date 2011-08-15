@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Data;
+using System.Data.Common;
 
 namespace Goliath.Data
 {
@@ -16,7 +16,7 @@ namespace Goliath.Data
         /// </summary>
         /// <param name="connection">The connection.</param>
         /// <returns></returns>
-        ISession OpenSession(IDbConnection connection);
+        ISession OpenSession(DbConnection connection);
         /// <summary>
         /// Opens the session.
         /// </summary>

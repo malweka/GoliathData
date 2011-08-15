@@ -22,7 +22,7 @@ namespace Goliath.Data.DataAccess
 
         #region ISessionFactory Members
 
-        public ISession OpenSession(System.Data.IDbConnection connection)
+        public ISession OpenSession(System.Data.Common.DbConnection connection)
         {
             var sess = new SessionImpl(dbAccess, adapterFactory, connection);
             return sess;

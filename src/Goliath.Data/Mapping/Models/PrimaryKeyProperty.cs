@@ -32,6 +32,12 @@ namespace Goliath.Data.Mapping
         public string UnsavedValue { get; set; }
 
         /// <summary>
+        /// Gets or sets the key generator.
+        /// </summary>
+        /// <value>The key generator.</value>
+        public IKeyGenerator KeyGenerator { get; set; }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="PrimaryKeyProperty"/> class.
         /// </summary>
         public PrimaryKeyProperty() { }

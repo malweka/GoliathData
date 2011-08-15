@@ -109,6 +109,73 @@ namespace Goliath.Data.DataAccess
             }
         }
 
+        public QueryInfo Deserialize<TEntity>(EntityMap entityMap, TEntity entity)
+        {
+            InsertSqlBuilder sqlBuilder = new InsertSqlBuilder(SqlMapper, entityMap);
+
+            Type type = typeof(TEntity);
+            EntityGetSetInfo getSetInfo;
+
+            if (!getSetStore.TryGetValue(type, out getSetInfo))
+            {
+                getSetInfo = new EntityGetSetInfo(type);
+                getSetInfo.Load(entityMap);
+                getSetStore.Add(type, getSetInfo);
+            }
+
+            if (entityMap.PrimaryKey != null)
+            {
+                foreach (var pk in entityMap.PrimaryKey.Keys)
+                {
+                    if (pk.KeyGenerator != null)
+                    {
+                        PropInfo pInfo;
+                        if (getSetInfo.Properties.TryGetValue(pk.Key.PropertyName, out pInfo))
+                        {
+                            var id = pk.KeyGenerator.GenerateKey();
+                            pInfo.Setter(entity, id);
+                        }
+                    }
+                }
+            }
+
+            QueryInfo qInfo = new QueryInfo();
+            qInfo.QuerySqlText = sqlBuilder.Build();
+            qInfo.Parameters = BuildQuerParams(entity, getSetInfo, entityMap);
+
+            return qInfo;
+        }
+
+        List<QueryParam> BuildQuerParams<TEntity>(TEntity entity, EntityGetSetInfo getSetInfo, EntityMap entityMap)
+        {
+            List<QueryParam> parameters = new List<QueryParam>();
+            foreach (var prop in entityMap)
+            {
+                if (prop is Relation)
+                {
+                    Relation rel = (Relation)prop;
+                    if (rel.RelationType != RelationshipType.ManyToOne)
+                        continue;
+                }
+
+                PropInfo pInfo;
+                if (getSetInfo.Properties.TryGetValue(prop.PropertyName, out pInfo))
+                {
+                    QueryParam param = new QueryParam(prop.ColumnName);
+                    object val = pInfo.Getter(entity);
+
+                    if ((val == null) && !prop.IsNullable)
+                        throw new DataAccessException("{0}.{1} is cannot be null.", entityMap.Name, prop.PropertyName);
+                    param.Value = val;
+                    parameters.Add(param);
+                }
+                else
+                    throw new MappingException(string.Format("Property {0} was not found for entity {1}", prop.PropertyName, entityMap.FullName));
+            }
+
+            return parameters;
+        }
+
         GetSetStore getSetStore = new GetSetStore();
 
         #endregion

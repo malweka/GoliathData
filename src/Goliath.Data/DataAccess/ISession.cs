@@ -6,7 +6,7 @@ namespace Goliath.Data
     using System.Collections.Generic;
     using System.Linq;
     using System.Text;
-    using System.Data;
+    using System.Data.Common;
     using DataAccess;
     using Providers;
 
@@ -20,7 +20,7 @@ namespace Goliath.Data
         /// Gets the connection.
         /// </summary>
         /// <value>The connection.</value>
-        IDbConnection Connection { get; }
+        DbConnection Connection { get; }
         /// <summary>
         /// Gets the db access.
         /// </summary>

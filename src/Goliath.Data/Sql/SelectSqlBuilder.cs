@@ -7,17 +7,17 @@ using Goliath.Data.Mapping;
 
 namespace Goliath.Data.Sql
 {
-    class SelectSqlBuilder
+    class SelectSqlBuilder : SqlBuilder
     {
-        SqlMapper sqlMapper;
-        EntityMap entMap;
+        //SqlMapper sqlMapper;
+        //EntityMap entMap;
         PagingInfo? paging;
 
-        readonly Dictionary<string, string> columns = new Dictionary<string, string>();
-        internal Dictionary<string, string> Columns
-        {
-            get { return columns; }
-        }
+        //readonly Dictionary<string, string> columns = new Dictionary<string, string>();
+        //internal Dictionary<string, string> Columns
+        //{
+        //    get { return columns; }
+        //}
 
         readonly List<SqlJoin> joins = new List<SqlJoin>();
         internal List<SqlJoin> Joins
@@ -35,16 +35,8 @@ namespace Goliath.Data.Sql
         /// <param name="sqlMapper">The SQL mapper.</param>
         /// <param name="entMap">The ent map.</param>
         public SelectSqlBuilder(SqlMapper sqlMapper, EntityMap entMap)
+            : base(sqlMapper, entMap)
         {
-            if (sqlMapper == null)
-                throw new ArgumentNullException("sqlMapper");
-
-            if (entMap == null)
-                throw new ArgumentNullException("entMap");
-
-            this.sqlMapper = sqlMapper;
-            this.entMap = entMap;
-
             foreach (var col in entMap)
             {
                 if (col is Relation)
@@ -62,10 +54,10 @@ namespace Goliath.Data.Sql
                     }
                 }
 
-                string colKey = string.Format("{0}.{1}", entMap.TableAlias, col.ColumnName);
+                string colKey = ParameterNameBuilderHelper.ColumnWithTableAlias(entMap.TableAlias, col.ColumnName);  //string.Format("{0}.{1}", entMap.TableAlias, col.ColumnName);
                 //var tuple = Tuple.Create<string, string>(sqlMapper.CreateParameterName(col.Name), CreateColumnName(entMap, col));
-                if (!columns.ContainsKey(colKey))
-                    this.columns.Add(colKey, BuildColumnSelectString(col.ColumnName, entMap.TableAlias));
+                if (!Columns.ContainsKey(colKey))
+                    Columns.Add(colKey, BuildColumnSelectString(col.ColumnName, entMap.TableAlias));
             }
 
         }
@@ -115,7 +107,7 @@ namespace Goliath.Data.Sql
             return this;
         }
 
-        public string Build()
+        public override string Build()
         {
             List<string> printColumns = new List<string>();
             List<SqlJoin> sJoins = new List<SqlJoin>();
@@ -165,15 +157,7 @@ namespace Goliath.Data.Sql
             }
         }
 
-        public override string ToString()
-        {
-#if DEBUG
-            return base.ToString();
-#else 
-            return Build();
-#endif
-        }
-
+        
         //internal static string CreateColumnName(EntityMap entity, Property column)
         //{
         //    return CreateColumnName(entity, column.ColumnName);
