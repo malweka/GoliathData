@@ -62,11 +62,23 @@ namespace Goliath.Data.DataAccess
 
         #region IEntitySerializerFactory Members
 
+        /// <summary>
+        /// Registers the entity serializer.
+        /// </summary>
+        /// <typeparam name="TEntity">The type of the entity.</typeparam>
+        /// <param name="factoryMethod">The factory method.</param>
         public void RegisterEntitySerializer<TEntity>(Func<DbDataReader, EntityMap, TEntity> factoryMethod)
         {
             factoryList.TryAdd(typeof(TEntity), factoryMethod);
         }
 
+        /// <summary>
+        /// Serializes the specified data reader.
+        /// </summary>
+        /// <typeparam name="TEntity">The type of the entity.</typeparam>
+        /// <param name="dataReader">The data reader.</param>
+        /// <param name="entityMap">The entity map.</param>
+        /// <returns></returns>
         public IList<TEntity> SerializeAll<TEntity>(DbDataReader dataReader, EntityMap entityMap)
         {
             Delegate dlgMethod;
@@ -90,6 +102,13 @@ namespace Goliath.Data.DataAccess
             return entityList;
         }
 
+        /// <summary>
+        /// Hydrates the specified instance to hydrate.
+        /// </summary>
+        /// <param name="instanceToHydrate">The instance to hydrate.</param>
+        /// <param name="typeOfInstance">The type of instance.</param>
+        /// <param name="entityMap">The entity map.</param>
+        /// <param name="dataReader">The data reader.</param>
         public void Hydrate(object instanceToHydrate, Type typeOfInstance, EntityMap entityMap, DbDataReader dataReader)
         {
             if (dataReader.HasRows)
@@ -109,6 +128,13 @@ namespace Goliath.Data.DataAccess
             }
         }
 
+        /// <summary>
+        /// Deserializes the specified key generator.
+        /// </summary>
+        /// <typeparam name="TEntity">The type of the entity.</typeparam>
+        /// <param name="entityMap">The entity map.</param>
+        /// <param name="entity">The entity.</param>
+        /// <returns></returns>
         public QueryInfo Deserialize<TEntity>(EntityMap entityMap, TEntity entity)
         {
             InsertSqlBuilder sqlBuilder = new InsertSqlBuilder(SqlMapper, entityMap);

@@ -43,6 +43,12 @@ namespace Goliath
          tracking = false;
       }
 
+      /// <summary>
+      /// Gets a value indicating whether this instance has changes.
+      /// </summary>
+      /// <value>
+      /// 	<c>true</c> if this instance has changes; otherwise, <c>false</c>.
+      /// </value>
       public bool HasChanges
       {
          get
@@ -75,6 +81,9 @@ namespace Goliath
          return items;
       }
 
+      /// <summary>
+      /// Resets this instance.
+      /// </summary>
       public void Reset()
       {
          lock (stateObject)
@@ -89,6 +98,9 @@ namespace Goliath
          }
       }
 
+      /// <summary>
+      /// Clears this instance.
+      /// </summary>
       public void Clear()
       {
          lock (stateObject)
