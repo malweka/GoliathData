@@ -169,7 +169,17 @@ namespace Goliath.Data
                 .Provider(new SqliteProvider()).Init();
 
             var sess = sessionFactory.OpenSession();
-            var dataAccessAdapter = sess.CreateDataAccessAdapter<WebZoo.Data.Sqlite.Animal>();
+            var dataAccessAdapter = sess.CreateDataAccessAdapter<WebZoo.Data.Sqlite.Zoo>();
+
+            WebZoo.Data.Sqlite.Zoo zooM = new WebZoo.Data.Sqlite.Zoo() { Name = "Bronx Zoo", City = "New York", AcceptNewAnimals = true };
+            try
+            {
+                dataAccessAdapter.Insert(zooM);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
 
             MapConfig map = MapConfig.Create(mapfile);
 

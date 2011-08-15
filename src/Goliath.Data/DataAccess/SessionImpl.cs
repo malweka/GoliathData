@@ -6,6 +6,7 @@ namespace Goliath.Data.DataAccess
     using System.Linq;
     using System.Text;
     using System.Data;
+    using System.Data.Common;
     using Diagnostics;
 
     [Serializable]
@@ -14,7 +15,7 @@ namespace Goliath.Data.DataAccess
         static ILogger logger;
         string id;
         IDbAccess dbAccess;
-        IDbConnection connection;
+        DbConnection connection;
         ITransaction currentTransaction;
         bool weOwnConnection = true;
         IDataAccessAdapterFactory adapterFactory;
@@ -24,7 +25,7 @@ namespace Goliath.Data.DataAccess
             logger = Logger.GetLogger(typeof(SessionImpl));
         }
 
-        public SessionImpl(IDbAccess dbAccess, IDataAccessAdapterFactory adapterFactory, IDbConnection connection)
+        public SessionImpl(IDbAccess dbAccess, IDataAccessAdapterFactory adapterFactory, DbConnection connection)
         {
             this.dbAccess = dbAccess;
             id = Guid.NewGuid().ToString().Replace("-", string.Empty).ToLower();
@@ -51,7 +52,7 @@ namespace Goliath.Data.DataAccess
             get { return id; }
         }
 
-        public System.Data.IDbConnection Connection
+        public System.Data.Common.DbConnection Connection
         {
             get
             {

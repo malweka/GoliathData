@@ -365,6 +365,11 @@ namespace Goliath.Data.Mapping
                                     if (prop != null)
                                     {
                                         pk.Key = prop;
+                                        IKeyGenerator idGenerator;
+                                        if (!string.IsNullOrWhiteSpace(pk.KeyGenerationStrategy) && config.PrimaryKeyGeneratorStore.TryGetValue(pk.KeyGenerationStrategy, out idGenerator))
+                                        {
+                                            pk.KeyGenerator = idGenerator;
+                                        }
                                         keys.Add(pk);
                                     }
 

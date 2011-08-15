@@ -5,6 +5,9 @@ using System.Text;
 using System.Data;
 using System.Data.Common;
 using Goliath.Data.DataAccess;
+using Goliath.Data.Config;
+using Goliath.Data.Mapping;
+using Goliath.Data.Diagnostics;
 
 namespace Goliath.Data
 {
@@ -18,14 +21,20 @@ namespace Goliath.Data
         /// data access o
         /// </summary>
         protected IDbAccess dataAccess;
-        IDbConnection dbConnection;
+        DbConnection dbConnection;
         IEntitySerializerFactory serializerFactory;
+        static ILogger logger;
+
+        static DataAccessAdapter()
+        {
+            logger = Logger.GetLogger(typeof(DataAccessAdapter<>));
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DataAccessAdapter&lt;TEntity&gt;"/> class.
         /// </summary>
         /// <param name="dataAccess">The data access.</param>
-        public DataAccessAdapter(IEntitySerializerFactory serializerFactory, IDbAccess dataAccess, IDbConnection dbConnection)
+        public DataAccessAdapter(IEntitySerializerFactory serializerFactory, IDbAccess dataAccess, DbConnection dbConnection)
         {
             if (dataAccess == null)
                 throw new ArgumentNullException("dataAccess");
@@ -72,7 +81,32 @@ namespace Goliath.Data
 
         public int Insert(TEntity entity)
         {
-            throw new NotImplementedException();
+            Type type = typeof(TEntity);
+            var map = ConfigManager.CurrentSettings.Map;
+            var entityMap = map.EntityConfigs[type.FullName];
+            if (entityMap == null)
+                throw new DataAccessException("entity {0} not mapped.", type.FullName);
+
+            var qInfo = serializerFactory.Deserialize(entityMap, entity);
+            if (dbConnection.State != ConnectionState.Open)
+                dbConnection.Open();
+
+            logger.Log(LogType.Debug, qInfo.QuerySqlText);
+            var parameters = dataAccess.CreateParameters(qInfo.Parameters).ToArray();
+            try
+            {
+                int qResult = dataAccess.ExecuteNonQuery(dbConnection, qInfo.QuerySqlText, parameters);
+                return qResult;
+            }
+            catch (GoliathDataException ex)
+            {
+                Console.WriteLine("goliath exception {0}", ex.Message);
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new GoliathDataException(string.Format("Exception while inserting: {0}", qInfo.QuerySqlText), ex);
+            }
         }
 
         public IList<TEntity> FindAll(string sqlQuery)

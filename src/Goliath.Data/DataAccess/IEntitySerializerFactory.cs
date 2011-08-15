@@ -36,5 +36,14 @@ namespace Goliath.Data.DataAccess
         /// <param name="entityMap">The entity map.</param>
         /// <returns></returns>
         IList<TEntity> SerializeAll<TEntity>(DbDataReader dataReader, EntityMap entityMap);
+
+        /// <summary>
+        /// Deserializes the specified key generator.
+        /// </summary>
+        /// <typeparam name="TEntity">The type of the entity.</typeparam>
+        /// <param name="entityMap">The entity map.</param>
+        /// <param name="entity">The entity.</param>
+        /// <returns></returns>
+        QueryInfo Deserialize<TEntity>(EntityMap entityMap, TEntity entity);
     }
 }

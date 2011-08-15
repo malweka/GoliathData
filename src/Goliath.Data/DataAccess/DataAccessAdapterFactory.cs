@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Data;
+using System.Data.Common;
 using Goliath.Data.Diagnostics;
 using Goliath.Data.Mapping;
 using System.Collections.Concurrent;
@@ -44,7 +44,7 @@ namespace Goliath.Data.DataAccess
             isReady = true;
         }
 
-        public void RegisterAdapter<TEntity>(Func<IEntitySerializerFactory, IDbAccess, IDbConnection, IDataAccessAdapter<TEntity>> factoryMethod) where TEntity : class
+        public void RegisterAdapter<TEntity>(Func<IEntitySerializerFactory, IDbAccess, DbConnection, IDataAccessAdapter<TEntity>> factoryMethod) where TEntity : class
         {
             var t = typeof(TEntity);
             factoryList.TryAdd(t, factoryMethod);
@@ -52,19 +52,19 @@ namespace Goliath.Data.DataAccess
 
         #region IDataAccessAdaterFactory Members
 
-        public IDataAccessAdapter<TEntity> Create<TEntity>(IDbAccess dataAccess, IDbConnection connection)
+        public IDataAccessAdapter<TEntity> Create<TEntity>(IDbAccess dataAccess, DbConnection connection)
         {
             try
             {
                 Delegate dlgMethod;
                 IDataAccessAdapter<TEntity> adapter = null;
                 Type type = typeof(TEntity);
-                Func<IEntitySerializerFactory, IDbAccess, IDbConnection, IDataAccessAdapter<TEntity>> factoryMethod = null;
+                Func<IEntitySerializerFactory, IDbAccess, DbConnection, IDataAccessAdapter<TEntity>> factoryMethod = null;
 
                 if (factoryList.TryGetValue(type, out dlgMethod))
                 {
-                    if (dlgMethod is Func<IEntitySerializerFactory, IDbAccess, IDbConnection, IDataAccessAdapter<TEntity>>)
-                        factoryMethod = (Func<IEntitySerializerFactory, IDbAccess, IDbConnection, IDataAccessAdapter<TEntity>>)dlgMethod;
+                    if (dlgMethod is Func<IEntitySerializerFactory, IDbAccess, DbConnection, IDataAccessAdapter<TEntity>>)
+                        factoryMethod = (Func<IEntitySerializerFactory, IDbAccess, DbConnection, IDataAccessAdapter<TEntity>>)dlgMethod;
                     else
                         throw new GoliathDataException("unknown factory method");
                 }
@@ -96,7 +96,7 @@ namespace Goliath.Data.DataAccess
 
         #endregion
 
-        internal Func<IEntitySerializerFactory, IDbAccess, IDbConnection, IDataAccessAdapter<TEntity>> CreateAdapter<TEntity>()
+        internal Func<IEntitySerializerFactory, IDbAccess, DbConnection, IDataAccessAdapter<TEntity>> CreateAdapter<TEntity>()
         {
             Type type = typeof(TEntity);
             var map = Config.ConfigManager.CurrentSettings.Map;
@@ -106,7 +106,7 @@ namespace Goliath.Data.DataAccess
                 EntityMap ent;
                 if (map.EntityConfigs.TryGetValue(type.FullName, out ent))
                 {
-                    Func<IEntitySerializerFactory, IDbAccess, IDbConnection, IDataAccessAdapter<TEntity>> myfunc = (sfactory, dAccess, conn) => { return new DataAccessAdapter<TEntity>(sfactory, dAccess, conn); };
+                    Func<IEntitySerializerFactory, IDbAccess, DbConnection, IDataAccessAdapter<TEntity>> myfunc = (sfactory, dAccess, conn) => { return new DataAccessAdapter<TEntity>(sfactory, dAccess, conn); };
                     return myfunc;
                 }
 

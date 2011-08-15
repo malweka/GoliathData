@@ -151,10 +151,12 @@
     <Compile Include="Providers\Sqlite\Constants.cs" />
     <Compile Include="Sql\Enums.cs" />
     <Compile Include="Sql\GroupBy.cs" />
+    <Compile Include="Sql\InsertSqlBuilder.cs" />
     <Compile Include="Sql\ISqlFunction.cs" />
     <Compile Include="Sql\OrderBy.cs" />
     <Compile Include="Sql\ParameterNameBuilderHelper.cs" />
     <Compile Include="Sql\SelectSqlBuilder.cs" />
+    <Compile Include="Sql\SqlBuilder.cs" />
     <Compile Include="Sql\SqlFunction.cs" />
     <Compile Include="Sql\SqlJoin.cs" />
     <Compile Include="Sql\SqlPart.cs" />
