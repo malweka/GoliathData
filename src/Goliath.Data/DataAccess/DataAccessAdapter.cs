@@ -43,19 +43,6 @@ namespace Goliath.Data
             this.dbConnection = dbConnection;
         }
 
-        protected DbParameter[] GetParameters(QueryParam[] filters)
-        {
-            if (filters == null)
-                return new DbParameter[] { };
-
-            List<DbParameter> parameters = new List<DbParameter>();
-            foreach (var f in filters)
-            {
-                parameters.Add(dataAccess.CreateParameter(f));
-            }
-            return parameters.ToArray();
-        }
-
 
         #region IDataAccessAdapter<TEntity> Members
 
@@ -79,6 +66,11 @@ namespace Goliath.Data
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// Inserts the specified entity.
+        /// </summary>
+        /// <param name="entity">The entity.</param>
+        /// <returns></returns>
         public int Insert(TEntity entity)
         {
             Type type = typeof(TEntity);

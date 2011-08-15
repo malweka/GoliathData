@@ -62,6 +62,7 @@
     <Reference Include="System.Configuration" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ChangeSet.cs" />
     <Compile Include="Collections\ILazyList.cs" />
     <Compile Include="Config\ConfigManager.cs" />
     <Compile Include="Config\IConfigurationManager.cs" />
