@@ -52,7 +52,7 @@ namespace Goliath.Data.Config
         /// </summary>
         /// <param name="entitySerializerFactory">The entity serializer factory.</param>
         /// <returns></returns>
-        IConfigurationManager OverrideEntitySerializeFactory(IEntitySerializerFactory entitySerializerFactory);
+        IConfigurationManager OverrideEntitySerializeFactory(IEntitySerializer entitySerializerFactory);
         /// <summary>
         /// Registers the type converter.
         /// </summary>

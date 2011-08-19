@@ -15,7 +15,7 @@ namespace Goliath.Data.DynamicProxy
         QueryInfo query;
         Type type;
         EntityMap entityMap;
-        IEntitySerializerFactory serialFactory;
+        IEntitySerializer serialFactory;
         static ILogger logger;
 
         static ProxySerializer()
@@ -23,7 +23,7 @@ namespace Goliath.Data.DynamicProxy
             logger = Logger.GetLogger(typeof(ProxySerializer));
         }
 
-        public ProxySerializer(QueryInfo query, Type type, EntityMap entityMap, IEntitySerializerFactory factory)
+        public ProxySerializer(QueryInfo query, Type type, EntityMap entityMap, IEntitySerializer factory)
         {
             this.query = query;
             this.type = type;

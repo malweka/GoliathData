@@ -17,7 +17,7 @@ namespace Goliath.Data.DataAccess
         static ConcurrentDictionary<Type, Delegate> factoryList = new ConcurrentDictionary<Type, Delegate>();
         static object lockFactoryList = new object();
         static ILogger logger;
-        IEntitySerializerFactory serializerFactory;
+        IEntitySerializer serializerFactory;
         bool isReady;
 
         static DataAccessAdapterFactory()
@@ -35,7 +35,7 @@ namespace Goliath.Data.DataAccess
             
         }
 
-        public void SetSerializerFactory(IEntitySerializerFactory serializerFactory)
+        public void SetSerializerFactory(IEntitySerializer serializerFactory)
         {
             if (serializerFactory == null)
                 throw new ArgumentNullException("serializerFactory");
@@ -44,7 +44,7 @@ namespace Goliath.Data.DataAccess
             isReady = true;
         }
 
-        public void RegisterAdapter<TEntity>(Func<IEntitySerializerFactory, IDbAccess, DbConnection, IDataAccessAdapter<TEntity>> factoryMethod) where TEntity : class
+        public void RegisterAdapter<TEntity>(Func<IEntitySerializer, IDbAccess, DbConnection, IDataAccessAdapter<TEntity>> factoryMethod) where TEntity : class
         {
             var t = typeof(TEntity);
             factoryList.TryAdd(t, factoryMethod);
@@ -59,12 +59,12 @@ namespace Goliath.Data.DataAccess
                 Delegate dlgMethod;
                 IDataAccessAdapter<TEntity> adapter = null;
                 Type type = typeof(TEntity);
-                Func<IEntitySerializerFactory, IDbAccess, DbConnection, IDataAccessAdapter<TEntity>> factoryMethod = null;
+                Func<IEntitySerializer, IDbAccess, DbConnection, IDataAccessAdapter<TEntity>> factoryMethod = null;
 
                 if (factoryList.TryGetValue(type, out dlgMethod))
                 {
-                    if (dlgMethod is Func<IEntitySerializerFactory, IDbAccess, DbConnection, IDataAccessAdapter<TEntity>>)
-                        factoryMethod = (Func<IEntitySerializerFactory, IDbAccess, DbConnection, IDataAccessAdapter<TEntity>>)dlgMethod;
+                    if (dlgMethod is Func<IEntitySerializer, IDbAccess, DbConnection, IDataAccessAdapter<TEntity>>)
+                        factoryMethod = (Func<IEntitySerializer, IDbAccess, DbConnection, IDataAccessAdapter<TEntity>>)dlgMethod;
                     else
                         throw new GoliathDataException("unknown factory method");
                 }
@@ -96,7 +96,7 @@ namespace Goliath.Data.DataAccess
 
         #endregion
 
-        internal Func<IEntitySerializerFactory, IDbAccess, DbConnection, IDataAccessAdapter<TEntity>> CreateAdapter<TEntity>()
+        internal Func<IEntitySerializer, IDbAccess, DbConnection, IDataAccessAdapter<TEntity>> CreateAdapter<TEntity>()
         {
             Type type = typeof(TEntity);
             var map = Config.ConfigManager.CurrentSettings.Map;
@@ -106,7 +106,7 @@ namespace Goliath.Data.DataAccess
                 EntityMap ent;
                 if (map.EntityConfigs.TryGetValue(type.FullName, out ent))
                 {
-                    Func<IEntitySerializerFactory, IDbAccess, DbConnection, IDataAccessAdapter<TEntity>> myfunc = (sfactory, dAccess, conn) => { return new DataAccessAdapter<TEntity>(sfactory, dAccess, conn); };
+                    Func<IEntitySerializer, IDbAccess, DbConnection, IDataAccessAdapter<TEntity>> myfunc = (sfactory, dAccess, conn) => { return new DataAccessAdapter<TEntity>(sfactory, dAccess, conn); };
                     return myfunc;
                 }
 

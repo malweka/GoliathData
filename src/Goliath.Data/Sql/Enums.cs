@@ -8,7 +8,7 @@ namespace Goliath.Data.Sql
     /// <summary>
     /// 
     /// </summary>
-    enum JoinType
+    public enum JoinType
     {
         Inner = 1,
         Left = 2,
@@ -19,24 +19,30 @@ namespace Goliath.Data.Sql
     /// <summary>
     /// 
     /// </summary>
-    enum ComparisonOperator
+    public enum ComparisonOperator
     {
-        Equals = 0,
-        NotEquals,
+        Equal = 0,
+        NotEqual,
         Like,
         NotLike,
         GreaterThan,
         GreaterOrEquals,
         LessThan,
         LessOrEquals,
-        And = 400,
-        Or = 401,
+        //And = 400,
+        //Or = 401,
         IsNull = 500,
         IsNotNull=501,
         In = 600
     }
 
-    enum SortType
+    public enum SqlOperator
+    {
+        AND = 0,
+        OR,
+    }
+
+    public enum SortType
     {
         Ascending,
         Descinding,

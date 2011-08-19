@@ -38,24 +38,47 @@ namespace Goliath.Data
             if (string.IsNullOrWhiteSpace(name))
                 throw new ArgumentNullException("name");
 
-            Name=name;
-            Value=value;
+            Name = name;
+            Value = value;
         }
     }
 
     /// <summary>
     /// 
     /// </summary>
-    /// <typeparam name="T"></typeparam>
-    public class QueryParam<T> : QueryParam
+    public class PropertyQueryParam : QueryParam
     {
-        public QueryParam(string name) : base(name) { }
-        public QueryParam(string name, T value)
-            : base(name)
+        public Sql.ComparisonOperator ComparisonOperator { get; set; }
+        public Sql.SqlOperator PostOperator { get; set; }
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PropertyQueryParam"/> class.
+        /// </summary>
+        /// <param name="propertyName">Name of the property.</param>
+        /// <param name="parameterName">Name of the parameter.</param>
+        public PropertyQueryParam(string propertyName, string parameterName) : this(propertyName, parameterName, null) { }
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PropertyQueryParam"/> class.
+        /// </summary>
+        /// <param name="propertyName">Name of the property.</param>
+        /// <param name="parameterName">Name of the parameter.</param>
+        /// <param name="value">The value.</param>
+        public PropertyQueryParam(string propertyName, string parameterName, object value)
+            : base(parameterName, value)
         {
-            Value = value;
+            if (string.IsNullOrWhiteSpace(propertyName))
+                throw new ArgumentNullException("propertyName");
+
+            PropertyName = propertyName;
+            ComparisonOperator = Sql.ComparisonOperator.Equal;
+            PostOperator = Sql.SqlOperator.AND;
         }
 
-        public new T Value { get; set; }
+        /// <summary>
+        /// Gets the name of the property.
+        /// </summary>
+        /// <value>
+        /// The name of the property.
+        /// </value>
+        public string PropertyName { get; private set; }
     }
 }

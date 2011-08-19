@@ -17,8 +17,8 @@ using Goliath.Data.Providers;
 namespace Goliath.Data.DataAccess
 {
     //TODO make this internal class
-    //TODO use singleton for entitySerializerFactory;
-    public class EntitySerializerFactory : IEntitySerializerFactory
+    //TODO use singleton for entitySerializer;
+    public class EntitySerializer : IEntitySerializer
     {
 
         static ConcurrentDictionary<Type, Delegate> factoryList = new ConcurrentDictionary<Type, Delegate>();
@@ -27,26 +27,27 @@ namespace Goliath.Data.DataAccess
         static ILogger logger;
 
         internal ITypeConverterStore TypeConverterStore { get; set; }
-        internal SqlMapper SqlMapper { get; set; }
+
+        public SqlMapper SqlMapper { get; internal set; }
 
         //DbAccess dbAccess;
 
-        static EntitySerializerFactory()
+        static EntitySerializer()
         {
-            logger = Logger.GetLogger(typeof(EntitySerializerFactory));
+            logger = Logger.GetLogger(typeof(EntitySerializer));
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="EntitySerializerFactory"/> class.
+        /// Initializes a new instance of the <see cref="EntitySerializer"/> class.
         /// </summary>
-        public EntitySerializerFactory(SqlMapper sqlMapper) : this(sqlMapper, null) { }
+        public EntitySerializer(SqlMapper sqlMapper) : this(sqlMapper, null) { }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="EntitySerializerFactory"/> class.
+        /// Initializes a new instance of the <see cref="EntitySerializer"/> class.
         /// </summary>
         /// <param name="sqlMapper">The SQL mapper.</param>
         /// <param name="typeConverterStore">The type converter.</param>
-        public EntitySerializerFactory(SqlMapper sqlMapper, ITypeConverterStore typeConverterStore)
+        public EntitySerializer(SqlMapper sqlMapper, ITypeConverterStore typeConverterStore)
         {
             if (sqlMapper == null)
                 throw new ArgumentNullException("sqlMapper");
@@ -67,7 +68,7 @@ namespace Goliath.Data.DataAccess
         /// </summary>
         /// <typeparam name="TEntity">The type of the entity.</typeparam>
         /// <param name="factoryMethod">The factory method.</param>
-        public void RegisterEntitySerializer<TEntity>(Func<DbDataReader, EntityMap, TEntity> factoryMethod)
+        public void RegisterDataReaderEntitySerializer<TEntity>(Func<DbDataReader, EntityMap, TEntity> factoryMethod)
         {
             factoryList.TryAdd(typeof(TEntity), factoryMethod);
         }
@@ -135,7 +136,7 @@ namespace Goliath.Data.DataAccess
         /// <param name="entityMap">The entity map.</param>
         /// <param name="entity">The entity.</param>
         /// <returns></returns>
-        public QueryInfo Deserialize<TEntity>(EntityMap entityMap, TEntity entity)
+        public QueryInfo BuildInsertSql<TEntity>(EntityMap entityMap, TEntity entity)
         {
             InsertSqlBuilder sqlBuilder = new InsertSqlBuilder(SqlMapper, entityMap);
 

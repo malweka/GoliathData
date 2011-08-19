@@ -22,12 +22,12 @@ namespace Goliath.Data
         /// </summary>
         /// <typeparam name="TEntity">The type of the entity.</typeparam>
         /// <param name="factoryMethod">The factory method.</param>
-        void RegisterAdapter<TEntity>(Func<DataAccess.IEntitySerializerFactory, IDbAccess, DbConnection, IDataAccessAdapter<TEntity>> factoryMethod) where TEntity : class;
+        void RegisterAdapter<TEntity>(Func<DataAccess.IEntitySerializer, IDbAccess, DbConnection, IDataAccessAdapter<TEntity>> factoryMethod) where TEntity : class;
         /// <summary>
         /// Sets the serializer factory.
         /// </summary>
         /// <param name="serializerFactory">The serializer factory.</param>
-        void SetSerializerFactory(DataAccess.IEntitySerializerFactory serializerFactory);
+        void SetSerializerFactory(DataAccess.IEntitySerializer serializerFactory);
     }
 
     

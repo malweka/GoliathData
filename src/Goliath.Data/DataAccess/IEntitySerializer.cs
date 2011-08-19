@@ -1,20 +1,55 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Data;
+using Goliath.Data.Mapping;
 using System.Data.Common;
 
-namespace Goliath.Data
+
+namespace Goliath.Data.DataAccess
 {
-    public interface IEntitySerializer<T>
+    /// <summary>
+    /// 
+    /// </summary>
+    public interface IEntitySerializer
     {
         /// <summary>
-        /// Serializes from data reader.
+        /// Gets the SQL mapper.
         /// </summary>
+        Providers.SqlMapper SqlMapper { get; }
+
+        /// <summary>
+        /// Registers the entity serializer.
+        /// </summary>
+        /// <typeparam name="TEntity">The type of the entity.</typeparam>
+        /// <param name="factoryMethod">The factory method.</param>
+        void RegisterDataReaderEntitySerializer<TEntity>(Func<DbDataReader, EntityMap, TEntity> factoryMethod);
+
+        /// <summary>
+        /// Hydrates the specified instance to hydrate.
+        /// </summary>
+        /// <param name="instanceToHydrate">The instance to hydrate.</param>
+        /// <param name="typeOfInstance">The type of instance.</param>
+        /// <param name="entityMap">The entity map.</param>
+        /// <param name="dataReader">The data reader.</param>
+        void Hydrate(object instanceToHydrate, Type typeOfInstance, EntityMap entityMap, DbDataReader dataReader);
+        
+        /// <summary>
+        /// Serializes the specified data reader.
+        /// </summary>
+        /// <typeparam name="TEntity">The type of the entity.</typeparam>
         /// <param name="dataReader">The data reader.</param>
         /// <param name="entityMap">The entity map.</param>
         /// <returns></returns>
-        T SerializeFromDataReader(DbDataReader dataReader, Mapping.EntityMap entityMap);
+        IList<TEntity> SerializeAll<TEntity>(DbDataReader dataReader, EntityMap entityMap);
+
+        /// <summary>
+        /// Deserializes the specified key generator.
+        /// </summary>
+        /// <typeparam name="TEntity">The type of the entity.</typeparam>
+        /// <param name="entityMap">The entity map.</param>
+        /// <param name="entity">The entity.</param>
+        /// <returns></returns>
+        QueryInfo BuildInsertSql<TEntity>(EntityMap entityMap, TEntity entity);
+
     }
 }

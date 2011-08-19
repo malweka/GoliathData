@@ -8,6 +8,7 @@ using Goliath.Data.DataAccess;
 using Goliath.Data.Config;
 using Goliath.Data.Mapping;
 using Goliath.Data.Diagnostics;
+using Goliath.Data.Sql;
 
 namespace Goliath.Data
 {
@@ -22,8 +23,10 @@ namespace Goliath.Data
         /// </summary>
         protected IDbAccess dataAccess;
         DbConnection dbConnection;
-        IEntitySerializerFactory serializerFactory;
+        IEntitySerializer serializer;
+        Type entityType;
         static ILogger logger;
+        EntityMap entityMap;
 
         static DataAccessAdapter()
         {
@@ -34,17 +37,35 @@ namespace Goliath.Data
         /// Initializes a new instance of the <see cref="DataAccessAdapter&lt;TEntity&gt;"/> class.
         /// </summary>
         /// <param name="dataAccess">The data access.</param>
-        public DataAccessAdapter(IEntitySerializerFactory serializerFactory, IDbAccess dataAccess, DbConnection dbConnection)
+        public DataAccessAdapter(IEntitySerializer serializerFactory, IDbAccess dataAccess, DbConnection dbConnection)
         {
             if (dataAccess == null)
                 throw new ArgumentNullException("dataAccess");
-            this.serializerFactory = serializerFactory;
+            this.serializer = serializerFactory;
             this.dataAccess = dataAccess;
             this.dbConnection = dbConnection;
+            entityType = typeof(TEntity);
+
+            if (entityMap == null)
+            {
+                ConfigManager.CurrentSettings.Map.EntityConfigs.TryGetValue(entityType.FullName, out entityMap);
+
+                if (entityMap == null)
+                    throw new ArgumentException(string.Format("Typ {0} is not map entity", entityType.FullName));
+            }
         }
 
+        
+
+        void CheckConnection(DbConnection dbConnection)
+        {
+            if (dbConnection.State != ConnectionState.Open)
+                dbConnection.Open();
+        }
 
         #region IDataAccessAdapter<TEntity> Members
+
+        #region Updates 
 
         public int Update(TEntity entity)
         {
@@ -60,6 +81,10 @@ namespace Goliath.Data
         {
             throw new NotImplementedException();
         }
+
+        #endregion
+
+        #region Inserts
 
         public int InsertBatch(IEnumerable<TEntity> batch)
         {
@@ -79,11 +104,12 @@ namespace Goliath.Data
             if (entityMap == null)
                 throw new DataAccessException("entity {0} not mapped.", type.FullName);
 
-            var qInfo = serializerFactory.Deserialize(entityMap, entity);
-            if (dbConnection.State != ConnectionState.Open)
-                dbConnection.Open();
+            var qInfo = serializer.BuildInsertSql(entityMap, entity);
+
+            CheckConnection(dbConnection);
 
             logger.Log(LogType.Debug, qInfo.QuerySqlText);
+
             var parameters = dataAccess.CreateParameters(qInfo.Parameters).ToArray();
             try
             {
@@ -101,22 +127,28 @@ namespace Goliath.Data
             }
         }
 
+        #endregion
+
+        #region Queries
+
         public IList<TEntity> FindAll(string sqlQuery)
         {
             throw new NotImplementedException();
         }
 
-        public IList<TEntity> FindAll(params QueryParam[] filters)
+        public IList<TEntity> FindAll(params PropertyQueryParam[] filters)
+        {
+            SelectSqlBuilder queryBuilder = new SelectSqlBuilder(serializer.SqlMapper, entityMap);
+            
+            throw new NotImplementedException();
+        }
+
+        public IList<TEntity> FindAll(int pageIndex, int pageSize, out int totalRecords, params PropertyQueryParam[] filters)
         {
             throw new NotImplementedException();
         }
 
-        public IList<TEntity> FindAll(int pageIndex, int pageSize, out int totalRecords, params QueryParam[] filters)
-        {
-            throw new NotImplementedException();
-        }
-
-        public TEntity FindOne(QueryParam filter, params QueryParam[] filters)
+        public TEntity FindOne(PropertyQueryParam filter, params PropertyQueryParam[] filters)
         {
             throw new NotImplementedException();
         }
@@ -130,6 +162,8 @@ namespace Goliath.Data
         {
             throw new NotImplementedException();
         }
+
+        #endregion
 
         #endregion
     }

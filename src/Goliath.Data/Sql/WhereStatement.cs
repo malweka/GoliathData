@@ -8,16 +8,18 @@ namespace Goliath.Data.Sql
     class WhereStatement : Operand
     {
         public ComparisonOperator Operator { get; private set; }
+        public Sql.SqlOperator PostOperator { get; set; }
         public Operand LeftOperand { get; private set; }
         public Operand RightOperand { get; private set; }
 
         public WhereStatement(string column)
             : base(column)
         {
-            LeftOperand = new StringOperand(column);            
+            LeftOperand = new StringOperand(column);
         }
 
-        public WhereStatement(Operand leftOperand) : base(null)
+        public WhereStatement(Operand leftOperand)
+            : base(null)
         {
             if (leftOperand == null)
                 throw new ArgumentNullException("leftOperand");
@@ -28,13 +30,13 @@ namespace Goliath.Data.Sql
 
         public WhereStatement Equals(string parameterizedValue)
         {
-            SetOperand(parameterizedValue, ComparisonOperator.Equals);
+            SetOperand(parameterizedValue, ComparisonOperator.Equal);
             return this;
         }
 
         public WhereStatement NotEquals(string parameterizedValue)
         {
-            SetOperand(parameterizedValue, ComparisonOperator.NotEquals);
+            SetOperand(parameterizedValue, ComparisonOperator.NotEqual);
             return this;
         }
 
@@ -47,6 +49,18 @@ namespace Goliath.Data.Sql
         public WhereStatement NotLike(string parameterizedValue)
         {
             SetOperand(parameterizedValue, ComparisonOperator.NotLike);
+            return this;
+        }
+
+        public WhereStatement NotNull()
+        {
+            SetOperand(string.Empty, ComparisonOperator.IsNotNull);
+            return this;
+        }
+
+        public WhereStatement IsNull()
+        {
+            SetOperand(string.Empty, ComparisonOperator.IsNull);
             return this;
         }
 
@@ -90,14 +104,14 @@ namespace Goliath.Data.Sql
         public override string ToString()
         {
             string wString = string.Format("{0} {1} {2}", LeftOperand, OperatorToString(Operator), RightOperand);
-            return wString;
+            return wString.Trim();
         }
 
         string OperatorToString(ComparisonOperator @operator)
         {
             switch (@operator)
             {
-                case ComparisonOperator.Equals:
+                case ComparisonOperator.Equal:
                     return "=";
                 case ComparisonOperator.GreaterOrEquals:
                     return ">=";
@@ -111,18 +125,18 @@ namespace Goliath.Data.Sql
                     return "<";
                 case ComparisonOperator.Like:
                     return "LIKE";
-                case ComparisonOperator.NotEquals:
+                case ComparisonOperator.NotEqual:
                     return "<>";
                 case ComparisonOperator.NotLike:
                     return "NOT LIKE";
-                case ComparisonOperator.And:
-                    return "AND";
+                //case ComparisonOperator.And:
+                //    return "AND";
                 case ComparisonOperator.IsNotNull:
                     return "IS NOT NULL";
                 case ComparisonOperator.IsNull:
                     return "IS NULL";
-                case ComparisonOperator.Or:
-                    return "OR";
+                //case ComparisonOperator.Or:
+                //    return "OR";
             }
 
             return string.Empty;
