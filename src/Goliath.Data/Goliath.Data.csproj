@@ -68,11 +68,15 @@
     <Compile Include="Config\IConfigurationManager.cs" />
     <Compile Include="DataAccess\AdoTransaction.cs" />
     <Compile Include="DataAccess\DataAccessAdapterFactory.cs" />
-    <Compile Include="DataAccess\EntitySerializer.cs" />
+    <Compile Include="DataAccess\EntitySerialization\EntitySerializer.cs" />
     <Compile Include="DataAccess\GetSetStore.cs" />
     <Compile Include="DataAccess\IDbConnector.cs" />
-    <Compile Include="DataAccess\IEntitySerializer.cs" />
+    <Compile Include="DataAccess\EntitySerialization\IEntitySerializer.cs" />
     <Compile Include="DataAccess\ITypeConverter.cs" />
+    <Compile Include="DataAccess\EntitySerialization\SerializeManyToMany.cs" />
+    <Compile Include="DataAccess\EntitySerialization\SerializeManyToOne.cs" />
+    <Compile Include="DataAccess\EntitySerialization\SerializeOneToMany.cs" />
+    <Compile Include="DataAccess\EntitySerialization\RelationSerializer.cs" />
     <Compile Include="DynamicProxy\IProxyHydrator.cs" />
     <Compile Include="DynamicProxy\ProxySerializer.cs" />
     <Compile Include="DataAccess\QueryImpl.cs" />
@@ -86,7 +90,7 @@
     <Compile Include="Diagnostics\Logger.cs" />
     <Compile Include="DataAccess\IDataAccessAdapter.cs" />
     <Compile Include="DataAccess\IDataAccessAdaterFactory.cs" />
-    <Compile Include="DataAccess\IDataReaderEntitySerializer.cs" />
+    <Compile Include="DataAccess\EntitySerialization\IDataHydrator.cs" />
     <Compile Include="DataAccess\IQuery.cs" />
     <Compile Include="DataAccess\ISession.cs" />
     <Compile Include="DataAccess\ISessionFactory.cs" />
