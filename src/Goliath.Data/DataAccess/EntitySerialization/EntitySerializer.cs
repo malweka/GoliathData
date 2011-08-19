@@ -1,18 +1,18 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.Concurrent;
-using System.Linq;
-using System.Text;
+using System.Collections.Generic;
 using System.Data;
+using System.Data.Common;
+using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
+using System.Text;
 
-using Goliath.Data.Mapping;
-using System.Data.Common;
 using Goliath.Data.Diagnostics;
 using Goliath.Data.DynamicProxy;
-using Goliath.Data.Sql;
+using Goliath.Data.Mapping;
 using Goliath.Data.Providers;
+using Goliath.Data.Sql;
 
 namespace Goliath.Data.DataAccess
 {
@@ -22,10 +22,7 @@ namespace Goliath.Data.DataAccess
     {
 
         static ConcurrentDictionary<Type, Delegate> factoryList = new ConcurrentDictionary<Type, Delegate>();
-
-        static object lockFactoryList = new object();
         static ILogger logger;
-
         internal ITypeConverterStore TypeConverterStore { get; set; }
 
         /// <summary>
