@@ -7,7 +7,7 @@ using System.Data.Common;
 
 namespace Goliath.Data
 {
-    public interface IDataReaderEntitySerializer<T>
+    public interface IDataHydrator<T>
     {
         /// <summary>
         /// Serializes from data reader.
@@ -15,6 +15,6 @@ namespace Goliath.Data
         /// <param name="dataReader">The data reader.</param>
         /// <param name="entityMap">The entity map.</param>
         /// <returns></returns>
-        T SerializeFromDataReader(DbDataReader dataReader, Mapping.EntityMap entityMap);
+        T HydrateFromDataReader(DbDataReader dataReader, Mapping.EntityMap entityMap);
     }
 }

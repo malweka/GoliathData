@@ -18,11 +18,11 @@ namespace Goliath.Data.DataAccess
         Providers.SqlMapper SqlMapper { get; }
 
         /// <summary>
-        /// Registers the entity serializer.
+        /// Registers the data hydrator.
         /// </summary>
         /// <typeparam name="TEntity">The type of the entity.</typeparam>
         /// <param name="factoryMethod">The factory method.</param>
-        void RegisterDataReaderEntitySerializer<TEntity>(Func<DbDataReader, EntityMap, TEntity> factoryMethod);
+        void RegisterDataHydrator<TEntity>(Func<DbDataReader, EntityMap, TEntity> factoryMethod);
 
         /// <summary>
         /// Hydrates the specified instance to hydrate.
@@ -32,9 +32,10 @@ namespace Goliath.Data.DataAccess
         /// <param name="entityMap">The entity map.</param>
         /// <param name="dataReader">The data reader.</param>
         void Hydrate(object instanceToHydrate, Type typeOfInstance, EntityMap entityMap, DbDataReader dataReader);
-        
+
+
         /// <summary>
-        /// Serializes the specified data reader.
+        /// Serializes all.
         /// </summary>
         /// <typeparam name="TEntity">The type of the entity.</typeparam>
         /// <param name="dataReader">The data reader.</param>
@@ -43,7 +44,7 @@ namespace Goliath.Data.DataAccess
         IList<TEntity> SerializeAll<TEntity>(DbDataReader dataReader, EntityMap entityMap);
 
         /// <summary>
-        /// Deserializes the specified key generator.
+        /// Builds the insert SQL.
         /// </summary>
         /// <typeparam name="TEntity">The type of the entity.</typeparam>
         /// <param name="entityMap">The entity map.</param>

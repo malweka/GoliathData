@@ -1,0 +1,68 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+using Goliath.Data.Mapping;
+using System.Data.Common;
+using Goliath.Data.Diagnostics;
+using Goliath.Data.DynamicProxy;
+using Goliath.Data.Sql;
+using Goliath.Data.Providers;
+
+namespace Goliath.Data.DataAccess
+{
+    class SerializeOneToMany : RelationSerializer
+    {
+        public SerializeOneToMany(SqlMapper sqlMapper, GetSetStore getSetStore)
+            : base(sqlMapper, getSetStore)
+        {
+        }
+
+        public override void Serialize(EntitySerializer serializer, Relation rel, object instanceEntity, PropInfo pInfo, EntityMap entityMap, EntityGetSetInfo getSetInfo, Dictionary<string, int> columns, DbDataReader dbReader)
+        {
+            int ordinal;
+            var propType = pInfo.PropertType;
+            var relEntMap = entityMap.Parent.EntityConfigs[rel.ReferenceEntityName];
+            if (relEntMap == null)
+                throw new MappingException(string.Format("couldn't find referenced entity name {0} while try to build {1}", rel.ReferenceEntityName, entityMap.Name));
+
+            Type refEntityType = propType.GetGenericArguments().FirstOrDefault();
+            if (refEntityType == null)
+            {
+                throw new MappingException(string.Format("property type mismatch: {0} should be IList<T>", rel.PropertyName));
+            }
+
+            if (propType.Equals(typeof(IList<>).MakeGenericType(new Type[] { refEntityType })))
+            {
+                if (columns.TryGetValue(rel.ColumnName, out ordinal))
+                {
+                    var val = dbReader[ordinal];
+                    if (val != null)
+                    {
+                        QueryParam qp = new QueryParam(ParameterNameBuilderHelper.ColumnQueryName(relEntMap.TableAlias, rel.ReferenceColumn)) { Value = val };
+                        SelectSqlBuilder sqlBuilder = new SelectSqlBuilder(sqlMapper, relEntMap)
+                       .Where(new WhereStatement(ParameterNameBuilderHelper.ColumnWithTableAlias(relEntMap.TableAlias, rel.ReferenceColumn))
+                                .Equals(sqlMapper.CreateParameterName(qp.Name)));
+
+                        QueryInfo qInfo = new QueryInfo();
+                        qInfo.QuerySqlText = sqlBuilder.Build();
+                        qInfo.Parameters = new QueryParam[] { qp };
+
+                        var collectionType = typeof(Collections.LazyList<>).MakeGenericType(new Type[] { refEntityType });
+                        var lazyCol = Activator.CreateInstance(collectionType, qInfo, relEntMap, serializer);
+                        pInfo.Setter(instanceEntity, lazyCol);
+                    }
+                    else
+                    {
+                        var collectionType = typeof(List<>).MakeGenericType(new Type[] { refEntityType });
+                        pInfo.Setter(instanceEntity, Activator.CreateInstance(collectionType));
+                    }
+                }
+
+            }
+            else
+                throw new MappingException(string.Format("property type mismatch: {0} should be IList<T>", rel.PropertyName));
+        }
+    }
+}

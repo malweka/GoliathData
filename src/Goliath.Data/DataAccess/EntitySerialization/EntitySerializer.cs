@@ -28,6 +28,10 @@ namespace Goliath.Data.DataAccess
 
         internal ITypeConverterStore TypeConverterStore { get; set; }
 
+        /// <summary>
+        /// Gets the SQL mapper.
+        /// </summary>
+        /// <value></value>
         public SqlMapper SqlMapper { get; internal set; }
 
         //DbAccess dbAccess;
@@ -64,17 +68,17 @@ namespace Goliath.Data.DataAccess
         #region IEntitySerializerFactory Members
 
         /// <summary>
-        /// Registers the entity serializer.
+        /// Registers the data hydrator.
         /// </summary>
         /// <typeparam name="TEntity">The type of the entity.</typeparam>
         /// <param name="factoryMethod">The factory method.</param>
-        public void RegisterDataReaderEntitySerializer<TEntity>(Func<DbDataReader, EntityMap, TEntity> factoryMethod)
+        public void RegisterDataHydrator<TEntity>(Func<DbDataReader, EntityMap, TEntity> factoryMethod)
         {
             factoryList.TryAdd(typeof(TEntity), factoryMethod);
         }
 
         /// <summary>
-        /// Serializes the specified data reader.
+        /// Serializes all.
         /// </summary>
         /// <typeparam name="TEntity">The type of the entity.</typeparam>
         /// <param name="dataReader">The data reader.</param>
@@ -238,7 +242,7 @@ namespace Goliath.Data.DataAccess
             return func;
         }
 
-        Dictionary<string, int> GetColumnNames(DbDataReader dbReader, string tableAbbreviation)
+        internal static Dictionary<string, int> GetColumnNames(DbDataReader dbReader, string tableAbbreviation)
         {
             Dictionary<string, int> columns = new Dictionary<string, int>();
             for (int i = 0; i < dbReader.FieldCount; i++)
@@ -266,110 +270,24 @@ namespace Goliath.Data.DataAccess
                     {
                         logger.Log(LogType.Info, string.Format("Read {0} is a relation", keyVal.Key));
                         Relation rel = (Relation)prop;
-                        if (!rel.LazyLoad)
+                        switch (rel.RelationType)
                         {
-                            if (rel.RelationType == RelationshipType.ManyToOne)
-                            {
-                                var relEntMap = entityMap.Parent.EntityConfigs[rel.ReferenceEntityName];
-                                if (relEntMap == null)
-                                    throw new MappingException(string.Format("couldn't find referenced entity name {0} while try to build {1}", rel.ReferenceEntityName, entityMap.Name));
-
-                                var relColumns = GetColumnNames(dbReader, relEntMap.TableAlias);
-                                EntityGetSetInfo relGetSetInfo;
-                                Type relType = keyVal.Value.PropertType;
-                                if (!getSetStore.TryGetValue(relType, out relGetSetInfo))
-                                {
-                                    relGetSetInfo = new EntityGetSetInfo(relType);
-                                    relGetSetInfo.Load(relEntMap);
-                                    getSetStore.Add(relType, relGetSetInfo);
-                                }
-
-                                object relIstance = Activator.CreateInstance(relType);
-                                SerializeSingle(relIstance, relType, relEntMap, relGetSetInfo, relColumns, dbReader);
-                                keyVal.Value.Setter(instanceEntity, relIstance);
+                            case RelationshipType.ManyToOne:
+                                SerializeManyToOne manyToOneHelper = new SerializeManyToOne(SqlMapper, getSetStore);
+                                manyToOneHelper.Serialize(this, rel, instanceEntity, keyVal.Value, entityMap, getSetInfo, columns, dbReader);
                                 logger.Log(LogType.Info, string.Format("\t\t{0} is a ManyToOne", keyVal.Key));
-                            }
-                        }
-                        else
-                        {
-                            if (rel.RelationType == RelationshipType.ManyToOne)
-                            {
-                                ProxyBuilder pbuilder = new ProxyBuilder();
-
-                                var relEntMap = entityMap.Parent.EntityConfigs[rel.ReferenceEntityName];
-                                if (relEntMap == null)
-                                    throw new MappingException(string.Format("couldn't find referenced entity name {0} while try to build {1}", rel.ReferenceEntityName, entityMap.Name));
-
-                                if (columns.TryGetValue(rel.ColumnName, out ordinal))
-                                {
-                                    var val = dbReader[ordinal];
-                                    if (val != null)
-                                    {
-                                        QueryParam qp = new QueryParam(ParameterNameBuilderHelper.ColumnQueryName(relEntMap.TableAlias, rel.ReferenceColumn)) { Value = val };
-
-                                        SelectSqlBuilder sqlBuilder = new SelectSqlBuilder(SqlMapper, relEntMap)
-                                           .Where(new WhereStatement(ParameterNameBuilderHelper.ColumnWithTableAlias(relEntMap.TableAlias, rel.ReferenceColumn))
-                                                    .Equals(SqlMapper.CreateParameterName(qp.Name)));
-
-                                        QueryInfo qInfo = new QueryInfo();
-                                        qInfo.QuerySqlText = sqlBuilder.Build();
-                                        qInfo.Parameters = new QueryParam[] { qp };
-
-                                        IProxyHydrator hydrator = new ProxySerializer(qInfo, keyVal.Value.PropertType, relEntMap, this);
-                                        var proxyType = pbuilder.CreateProxy(keyVal.Value.PropertType, relEntMap);
-                                        object proxyobj = Activator.CreateInstance(proxyType, new object[] { keyVal.Value.PropertType, hydrator });
-                                        keyVal.Value.Setter(instanceEntity, proxyobj);
-                                    }
-                                }
-
-                            }
-                            else if (rel.RelationType == RelationshipType.OneToMany)
-                            {
+                                break;
+                            case RelationshipType.OneToMany:
+                                SerializeOneToMany oneToManyHelper = new SerializeOneToMany(SqlMapper, getSetStore);
+                                oneToManyHelper.Serialize(this, rel, instanceEntity, keyVal.Value, entityMap, getSetInfo, columns, dbReader);
                                 logger.Log(LogType.Info, string.Format("\t\t{0} is a OneToMany", keyVal.Key));
-                                var propType = keyVal.Value.PropertType;
-                                var relEntMap = entityMap.Parent.EntityConfigs[rel.ReferenceEntityName];
-                                if (relEntMap == null)
-                                    throw new MappingException(string.Format("couldn't find referenced entity name {0} while try to build {1}", rel.ReferenceEntityName, entityMap.Name));
-
-                                Type refEntityType = propType.GetGenericArguments().FirstOrDefault();
-                                if (refEntityType == null)
-                                {
-                                    throw new MappingException(string.Format("property type mismatch: {0} should be IList<T>", rel.PropertyName));
-                                }
-
-                                if (propType.Equals(typeof(IList<>).MakeGenericType(new Type[] { refEntityType })))
-                                {
-                                    if (columns.TryGetValue(rel.ColumnName, out ordinal))
-                                    {
-                                        var val = dbReader[ordinal];
-                                        if (val != null)
-                                        {
-                                            QueryParam qp = new QueryParam(ParameterNameBuilderHelper.ColumnQueryName(relEntMap.TableAlias, rel.ReferenceColumn)) { Value = val };
-                                            SelectSqlBuilder sqlBuilder = new SelectSqlBuilder(SqlMapper, relEntMap)
-                                           .Where(new WhereStatement(ParameterNameBuilderHelper.ColumnWithTableAlias(relEntMap.TableAlias, rel.ReferenceColumn))
-                                                    .Equals(SqlMapper.CreateParameterName(qp.Name)));
-
-                                            QueryInfo qInfo = new QueryInfo();
-                                            qInfo.QuerySqlText = sqlBuilder.Build();
-                                            qInfo.Parameters = new QueryParam[] { qp };
-
-                                            var collectionType = typeof(Collections.LazyList<>).MakeGenericType(new Type[] { refEntityType });
-                                            var lazyCol = Activator.CreateInstance(collectionType, qInfo, relEntMap, this);
-                                            keyVal.Value.Setter(instanceEntity, lazyCol);
-                                        }
-                                        else
-                                        {
-                                            var collectionType = typeof(List<>).MakeGenericType(new Type[] { refEntityType });
-                                            keyVal.Value.Setter(instanceEntity, Activator.CreateInstance(collectionType));
-                                        }
-                                    }
-
-                                }
-                                else
-                                    throw new MappingException(string.Format("property type mismatch: {0} should be IList<T>", rel.PropertyName));
-
-                            }
+                                break;
+                            case RelationshipType.ManyToMany:
+                                break;
+                            default:
+                                break;
                         }
+     
                     }
                     else if (columns.TryGetValue(prop.ColumnName, out ordinal))
                     {
@@ -393,14 +311,6 @@ namespace Goliath.Data.DataAccess
                         }
                     }
                 }
-            }
-        }
-
-        public static void DataReaderColumnList(IDataReader dataReader, EntityMap entMap)
-        {
-            List<string> ColumnNames = new List<string>();
-            for (int i = 0; i < dataReader.FieldCount; i++)
-            {
             }
         }
 
