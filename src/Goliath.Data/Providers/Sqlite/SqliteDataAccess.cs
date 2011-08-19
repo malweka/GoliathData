@@ -3,11 +3,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Data.SQLite;
+using Goliath.Data.Diagnostics;
 
 namespace Goliath.Data.Providers.Sqlite
 {
     public class SqliteDbConnector : DbConnector
     {
+        static ILogger logger;
+
+        static SqliteDbConnector()
+        {
+        }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="SqliteDbConnector"/> class.
         /// </summary>
@@ -15,6 +22,7 @@ namespace Goliath.Data.Providers.Sqlite
         public SqliteDbConnector(string connectionString)
             : base(connectionString, Constants.ProviderName)
         {
+            logger = Logger.GetLogger(typeof(SqliteDbConnector));
         }
 
         /// <summary>
@@ -45,11 +53,11 @@ namespace Goliath.Data.Providers.Sqlite
             SQLiteParameter param;
             if (value is Guid)
             {
-                Console.WriteLine("=== guid translating to string");
+                logger.Log(LogType.Warning, "Convert guid to string for now. Please change before release.");
                 param = new SQLiteParameter(string.Format("${0}", parameterName), value.ToString().ToUpper());
-                Console.WriteLine("=== param name = {0}", param.ParameterName);
-                Console.WriteLine("=== param value = {0}", param.Value);
-                Console.WriteLine("=== param type = {0}", param.DbType);
+                logger.Log(LogType.Warning, string.Format("=== param name = {0}", param.ParameterName));
+                logger.Log(LogType.Warning, string.Format("=== param value = {0}", param.Value));
+                logger.Log(LogType.Warning, string.Format("=== param type = {0}", param.DbType));
             }
             else
                 param = new SQLiteParameter(string.Format("${0}", parameterName), value);
