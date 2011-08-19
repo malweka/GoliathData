@@ -21,7 +21,7 @@ namespace Goliath.Data.Collections
         bool isLoaded;
         QueryInfo query;
         EntityMap entityMap;
-        IEntitySerializerFactory factory;
+        IEntitySerializer factory;
         static ILogger logger;
 
         static LazyList()
@@ -35,7 +35,7 @@ namespace Goliath.Data.Collections
         /// <param name="query">The query.</param>
         /// <param name="entityMap">The entity map.</param>
         /// <param name="factory">The factory.</param>
-        public LazyList(QueryInfo query, EntityMap entityMap, IEntitySerializerFactory factory)
+        public LazyList(QueryInfo query, EntityMap entityMap, IEntitySerializer factory)
         {
             this.query = query;
             this.entityMap = entityMap;

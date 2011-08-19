@@ -66,7 +66,7 @@ namespace Goliath.Data
         /// </summary>
         /// <param name="filters">The filters.</param>
         /// <returns></returns>
-        IList<TEntity> FindAll(params QueryParam[] filters);
+        IList<TEntity> FindAll(params PropertyQueryParam[] filters);
 
         /// <summary>
         /// Finds all.
@@ -76,14 +76,14 @@ namespace Goliath.Data
         /// <param name="totalRecords">The total records.</param>
         /// <param name="filters">The filters.</param>
         /// <returns></returns>
-        IList<TEntity> FindAll(int pageIndex, int pageSize, out int totalRecords, params QueryParam[] filters);
+        IList<TEntity> FindAll(int pageIndex, int pageSize, out int totalRecords, params PropertyQueryParam[] filters);
         
         /// <summary>
         /// Finds the one.
         /// </summary>
         /// <param name="filter">The filter.</param>
         /// <returns></returns>
-        TEntity FindOne(QueryParam filter, params QueryParam[] filters);
+        TEntity FindOne(PropertyQueryParam filter, params PropertyQueryParam[] filters);
 
         #endregion
 

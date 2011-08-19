@@ -17,7 +17,7 @@ namespace Goliath.Data.Config
         IDbProvider provider;
         IDataAccessAdapterFactory dataAccessAdapterFactory;
         ITypeConverterStore typeConverterStore;
-        IEntitySerializerFactory entitySerializerFactory;
+        IEntitySerializer entitySerializerFactory;
         internal Func<Type, ILogger> LoggerFactory { get; set; }
 
         public MapConfig Map
@@ -109,7 +109,7 @@ namespace Goliath.Data.Config
         /// </summary>
         /// <param name="entitySerializerFactory">The entity serializer factory.</param>
         /// <returns></returns>
-        public IConfigurationManager OverrideEntitySerializeFactory(IEntitySerializerFactory entitySerializerFactory)
+        public IConfigurationManager OverrideEntitySerializeFactory(IEntitySerializer entitySerializerFactory)
         {
             if (entitySerializerFactory == null)
                 throw new ArgumentNullException("entitySerializerFactory");
@@ -144,7 +144,7 @@ namespace Goliath.Data.Config
             }
             if (entitySerializerFactory == null)
             {
-                entitySerializerFactory = new EntitySerializerFactory(DbProvider.SqlMapper, typeConverterStore);
+                entitySerializerFactory = new EntitySerializer(DbProvider.SqlMapper, typeConverterStore);
             }
 
             dataAccessAdapterFactory.SetSerializerFactory(entitySerializerFactory);

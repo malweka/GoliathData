@@ -36,7 +36,30 @@ namespace Goliath.Data.Diagnostics
                 if (!string.IsNullOrEmpty(sessionId))
                     sessionText = string.Format("Session {0} -", sessionId);
 
-                Console.WriteLine("{0} {1}:{2} - {3}", sessionText, logType.ToString(), DateTime.Now.ToString(), message);
+                var currentColor = Console.ForegroundColor;
+                Console.Write("\n{0} {1}:{2}", sessionText, logType.ToString(), DateTime.Now.ToString());
+
+                switch (logType)
+                {
+                    case LogType.Debug:
+                        Console.ForegroundColor = ConsoleColor.Green;
+                        break;
+                    case LogType.Fatal:
+                    case LogType.Error:
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        break;
+                    case LogType.Warning:
+                        Console.ForegroundColor = ConsoleColor.Yellow;
+                        break;
+                    case LogType.Info:
+                        Console.ForegroundColor = ConsoleColor.DarkYellow;
+                        break;
+                    default:
+                        break;
+                    
+                }                
+                Console.Write(" - {0}\n", message);
+                Console.ForegroundColor = currentColor;
             }
         }
 

@@ -63,11 +63,12 @@ namespace Goliath.Data.Diagnostics
         /// <summary>
         /// 
         /// </summary>
-        Error = 4,
+        Warning = 4,
+        Error = 8,
         /// <summary>
         /// 
         /// </summary>
-        Fatal = 8,
+        Fatal = 64,
         /// <summary>
         /// 
         /// </summary>
@@ -90,10 +91,11 @@ namespace Goliath.Data.Diagnostics
         /// <summary>
         /// 
         /// </summary>
-        Error = 4,
+        Warning = 4,
+        Error = 8,
         /// <summary>
         /// 
         /// </summary>
-        Fatal = 8,
+        Fatal = 64,
     }
 }
