@@ -165,7 +165,6 @@
     <Compile Include="Sql\SqlBuilderExtensions.cs" />
     <Compile Include="Sql\SqlFunction.cs" />
     <Compile Include="Sql\SqlJoin.cs" />
-    <Compile Include="Sql\SqlPart.cs" />
     <Compile Include="Sql\SqlStatement.cs" />
     <Compile Include="Sql\WhereStatement.cs" />
     <Compile Include="Transformers\Abbreviator.cs" />

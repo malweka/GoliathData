@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Data;
 using System.Data.Common;
-using Goliath.Data.DataAccess;
+using System.Linq;
 using Goliath.Data.Config;
-using Goliath.Data.Mapping;
+using Goliath.Data.DataAccess;
 using Goliath.Data.Diagnostics;
+using Goliath.Data.Mapping;
 using Goliath.Data.Sql;
 
 namespace Goliath.Data
@@ -102,9 +101,6 @@ namespace Goliath.Data
         {
             Type type = typeof(TEntity);
             var map = ConfigManager.CurrentSettings.Map;
-            //entityMap = map.EntityConfigs[type.FullName];
-            //if (entityMap == null)
-            //    throw new DataAccessException("entity {0} not mapped.", type.FullName);
 
             var qInfo = serializer.BuildInsertSql(entityMap, entity);            
             logger.Log(LogType.Debug, qInfo.QuerySqlText);
