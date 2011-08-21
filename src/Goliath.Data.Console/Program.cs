@@ -158,7 +158,6 @@ namespace Goliath.Data
 
         static void QueryTest(string workingFolder)
         {
-
             //string sf = "/Users/hamsman/development";
             string pdir = AppDomain.CurrentDomain.BaseDirectory.Substring(0, AppDomain.CurrentDomain.BaseDirectory.IndexOf("bin"));
 			string dbfile = Path.Combine(pdir, "Data", "WebZoo.db");

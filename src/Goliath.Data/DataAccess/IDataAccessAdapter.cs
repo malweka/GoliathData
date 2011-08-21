@@ -59,7 +59,13 @@ namespace Goliath.Data
 
         #region Queries
 
-        IList<TEntity> FindAll(string sqlQuery);
+        /// <summary>
+        /// Finds all.
+        /// </summary>
+        /// <param name="sqlQuery">The SQL query.</param>
+        /// <param name="parameters">The parameters.</param>
+        /// <returns></returns>
+        IList<TEntity> FindAll(string sqlQuery, params System.Data.Common.DbParameter[] parameters);
 
         /// <summary>
         /// Finds all.
