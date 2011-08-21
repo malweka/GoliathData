@@ -174,7 +174,40 @@ namespace Goliath.Data.DataAccess
             return qInfo;
         }
 
-        List<QueryParam> BuildQuerParams<TEntity>(TEntity entity, EntityGetSetInfo getSetInfo, EntityMap entityMap)
+        //TODO: recursively extract insert for relationships for one-to-many relations.
+        void BuildInsertSql(object entity, EntityMap entityMap, Type entityType, List<string> queries, List<QueryParam> qparams)
+        {
+            InsertSqlBuilder sqlBuilder = new InsertSqlBuilder(SqlMapper, entityMap);
+
+            EntityGetSetInfo getSetInfo;
+
+            if (!getSetStore.TryGetValue(entityType, out getSetInfo))
+            {
+                getSetInfo = new EntityGetSetInfo(entityType);
+                getSetInfo.Load(entityMap);
+                getSetStore.Add(entityType, getSetInfo);
+            }
+
+            if (entityMap.PrimaryKey != null)
+            {
+                foreach (var pk in entityMap.PrimaryKey.Keys)
+                {
+                    if (pk.KeyGenerator != null)
+                    {
+                        PropInfo pInfo;
+                        if (getSetInfo.Properties.TryGetValue(pk.Key.PropertyName, out pInfo))
+                        {
+                            var id = pk.KeyGenerator.GenerateKey();
+                            pInfo.Setter(entity, id);
+                        }
+                    }
+                }
+            }
+            queries.Add(sqlBuilder.ToSqlString());
+            qparams.AddRange(BuildQuerParams(entity, getSetInfo, entityMap));
+        }
+
+        List<QueryParam> BuildQuerParams(object entity, EntityGetSetInfo getSetInfo, EntityMap entityMap)
         {
             List<QueryParam> parameters = new List<QueryParam>();
             foreach (var prop in entityMap)
@@ -184,12 +217,14 @@ namespace Goliath.Data.DataAccess
                     Relation rel = (Relation)prop;
                     if (rel.RelationType != RelationshipType.ManyToOne)
                         continue;
+
+                    //TODO extract value of relations many-to-one and one-to-many
                 }
 
                 PropInfo pInfo;
                 if (getSetInfo.Properties.TryGetValue(prop.PropertyName, out pInfo))
                 {
-                    QueryParam param = new QueryParam(prop.ColumnName);
+                    QueryParam param = new QueryParam(ParameterNameBuilderHelper.ColumnQueryName(prop.ColumnName, entityMap.TableAlias));
                     object val = pInfo.Getter(entity);
 
                     if ((val == null) && !prop.IsNullable)

@@ -11,9 +11,11 @@ using Goliath.Data.Mapping;
 using Goliath.Data.Transformers;
 using Goliath.Data.DataAccess;
 using Goliath.Data.Sql;
+using Goliath.Data;
+//using WebZoo.Data;
+//using WebZoo.Data.SqlServer;
 
-
-namespace Goliath.Data
+namespace WebZoo.Data
 {
     class Program
     {
@@ -169,16 +171,31 @@ namespace Goliath.Data
 
             var sess = sessionFactory.OpenSession();
 
-            var zoodapter = sess.CreateDataAccessAdapter<WebZoo.Data.Sqlite.Zoo>();
+            var zoodapter = sess.CreateDataAccessAdapter<Sqlite.Zoo>();
+            var animalapter = sess.CreateDataAccessAdapter<Sqlite.Animal>();                              
+
             var allzoos = zoodapter.FindAll();
             var acceptingZoos = zoodapter.FindAll(new PropertyQueryParam("AcceptNewAnimals", true));
             long total;
             var top5Zoo = zoodapter.FindAll(5, 0, out total);
 
-            WebZoo.Data.Sqlite.Zoo zooM = new WebZoo.Data.Sqlite.Zoo() { Name = "Bronx Zoo", City = "New York", AcceptNewAnimals = true };
+            var an1 = new Sqlite.Animal()
+            {
+                Age = 12,
+                Location = "dw 44",
+                ReceivedOn = DateTime.Now,
+                Name = "Snow Leopard",
+                Zoo = acceptingZoos[0],
+                ZooId = acceptingZoos[0].Id,
+            };
+
+
+
+          //  WebZoo.Data.Sqlite.Zoo zooM = new WebZoo.Data.Sqlite.Zoo() { Name = "Bronx Zoo", City = "New York", AcceptNewAnimals = true };
             try
             {
                 //dataAccessAdapter.Insert(zooM);
+                animalapter.Insert(an1);
             }
             catch (Exception ex)
             {
@@ -188,7 +205,7 @@ namespace Goliath.Data
             MapConfig map = MapConfig.Create(mapfile);
 
             //var dbConnector = new Providers.SqlServer.MssqlDbConnector("Data Source=localhost;Initial Catalog=DbZoo;Integrated Security=True");
-            var dbConnector = new Providers.Sqlite.SqliteDbConnector(cs);
+            var dbConnector = new Goliath.Data.Providers.Sqlite.SqliteDbConnector(cs);
 			var dbAccess = new DbAccess(dbConnector);
             
 
