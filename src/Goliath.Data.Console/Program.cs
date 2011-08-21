@@ -173,6 +173,8 @@ namespace Goliath.Data
             var zoodapter = sess.CreateDataAccessAdapter<WebZoo.Data.Sqlite.Zoo>();
             var allzoos = zoodapter.FindAll();
             var acceptingZoos = zoodapter.FindAll(new PropertyQueryParam("AcceptNewAnimals", true));
+            long total;
+            var top5Zoo = zoodapter.FindAll(5, 0, out total);
 
             WebZoo.Data.Sqlite.Zoo zooM = new WebZoo.Data.Sqlite.Zoo() { Name = "Bronx Zoo", City = "New York", AcceptNewAnimals = true };
             try

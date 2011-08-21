@@ -71,12 +71,12 @@ namespace Goliath.Data
         /// <summary>
         /// Finds all.
         /// </summary>
-        /// <param name="pageIndex">Index of the page.</param>
-        /// <param name="pageSize">Size of the page.</param>
+        /// <param name="limit">The limit.</param>
+        /// <param name="offset">The offset.</param>
         /// <param name="totalRecords">The total records.</param>
         /// <param name="filters">The filters.</param>
         /// <returns></returns>
-        IList<TEntity> FindAll(int pageIndex, int pageSize, out int totalRecords, params PropertyQueryParam[] filters);
+        IList<TEntity> FindAll(int limit, int offset, out long totalRecords, params PropertyQueryParam[] filters);
         
         /// <summary>
         /// Finds the one.

@@ -131,17 +131,9 @@ namespace Goliath.Data
 
         #endregion
 
-        #region Queries
-
-        public IList<TEntity> FindAll(string sqlQuery)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IList<TEntity> FindAll(params PropertyQueryParam[] filters)
+        SelectSqlBuilder BuildSelectSql(PropertyQueryParam[] filters, out ICollection<DbParameter> dbParams)
         {
             SelectSqlBuilder queryBuilder = new SelectSqlBuilder(serializer.SqlMapper, entityMap);
-            DbDataReader dataReader;
             if ((filters != null) && (filters.Length > 0))
             {
                 for (int i = 0; i < filters.Length; i++)
@@ -159,40 +151,101 @@ namespace Goliath.Data
                     };
                     queryBuilder.Where(w);
                 }
-                DbParameter[] parameters = dataAccess.CreateParameters(filters).ToArray();
-                var query = queryBuilder.ToSqlString();
-                logger.Log(LogType.Debug, query);
-                CheckConnection(dbConnection);
-                dataReader = dataAccess.ExecuteReader(dbConnection, query, parameters);
+
+                dbParams = dataAccess.CreateParameters(filters);
             }
             else
-            {
-                var query = queryBuilder.ToSqlString();
-                logger.Log(LogType.Debug, query);
-                CheckConnection(dbConnection);
-                dataReader = dataAccess.ExecuteReader(dbConnection, query);
-            }
+                dbParams = new DbParameter[] { };
 
-            var entities = serializer.SerializeAll<TEntity>(dataReader, entityMap);
-            return entities;
+            return queryBuilder;
+        }
+
+        #region Queries
+
+        public IList<TEntity> FindAll(string sqlQuery)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IList<TEntity> FindAll(params PropertyQueryParam[] filters)
+        {
+            ICollection<DbParameter> dbParams;
+            SelectSqlBuilder queryBuilder = BuildSelectSql(filters, out dbParams);
+            DbDataReader dataReader;
+
+            DbParameter[] parameters = dbParams.ToArray();
+            var query = queryBuilder.ToSqlString();
+            logger.Log(LogType.Debug, query);            
+            try
+            {
+                CheckConnection(dbConnection);
+                dataReader = dataAccess.ExecuteReader(dbConnection, query, parameters);
+                var entities = serializer.SerializeAll<TEntity>(dataReader, entityMap);
+                return entities;
+            }
+            catch (GoliathDataException ex)
+            {
+                Console.WriteLine("Encounter GoliathException. Exception rethrown. {0}", ex.Message);
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new DataAccessException(string.Format("Error while trying to fetch all {0}", entityMap.FullName), ex);
+            }
+                      
         }
 
         /// <summary>
         /// Finds all.
         /// </summary>
-        /// <param name="pageIndex">Index of the page.</param>
-        /// <param name="pageSize">Size of the page.</param>
+        /// <param name="limit">The limit.</param>
+        /// <param name="offset">The offset.</param>
         /// <param name="totalRecords">The total records.</param>
         /// <param name="filters">The filters.</param>
         /// <returns></returns>
-        public IList<TEntity> FindAll(int pageIndex, int pageSize, out int totalRecords, params PropertyQueryParam[] filters)
+        public IList<TEntity> FindAll(int limit, int offset, out long totalRecords, params PropertyQueryParam[] filters)
         {
-            if (pageIndex < 1)
+            if (limit < 1)
                 throw new ArgumentException(" cannot have a pageIndex of less than or equal to 0");
-            if(pageSize <1)
+            if(offset <0 )
                 throw new ArgumentException(" cannot have a pageSize of less than or equal to 0");
 
-            throw new NotImplementedException();
+            ICollection<DbParameter> dbParams;
+            SelectSqlBuilder queryBuilder = BuildSelectSql(filters, out dbParams);
+            string selectCount = queryBuilder.SelectCount();
+            totalRecords = 0;
+            queryBuilder = queryBuilder.WithPaging(limit, offset);
+            string query = string.Format("{0};\n{1};", selectCount.Trim(), queryBuilder.ToSqlString().Trim());
+            logger.Log(LogType.Debug, query);
+
+            try
+            {
+                DbParameter[] parameters = dbParams.ToArray();
+                DbDataReader dataReader;
+                CheckConnection(dbConnection);
+                dataReader = dataAccess.ExecuteReader(dbConnection, query, parameters);
+                while (dataReader.Read())
+                {
+                    var type = dataReader.GetFieldType(0);
+                    if (typeof(long).Equals(type))
+                        totalRecords = (long)dataReader[0];
+                    else
+                        totalRecords = Convert.ToInt64(dataReader[0]);
+                    break;
+                }
+                dataReader.NextResult();
+                var entities = serializer.SerializeAll<TEntity>(dataReader, entityMap);
+                return entities;
+            }
+            catch (GoliathDataException ex)
+            {
+                Console.WriteLine("Encounter GoliathException. Exception rethrown. {0}", ex.Message);
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new DataAccessException(string.Format("Error while trying to fetch all {0}", entityMap.FullName), ex);
+            }
         }
 
         public TEntity FindOne(PropertyQueryParam filter, params PropertyQueryParam[] filters)

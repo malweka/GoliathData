@@ -162,6 +162,7 @@
     <Compile Include="Sql\ParameterNameBuilderHelper.cs" />
     <Compile Include="Sql\SelectSqlBuilder.cs" />
     <Compile Include="Sql\SqlBuilder.cs" />
+    <Compile Include="Sql\SqlBuilderExtensions.cs" />
     <Compile Include="Sql\SqlFunction.cs" />
     <Compile Include="Sql\SqlJoin.cs" />
     <Compile Include="Sql\SqlPart.cs" />

@@ -170,6 +170,8 @@ namespace Goliath.Data.Sql
                 sjoins.Add(jn);
             }
         }
+
+        
     }
 
     public struct SqlQueryBody
