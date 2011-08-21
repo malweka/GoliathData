@@ -107,7 +107,7 @@ namespace Goliath.Data.Sql
             return this;
         }
 
-        public override string Build()
+        public SqlQueryBody Build()
         {
             List<string> printColumns = new List<string>();
             List<SqlJoin> sJoins = new List<SqlJoin>();
@@ -145,9 +145,15 @@ namespace Goliath.Data.Sql
                 queryBody.WhereExpression = whereBuilder.ToString();
             }
 
+            return queryBody;
+        }
+
+        public override string ToSqlString()
+        {
+            var queryBody = Build();
             if (paging != null)
             {
-                return sqlMapper.QueryWithPaging(queryBody, paging.Value);
+                return queryBody.ToString(sqlMapper, paging.Value);
             }
 
             return queryBody.ToString();
@@ -164,22 +170,6 @@ namespace Goliath.Data.Sql
                 sjoins.Add(jn);
             }
         }
-
-        
-        //internal static string CreateColumnName(EntityMap entity, Property column)
-        //{
-        //    return CreateColumnName(entity, column.ColumnName);
-        //}
-
-        //internal static string CreateColumnName(EntityMap entity, string columnName)
-        //{
-        //    return string.Format("{1}.{0} AS {1}_{0}", columnName, entity.TableAbbreviation);
-        //}
-
-        //internal static string CreateTableName(string tableAbbreviation, string tableName)
-        //{
-        //    return string.Format("{0} {1}", tableName, tableAbbreviation);
-        //}
     }
 
     public struct SqlQueryBody
@@ -190,6 +180,11 @@ namespace Goliath.Data.Sql
         public string WhereExpression { get; set; }
         public string SortExpression { get; set; }
         public string AggregateExpression { get; set; }
+
+        public string ToString(SqlMapper mapper, PagingInfo paging)
+        {
+            return mapper.QueryWithPaging(this, paging);
+        }
 
         public override string ToString()
         {

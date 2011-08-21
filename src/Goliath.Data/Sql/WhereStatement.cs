@@ -7,10 +7,10 @@ namespace Goliath.Data.Sql
 {
     class WhereStatement : Operand
     {
-        public ComparisonOperator Operator { get; private set; }
+        public ComparisonOperator Operator { get;  set; }
         public Sql.SqlOperator PostOperator { get; set; }
         public Operand LeftOperand { get; private set; }
-        public Operand RightOperand { get; private set; }
+        public Operand RightOperand { get;  set; }
 
         public WhereStatement(string column)
             : base(column)
@@ -27,6 +27,7 @@ namespace Goliath.Data.Sql
             LeftOperand = leftOperand;
             innerValue = leftOperand.ToString();
         }
+
 
         public WhereStatement Equals(string parameterizedValue)
         {

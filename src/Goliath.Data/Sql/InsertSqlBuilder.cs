@@ -28,7 +28,7 @@ namespace Goliath.Data.Sql
 
 
 
-        public override string Build()
+        public override string ToSqlString()
         {
             StringBuilder sb = new StringBuilder("INSERT INTO ");
             sb.AppendFormat("{0} ({1})", entMap.TableName, string.Join(",", Columns.Keys));

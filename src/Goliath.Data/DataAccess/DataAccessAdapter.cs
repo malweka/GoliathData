@@ -36,12 +36,14 @@ namespace Goliath.Data
         /// <summary>
         /// Initializes a new instance of the <see cref="DataAccessAdapter&lt;TEntity&gt;"/> class.
         /// </summary>
+        /// <param name="serializer">The serializer.</param>
         /// <param name="dataAccess">The data access.</param>
-        public DataAccessAdapter(IEntitySerializer serializerFactory, IDbAccess dataAccess, DbConnection dbConnection)
+        /// <param name="dbConnection">The db connection.</param>
+        public DataAccessAdapter(IEntitySerializer serializer, IDbAccess dataAccess, DbConnection dbConnection)
         {
             if (dataAccess == null)
                 throw new ArgumentNullException("dataAccess");
-            this.serializer = serializerFactory;
+            this.serializer = serializer;
             this.dataAccess = dataAccess;
             this.dbConnection = dbConnection;
             entityType = typeof(TEntity);
@@ -100,19 +102,19 @@ namespace Goliath.Data
         {
             Type type = typeof(TEntity);
             var map = ConfigManager.CurrentSettings.Map;
-            var entityMap = map.EntityConfigs[type.FullName];
+            entityMap = map.EntityConfigs[type.FullName];
             if (entityMap == null)
                 throw new DataAccessException("entity {0} not mapped.", type.FullName);
 
             var qInfo = serializer.BuildInsertSql(entityMap, entity);
-
-            CheckConnection(dbConnection);
+            
 
             logger.Log(LogType.Debug, qInfo.QuerySqlText);
 
             var parameters = dataAccess.CreateParameters(qInfo.Parameters).ToArray();
             try
             {
+                CheckConnection(dbConnection);
                 int qResult = dataAccess.ExecuteNonQuery(dbConnection, qInfo.QuerySqlText, parameters);
                 return qResult;
             }
@@ -139,12 +141,57 @@ namespace Goliath.Data
         public IList<TEntity> FindAll(params PropertyQueryParam[] filters)
         {
             SelectSqlBuilder queryBuilder = new SelectSqlBuilder(serializer.SqlMapper, entityMap);
-            
-            throw new NotImplementedException();
+            DbDataReader dataReader;
+            if ((filters != null) && (filters.Length > 0))
+            {
+                for (int i = 0; i < filters.Length; i++)
+                {
+                    var prop = entityMap[filters[i].PropertyName];
+                    if (prop == null)
+                        throw new MappingException(string.Format("Property {0} not found in mapped entity {1}", filters[i].PropertyName, entityMap.FullName));
+
+                    filters[i].SetParameterName(prop.ColumnName, entityMap.TableAlias);
+                    WhereStatement w = new WhereStatement(prop.ColumnName)
+                    {
+                        Operator = filters[i].ComparisonOperator,
+                        PostOperator = filters[i].PostOperator,
+                        RightOperand = new StringOperand(serializer.SqlMapper.CreateParameterName(ParameterNameBuilderHelper.ColumnQueryName(prop.ColumnName, entityMap.TableAlias)))
+                    };
+                    queryBuilder.Where(w);
+                }
+                DbParameter[] parameters = dataAccess.CreateParameters(filters).ToArray();
+                var query = queryBuilder.ToSqlString();
+                logger.Log(LogType.Debug, query);
+                CheckConnection(dbConnection);
+                dataReader = dataAccess.ExecuteReader(dbConnection, query, parameters);
+            }
+            else
+            {
+                var query = queryBuilder.ToSqlString();
+                logger.Log(LogType.Debug, query);
+                CheckConnection(dbConnection);
+                dataReader = dataAccess.ExecuteReader(dbConnection, query);
+            }
+
+            var entities = serializer.SerializeAll<TEntity>(dataReader, entityMap);
+            return entities;
         }
 
+        /// <summary>
+        /// Finds all.
+        /// </summary>
+        /// <param name="pageIndex">Index of the page.</param>
+        /// <param name="pageSize">Size of the page.</param>
+        /// <param name="totalRecords">The total records.</param>
+        /// <param name="filters">The filters.</param>
+        /// <returns></returns>
         public IList<TEntity> FindAll(int pageIndex, int pageSize, out int totalRecords, params PropertyQueryParam[] filters)
         {
+            if (pageIndex < 1)
+                throw new ArgumentException(" cannot have a pageIndex of less than or equal to 0");
+            if(pageSize <1)
+                throw new ArgumentException(" cannot have a pageSize of less than or equal to 0");
+
             throw new NotImplementedException();
         }
 
@@ -152,6 +199,8 @@ namespace Goliath.Data
         {
             throw new NotImplementedException();
         }
+
+        #endregion
 
         public int Delete(TEntity entity)
         {
@@ -163,7 +212,7 @@ namespace Goliath.Data
             throw new NotImplementedException();
         }
 
-        #endregion
+        
 
         #endregion
     }

@@ -13,7 +13,7 @@ namespace Goliath.Data
         /// <summary>
         /// Gets the name.
         /// </summary>
-        public string Name { get; private set; }
+        public string Name { get; protected set; }
         /// <summary>
         /// Gets or sets the value.
         /// </summary>
@@ -50,20 +50,21 @@ namespace Goliath.Data
     {
         public Sql.ComparisonOperator ComparisonOperator { get; set; }
         public Sql.SqlOperator PostOperator { get; set; }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="PropertyQueryParam"/> class.
         /// </summary>
         /// <param name="propertyName">Name of the property.</param>
         /// <param name="parameterName">Name of the parameter.</param>
-        public PropertyQueryParam(string propertyName, string parameterName) : this(propertyName, parameterName, null) { }
+        public PropertyQueryParam(string propertyName) : this(propertyName, null) { }
         /// <summary>
         /// Initializes a new instance of the <see cref="PropertyQueryParam"/> class.
         /// </summary>
         /// <param name="propertyName">Name of the property.</param>
         /// <param name="parameterName">Name of the parameter.</param>
         /// <param name="value">The value.</param>
-        public PropertyQueryParam(string propertyName, string parameterName, object value)
-            : base(parameterName, value)
+        public PropertyQueryParam(string propertyName, object value)
+            : base(propertyName, value)
         {
             if (string.IsNullOrWhiteSpace(propertyName))
                 throw new ArgumentNullException("propertyName");
@@ -80,5 +81,10 @@ namespace Goliath.Data
         /// The name of the property.
         /// </value>
         public string PropertyName { get; private set; }
+
+        internal void SetParameterName(string columnName, string tableAlias)
+        {
+            Name = ParameterNameBuilderHelper.ColumnQueryName(columnName, tableAlias);
+        }
     }
 }

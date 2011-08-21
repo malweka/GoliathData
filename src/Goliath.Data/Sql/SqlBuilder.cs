@@ -29,7 +29,7 @@ namespace Goliath.Data.Sql
             this.entMap = entMap;
         }
 
-        public abstract string Build();
+        public abstract string ToSqlString();
 
         public override string ToString()
         {
