@@ -168,7 +168,7 @@ namespace Goliath.Data.DataAccess
             }
 
             QueryInfo qInfo = new QueryInfo();
-            qInfo.QuerySqlText = sqlBuilder.Build();
+            qInfo.QuerySqlText = sqlBuilder.ToSqlString();
             qInfo.Parameters = BuildQuerParams(entity, getSetInfo, entityMap);
 
             return qInfo;
