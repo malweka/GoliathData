@@ -91,6 +91,14 @@ namespace Goliath.Data.Sql
         /// Initializes a new instance of the <see cref="CountFunction"/> class.
         /// </summary>
         public CountFunction() : base(FunctionNames.Count, "COUNT") { }
+
+        public override string ToSqlStatement(params QueryParam[] args)
+        {
+            if ((args != null) && (args.Length > 0))
+                return string.Format("{0}({1})", Declaration, args[1].Name);
+            else
+                return string.Format("{0}({1})", Declaration, "1");
+        }
     }
 
     /// <summary>

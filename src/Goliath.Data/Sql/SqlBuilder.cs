@@ -11,6 +11,12 @@ namespace Goliath.Data.Sql
     {
         protected SqlMapper sqlMapper;
         protected EntityMap entMap;
+
+        public SqlMapper SqlMapper
+        {
+            get { return sqlMapper; }
+        }
+
         readonly Dictionary<string, string> columns = new Dictionary<string, string>();
         internal Dictionary<string, string> Columns
         {
