@@ -102,15 +102,12 @@ namespace Goliath.Data
         {
             Type type = typeof(TEntity);
             var map = ConfigManager.CurrentSettings.Map;
-            entityMap = map.EntityConfigs[type.FullName];
-            if (entityMap == null)
-                throw new DataAccessException("entity {0} not mapped.", type.FullName);
+            //entityMap = map.EntityConfigs[type.FullName];
+            //if (entityMap == null)
+            //    throw new DataAccessException("entity {0} not mapped.", type.FullName);
 
-            var qInfo = serializer.BuildInsertSql(entityMap, entity);
-            
-
+            var qInfo = serializer.BuildInsertSql(entityMap, entity);            
             logger.Log(LogType.Debug, qInfo.QuerySqlText);
-
             var parameters = dataAccess.CreateParameters(qInfo.Parameters).ToArray();
             try
             {
@@ -162,11 +159,38 @@ namespace Goliath.Data
 
         #region Queries
 
-        public IList<TEntity> FindAll(string sqlQuery)
+        /// <summary>
+        /// Finds all.
+        /// </summary>
+        /// <param name="sqlQuery">The SQL query.</param>
+        /// <returns></returns>
+        public IList<TEntity> FindAll(string sqlQuery, params DbParameter[] parameters)
         {
-            throw new NotImplementedException();
+            logger.Log(LogType.Debug, sqlQuery);
+            try
+            {
+                DbDataReader dataReader;
+                CheckConnection(dbConnection);
+                dataReader = dataAccess.ExecuteReader(dbConnection, sqlQuery, parameters);
+                var entities = serializer.SerializeAll<TEntity>(dataReader, entityMap);
+                return entities;
+            }
+            catch (GoliathDataException ex)
+            {
+                Console.WriteLine("Encounter GoliathException. Exception rethrown. {0}", ex.Message);
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new DataAccessException(string.Format("Error while trying to fetch all {0}", entityMap.FullName), ex);
+            }
         }
 
+        /// <summary>
+        /// Finds all.
+        /// </summary>
+        /// <param name="filters">The filters.</param>
+        /// <returns></returns>
         public IList<TEntity> FindAll(params PropertyQueryParam[] filters)
         {
             ICollection<DbParameter> dbParams;
@@ -248,9 +272,21 @@ namespace Goliath.Data
             }
         }
 
+        /// <summary>
+        /// Finds the one.
+        /// </summary>
+        /// <param name="filter">The filter.</param>
+        /// <param name="filters">The filters.</param>
+        /// <returns></returns>
         public TEntity FindOne(PropertyQueryParam filter, params PropertyQueryParam[] filters)
         {
-            throw new NotImplementedException();
+            List<PropertyQueryParam> parameters = new List<PropertyQueryParam>();
+            parameters.Add(filter);
+            parameters.AddRange(filters);
+
+            long total;
+            var all = FindAll(1, 0, out total, parameters.ToArray());
+            return all.FirstOrDefault();
         }
 
         #endregion
