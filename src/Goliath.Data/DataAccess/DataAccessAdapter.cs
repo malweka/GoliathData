@@ -97,12 +97,12 @@ namespace Goliath.Data
         /// </summary>
         /// <param name="entity">The entity.</param>
         /// <returns></returns>
-        public int Insert(TEntity entity)
+        public int Insert(TEntity entity, bool recursive = false)
         {
             Type type = typeof(TEntity);
             var map = ConfigManager.CurrentSettings.Map;
 
-            var qInfo = serializer.BuildInsertSql(entityMap, entity);            
+            var qInfo = serializer.BuildInsertSql(entityMap, entity, recursive);            
             logger.Log(LogType.Debug, qInfo.QuerySqlText);
             var parameters = dataAccess.CreateParameters(qInfo.Parameters).ToArray();
             try
