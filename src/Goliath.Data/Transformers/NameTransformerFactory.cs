@@ -38,6 +38,10 @@ namespace Goliath.Data.Transformers
             {
                 return new OneToManyRelationNameTransformer() as INameTransformer<T>;
             }
+            else if (t == typeof(Property))
+            {
+                return new ColumnPropertyNameTransformer() as INameTransformer<T>;
+            }
             else
                 return null;
         }

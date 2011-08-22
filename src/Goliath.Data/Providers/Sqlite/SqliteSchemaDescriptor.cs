@@ -170,7 +170,7 @@ namespace Goliath.Data.Providers.Sqlite
                         string refconstName = string.Format("fk_{0}_{1}{2}", table.Name, refTable, id);
                         rel.ReferenceColumn = refColName;
                         rel.ReferenceTable = refTable;
-                        //rel.KeyFieldName = colName;
+                        rel.ReferenceProperty = refColName;
                         rel.ReferenceTableSchemaName = refSchema;
                         rel.ReferenceConstraintName = refconstName;
                         rel.ReferenceEntityName = refTable;

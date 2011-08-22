@@ -325,16 +325,19 @@ namespace Goliath.Data.Mapping
                 xmlWriter.WriteString(rel.ReferenceTable);
                 xmlWriter.WriteEndAttribute();
 
-                xmlWriter.WriteStartAttribute("referenceColumn");
-                xmlWriter.WriteString(rel.ReferenceColumn);
-                xmlWriter.WriteEndAttribute();
+                if (!string.IsNullOrWhiteSpace(rel.ReferenceColumn))
+                {
+                    xmlWriter.WriteStartAttribute("referenceColumn");
+                    xmlWriter.WriteString(rel.ReferenceColumn);
+                    xmlWriter.WriteEndAttribute();
+                }
 
-                //if (!string.IsNullOrWhiteSpace(rel.KeyFieldName))
-                //{
-                //    xmlWriter.WriteStartAttribute("keyFieldName");
-                //    xmlWriter.WriteString(rel.KeyFieldName);
-                //    xmlWriter.WriteEndAttribute();
-                //}
+                if (!string.IsNullOrWhiteSpace(rel.ReferenceProperty))
+                {
+                    xmlWriter.WriteStartAttribute("referenceProperty");
+                    xmlWriter.WriteString(rel.ReferenceProperty);
+                    xmlWriter.WriteEndAttribute();
+                }
 
                 if (!string.IsNullOrWhiteSpace(rel.ReferenceConstraintName))
                 {

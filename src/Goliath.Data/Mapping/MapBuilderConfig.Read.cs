@@ -197,7 +197,11 @@ namespace Goliath.Data.Mapping
                             case "referenceColumn":
                                 InitializeRelObject(ref rel, property);
                                 rel.ReferenceColumn = reader.Value;
-                                break;                            
+                                break;
+                            case "referenceProperty":
+                                InitializeRelObject(ref rel, property);
+                                rel.ReferenceProperty = reader.Value;
+                                break;
                             case "refConstraint":
                                 InitializeRelObject(ref rel, property);
                                 rel.ReferenceConstraintName = reader.Value;

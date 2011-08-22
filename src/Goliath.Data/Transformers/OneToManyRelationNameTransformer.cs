@@ -20,29 +20,29 @@ namespace Goliath.Data.Transformers
                 throw new ArgumentNullException("original");
 
             if (mapModel.RelationType != RelationshipType.ManyToOne)
-                return original;
+                return original.Pascalize();
 
             try
             {
                 string prefix = "Id";
-                if (prefix.Equals(original, StringComparison.InvariantCultureIgnoreCase))
+                if (prefix.Equals(original, StringComparison.OrdinalIgnoreCase))
                 {
                     //mapModel.KeyFieldName = original;
                     //mapModel.PropertyName = original;
-                    return original;
+                    return original.Pascalize();
                 }
 
                 if (original.EndsWith(prefix, StringComparison.InvariantCultureIgnoreCase))
                 {
-                    string name = original.Substring(0, original.IndexOf("Id", StringComparison.InvariantCultureIgnoreCase));
+                    string name = original.Substring(0, original.IndexOf("Id", StringComparison.OrdinalIgnoreCase));
                     //mapModel.PropertyName = name;
                     //mapModel.KeyFieldName = original;
-                    return name;
+                    return name.Pascalize();
                 }
                 else
                 {
                     //mapModel.KeyFieldName = mapModel.PropertyName + "_Key";
-                    return original;
+                    return original.Pascalize();
                 }
             }
             catch (Exception ex)
