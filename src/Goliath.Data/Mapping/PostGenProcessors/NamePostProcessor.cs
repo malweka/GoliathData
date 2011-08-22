@@ -35,6 +35,7 @@ namespace Goliath.Data.Mapping
         {
             var tableNamer = transfactory.GetTransformer<EntityMap>();
             var relNamer = transfactory.GetTransformer<Relation>();
+            var propNamer = transfactory.GetTransformer<Property>();
 
             foreach (var table in entities.Values)
             {
@@ -44,7 +45,7 @@ namespace Goliath.Data.Mapping
                 for(int i=0; i<table.Count; i++)//foreach (var prop in table)
                 {
                     var prop = table[i];
-                    
+
                     if (prop is Relation)
                     {
                         var rel = (Relation)prop;
@@ -71,6 +72,15 @@ namespace Goliath.Data.Mapping
                         }
                         else
                             rel.PropertyName = name;
+
+                        if (!string.IsNullOrWhiteSpace(rel.ReferenceProperty))
+                        {
+                            rel.ReferenceProperty = propNamer.Transform(rel, rel.ReferenceProperty);
+                        }
+                    }
+                    else
+                    {
+                        prop.PropertyName = propNamer.Transform(prop, prop.ColumnName);
                     }
                 }
 

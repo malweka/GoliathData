@@ -233,6 +233,7 @@ namespace Goliath.Data
             ICollection<DbParameter> dbParams;
             SelectSqlBuilder queryBuilder = BuildSelectSql(filters, out dbParams);
             string selectCount = queryBuilder.SelectCount();
+
             totalRecords = 0;
             queryBuilder = queryBuilder.WithPaging(limit, offset);
             string query = string.Format("{0};\n{1};", selectCount.Trim(), queryBuilder.ToSqlString().Trim());
@@ -244,6 +245,8 @@ namespace Goliath.Data
                 DbDataReader dataReader;
                 CheckConnection(dbConnection);
                 dataReader = dataAccess.ExecuteReader(dbConnection, query, parameters);
+
+                //First resultset contains the count
                 while (dataReader.Read())
                 {
                     var type = dataReader.GetFieldType(0);
@@ -253,6 +256,8 @@ namespace Goliath.Data
                         totalRecords = Convert.ToInt64(dataReader[0]);
                     break;
                 }
+
+                //move to the next result set which contains the entities
                 dataReader.NextResult();
                 var entities = serializer.SerializeAll<TEntity>(dataReader, entityMap);
                 return entities;

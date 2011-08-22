@@ -51,6 +51,8 @@ namespace Goliath.Data.Mapping
         [DataMember]
         public string ReferenceColumn { get; set; }
         [DataMember]
+        public string ReferenceProperty { get; set; }
+        [DataMember]
         public string ReferenceTableSchemaName { get; set; }
         [DataMember]
         public string ReferenceConstraintName { get; set; }

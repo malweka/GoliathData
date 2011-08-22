@@ -253,6 +253,7 @@ WHERE FK.TABLE_NAME = @tableName";
                         string refColName = reader.GetValueAsString("REFERENCED_COLUMN_NAME");
                         string refconstName = reader.GetValueAsString("REFERENCED_CONSTRAINT_NAME");
                         rel.ReferenceColumn = refColName;
+                        rel.ReferenceProperty = refColName;
                         rel.ReferenceTable = refTable;
                         rel.ReferenceTableSchemaName = refSchema;
                         rel.ReferenceConstraintName = refconstName;
