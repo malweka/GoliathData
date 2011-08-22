@@ -52,8 +52,9 @@ namespace Goliath.Data
         /// Inserts the specified entity.
         /// </summary>
         /// <param name="entity">The entity.</param>
+        /// <param name="recursive">if set to <c>true</c> [recursive].</param>
         /// <returns></returns>
-        int Insert(TEntity entity);
+        int Insert(TEntity entity, bool recursive = false);
 
         #endregion
 

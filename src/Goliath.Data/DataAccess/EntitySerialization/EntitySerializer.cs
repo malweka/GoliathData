@@ -137,7 +137,7 @@ namespace Goliath.Data.DataAccess
         /// <param name="entityMap">The entity map.</param>
         /// <param name="entity">The entity.</param>
         /// <returns></returns>
-        public QueryInfo BuildInsertSql<TEntity>(EntityMap entityMap, TEntity entity)
+        public QueryInfo BuildInsertSql<TEntity>(EntityMap entityMap, TEntity entity, bool recursive)
         {
             InsertSqlBuilder sqlBuilder = new InsertSqlBuilder(SqlMapper, entityMap);
 
@@ -175,7 +175,7 @@ namespace Goliath.Data.DataAccess
         }
 
         //TODO: recursively extract insert for relationships for one-to-many relations.
-        void BuildInsertSql(object entity, EntityMap entityMap, Type entityType, List<string> queries, List<QueryParam> qparams)
+        void BuildInsertSql(object entity, EntityMap entityMap, Type entityType, List<QueryInfo> queries, bool recursive)
         {
             InsertSqlBuilder sqlBuilder = new InsertSqlBuilder(SqlMapper, entityMap);
 
@@ -203,8 +203,11 @@ namespace Goliath.Data.DataAccess
                     }
                 }
             }
-            queries.Add(sqlBuilder.ToSqlString());
-            qparams.AddRange(BuildQuerParams(entity, getSetInfo, entityMap));
+
+            QueryInfo qInfo = new QueryInfo();
+            qInfo.QuerySqlText = sqlBuilder.ToSqlString();
+            qInfo.Parameters = BuildQuerParams(entity, getSetInfo, entityMap);
+            queries.Add(qInfo);
         }
 
         List<QueryParam> BuildQuerParams(object entity, EntityGetSetInfo getSetInfo, EntityMap entityMap)
@@ -212,28 +215,52 @@ namespace Goliath.Data.DataAccess
             List<QueryParam> parameters = new List<QueryParam>();
             foreach (var prop in entityMap)
             {
+                object val = null;
                 if (prop is Relation)
                 {
                     Relation rel = (Relation)prop;
                     if (rel.RelationType != RelationshipType.ManyToOne)
                         continue;
 
-                    //TODO extract value of relations many-to-one and one-to-many
+                    PropInfo pInfo;
+                    if (getSetInfo.Properties.TryGetValue(prop.PropertyName, out pInfo))
+                    {
+                        var relInstance = pInfo.Getter(entity);
+                        if (relInstance != null)
+                        {
+                            EntityGetSetInfo relGetSet;
+
+                            if (!getSetStore.TryGetValue(pInfo.PropertType, out getSetInfo))
+                            {
+                                relGetSet = new EntityGetSetInfo(pInfo.PropertType);
+                                relGetSet.Load(entityMap);
+                                getSetStore.Add(pInfo.PropertType, getSetInfo);
+                            }
+
+                            PropInfo referenceProp;
+                            //if(relGetSet.Properties.TryGetValue(rel.
+                        }
+                    }
+                    else
+                        throw new MappingException(string.Format("Property {0} was not found for entity {1}", prop.PropertyName, entityMap.FullName));
                 }
 
-                PropInfo pInfo;
-                if (getSetInfo.Properties.TryGetValue(prop.PropertyName, out pInfo))
-                {
-                    QueryParam param = new QueryParam(ParameterNameBuilderHelper.ColumnQueryName(prop.ColumnName, entityMap.TableAlias));
-                    object val = pInfo.Getter(entity);
-
-                    if ((val == null) && !prop.IsNullable)
-                        throw new DataAccessException("{0}.{1} is cannot be null.", entityMap.Name, prop.PropertyName);
-                    param.Value = val;
-                    parameters.Add(param);
-                }
                 else
-                    throw new MappingException(string.Format("Property {0} was not found for entity {1}", prop.PropertyName, entityMap.FullName));
+                {
+                    PropInfo pInfo;
+                    if (getSetInfo.Properties.TryGetValue(prop.PropertyName, out pInfo))
+                    {
+                        QueryParam param = new QueryParam(ParameterNameBuilderHelper.ColumnQueryName(prop.ColumnName, entityMap.TableAlias));
+                        val = pInfo.Getter(entity);
+
+                        if ((val == null) && !prop.IsNullable)
+                            throw new DataAccessException("{0}.{1} is cannot be null.", entityMap.Name, prop.PropertyName);
+                        param.Value = val;
+                        parameters.Add(param);
+                    }
+                    else
+                        throw new MappingException(string.Format("Property {0} was not found for entity {1}", prop.PropertyName, entityMap.FullName));
+                }
             }
 
             return parameters;
@@ -319,7 +346,7 @@ namespace Goliath.Data.DataAccess
                             default:
                                 break;
                         }
-     
+
                     }
                     else if (columns.TryGetValue(prop.ColumnName, out ordinal))
                     {
