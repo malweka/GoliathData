@@ -8,6 +8,7 @@ namespace Goliath.Data
     /// <summary>
     /// 
     /// </summary>
+    [System.Diagnostics.DebuggerDisplay("Param = {Name}, Value = {Value}")]
     public class QueryParam
     {
         /// <summary>
@@ -46,9 +47,22 @@ namespace Goliath.Data
     /// <summary>
     /// 
     /// </summary>
+    [System.Diagnostics.DebuggerDisplay("Prop = {PropertyName}, Value = {Value}")]
     public class PropertyQueryParam : QueryParam
     {
+        /// <summary>
+        /// Gets or sets the comparison operator.
+        /// </summary>
+        /// <value>
+        /// The comparison operator.
+        /// </value>
         public Sql.ComparisonOperator ComparisonOperator { get; set; }
+        /// <summary>
+        /// Gets or sets the post operator.
+        /// </summary>
+        /// <value>
+        /// The post operator.
+        /// </value>
         public Sql.SqlOperator PostOperator { get; set; }
 
         /// <summary>

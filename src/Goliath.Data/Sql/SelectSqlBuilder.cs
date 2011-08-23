@@ -174,6 +174,7 @@ namespace Goliath.Data.Sql
         
     }
 
+    [System.Diagnostics.DebuggerDisplay("{ColumnEnumeration} {From} {JoinEnumeration} ...")]
     public struct SqlQueryBody
     {
         public string ColumnEnumeration { get; set; }

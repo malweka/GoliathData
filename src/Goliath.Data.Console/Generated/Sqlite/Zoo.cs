@@ -34,6 +34,7 @@ namespace WebZoo.Data.Sqlite
 
 		public struct PropertyNames
 		{
+			public const string Id = "Id";
 			public const string Name = "Name";
 			public const string City = "City";
 			public const string AcceptNewAnimals = "AcceptNewAnimals";

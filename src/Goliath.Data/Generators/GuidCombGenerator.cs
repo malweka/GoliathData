@@ -6,13 +6,23 @@ using Goliath.Data.Mapping;
 
 namespace Goliath.Data.Generators
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class GuidCombGenerator : IKeyGenerator<Guid>
     {
         public const string GeneratorName = "Guid_Comb";
         #region IKeyGenerator<Guid> Members
 
-        public Guid Generate()
+        /// <summary>
+        /// Generates the specified entity map.
+        /// </summary>
+        /// <param name="entityMap">The entity map.</param>
+        /// <param name="propertyName">Name of the property.</param>
+        /// <returns></returns>
+        public Guid Generate(EntityMap entityMap, string propertyName, out Sql.SqlOperationPriority priority)
         {
+            priority = Sql.SqlOperationPriority.Low;
             return NewGuidComb();
         }
 
@@ -20,11 +30,23 @@ namespace Goliath.Data.Generators
 
         #region IKeyGenerator Members
 
+        /// <summary>
+        /// Gets the type of the key.
+        /// </summary>
+        /// <value>
+        /// The type of the key.
+        /// </value>
         public Type KeyType
         {
             get { return typeof(Guid); }
         }
 
+        /// <summary>
+        /// Gets the name.
+        /// </summary>
+        /// <value>
+        /// The name.
+        /// </value>
         public string Name
         {
             get { return GeneratorName; }
@@ -32,9 +54,15 @@ namespace Goliath.Data.Generators
 
         public bool IsDatabaseGenerated { get { return false; } }
 
-        public object GenerateKey()
+        /// <summary>
+        /// Generates the key.
+        /// </summary>
+        /// <param name="entityMap">The entity map.</param>
+        /// <param name="propertyName">Name of the property.</param>
+        /// <returns></returns>
+        object IKeyGenerator.GenerateKey(EntityMap entityMap, string propertyName, out Sql.SqlOperationPriority priority)
         {
-            return Generate();
+            return Generate(entityMap, propertyName, out priority);
         }
 
         #endregion
