@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using Goliath.Data.Mapping;
 using System.Data.Common;
-
+using Goliath.Data.Sql;
 
 namespace Goliath.Data.DataAccess
 {
@@ -50,7 +50,7 @@ namespace Goliath.Data.DataAccess
         /// <param name="entityMap">The entity map.</param>
         /// <param name="entity">The entity.</param>
         /// <returns></returns>
-        QueryInfo BuildInsertSql<TEntity>(EntityMap entityMap, TEntity entity, bool recursive);
+        SqlOperationInfo BuildInsertSql<TEntity>(EntityMap entityMap, TEntity entity, bool recursive);
 
     }
 }

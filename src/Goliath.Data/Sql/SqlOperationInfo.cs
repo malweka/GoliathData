@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Goliath.Data
+namespace Goliath.Data.Sql
 {
-    public struct QueryInfo
+    public struct SqlOperationInfo
     {
-        public string QuerySqlText { get; set; }
+        public SqlStatementType CommandType { get; set; }
+        public string SqlText { get; set; }
         public ICollection<QueryParam> Parameters { get; set; }
     }
 }

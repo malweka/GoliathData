@@ -9,6 +9,7 @@ namespace Goliath.Data.Sql
 {
     class InsertSqlBuilder : SqlBuilder
     {
+        //Consolidate with parameter building 
         public InsertSqlBuilder(SqlMapper sqlMapper, EntityMap entMap)
             : base(sqlMapper, entMap)
         {
@@ -22,10 +23,7 @@ namespace Goliath.Data.Sql
                     if (rel.RelationType != RelationshipType.ManyToOne)
                         continue;
 
-                    var relEntMap = entMap.Parent.EntityConfigs[rel.ReferenceEntityName];
-                    if (relEntMap == null)
-                        throw new MappingException(string.Format("reference entity {0} not found", rel.ReferenceEntityName));
-
+                    var relEntMap = entMap.Parent.GetEntityMap(rel.ReferenceEntityName);
                     paramName = ParameterNameBuilderHelper.ColumnQueryName(rel.ReferenceColumn, relEntMap.TableAlias);
 
                 }
@@ -39,9 +37,11 @@ namespace Goliath.Data.Sql
                     if (Columns.ContainsKey(prop.ColumnName))
                     {
                         if (prop is Relation)
-                            continue;
-                        else
+                        {
                             Columns.Remove(prop.ColumnName);
+                        }
+                        else
+                            continue;
                     }
                     Columns.Add(prop.ColumnName, sqlMapper.CreateParameterName(paramName));
                 }

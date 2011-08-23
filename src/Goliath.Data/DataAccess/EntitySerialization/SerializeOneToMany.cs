@@ -23,10 +23,7 @@ namespace Goliath.Data.DataAccess
         {
             int ordinal;
             var propType = pInfo.PropertType;
-            var relEntMap = entityMap.Parent.EntityConfigs[rel.ReferenceEntityName];
-            if (relEntMap == null)
-                throw new MappingException(string.Format("couldn't find referenced entity name {0} while try to build {1}", rel.ReferenceEntityName, entityMap.Name));
-
+            var relEntMap = entityMap.Parent.GetEntityMap(rel.ReferenceEntityName);
             Type refEntityType = propType.GetGenericArguments().FirstOrDefault();
             if (refEntityType == null)
             {
@@ -45,8 +42,8 @@ namespace Goliath.Data.DataAccess
                        .Where(new WhereStatement(ParameterNameBuilderHelper.ColumnWithTableAlias(relEntMap.TableAlias, rel.ReferenceColumn))
                                 .Equals(sqlMapper.CreateParameterName(qp.Name)));
 
-                        QueryInfo qInfo = new QueryInfo();
-                        qInfo.QuerySqlText = sqlBuilder.ToSqlString();
+                        SqlOperationInfo qInfo = new SqlOperationInfo() { CommandType = SqlStatementType.Select };
+                        qInfo.SqlText = sqlBuilder.ToSqlString();
                         qInfo.Parameters = new QueryParam[] { qp };
 
                         var collectionType = typeof(Collections.LazyList<>).MakeGenericType(new Type[] { refEntityType });

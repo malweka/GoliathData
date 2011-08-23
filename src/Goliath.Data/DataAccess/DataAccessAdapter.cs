@@ -103,12 +103,12 @@ namespace Goliath.Data
             var map = ConfigManager.CurrentSettings.Map;
 
             var qInfo = serializer.BuildInsertSql(entityMap, entity, recursive);            
-            logger.Log(LogType.Debug, qInfo.QuerySqlText);
+            logger.Log(LogType.Debug, qInfo.SqlText);
             var parameters = dataAccess.CreateParameters(qInfo.Parameters).ToArray();
             try
             {
                 CheckConnection(dbConnection);
-                int qResult = dataAccess.ExecuteNonQuery(dbConnection, qInfo.QuerySqlText, parameters);
+                int qResult = dataAccess.ExecuteNonQuery(dbConnection, qInfo.SqlText, parameters);
                 return qResult;
             }
             catch (GoliathDataException ex)
@@ -118,7 +118,7 @@ namespace Goliath.Data
             }
             catch (Exception ex)
             {
-                throw new GoliathDataException(string.Format("Exception while inserting: {0}", qInfo.QuerySqlText), ex);
+                throw new GoliathDataException(string.Format("Exception while inserting: {0}", qInfo.SqlText), ex);
             }
         }
 

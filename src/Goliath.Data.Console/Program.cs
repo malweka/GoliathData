@@ -179,23 +179,28 @@ namespace WebZoo.Data
             long total;
             var top5Zoo = zoodapter.FindAll(5, 0, out total);
 
+            WebZoo.Data.Sqlite.Zoo zooM = new WebZoo.Data.Sqlite.Zoo() { Name = "Kitona", City = "Kitona", AcceptNewAnimals = true };
             var an1 = new Sqlite.Animal()
             {
                 Age = 12,
                 Location = "dw 44",
                 ReceivedOn = DateTime.Now,
                 Name = "Snow Leopard",
-                Zoo = acceptingZoos[0],
-                ZooId = acceptingZoos[0].Id,
+                Zoo = zooM,
+                //Zoo = acceptingZoos[0],
+                //ZooId = acceptingZoos[0].Id,
             };
 
 
 
-          //  WebZoo.Data.Sqlite.Zoo zooM = new WebZoo.Data.Sqlite.Zoo() { Name = "Bronx Zoo", City = "New York", AcceptNewAnimals = true };
+            
+            zooM.AnimalsOnZooId = new List<Sqlite.Animal>();
+            zooM.AnimalsOnZooId.Add(an1);
+
             try
             {
-                //dataAccessAdapter.Insert(zooM);
-                animalapter.Insert(an1);
+                zoodapter.Insert(zooM, true);
+                //animalapter.Insert(an1);
             }
             catch (Exception ex)
             {

@@ -18,6 +18,9 @@ namespace Goliath.Data.DataAccess
 {
     //TODO make this internal class
     //TODO use singleton for entitySerializer;
+    /// <summary>
+    /// 
+    /// </summary>
     public class EntitySerializer : IEntitySerializer
     {
 
@@ -137,7 +140,7 @@ namespace Goliath.Data.DataAccess
         /// <param name="entityMap">The entity map.</param>
         /// <param name="entity">The entity.</param>
         /// <returns></returns>
-        public QueryInfo BuildInsertSql<TEntity>(EntityMap entityMap, TEntity entity, bool recursive)
+        public SqlOperationInfo BuildInsertSql<TEntity>(EntityMap entityMap, TEntity entity, bool recursive)
         {
             InsertSqlBuilder sqlBuilder = new InsertSqlBuilder(SqlMapper, entityMap);
 
@@ -151,24 +154,12 @@ namespace Goliath.Data.DataAccess
                 getSetStore.Add(type, getSetInfo);
             }
 
-            if (entityMap.PrimaryKey != null)
-            {
-                foreach (var pk in entityMap.PrimaryKey.Keys)
-                {
-                    if (pk.KeyGenerator != null)
-                    {
-                        PropInfo pInfo;
-                        if (getSetInfo.Properties.TryGetValue(pk.Key.PropertyName, out pInfo))
-                        {
-                            var id = pk.KeyGenerator.GenerateKey();
-                            pInfo.Setter(entity, id);
-                        }
-                    }
-                }
-            }
+            List<SqlOperationInfo> queries = new List<SqlOperationInfo>();
+            Dictionary<string, PropertyQueryParam> neededParams = new Dictionary<string, PropertyQueryParam>();
+            BuildInsertSql(entity, entityMap, type, null, null, null, queries, neededParams, recursive);
 
-            QueryInfo qInfo = new QueryInfo();
-            qInfo.QuerySqlText = sqlBuilder.ToSqlString();
+            SqlOperationInfo qInfo = new SqlOperationInfo() { CommandType = SqlStatementType.Insert };
+            qInfo.SqlText = sqlBuilder.ToSqlString();
             qInfo.Parameters = BuildQuerParams(entity, getSetInfo, entityMap).Values;
 
             return qInfo;
@@ -185,8 +176,8 @@ namespace Goliath.Data.DataAccess
             EntityMap parentEntityMap,
             Type parentEntityType,
 
-            List<QueryInfo> queries,
-            Dictionary<string,PropertyQueryParam> neededParams,
+            List<SqlOperationInfo> queries,
+            Dictionary<string, PropertyQueryParam> neededParams,
             bool recursive
          )
         {
@@ -222,8 +213,8 @@ namespace Goliath.Data.DataAccess
             }
 
             var paramDictionary = BuildQuerParams(entity, getSetInfo, entityMap);
-            QueryInfo qInfo = new QueryInfo();
-            qInfo.QuerySqlText = sqlBuilder.ToSqlString();
+            SqlOperationInfo qInfo = new SqlOperationInfo() { CommandType = SqlStatementType.Insert };
+            qInfo.SqlText = sqlBuilder.ToSqlString();
             qInfo.Parameters = paramDictionary.Values;
             queries.Add(qInfo);
 
@@ -236,9 +227,30 @@ namespace Goliath.Data.DataAccess
 
                     else if (rel.RelationType == RelationshipType.OneToMany)
                     {
-                        if (!keyWasGenerated)
-                        {
+                        PropInfo pInfo;
 
+                        if (getSetInfo.Properties.TryGetValue(rel.PropertyName, out pInfo))
+                        {
+                            var colGetter = pInfo.Getter(entity);
+
+                            if ((colGetter != null) && (colGetter is System.Collections.IEnumerable))
+                            {
+                                var list = (System.Collections.IEnumerable)colGetter;
+                                foreach (var o in list)
+                                {
+                                    if (o == null)
+                                        continue;
+                                    //get type
+                                    var reltype = o.GetType();
+                                    //get map
+                                    var relmap = entityMap.Parent.GetEntityMap(reltype.FullName);
+                                    BuildInsertSql(o, relmap, reltype, entity, entityMap, entityType, queries, neededParams, false);
+                                }
+                            }
+                            if (!keyWasGenerated)
+                            {
+
+                            }
                         }
                     }
 
@@ -279,17 +291,20 @@ namespace Goliath.Data.DataAccess
                             PropInfo referenceProp;
                             if (relGetSet.Properties.TryGetValue(rel.ReferenceProperty, out referenceProp))
                             {
-                                var relEntMap = entityMap.Parent.EntityConfigs[rel.ReferenceEntityName];
-                                if (relEntMap == null)
-                                    throw new MappingException(string.Format("reference entity {0} not found", rel.ReferenceEntityName));
-
+                                var relEntMap = entityMap.Parent.GetEntityMap(rel.ReferenceEntityName);
                                 QueryParam param = new QueryParam(ParameterNameBuilderHelper.ColumnQueryName(rel.ReferenceColumn, relEntMap.TableAlias));
                                 val = referenceProp.Getter(relInstance);
 
                                 if ((val == null) && !prop.IsNullable)
                                     throw new DataAccessException("{0}.{1} is cannot be null.", entityMap.Name, prop.PropertyName);
                                 param.Value = val;
+                                if (parameters.ContainsKey(prop.ColumnName))
+                                {
+                                    parameters.Remove(prop.ColumnName);
+                                }
+
                                 parameters.Add(prop.ColumnName, param);
+
                             }
                             else
                                 throw new MappingException(string.Format("Property {0} of entity {1} is referencing property {2} which was not found in {3}", prop.PropertyName, entityMap.FullName, rel.ReferenceProperty, rel.ReferenceEntityName));
@@ -309,8 +324,21 @@ namespace Goliath.Data.DataAccess
 
                         if ((val == null) && !prop.IsNullable)
                             throw new DataAccessException("{0}.{1} is cannot be null.", entityMap.Name, prop.PropertyName);
+
                         param.Value = val;
-                        parameters.Add(prop.ColumnName, param);
+                        if (parameters.ContainsKey(prop.ColumnName))
+                        {
+                            //var containedParam = parameters[prop.ColumnName];
+                            //if ((containedParam.Value == null) && (val != null))
+                            //{
+                            //    containedParam.Value = val;
+                            //}
+                            continue;
+                        }
+                        else
+                        {
+                            parameters.Add(prop.ColumnName, param);
+                        }
                     }
                     else
                         throw new MappingException(string.Format("Property {0} was not found for entity {1}", prop.PropertyName, entityMap.FullName));
@@ -319,6 +347,8 @@ namespace Goliath.Data.DataAccess
 
             return parameters;
         }
+
+
 
         GetSetStore getSetStore = new GetSetStore();
 

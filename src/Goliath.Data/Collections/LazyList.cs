@@ -8,6 +8,7 @@ using Goliath.Data.Mapping;
 using Goliath.Data.DataAccess;
 using Goliath.Data.Providers;
 using Goliath.Data.Diagnostics;
+using Goliath.Data.Sql;
 
 namespace Goliath.Data.Collections
 {
@@ -19,7 +20,7 @@ namespace Goliath.Data.Collections
     {
         IList<T> list;
         bool isLoaded;
-        QueryInfo query;
+        SqlOperationInfo query;
         EntityMap entityMap;
         IEntitySerializer factory;
         static ILogger logger;
@@ -35,7 +36,7 @@ namespace Goliath.Data.Collections
         /// <param name="query">The query.</param>
         /// <param name="entityMap">The entity map.</param>
         /// <param name="factory">The factory.</param>
-        public LazyList(QueryInfo query, EntityMap entityMap, IEntitySerializer factory)
+        public LazyList(SqlOperationInfo query, EntityMap entityMap, IEntitySerializer factory)
         {
             this.query = query;
             this.entityMap = entityMap;
@@ -71,8 +72,8 @@ namespace Goliath.Data.Collections
                     else
                         parameters = dbAccess.CreateParameters(query.Parameters).ToArray();
 
-                    logger.Log(LogType.Debug, string.Format("executing query {0}", query.QuerySqlText));
-                    var dataReader = dbAccess.ExecuteReader(conn, query.QuerySqlText, parameters);
+                    logger.Log(LogType.Debug, string.Format("executing query {0}", query.SqlText));
+                    var dataReader = dbAccess.ExecuteReader(conn, query.SqlText, parameters);
                     list = factory.SerializeAll<T>(dataReader, entityMap);
                 }
 
