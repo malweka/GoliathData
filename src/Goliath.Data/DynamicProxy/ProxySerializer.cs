@@ -7,12 +7,13 @@ using System.Data.Common;
 using Goliath.Data.DataAccess;
 using Goliath.Data.Providers;
 using Goliath.Data.Diagnostics;
+using Goliath.Data.Sql;
 
 namespace Goliath.Data.DynamicProxy
 {
     class ProxySerializer : IProxyHydrator
     {
-        QueryInfo query;
+        SqlOperationInfo query;
         Type type;
         EntityMap entityMap;
         IEntitySerializer serialFactory;
@@ -23,7 +24,7 @@ namespace Goliath.Data.DynamicProxy
             logger = Logger.GetLogger(typeof(ProxySerializer));
         }
 
-        public ProxySerializer(QueryInfo query, Type type, EntityMap entityMap, IEntitySerializer factory)
+        public ProxySerializer(SqlOperationInfo query, Type type, EntityMap entityMap, IEntitySerializer factory)
         {
             this.query = query;
             this.type = type;
@@ -46,8 +47,8 @@ namespace Goliath.Data.DynamicProxy
                 else
                     parameters = dbAccess.CreateParameters(query.Parameters).ToArray();
 
-                logger.Log(LogType.Debug, string.Format("executing query {0}", query.QuerySqlText));
-                var dataReader = dbAccess.ExecuteReader(conn, query.QuerySqlText, parameters);
+                logger.Log(LogType.Debug, string.Format("executing query {0}", query.SqlText));
+                var dataReader = dbAccess.ExecuteReader(conn, query.SqlText, parameters);
                 //logger.Log(LogType.Debug, string.Format("datareader has row? {0}", dataReader.HasRows));
                 serialFactory.Hydrate(instance, type, entityMap, dataReader);
                 dataReader.Dispose();

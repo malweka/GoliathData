@@ -62,6 +62,15 @@ namespace Goliath.Data.Mapping
             PrimaryKeyGeneratorStore.Add(new Generators.GuidCombGenerator() { });
         }
 
+        public EntityMap GetEntityMap(string entityMapFullName)
+        {
+            EntityMap ent;
+            if (!EntityConfigs.TryGetValue(entityMapFullName, out ent))
+                throw new MappingException(string.Format("{0} was not found. Probably not mapped", entityMapFullName));
+
+            return ent;
+        }
+
         /// <summary>
         /// Saves the model into the specified stream.
         /// </summary>

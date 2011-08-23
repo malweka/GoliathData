@@ -47,4 +47,12 @@ namespace Goliath.Data.Sql
         Ascending,
         Descinding,
     }
+
+    public enum SqlStatementType
+    {
+        Select = 0,
+        Insert,
+        Update,
+        Delete,      
+    }
 }

@@ -25,10 +25,7 @@ namespace Goliath.Data.DataAccess
         {
             if (!rel.LazyLoad)
             {
-                var relEntMap = entityMap.Parent.EntityConfigs[rel.ReferenceEntityName];
-                if (relEntMap == null)
-                    throw new MappingException(string.Format("couldn't find referenced entity name {0} while try to build {1}", rel.ReferenceEntityName, entityMap.Name));
-
+                var relEntMap = entityMap.Parent.GetEntityMap(rel.ReferenceEntityName);
                 var relColumns = EntitySerializer.GetColumnNames(dbReader, relEntMap.TableAlias);
                 EntityGetSetInfo relGetSetInfo;
                 Type relType = pInfo.PropertType;
@@ -48,10 +45,7 @@ namespace Goliath.Data.DataAccess
                 ProxyBuilder pbuilder = new ProxyBuilder();
                 int ordinal;
 
-                var relEntMap = entityMap.Parent.EntityConfigs[rel.ReferenceEntityName];
-                if (relEntMap == null)
-                    throw new MappingException(string.Format("couldn't find referenced entity name {0} while try to build {1}", rel.ReferenceEntityName, entityMap.Name));
-
+                var relEntMap = entityMap.Parent.GetEntityMap(rel.ReferenceEntityName);
                 if (columns.TryGetValue(rel.ColumnName, out ordinal))
                 {
                     var val = dbReader[ordinal];
@@ -63,8 +57,8 @@ namespace Goliath.Data.DataAccess
                            .Where(new WhereStatement(ParameterNameBuilderHelper.ColumnWithTableAlias(relEntMap.TableAlias, rel.ReferenceColumn))
                                     .Equals(sqlMapper.CreateParameterName(qp.Name)));
 
-                        QueryInfo qInfo = new QueryInfo();
-                        qInfo.QuerySqlText = sqlBuilder.ToSqlString();
+                        SqlOperationInfo qInfo = new SqlOperationInfo() { CommandType = SqlStatementType.Select };
+                        qInfo.SqlText = sqlBuilder.ToSqlString();
                         qInfo.Parameters = new QueryParam[] { qp };
 
                         IProxyHydrator hydrator = new ProxySerializer(qInfo, pInfo.PropertType, relEntMap, serializer);

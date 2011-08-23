@@ -46,7 +46,7 @@ namespace Goliath.Data.Sql
                         continue;
                     if (!rel.LazyLoad)
                     {
-                        var rightTable = entMap.Parent.EntityConfigs[rel.ReferenceEntityName];
+                        var rightTable = entMap.Parent.GetEntityMap(rel.ReferenceEntityName);
                         //var rightColumn = rightTable[rel.ReferenceColumn];
                         AddJoin(new SqlJoin(entMap, JoinType.Inner).OnTable(rightTable)
                             .OnRightColumn(rel.ReferenceColumn)
