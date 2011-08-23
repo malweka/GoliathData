@@ -8,10 +8,11 @@ using System.Collections.Generic;
 
 namespace WebZoo.Data.Sqlite
 {
-	public partial class Monkey : WebZoo.Data.BaseEntity
+	public partial class Monkey : WebZoo.Data.Sqlite.Animal
 	{
 		#region Primary Key
 
+		public virtual Guid Id { get; set; }
 
 		#endregion
 
@@ -31,6 +32,7 @@ namespace WebZoo.Data.Sqlite
 
 		public struct PropertyNames
 		{
+			public const string Id = "Id";
 			public const string Family = "Family";
 			public const string CanDoTricks = "CanDoTricks";
 		}

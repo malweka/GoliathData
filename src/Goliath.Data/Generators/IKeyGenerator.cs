@@ -19,8 +19,10 @@ namespace Goliath.Data.Mapping
         /// <summary>
         /// Generates the key.
         /// </summary>
+        /// <param name="entityMap">The entity map.</param>
+        /// <param name="propertyName">Name of the property.</param>
         /// <returns></returns>
-        Object GenerateKey();
+        Object GenerateKey(EntityMap entityMap, string propertyName, out Sql.SqlOperationPriority priority);
         /// <summary>
         /// Gets a value indicating whether this instance is database generated.
         /// </summary>
@@ -40,7 +42,7 @@ namespace Goliath.Data.Mapping
         /// Generates this instance.
         /// </summary>
         /// <returns></returns>
-        T Generate();
+        T Generate(EntityMap entityMap, string propertyName, out Sql.SqlOperationPriority priority);
     }
 
     public interface IKeyGeneratorStore

@@ -50,7 +50,7 @@ namespace Goliath.Data.DataAccess
         /// <param name="entityMap">The entity map.</param>
         /// <param name="entity">The entity.</param>
         /// <returns></returns>
-        SqlOperationInfo BuildInsertSql<TEntity>(EntityMap entityMap, TEntity entity, bool recursive);
+        BatchSqlOperation BuildInsertSql<TEntity>(EntityMap entityMap, TEntity entity, bool recursive);
 
     }
 }

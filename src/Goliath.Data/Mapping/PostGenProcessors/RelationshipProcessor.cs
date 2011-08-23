@@ -69,6 +69,16 @@ namespace Goliath.Data.Mapping
                     }
                     else
                     {
+                        if ((ent.PrimaryKey != null) && (ent.PrimaryKey.Keys.Count == 1))
+                        {
+                            var key = ent.PrimaryKey.Keys[0];
+                            if ((key != null) && (key.Key is Relation))
+                            {
+                                var pk = (Relation)key.Key;
+                                ent.Extends = pk.ReferenceEntityName;
+                            }
+                        }
+
                         for (int i = 0; i < ent.Relations.Count; i++)
                         {
                             var reference = ent.Relations[i];
@@ -80,27 +90,19 @@ namespace Goliath.Data.Mapping
                             EntityMap other;
                             if (entityList.TryGetValue(reference.ReferenceTable, out other))
                             {
-                                if (reference.IsPrimaryKey)
+                                other.Relations.Add(new Relation()
                                 {
-                                    //we have a one to one.
-                                    ent.Extends = other.FullName;
-                                }
-                                else
-                                {
-                                    other.Relations.Add(new Relation()
-                                    {
-                                        IsComplexType = true,
-                                        LazyLoad = true,
-                                        ColumnName = reference.ReferenceColumn,
-                                        ReferenceColumn = reference.ColumnName,
-                                        ReferenceProperty = reference.PropertyName,
-                                        PropertyName = string.Format("{0}On{1}", ent.Name.Pluralize(), reference.ColumnName),
-                                        ReferenceTable = ent.TableName,
-                                        RelationType = RelationshipType.OneToMany,
-                                        ReferenceEntityName = ent.FullName,
-                                        CollectionType = CollectionType.List, 
-                                    });
-                                }
+                                    IsComplexType = true,
+                                    LazyLoad = true,
+                                    ColumnName = reference.ReferenceColumn,
+                                    ReferenceColumn = reference.ColumnName,
+                                    ReferenceProperty = reference.PropertyName,
+                                    PropertyName = string.Format("{0}On{1}", ent.Name.Pluralize(), reference.ColumnName),
+                                    ReferenceTable = ent.TableName,
+                                    RelationType = RelationshipType.OneToMany,
+                                    ReferenceEntityName = ent.FullName,
+                                    CollectionType = CollectionType.List,
+                                });
                             }
                         }
                     }

@@ -29,15 +29,15 @@ namespace WebZoo.Data
 
             Console.WriteLine("Start run");
 
-            //Sqlite(sqliteWorkingDirectory);
-            //SqlServer(sqlServerWorkingDirectory);
+            Sqlite(sqliteWorkingDirectory);
+            SqlServer(sqlServerWorkingDirectory);
 
-            //string templatePath = currentDir;
+            string templatePath = currentDir;
 
-            //Generate(sqlServerWorkingDirectory, templatePath);
-            //Generate(sqliteWorkingDirectory, templatePath);
+            Generate(sqlServerWorkingDirectory, templatePath);
+            Generate(sqliteWorkingDirectory, templatePath);
 
-            QueryTest(sqliteWorkingDirectory);
+            //QueryTest(sqliteWorkingDirectory);
             Console.WriteLine("done");
             //Console.ReadKey();
         }

@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Goliath.Data.Providers;
+using Goliath.Data.DataAccess;
 using Goliath.Data.Mapping;
+using Goliath.Data.Providers;
 
 namespace Goliath.Data.Sql
 {
@@ -37,12 +36,14 @@ namespace Goliath.Data.Sql
 
         public abstract string ToSqlString();
 
+        
+
         public override string ToString()
         {
 #if DEBUG
             return base.ToString();
 #else 
-            return Build();
+            return ToSqlString();
 #endif
         }
 

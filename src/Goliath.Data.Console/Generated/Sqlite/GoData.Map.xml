@@ -1,5 +1,5 @@
 ﻿<goliath.data version="1.0.1.15" xmlns="http://schemas.hamsman.com/goliath/data/1.1">
-  <connectionString>Data Source=C:\Development\Me\GoliathData\src\Goliath.Data.Console\Data\WebZoo.db; Version=3</connectionString>
+  <connectionString>Data Source=C:\dev\OpenSource\GoliathData\src\Goliath.Data.Console\Data\WebZoo.db; Version=3</connectionString>
   <tablePrefixes />
   <namespace>WebZoo.Data.Sqlite</namespace>
   <baseModel>WebZoo.Data.BaseEntity</baseModel>
@@ -24,7 +24,7 @@
       </primaryKey>
       <properties />
     </entity>
-    <entity name="Monkey" extends="WebZoo.Data.BaseEntity" assembly="WebZoo.Data" entityNamespace="WebZoo.Data.Sqlite" table="monkeys" schema="main" alias="monk">
+    <entity name="Monkey" extends="WebZoo.Data.Sqlite.Animal" assembly="WebZoo.Data" entityNamespace="WebZoo.Data.Sqlite" table="monkeys" schema="main" alias="monk">
       <primaryKey>
         <key name="Id" column="Id" clrType="System.Guid" dbType="Guid" sqlType="uniqueidentifier" scale="0" unique="True" primaryKey="True" nullable="False" relation="ManyToOne" referenceTable="animals" referenceColumn="Id" referenceProperty="Id" refConstraint="fk_monkeys_animals0" refEntity="WebZoo.Data.Sqlite.Animal" unsaved_value="00000000-0000-0000-0000-000000000000" key_generator="Guid_Comb" />
       </primaryKey>
