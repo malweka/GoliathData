@@ -124,12 +124,24 @@ namespace Goliath.Data.Mapping
         [DataMember]
         public bool IsLinkTable { get; set; }
 
+        internal bool IsSubClass
+        {
+            get
+            {
+                if (!string.IsNullOrWhiteSpace(Extends) && Parent.EntityConfigs.Contains(Extends))
+                    return true;
+                else
+                    return false;
+            }
+        }
+
         /// <summary>
         /// Gets or sets the properties.
         /// </summary>
         /// <value>The properties.</value>
         [DataMember]
         public PropertyCollection Properties { get; set; }
+
         /// <summary>
         /// Gets or sets the relations.
         /// </summary>

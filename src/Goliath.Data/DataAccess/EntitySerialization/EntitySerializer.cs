@@ -144,7 +144,7 @@ namespace Goliath.Data.DataAccess
 
             BatchSqlOperation operation = new BatchSqlOperation() { Priority = SqlOperationPriority.Medium };
             Dictionary<string, PropertyQueryParam> neededParams = new Dictionary<string, PropertyQueryParam>();
-            BuildInsertSql(entity, entityMap, typeof(TEntity), null, null, null, operation, neededParams, recursive);
+            BuildInsertSql(entity, entityMap, typeof(TEntity), null, null, null, operation,  recursive);
 
             return operation;
         }
@@ -161,10 +161,14 @@ namespace Goliath.Data.DataAccess
             Type parentEntityType,
 
             BatchSqlOperation operation,
-            Dictionary<string, PropertyQueryParam> neededParams,
             bool recursive
          )
         {
+            if (entityMap.IsSubClass)
+            {
+                var supClass = entityMap.Parent.GetEntityMap(entityMap.Extends);
+            }
+
             InsertSqlBuilder sqlBuilder = new InsertSqlBuilder(SqlMapper, entityMap);
 
             EntityGetSetInfo getSetInfo;
@@ -175,8 +179,6 @@ namespace Goliath.Data.DataAccess
                 getSetInfo.Load(entityMap);
                 getSetStore.Add(entityType, getSetInfo);
             }
-
-            //bool keyWasGenerated = false;
 
             Dictionary<string, KeyGenOperationInfo> keygenerationOperations = new Dictionary<string, KeyGenOperationInfo>();
 
@@ -194,7 +196,6 @@ namespace Goliath.Data.DataAccess
                             SqlOperationPriority priority;
                             var id = pk.KeyGenerator.GenerateKey(entityMap, pk.Key.PropertyName, out priority);
                             pInfo.Setter(entity, id);
-                            //keyWasGenerated = true;
                         }
                     }
                     else
@@ -220,7 +221,7 @@ namespace Goliath.Data.DataAccess
             {
                 operation.KeyGenerationOperations = keygenerationOperations;
                 operation.Priority = SqlOperationPriority.High;
-            }
+            }            
 
             if (recursive)
             {
@@ -250,7 +251,7 @@ namespace Goliath.Data.DataAccess
                                     var relmap = entityMap.Parent.GetEntityMap(reltype.FullName);
                                     BatchSqlOperation relOper = new BatchSqlOperation() { Priority = SqlOperationPriority.Low };
                                     operation.SubOperations.Add(relOper);
-                                    BuildInsertSql(o, relmap, reltype, entity, entityMap, entityType, relOper, neededParams, true);
+                                    BuildInsertSql(o, relmap, reltype, entity, entityMap, entityType, relOper, true);
                                 }
                             }
                         }
@@ -316,9 +317,25 @@ namespace Goliath.Data.DataAccess
 
         internal void SerializeSingle(object instanceEntity, Type type, EntityMap entityMap, EntityGetSetInfo getSetInfo, Dictionary<string, int> columns, DbDataReader dbReader)
         {
+            EntityMap superEntityMap = null;
+            if (entityMap.IsSubClass)
+            {
+                superEntityMap = entityMap.Parent.GetEntityMap(entityMap.Extends);
+            }
+
             foreach (var keyVal in getSetInfo.Properties)
             {
+                /* NOTE: Intentionally going only 1 level up the inheritance. something like :
+                 *  SuperSuperClass
+                 *      SuperClass
+                 *          Class
+                 *          
+                 *  SuperSuperClass if is a mapped entity its properties will be ignored. May be implement this later on. 
+                 *  For now too ugly don't want to touch.
+                 */
                 var prop = entityMap[keyVal.Key];
+                if ((prop == null) && (superEntityMap != null))
+                    prop = superEntityMap[keyVal.Key];
                 int ordinal;
                 if (prop != null)
                 {

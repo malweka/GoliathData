@@ -68,33 +68,33 @@ namespace @Model.Namespace
 		}
 
 		#endregion
+	}
 
-		#region metadata
-
-		public struct PropertyNames
-		{
+	#region metadata
+	
+	public static class @(Model.Name)PropertyNames
+	{
 			@{
 				if(Model.PrimaryKey != null)
 				{
 					foreach(var k in Model.PrimaryKey.Keys)
 					{
 						Property p = k;
-			@:public const string @p.PropertyName = "@p.PropertyName";
+		@:public const string @p.PropertyName = "@p.PropertyName";
 					}
 				}
 
 				foreach(var p in Model.Properties)
 				{
-			@:public const string @p.PropertyName = "@p.PropertyName";
+		@:public const string @p.PropertyName = "@p.PropertyName";
 				}
 				foreach(var p in Model.Relations)
 				{
-			@:public const string @p.PropertyName = "@p.PropertyName";
+		@:public const string @p.PropertyName = "@p.PropertyName";
 				}
-			}
-		}
-
-		#endregion
+			}	
 	}
+
+	#endregion
 }
 

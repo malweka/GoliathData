@@ -31,22 +31,22 @@ namespace WebZoo.Data.SqlServer
 		public virtual IList<WebZoo.Data.SqlServer.Employee> EmployeesOnAnimalsHandler_AnimalId { get; set; }
 
 		#endregion
-
-		#region metadata
-
-		public struct PropertyNames
-		{
-			public const string Id = "Id";
-			public const string Name = "Name";
-			public const string Age = "Age";
-			public const string Location = "Location";
-			public const string ReceivedOn = "ReceivedOn";
-			public const string ZooId = "ZooId";
-			public const string Zoo = "Zoo";
-			public const string EmployeesOnAnimalsHandler_AnimalId = "EmployeesOnAnimalsHandler_AnimalId";
-		}
-
-		#endregion
 	}
+
+	#region metadata
+	
+	public static class AnimalPropertyNames
+	{
+		public const string Id = "Id";
+		public const string Name = "Name";
+		public const string Age = "Age";
+		public const string Location = "Location";
+		public const string ReceivedOn = "ReceivedOn";
+		public const string ZooId = "ZooId";
+		public const string Zoo = "Zoo";
+		public const string EmployeesOnAnimalsHandler_AnimalId = "EmployeesOnAnimalsHandler_AnimalId";
+	}
+
+	#endregion
 }
 

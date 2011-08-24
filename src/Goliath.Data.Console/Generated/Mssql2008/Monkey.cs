@@ -12,7 +12,6 @@ namespace WebZoo.Data.SqlServer
 	{
 		#region Primary Key
 
-		public virtual Guid Id { get; set; }
 
 		#endregion
 
@@ -27,17 +26,17 @@ namespace WebZoo.Data.SqlServer
 
 
 		#endregion
-
-		#region metadata
-
-		public struct PropertyNames
-		{
-			public const string Id = "Id";
-			public const string Family = "Family";
-			public const string CanDoTricks = "CanDoTricks";
-		}
-
-		#endregion
 	}
+
+	#region metadata
+	
+	public static class MonkeyPropertyNames
+	{
+		public const string Id = "Id";
+		public const string Family = "Family";
+		public const string CanDoTricks = "CanDoTricks";
+	}
+
+	#endregion
 }
 
