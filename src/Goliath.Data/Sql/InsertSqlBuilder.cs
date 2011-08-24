@@ -73,10 +73,10 @@ namespace Goliath.Data.Sql
             foreach (var prop in entityMap)
             {
                 object val = null;
-                if (prop is Relation)
+                if ((prop is Relation) && !prop.IsPrimaryKey)
                 {
                     Relation rel = (Relation)prop;
-                    if (rel.RelationType != RelationshipType.ManyToOne)
+                    if(rel.RelationType != RelationshipType.ManyToOne)
                         continue;
 
                     PropInfo pInfo;
@@ -125,7 +125,16 @@ namespace Goliath.Data.Sql
                     PropInfo pInfo;
                     if (getSetInfo.Properties.TryGetValue(prop.PropertyName, out pInfo))
                     {
-                        QueryParam param = new QueryParam(ParameterNameBuilderHelper.ColumnQueryName(prop.ColumnName, entityMap.TableAlias));
+                        string paramName = ParameterNameBuilderHelper.ColumnQueryName(prop.ColumnName, entityMap.TableAlias);
+                        if ((prop is Relation) && prop.IsPrimaryKey)
+                        {
+                            //we need to change the parameter namel
+                            Relation rel = (Relation)prop;
+                            var relEntMap = entityMap.Parent.GetEntityMap(rel.ReferenceEntityName);
+                            paramName = ParameterNameBuilderHelper.ColumnQueryName(rel.ReferenceColumn, relEntMap.TableAlias);
+                        }
+
+                        QueryParam param = new QueryParam(paramName);
                         val = pInfo.Getter(entity);
 
                         if ((val == null) && !prop.IsNullable)

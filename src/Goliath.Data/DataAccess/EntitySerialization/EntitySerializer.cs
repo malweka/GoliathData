@@ -149,37 +149,8 @@ namespace Goliath.Data.DataAccess
             return operation;
         }
 
-        //TODO: recursively extract insert for relationships for one-to-many relations.
-        void BuildInsertSql
-        (
-            object entity,
-            EntityMap entityMap,
-            Type entityType,
-
-            object parentEntity,
-            EntityMap parentEntityMap,
-            Type parentEntityType,
-
-            BatchSqlOperation operation,
-            bool recursive
-         )
+        Dictionary<string, KeyGenOperationInfo> GeneratePksForInsert(object entity, EntityMap entityMap, EntityGetSetInfo getSetInfo)
         {
-            if (entityMap.IsSubClass)
-            {
-                var supClass = entityMap.Parent.GetEntityMap(entityMap.Extends);
-            }
-
-            InsertSqlBuilder sqlBuilder = new InsertSqlBuilder(SqlMapper, entityMap);
-
-            EntityGetSetInfo getSetInfo;
-
-            if (!getSetStore.TryGetValue(entityType, out getSetInfo))
-            {
-                getSetInfo = new EntityGetSetInfo(entityType);
-                getSetInfo.Load(entityMap);
-                getSetStore.Add(entityType, getSetInfo);
-            }
-
             Dictionary<string, KeyGenOperationInfo> keygenerationOperations = new Dictionary<string, KeyGenOperationInfo>();
 
             if (entityMap.PrimaryKey != null)
@@ -210,12 +181,62 @@ namespace Goliath.Data.DataAccess
                 }
             }
 
-            var paramDictionary = InsertSqlBuilder.BuildQueryParams(entity, getSetInfo, entityMap, getSetStore);
-            SqlOperationInfo qInfo = new SqlOperationInfo() { CommandType = SqlStatementType.Insert };
-            qInfo.SqlText = sqlBuilder.ToSqlString();
-            qInfo.Parameters = paramDictionary.Values;
+            return keygenerationOperations;
+        }
 
-            operation.Operations.Add(qInfo);
+        //TODO: recursively extract insert for relationships for one-to-many relations.
+        void BuildInsertSql
+        (
+            object entity,
+            EntityMap entityMap,
+            Type entityType,
+
+            object parentEntity,
+            EntityMap parentEntityMap,
+            Type parentEntityType,
+
+            BatchSqlOperation operation,
+            bool recursive
+         )
+        {
+            EntityMap baseEntMap = null;
+            Dictionary<string, KeyGenOperationInfo> keygenerationOperations = new Dictionary<string,KeyGenOperationInfo>();
+            bool isSubclass = entityMap.IsSubClass;
+            EntityGetSetInfo entGetSets;
+            InsertSqlBuilder baseInsertSqlBuilder = null;
+
+            if (!getSetStore.TryGetValue(entityType, out entGetSets))
+            {
+                entGetSets = new EntityGetSetInfo(entityType);
+                entGetSets.Load(entityMap);
+                getSetStore.Add(entityType, entGetSets);
+            }
+
+            if (isSubclass)
+            {
+                //get base class first
+                baseEntMap = entityMap.Parent.GetEntityMap(entityMap.Extends);
+                baseInsertSqlBuilder = new InsertSqlBuilder(SqlMapper, baseEntMap);
+                keygenerationOperations = GeneratePksForInsert(entity, baseEntMap, entGetSets);
+
+                var baseParamDictionary = InsertSqlBuilder.BuildQueryParams(entity, entGetSets, baseEntMap, getSetStore);
+                SqlOperationInfo baseClassOperation = new SqlOperationInfo() { CommandType = SqlStatementType.Insert };
+                baseClassOperation.SqlText = baseInsertSqlBuilder.ToSqlString();
+                baseClassOperation.Parameters = baseParamDictionary.Values;
+                operation.Operations.Add(baseClassOperation);
+            }
+            else
+            {
+                keygenerationOperations = GeneratePksForInsert(entity, entityMap, entGetSets);
+            }
+
+            InsertSqlBuilder entInsertSqlBuilder = new InsertSqlBuilder(SqlMapper, entityMap);       
+
+            var paramDictionary = InsertSqlBuilder.BuildQueryParams(entity, entGetSets, entityMap, getSetStore);
+            SqlOperationInfo operationInfo = new SqlOperationInfo() { CommandType = SqlStatementType.Insert };
+            operationInfo.SqlText = entInsertSqlBuilder.ToSqlString();
+            operationInfo.Parameters = paramDictionary.Values;
+            operation.Operations.Add(operationInfo);
 
             if (keygenerationOperations.Count > 0)
             {
@@ -234,7 +255,7 @@ namespace Goliath.Data.DataAccess
                     {
                         PropInfo pInfo;
 
-                        if (getSetInfo.Properties.TryGetValue(rel.PropertyName, out pInfo))
+                        if (entGetSets.Properties.TryGetValue(rel.PropertyName, out pInfo))
                         {
                             var colGetter = pInfo.Getter(entity);
 
@@ -256,8 +277,13 @@ namespace Goliath.Data.DataAccess
                             }
                         }
                     }
-
                     else if (rel.RelationType == RelationshipType.ManyToMany)
+                    {
+                    }
+                }
+                if (isSubclass)
+                {
+                    foreach (var rel in baseEntMap.Relations)
                     {
                     }
                 }
