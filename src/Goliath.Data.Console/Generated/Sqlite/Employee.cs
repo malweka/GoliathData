@@ -33,24 +33,24 @@ namespace WebZoo.Data.Sqlite
 		public virtual IList<WebZoo.Data.Sqlite.Animal> AnimalsOnAnimalsHandler_EmployeeId { get; set; }
 
 		#endregion
-
-		#region metadata
-
-		public struct PropertyNames
-		{
-			public const string Id = "Id";
-			public const string FirstName = "FirstName";
-			public const string LastName = "LastName";
-			public const string EmailAddress = "EmailAddress";
-			public const string Telephone = "Telephone";
-			public const string Title = "Title";
-			public const string HiredOn = "HiredOn";
-			public const string AssignedToZooId = "AssignedToZooId";
-			public const string AssignedToZoo = "AssignedToZoo";
-			public const string AnimalsOnAnimalsHandler_EmployeeId = "AnimalsOnAnimalsHandler_EmployeeId";
-		}
-
-		#endregion
 	}
+
+	#region metadata
+	
+	public static class EmployeePropertyNames
+	{
+		public const string Id = "Id";
+		public const string FirstName = "FirstName";
+		public const string LastName = "LastName";
+		public const string EmailAddress = "EmailAddress";
+		public const string Telephone = "Telephone";
+		public const string Title = "Title";
+		public const string HiredOn = "HiredOn";
+		public const string AssignedToZooId = "AssignedToZooId";
+		public const string AssignedToZoo = "AssignedToZoo";
+		public const string AnimalsOnAnimalsHandler_EmployeeId = "AnimalsOnAnimalsHandler_EmployeeId";
+	}
+
+	#endregion
 }
 

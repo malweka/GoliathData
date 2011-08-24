@@ -26,18 +26,17 @@ namespace WebZoo.Data
             var currentDir = AppDomain.CurrentDomain.BaseDirectory.Substring(0, AppDomain.CurrentDomain.BaseDirectory.LastIndexOf("bin"));
             string sqlServerWorkingDirectory = Path.Combine(currentDir, "Generated", "Mssql2008");
             string sqliteWorkingDirectory = Path.Combine(currentDir, "Generated", "Sqlite");
+            string templatePath = currentDir;
 
             Console.WriteLine("Start run");
 
-            Sqlite(sqliteWorkingDirectory);
-            SqlServer(sqlServerWorkingDirectory);
+            //Sqlite(sqliteWorkingDirectory);
+            //SqlServer(sqlServerWorkingDirectory);
 
-            string templatePath = currentDir;
+            //Generate(sqlServerWorkingDirectory, templatePath);
+            //Generate(sqliteWorkingDirectory, templatePath);
 
-            Generate(sqlServerWorkingDirectory, templatePath);
-            Generate(sqliteWorkingDirectory, templatePath);
-
-            //QueryTest(sqliteWorkingDirectory);
+            QueryTest(sqliteWorkingDirectory);
             Console.WriteLine("done");
             //Console.ReadKey();
         }
@@ -191,10 +190,22 @@ namespace WebZoo.Data
                 //ZooId = acceptingZoos[0].Id,
             };
 
+            var monkey = new Sqlite.Monkey()
+            {
+                CanDoTricks = true,
+                Family = "something",
+                Age = 2,
+                Location = "dm kow",
+                ReceivedOn = DateTime.Now,
+                Name = "El Mono",
+                Zoo = zooM,
+            };
+
 
 
             
             zooM.AnimalsOnZooId = new List<Sqlite.Animal>();
+            zooM.AnimalsOnZooId.Add(monkey);
             zooM.AnimalsOnZooId.Add(an1);
 
             try

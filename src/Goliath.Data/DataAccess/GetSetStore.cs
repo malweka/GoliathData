@@ -83,15 +83,32 @@ namespace Goliath.Data.DataAccess
 
             if (!loaded)
             {
+                EntityMap superEntityMap = null;
+                if (map.IsSubClass)
+                {
+                    superEntityMap = map.Parent.GetEntityMap(map.Extends);
+                }
+
                 lock (lockStore)
                 {
                     foreach (var pinfo in propertiesInfo)
                     {
+                        /* NOTE: Intentionally going only 1 level up the inheritance. something like :
+                         *  SuperSuperClass
+                         *      SuperClass
+                         *          Class
+                         *          
+                         *  SuperSuperClass if is a mapped entity its properties will be ignored. May be implement this later on. 
+                         *  For now too ugly don't want to touch.
+                         */
                         var prop = map[pinfo.Name];
+                        if ((prop == null) && (superEntityMap != null))
+                            prop = superEntityMap[pinfo.Name];
+
                         if (prop != null)
                         {
-                            if (pinfo.PropertyType.Implements<System.Collections.ICollection>())
-                                continue;
+                            //if (pinfo.PropertyType.Implements<System.Collections.ICollection>())
+                            //    continue;
 
                             prop.ClrType = pinfo.PropertyType;
                             MemberSetter setter = EntityType.DelegateForSetPropertyValue(prop.PropertyName);
@@ -100,6 +117,7 @@ namespace Goliath.Data.DataAccess
                             PropInfo propInfo = new PropInfo { Getter = getter, Setter = setter, Name = prop.PropertyName, PropertType = pinfo.PropertyType};
                             Properties.Add(prop.PropertyName, propInfo);
                         }
+                        
                     }                    
 
                     loaded = true;

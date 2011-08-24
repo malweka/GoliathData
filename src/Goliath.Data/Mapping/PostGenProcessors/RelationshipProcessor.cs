@@ -76,6 +76,7 @@ namespace Goliath.Data.Mapping
                             {
                                 var pk = (Relation)key.Key;
                                 ent.Extends = pk.ReferenceEntityName;
+                                //ent.IsSubClass = true;
                             }
                         }
 
