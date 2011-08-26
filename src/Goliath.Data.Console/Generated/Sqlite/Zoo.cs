@@ -32,15 +32,21 @@ namespace WebZoo.Data.Sqlite
 	}
 
 	#region metadata
-	
-	public static class ZooPropertyNames
+
+	public static partial class PropertyNames
 	{
-		public const string Id = "Id";
-		public const string Name = "Name";
-		public const string City = "City";
-		public const string AcceptNewAnimals = "AcceptNewAnimals";
-		public const string EmployeesOnAssignedToZooId = "EmployeesOnAssignedToZooId";
-		public const string AnimalsOnZooId = "AnimalsOnZooId";
+		/// <summary>
+		/// Properties names for <see cref="WebZoo.Data.Sqlite.Zoo"/>
+		/// </summary>
+		public static class Zoo
+		{
+			public const string Id = "Id";
+			public const string Name = "Name";
+			public const string City = "City";
+			public const string AcceptNewAnimals = "AcceptNewAnimals";
+			public const string EmployeesOnAssignedToZooId = "EmployeesOnAssignedToZooId";
+			public const string AnimalsOnZooId = "AnimalsOnZooId";
+		}
 	}
 
 	#endregion

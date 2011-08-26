@@ -38,6 +38,24 @@ namespace Goliath.Data.Sql
     public struct KeyGenOperationInfo
     {
         /// <summary>
+        /// Gets or sets the type of the property.
+        /// </summary>
+        /// <value>
+        /// The type of the property.
+        /// </value>
+        public Type PropertyType { get; set; }
+
+        public object Entity { get; set; }
+
+        /// <summary>
+        /// Gets or sets the name of the property.
+        /// </summary>
+        /// <value>
+        /// The name of the property.
+        /// </value>
+        public string PropertyName { get; set; }
+
+        /// <summary>
         /// Gets or sets the priority.
         /// </summary>
         /// <value>
@@ -106,6 +124,10 @@ namespace Goliath.Data.Sql
             if (SubOperations != null)
             {
                 SubOperations.Clear();
+            }
+            if (KeyGenerationOperations != null)
+            {
+                KeyGenerationOperations.Clear();
             }
         }
 

@@ -7,6 +7,9 @@ using Goliath.Data.Providers;
 
 namespace Goliath.Data.Mapping
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class DataModelGenerator
     {
         ISchemaDescriptor schemaDescriptor;

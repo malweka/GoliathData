@@ -29,12 +29,18 @@ namespace WebZoo.Data.SqlServer
 	}
 
 	#region metadata
-	
-	public static class MonkeyPropertyNames
+
+	public static partial class PropertyNames
 	{
-		public const string Id = "Id";
-		public const string Family = "Family";
-		public const string CanDoTricks = "CanDoTricks";
+		/// <summary>
+		/// Properties names for <see cref="WebZoo.Data.SqlServer.Monkey"/>
+		/// </summary>
+		public static class Monkey
+		{
+			public const string Id = "Id";
+			public const string Family = "Family";
+			public const string CanDoTricks = "CanDoTricks";
+		}
 	}
 
 	#endregion

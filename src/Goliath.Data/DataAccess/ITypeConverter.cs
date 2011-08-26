@@ -17,11 +17,12 @@ namespace Goliath.Data.DataAccess
         /// <param name="convertMethod">The convert method.</param>
         void AddConverter(Type toType, Func<Object, Object> convertMethod);
         /// <summary>
-        /// Gets the converter factory method.
+        /// Gets the converter factory method for the specified type.
         /// </summary>
-        /// <param name="from">From.</param>
+        /// <param name="typeToConverTo">The type to conver to.</param>
+        /// <exception cref="Goliath.Data.DataAccessException"></exception>
         /// <returns></returns>
-        Func<Object, Object> GetConverterFactoryMethod(Type from);
+        Func<Object, Object> GetConverterFactoryMethod(Type typeToConverTo);
         /// <summary>
         /// Converts to enum.
         /// </summary>
