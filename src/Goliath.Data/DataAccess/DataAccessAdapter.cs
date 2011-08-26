@@ -56,7 +56,7 @@ namespace Goliath.Data
             }
         }
 
-        
+
 
         void CheckConnection(DbConnection dbConnection)
         {
@@ -66,7 +66,7 @@ namespace Goliath.Data
 
         #region IDataAccessAdapter<TEntity> Members
 
-        #region Updates 
+        #region Updates
 
         public int Update(TEntity entity)
         {
@@ -101,8 +101,21 @@ namespace Goliath.Data
         {
             Type type = typeof(TEntity);
             var map = ConfigManager.CurrentSettings.Map;
+            var sqlWorker = serializer.CreateSqlWorker();
+            using (var trans = dbConnection.BeginTransaction())
+            {
+                Dictionary<string, QueryParam> neededParams = new Dictionary<string, QueryParam>();
+                List<string> inserts = new List<string>();
 
-            var batch = serializer.BuildInsertSql(entityMap, entity, recursive);            
+                using (var batchOp = sqlWorker.BuildInsertSql(entityMap, entity, recursive))
+                {
+                    BuildOrExecuteInsertBatchOperation(batchOp, neededParams, inserts);
+                }
+                var cur = System.Transactions.Transaction.Current;
+                if (cur != null)
+                    Console.WriteLine(cur.TransactionInformation.LocalIdentifier);
+
+            }
             //logger.Log(LogType.Debug, qInfo.SqlText);
             //var parameters = dataAccess.CreateParameters(qInfo.Parameters).ToArray();
             //try
@@ -120,38 +133,102 @@ namespace Goliath.Data
             //{
             //    throw new GoliathDataException(string.Format("Exception while inserting: {0}", qInfo.SqlText), ex);
             //}
+
             return 0;
         }
 
         #endregion
 
-        SelectSqlBuilder BuildSelectSql(PropertyQueryParam[] filters, out ICollection<DbParameter> dbParams)
+        void BuildOrExecuteInsertBatchOperation(BatchSqlOperation batchOp, Dictionary<string, QueryParam> neededParams, List<string> batchInserts)
         {
-            SelectSqlBuilder queryBuilder = new SelectSqlBuilder(serializer.SqlMapper, entityMap);
-            if ((filters != null) && (filters.Length > 0))
+            if (batchOp == null)
+                throw new ArgumentNullException("batchOp");
+
+           
+            if (batchOp.KeyGenerationOperations.Count > 0)
             {
-                for (int i = 0; i < filters.Length; i++)
+                var hasGreaterPriority = batchOp.KeyGenerationOperations.Where(op => op.Value.Priority > batchOp.Priority).ToList();
+                //execute these first
+                for (int i = 0; i < hasGreaterPriority.Count; i++)
                 {
-                    var prop = entityMap[filters[i].PropertyName];
-                    if (prop == null)
-                        throw new MappingException(string.Format("Property {0} not found in mapped entity {1}", filters[i].PropertyName, entityMap.FullName));
-
-                    filters[i].SetParameterName(prop.ColumnName, entityMap.TableAlias);
-                    WhereStatement w = new WhereStatement(prop.ColumnName)
-                    {
-                        Operator = filters[i].ComparisonOperator,
-                        PostOperator = filters[i].PostOperator,
-                        RightOperand = new StringOperand(serializer.SqlMapper.CreateParameterName(ParameterNameBuilderHelper.ColumnQueryName(prop.ColumnName, entityMap.TableAlias)))
-                    };
-                    queryBuilder.Where(w);
+                    //we expects that this queries will be for generating ideas and that the ID will be the first column
+                    //returned and only 1 row of data. Therefore, we will reader column 1 row 1 ignore rest.
+                    ReadGeneratedData(hasGreaterPriority[i], neededParams);
+                    batchOp.KeyGenerationOperations.Remove(hasGreaterPriority[i].Key);
                 }
-
-                dbParams = dataAccess.CreateParameters(filters);
             }
-            else
-                dbParams = new DbParameter[] { };
 
-            return queryBuilder;
+            List<string> inserts = new List<string>();
+
+            List<QueryParam> insertParams = new List<QueryParam>();
+            insertParams.AddRange(neededParams.Values);
+
+            for (int i = 0; i < batchOp.Operations.Count; i++)
+            {
+                inserts.Add(batchOp.Operations[i].SqlText);
+                
+                insertParams.AddRange(batchOp.Operations[i].Parameters);
+            }
+
+            //read if we have post insert get id sql
+            if (batchOp.KeyGenerationOperations.Count > 0)
+            {
+                foreach(var kop in batchOp.KeyGenerationOperations)
+                {
+                    inserts.Add(kop.Value.Operation.SqlText);
+                }
+            }
+
+            if (batchOp.Priority < SqlOperationPriority.High)
+            {
+                foreach (var param in insertParams)
+                {
+                    if (!neededParams.ContainsKey(param.Name))
+                        neededParams.Add(param.Name, param);
+                }
+                batchInserts.AddRange(inserts);
+
+                for (int i = 0; i < batchOp.SubOperations.Count;i++ )
+                {
+                    BuildOrExecuteInsertBatchOperation(batchOp.SubOperations[i], neededParams, batchInserts);
+                }
+            }
+
+            else
+            {
+                //execute operations
+                DbDataReader dataReader;
+                CheckConnection(dbConnection);
+                var paramList = dataAccess.CreateParameters(neededParams.Values);
+                var sql = string.Join(";\n", inserts);
+                //dataReader = dataAccess.ExecuteReader(dbConnection, sql, paramList.ToArray());
+
+                if (batchOp.KeyGenerationOperations.Count > 0) // read resulting id that were created
+                {
+                    Console.Write("bo");
+                }
+            }
+        }
+
+        void ReadGeneratedData(KeyValuePair<string, KeyGenOperationInfo> kpair, Dictionary<string, QueryParam> neededParams)
+        {
+            var kgInfo = kpair.Value;
+            var paramName = kpair.Key;
+
+            DbDataReader dataReader;
+            CheckConnection(dbConnection);
+            dataReader = dataAccess.ExecuteReader(dbConnection, kgInfo.Operation.SqlText);
+            if (dataReader.HasRows)
+            {
+                dataReader.Read();
+                object id = serializer.ReadFieldData(kgInfo.PropertyType, 0, dataReader);
+                serializer.SetPropertyValue(kgInfo.Entity, kgInfo.PropertyName, id);
+
+                if (!neededParams.ContainsKey(paramName))
+                    neededParams.Add(paramName, new QueryParam(paramName, id));
+            }
+
+            dataReader.Dispose();
         }
 
         #region Queries
@@ -170,6 +247,7 @@ namespace Goliath.Data
                 CheckConnection(dbConnection);
                 dataReader = dataAccess.ExecuteReader(dbConnection, sqlQuery, parameters);
                 var entities = serializer.SerializeAll<TEntity>(dataReader, entityMap);
+                dataReader.Dispose();
                 return entities;
             }
             catch (GoliathDataException ex)
@@ -191,17 +269,18 @@ namespace Goliath.Data
         public IList<TEntity> FindAll(params PropertyQueryParam[] filters)
         {
             ICollection<DbParameter> dbParams;
-            SelectSqlBuilder queryBuilder = BuildSelectSql(filters, out dbParams);
+            SelectSqlBuilder queryBuilder = SqlWorker.BuildSelectSql(entityMap, serializer.SqlMapper, dataAccess, filters, out dbParams);
             DbDataReader dataReader;
 
             DbParameter[] parameters = dbParams.ToArray();
             var query = queryBuilder.ToSqlString();
-            logger.Log(LogType.Debug, query);            
+            logger.Log(LogType.Debug, query);
             try
             {
                 CheckConnection(dbConnection);
                 dataReader = dataAccess.ExecuteReader(dbConnection, query, parameters);
                 var entities = serializer.SerializeAll<TEntity>(dataReader, entityMap);
+                dataReader.Dispose();
                 return entities;
             }
             catch (GoliathDataException ex)
@@ -213,7 +292,7 @@ namespace Goliath.Data
             {
                 throw new DataAccessException(string.Format("Error while trying to fetch all {0}", entityMap.FullName), ex);
             }
-                      
+
         }
 
         /// <summary>
@@ -228,11 +307,12 @@ namespace Goliath.Data
         {
             if (limit < 1)
                 throw new ArgumentException(" cannot have a pageIndex of less than or equal to 0");
-            if(offset <0 )
+
+            if (offset < 0)
                 throw new ArgumentException(" cannot have a pageSize of less than or equal to 0");
 
             ICollection<DbParameter> dbParams;
-            SelectSqlBuilder queryBuilder = BuildSelectSql(filters, out dbParams);
+            SelectSqlBuilder queryBuilder = SqlWorker.BuildSelectSql(entityMap, serializer.SqlMapper, dataAccess, filters, out dbParams);
             string selectCount = queryBuilder.SelectCount();
 
             totalRecords = 0;
@@ -250,17 +330,15 @@ namespace Goliath.Data
                 //First resultset contains the count
                 while (dataReader.Read())
                 {
-                    var type = dataReader.GetFieldType(0);
-                    if (typeof(long).Equals(type))
-                        totalRecords = (long)dataReader[0];
-                    else
-                        totalRecords = Convert.ToInt64(dataReader[0]);
+                    totalRecords = serializer.ReadFieldData<long>(0, dataReader);
+                    //we only expect 1 row of data to be returned, so let's break out of the loop.
                     break;
                 }
 
                 //move to the next result set which contains the entities
                 dataReader.NextResult();
                 var entities = serializer.SerializeAll<TEntity>(dataReader, entityMap);
+                dataReader.Dispose();
                 return entities;
             }
             catch (GoliathDataException ex)
@@ -303,7 +381,7 @@ namespace Goliath.Data
             throw new NotImplementedException();
         }
 
-        
+
 
         #endregion
     }

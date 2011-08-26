@@ -71,28 +71,34 @@ namespace @Model.Namespace
 	}
 
 	#region metadata
-	
-	public static class @(Model.Name)PropertyNames
+
+	public static partial class PropertyNames
 	{
+		/// <summary>
+		/// Properties names for <see cref="@(Model.FullName)"/>
+		/// </summary>
+		public static class @(Model.Name)
+		{
 			@{
 				if(Model.PrimaryKey != null)
 				{
 					foreach(var k in Model.PrimaryKey.Keys)
 					{
 						Property p = k;
-		@:public const string @p.PropertyName = "@p.PropertyName";
+			@:public const string @p.PropertyName = "@p.PropertyName";
 					}
 				}
 
 				foreach(var p in Model.Properties)
 				{
-		@:public const string @p.PropertyName = "@p.PropertyName";
+			@:public const string @p.PropertyName = "@p.PropertyName";
 				}
 				foreach(var p in Model.Relations)
 				{
-		@:public const string @p.PropertyName = "@p.PropertyName";
+			@:public const string @p.PropertyName = "@p.PropertyName";
 				}
 			}	
+		}
 	}
 
 	#endregion

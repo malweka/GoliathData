@@ -68,22 +68,23 @@ namespace Goliath.Data.DataAccess
         }
 
         /// <summary>
-        /// Gets the converter.
+        /// Gets the converter factory method for the specified type.
         /// </summary>
-        /// <param name="from">From.</param>
+        /// <param name="typeToConverTo">The type to conver to.</param>
         /// <returns></returns>
-        public Func<Object, Object> GetConverterFactoryMethod(Type from)
+        /// <exception cref="Goliath.Data.DataAccessException"></exception>
+        public Func<Object, Object> GetConverterFactoryMethod(Type typeToConverTo)
         {
-            if (from == null)
+            if (typeToConverTo == null)
                 throw new ArgumentNullException("from");
 
             Func<Object, Object> converter;
-            if (converters.TryGetValue(from, out converter))
+            if (converters.TryGetValue(typeToConverTo, out converter))
             {
                 return converter;
             }
             else
-                throw new DataAccessException("No converter for type {0} was found", from);
+                throw new DataAccessException("No converter for type {0} was found", typeToConverTo);
         }
 
         /// <summary>

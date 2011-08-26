@@ -30,8 +30,8 @@ namespace WebZoo.Data
 
             Console.WriteLine("Start run");
 
-            //Sqlite(sqliteWorkingDirectory);
-            //SqlServer(sqlServerWorkingDirectory);
+            BuildSqlite(sqliteWorkingDirectory);
+            BuildSqlServer(sqlServerWorkingDirectory);
 
             //Generate(sqlServerWorkingDirectory, templatePath);
             //Generate(sqliteWorkingDirectory, templatePath);
@@ -39,6 +39,7 @@ namespace WebZoo.Data
             QueryTest(sqliteWorkingDirectory);
             Console.WriteLine("done");
             //Console.ReadKey();
+
         }
 
         static void Generate(string workingFolder, string templateFolder)
@@ -83,7 +84,7 @@ namespace WebZoo.Data
             //    project);
         }
 
-        static void Sqlite(string workingFolder)
+        static void BuildSqlite(string workingFolder)
         {
             ProjectSettings settings = new ProjectSettings();
             string pdir = AppDomain.CurrentDomain.BaseDirectory.Substring(0, AppDomain.CurrentDomain.BaseDirectory.IndexOf("bin"));
@@ -116,7 +117,7 @@ namespace WebZoo.Data
             }
         }
 
-        static void SqlServer(string workingFolder)
+        static void BuildSqlServer(string workingFolder)
         {
             ProjectSettings settings = new ProjectSettings();
 
@@ -161,9 +162,9 @@ namespace WebZoo.Data
         {
             //string sf = "/Users/hamsman/development";
             string pdir = AppDomain.CurrentDomain.BaseDirectory.Substring(0, AppDomain.CurrentDomain.BaseDirectory.IndexOf("bin"));
-			string dbfile = Path.Combine(pdir, "Data", "WebZoo.db");
+            string dbfile = Path.Combine(pdir, "Data", "WebZoo.db");
             string cs = string.Format("Data Source={0}; Version=3", dbfile);
-            
+
             string mapfile = Path.Combine(workingFolder, MapFileName);
             var sessionFactory = new Database().Configure(mapfile, cs)
                 .Provider(new SqliteProvider()).Init();
@@ -171,14 +172,14 @@ namespace WebZoo.Data
             var sess = sessionFactory.OpenSession();
 
             var zoodapter = sess.CreateDataAccessAdapter<Sqlite.Zoo>();
-            var animalapter = sess.CreateDataAccessAdapter<Sqlite.Animal>();                              
+            var animalapter = sess.CreateDataAccessAdapter<Sqlite.Animal>();
 
             var allzoos = zoodapter.FindAll();
             var acceptingZoos = zoodapter.FindAll(new PropertyQueryParam("AcceptNewAnimals", true));
             long total;
             var top5Zoo = zoodapter.FindAll(5, 0, out total);
 
-            WebZoo.Data.Sqlite.Zoo zooM = new WebZoo.Data.Sqlite.Zoo() { Name = "Kitona", City = "Kitona", AcceptNewAnimals = true };
+            Sqlite.Zoo zooM = new WebZoo.Data.Sqlite.Zoo() { Name = "Kitona", City = "Kitona", AcceptNewAnimals = true };
             var an1 = new Sqlite.Animal()
             {
                 Age = 12,
@@ -201,12 +202,21 @@ namespace WebZoo.Data
                 Zoo = zooM,
             };
 
+            var an3 = new Sqlite.Animal()
+            {
+                Age = 1,
+                Location = "dw 12",
+                ReceivedOn = DateTime.Now.Subtract(new TimeSpan(16, 5, 5, 5, 10)),
+                Name = "donkey",
+                Zoo = zooM,
+                //Zoo = acceptingZoos[0],
+                //ZooId = acceptingZoos[0].Id,
+            };
 
-
-            
             zooM.AnimalsOnZooId = new List<Sqlite.Animal>();
             zooM.AnimalsOnZooId.Add(monkey);
             zooM.AnimalsOnZooId.Add(an1);
+            zooM.AnimalsOnZooId.Add(an3);
 
             try
             {
@@ -222,17 +232,17 @@ namespace WebZoo.Data
 
             //var dbConnector = new Providers.SqlServer.MssqlDbConnector("Data Source=localhost;Initial Catalog=DbZoo;Integrated Security=True");
             var dbConnector = new Goliath.Data.Providers.Sqlite.SqliteDbConnector(cs);
-			var dbAccess = new DbAccess(dbConnector);
-            
+            var dbAccess = new DbAccess(dbConnector);
+
 
             using (var conn = dbConnector.CreateNewConnection())
             {
                 conn.Open();
-//                string zooQuery = @"select zoo.Id as zoo_Id, zoo.Name as zoo_Name, zoo.City as zoo_City, zoo.AcceptNewAnimals as zoo_AcceptNewAnimals 
-//                from zoos zoo";
+                //                string zooQuery = @"select zoo.Id as zoo_Id, zoo.Name as zoo_Name, zoo.City as zoo_City, zoo.AcceptNewAnimals as zoo_AcceptNewAnimals 
+                //                from zoos zoo";
 
-//                string sqlQuery = @"select ani1.ZooId as ani1_ZooId, ani1.Id as ani1_Id, ani1.Name as ani1_Name, ani1.Age as ani1_Age, ani1.Location as ani1_Location, ani1.ReceivedOn as ani1_ReceivedOn  from animals ani1";
-                SqliteSqlMapper mapper = new SqliteSqlMapper();               
+                //                string sqlQuery = @"select ani1.ZooId as ani1_ZooId, ani1.Id as ani1_Id, ani1.Name as ani1_Name, ani1.Age as ani1_Age, ani1.Location as ani1_Location, ani1.ReceivedOn as ani1_ReceivedOn  from animals ani1";
+                SqliteSqlMapper mapper = new SqliteSqlMapper();
 
                 var animalEntMap = map.EntityConfigs.Where(c => string.Equals(c.Name, "Animal", StringComparison.Ordinal))
                     .FirstOrDefault();
@@ -253,8 +263,8 @@ namespace WebZoo.Data
 
 
                 var animalQuery = new SelectSqlBuilder(mapper, animalEntMap).WithPaging(15, 0).ToSqlString();
-                var zooQuery = new SelectSqlBuilder(mapper, zooEntMap).ToSqlString();                
-             
+                var zooQuery = new SelectSqlBuilder(mapper, zooEntMap).ToSqlString();
+
                 EntitySerializer serializer = new EntitySerializer(mapper);
                 var dataReader = dbAccess.ExecuteReader(conn, animalQuery);
                 var animals = serializer.SerializeAll<WebZoo.Data.Sqlite.Animal>(dataReader, animalEntMap);

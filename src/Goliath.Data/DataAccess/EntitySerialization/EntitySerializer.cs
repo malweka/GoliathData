@@ -27,6 +27,7 @@ namespace Goliath.Data.DataAccess
         static ConcurrentDictionary<Type, Delegate> factoryList = new ConcurrentDictionary<Type, Delegate>();
         static ILogger logger;
         internal ITypeConverterStore TypeConverterStore { get; set; }
+        GetSetStore getSetStore = new GetSetStore();
 
         /// <summary>
         /// Gets the SQL mapper.
@@ -133,164 +134,106 @@ namespace Goliath.Data.DataAccess
         }
 
         /// <summary>
-        /// Deserializes the specified key generator.
+        /// Sets the property value.
         /// </summary>
-        /// <typeparam name="TEntity">The type of the entity.</typeparam>
-        /// <param name="entityMap">The entity map.</param>
         /// <param name="entity">The entity.</param>
+        /// <param name="propertyName">Name of the property.</param>
+        /// <param name="propertyValue">The property value.</param>
+        public void SetPropertyValue(object entity, string propertyName, object propertyValue)
+        {
+            EntityGetSetInfo getSetInfo;
+            Type typeOfInstance = entity.GetType();
+            if (!getSetStore.TryGetValue(typeOfInstance, out getSetInfo))
+            {
+                var map = Config.ConfigManager.CurrentSettings.Map;
+                var entityMap = map.GetEntityMap(typeOfInstance.FullName);
+
+                getSetInfo = new EntityGetSetInfo(typeOfInstance);
+                getSetInfo.Load(entityMap);
+                getSetStore.Add(typeOfInstance, getSetInfo);
+            }
+
+            PropInfo pInfo;
+            if (getSetInfo.Properties.TryGetValue(propertyName, out pInfo))
+            {
+                pInfo.Setter(entity, propertyValue);
+            }
+        }
+
+        /// <summary>
+        /// Creates the SQL worker.
+        /// </summary>
         /// <returns></returns>
-        public BatchSqlOperation BuildInsertSql<TEntity>(EntityMap entityMap, TEntity entity, bool recursive)
+        public ISqlWorker CreateSqlWorker()
         {
-
-            BatchSqlOperation operation = new BatchSqlOperation() { Priority = SqlOperationPriority.Medium };
-            Dictionary<string, PropertyQueryParam> neededParams = new Dictionary<string, PropertyQueryParam>();
-            BuildInsertSql(entity, entityMap, typeof(TEntity), null, null, null, operation,  recursive);
-
-            return operation;
+            return new SqlWorker(SqlMapper, getSetStore);
         }
 
-        Dictionary<string, KeyGenOperationInfo> GeneratePksForInsert(object entity, EntityMap entityMap, EntityGetSetInfo getSetInfo)
+        /// <summary>
+        /// Reads the field data.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="dataReader">The data reader.</param>
+        /// <returns></returns>
+        public T ReadFieldData<T>(string fieldName, DbDataReader dataReader)
         {
-            Dictionary<string, KeyGenOperationInfo> keygenerationOperations = new Dictionary<string, KeyGenOperationInfo>();
+            var val = ReadFieldData(typeof(T), fieldName, dataReader);
+            return (T)val;
+        }
 
-            if (entityMap.PrimaryKey != null)
+        /// <summary>
+        /// Reads the field data.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="ordinal">The ordinal.</param>
+        /// <param name="dataReader">The data reader.</param>
+        /// <returns></returns>
+        public T ReadFieldData<T>(int ordinal, DbDataReader dataReader)
+        {
+            var val = ReadFieldData(typeof(T), ordinal, dataReader);
+            return (T)val;
+        }
+
+        /// <summary>
+        /// Reads the field data.
+        /// </summary>
+        /// <param name="expectedType">The expected type.</param>
+        /// <param name="fieldName">Name of the field.</param>
+        /// <param name="dataReader">The data reader.</param>
+        /// <returns></returns>
+        public object ReadFieldData(Type expectedType, string fieldName, DbDataReader dataReader)
+        {
+            int ordinal = dataReader.GetOrdinal(fieldName);
+            return ReadFieldData(expectedType, ordinal, dataReader);
+        }
+
+        /// <summary>
+        /// Reads the field data.
+        /// </summary>
+        /// <param name="expectedType">The expected type.</param>
+        /// <param name="ordinal">The ordinal.</param>
+        /// <param name="dataReader">The data reader.</param>
+        /// <returns></returns>
+        public object ReadFieldData(Type expectedType, int ordinal, DbDataReader dataReader)
+        {
+            
+            var dr = dataReader[ordinal];
+            if ((dataReader[ordinal] != null) && (dataReader[ordinal] != DBNull.Value))
             {
-                foreach (var pk in entityMap.PrimaryKey.Keys)
+                Type actualType = dr.GetType();
+                if (actualType.Equals(expectedType))
+                    return dr;
+                else
                 {
-                    if (pk.KeyGenerator == null)
-                        throw new MappingException(string.Format("No key generator specified for {0} for mapped entity {1}", pk.Key.PropertyName, entityMap.FullName));
-                    if (!pk.Key.IsAutoGenerated)
-                    {
-                        PropInfo pInfo;
-                        if (getSetInfo.Properties.TryGetValue(pk.Key.PropertyName, out pInfo))
-                        {
-                            SqlOperationPriority priority;
-                            var id = pk.KeyGenerator.GenerateKey(entityMap, pk.Key.PropertyName, out priority);
-                            pInfo.Setter(entity, id);
-                        }
-                    }
-                    else
-                    {
-                        SqlOperationPriority priority;
-                        string genText = pk.KeyGenerator.GenerateKey(entityMap, pk.Key.PropertyName, out priority).ToString();
-                        SqlOperationInfo genOper = new SqlOperationInfo() { CommandType = SqlStatementType.Select, Parameters = new QueryParam[] { }, SqlText = genText };
-                        var genParamName = ParameterNameBuilderHelper.ColumnQueryName(pk.Key.ColumnName, entityMap.TableAlias);
-                        KeyGenOperationInfo genKeyOper = new KeyGenOperationInfo() { Operation = genOper, Priority = priority };
-                        keygenerationOperations.Add(genParamName, genKeyOper);
-                    }
+                    var converter = TypeConverterStore.GetConverterFactoryMethod(expectedType);
+                    return converter.Invoke(dr);
                 }
-            }
 
-            return keygenerationOperations;
-        }
-
-        //TODO: recursively extract insert for relationships for one-to-many relations.
-        void BuildInsertSql
-        (
-            object entity,
-            EntityMap entityMap,
-            Type entityType,
-
-            object parentEntity,
-            EntityMap parentEntityMap,
-            Type parentEntityType,
-
-            BatchSqlOperation operation,
-            bool recursive
-         )
-        {
-            EntityMap baseEntMap = null;
-            Dictionary<string, KeyGenOperationInfo> keygenerationOperations = new Dictionary<string,KeyGenOperationInfo>();
-            bool isSubclass = entityMap.IsSubClass;
-            EntityGetSetInfo entGetSets;
-            InsertSqlBuilder baseInsertSqlBuilder = null;
-
-            if (!getSetStore.TryGetValue(entityType, out entGetSets))
-            {
-                entGetSets = new EntityGetSetInfo(entityType);
-                entGetSets.Load(entityMap);
-                getSetStore.Add(entityType, entGetSets);
-            }
-
-            if (isSubclass)
-            {
-                //get base class first
-                baseEntMap = entityMap.Parent.GetEntityMap(entityMap.Extends);
-                baseInsertSqlBuilder = new InsertSqlBuilder(SqlMapper, baseEntMap);
-                keygenerationOperations = GeneratePksForInsert(entity, baseEntMap, entGetSets);
-
-                var baseParamDictionary = InsertSqlBuilder.BuildQueryParams(entity, entGetSets, baseEntMap, getSetStore);
-                SqlOperationInfo baseClassOperation = new SqlOperationInfo() { CommandType = SqlStatementType.Insert };
-                baseClassOperation.SqlText = baseInsertSqlBuilder.ToSqlString();
-                baseClassOperation.Parameters = baseParamDictionary.Values;
-                operation.Operations.Add(baseClassOperation);
             }
             else
-            {
-                keygenerationOperations = GeneratePksForInsert(entity, entityMap, entGetSets);
-            }
-
-            InsertSqlBuilder entInsertSqlBuilder = new InsertSqlBuilder(SqlMapper, entityMap);       
-
-            var paramDictionary = InsertSqlBuilder.BuildQueryParams(entity, entGetSets, entityMap, getSetStore);
-            SqlOperationInfo operationInfo = new SqlOperationInfo() { CommandType = SqlStatementType.Insert };
-            operationInfo.SqlText = entInsertSqlBuilder.ToSqlString();
-            operationInfo.Parameters = paramDictionary.Values;
-            operation.Operations.Add(operationInfo);
-
-            if (keygenerationOperations.Count > 0)
-            {
-                operation.KeyGenerationOperations = keygenerationOperations;
-                operation.Priority = SqlOperationPriority.High;
-            }            
-
-            if (recursive)
-            {
-                foreach (var rel in entityMap.Relations)
-                {
-                    if (rel.RelationType == RelationshipType.ManyToOne)
-                        continue;
-
-                    else if (rel.RelationType == RelationshipType.OneToMany)
-                    {
-                        PropInfo pInfo;
-
-                        if (entGetSets.Properties.TryGetValue(rel.PropertyName, out pInfo))
-                        {
-                            var colGetter = pInfo.Getter(entity);
-
-                            if ((colGetter != null) && (colGetter is System.Collections.IEnumerable))
-                            {
-                                var list = (System.Collections.IEnumerable)colGetter;
-                                foreach (var o in list)
-                                {
-                                    if (o == null)
-                                        continue;
-                                    //get type
-                                    var reltype = o.GetType();
-                                    //get map
-                                    var relmap = entityMap.Parent.GetEntityMap(reltype.FullName);
-                                    BatchSqlOperation relOper = new BatchSqlOperation() { Priority = SqlOperationPriority.Low };
-                                    operation.SubOperations.Add(relOper);
-                                    BuildInsertSql(o, relmap, reltype, entity, entityMap, entityType, relOper, true);
-                                }
-                            }
-                        }
-                    }
-                    else if (rel.RelationType == RelationshipType.ManyToMany)
-                    {
-                    }
-                }
-                if (isSubclass)
-                {
-                    foreach (var rel in baseEntMap.Relations)
-                    {
-                    }
-                }
-            }
+                return null;
         }
-
-        GetSetStore getSetStore = new GetSetStore();
 
         #endregion
 
@@ -374,12 +317,12 @@ namespace Goliath.Data.DataAccess
                             case RelationshipType.ManyToOne:
                                 SerializeManyToOne manyToOneHelper = new SerializeManyToOne(SqlMapper, getSetStore);
                                 manyToOneHelper.Serialize(this, rel, instanceEntity, keyVal.Value, entityMap, getSetInfo, columns, dbReader);
-                                logger.Log(LogType.Info, string.Format("\t\t{0} is a ManyToOne", keyVal.Key));
+                                //logger.Log(LogType.Info, string.Format("\t\t{0} is a ManyToOne", keyVal.Key));
                                 break;
                             case RelationshipType.OneToMany:
                                 SerializeOneToMany oneToManyHelper = new SerializeOneToMany(SqlMapper, getSetStore);
                                 oneToManyHelper.Serialize(this, rel, instanceEntity, keyVal.Value, entityMap, getSetInfo, columns, dbReader);
-                                logger.Log(LogType.Info, string.Format("\t\t{0} is a OneToMany", keyVal.Key));
+                                //logger.Log(LogType.Info, string.Format("\t\t{0} is a OneToMany", keyVal.Key));
                                 break;
                             case RelationshipType.ManyToMany:
                                 break;
@@ -395,13 +338,13 @@ namespace Goliath.Data.DataAccess
                         if (fieldType.Equals(keyVal.Value.PropertType))
                         {
                             keyVal.Value.Setter(instanceEntity, val);
-                            logger.Log(LogType.Info, string.Format("Read {0}: {1}", keyVal.Key, val));
+                            //logger.Log(LogType.Info, string.Format("Read {0}: {1}", keyVal.Key, val));
                         }
                         else if (keyVal.Value.PropertType.IsEnum)
                         {
                             var enumVal = TypeConverterStore.ConvertToEnum(keyVal.Value.PropertType, val);
                             keyVal.Value.Setter(instanceEntity, enumVal);
-                            logger.Log(LogType.Info, string.Format("read {0}: value was {1}", keyVal.Key, enumVal));
+                            //logger.Log(LogType.Info, string.Format("read {0}: value was {1}", keyVal.Key, enumVal));
                         }
                         else
                         {
