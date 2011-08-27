@@ -6,6 +6,7 @@ using Goliath.Data.Sql;
 
 namespace Goliath.Data.Providers.SqlServer
 {
+    [Serializable]
     class NewGuid : SqlFunction
     {
         public NewGuid()
@@ -18,8 +19,9 @@ namespace Goliath.Data.Providers.SqlServer
             return base.ToSqlStatement(null);
         }
     }
-    
-    class GetDate:SqlFunction
+
+    [Serializable]
+    class GetDate : SqlFunction
     {
         public GetDate()
             : base(FunctionNames.GetDate, "getdate")
@@ -32,6 +34,7 @@ namespace Goliath.Data.Providers.SqlServer
         }
     }
 
+    [Serializable]
     class GetCurrentUser : SqlFunction
     {
         public GetCurrentUser()
@@ -40,6 +43,7 @@ namespace Goliath.Data.Providers.SqlServer
         }
     }
 
+    [Serializable]
     class GetHostName : SqlFunction
     {
         public GetHostName()
@@ -48,6 +52,7 @@ namespace Goliath.Data.Providers.SqlServer
         }
     }
 
+    [Serializable]
     class GetAppName : SqlFunction
     {
         public GetAppName()
@@ -56,6 +61,7 @@ namespace Goliath.Data.Providers.SqlServer
         }
     }
 
+    [Serializable]
     class GetDatabaseName : SqlFunction
     {
         public GetDatabaseName()
@@ -64,6 +70,7 @@ namespace Goliath.Data.Providers.SqlServer
         }
     }
 
+    [Serializable]
     class GetUtcDate : SqlFunction
     {
         public GetUtcDate()

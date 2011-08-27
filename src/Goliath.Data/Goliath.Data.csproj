@@ -67,10 +67,14 @@
     <Compile Include="Collections\ILazyList.cs" />
     <Compile Include="Config\ConfigManager.cs" />
     <Compile Include="Config\IConfigurationManager.cs" />
+    <Compile Include="Config\ISessionSettings.cs" />
     <Compile Include="DataAccess\AdoTransaction.cs" />
+    <Compile Include="DataAccess\ConnectionManager.cs" />
+    <Compile Include="DataAccess\ConnectionProvider.cs" />
     <Compile Include="DataAccess\DataAccessAdapterFactory.cs" />
     <Compile Include="DataAccess\EntitySerialization\EntitySerializer.cs" />
     <Compile Include="DataAccess\GetSetStore.cs" />
+    <Compile Include="DataAccess\IConnectionProvider.cs" />
     <Compile Include="DataAccess\IDbConnector.cs" />
     <Compile Include="DataAccess\EntitySerialization\IEntitySerializer.cs" />
     <Compile Include="DataAccess\ITypeConverter.cs" />
@@ -78,6 +82,7 @@
     <Compile Include="DataAccess\EntitySerialization\SerializeManyToOne.cs" />
     <Compile Include="DataAccess\EntitySerialization\SerializeOneToMany.cs" />
     <Compile Include="DataAccess\EntitySerialization\RelationSerializer.cs" />
+    <Compile Include="DataAccess\SessionManager.cs" />
     <Compile Include="DynamicProxy\IProxyHydrator.cs" />
     <Compile Include="DynamicProxy\ProxySerializer.cs" />
     <Compile Include="DataAccess\QueryImpl.cs" />
@@ -101,6 +106,7 @@
     <Compile Include="DynamicProxy\ProxyCache.cs" />
     <Compile Include="Generators\GuidCombGenerator.cs" />
     <Compile Include="GoliathDataException.cs" />
+    <Compile Include="ISessionStore.cs" />
     <Compile Include="KeyedCollectionBase.cs" />
     <Compile Include="Collections\LazyList.cs" />
     <Compile Include="Libs\Fasterflect.cs" />

@@ -9,6 +9,7 @@ namespace Goliath.Data.Providers.Sqlite
     /// <summary>
     /// 
     /// </summary>
+    [Serializable]
     public class SqliteSqlMapper : SqlMapper
     {
         /// <summary>

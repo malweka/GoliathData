@@ -8,6 +8,7 @@ using System.Data.SqlClient;
 
 namespace Goliath.Data.Providers.SqlServer
 {
+    [Serializable]
     public class MssqlDbConnector : DbConnector
     {
         /// <summary>

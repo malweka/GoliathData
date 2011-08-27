@@ -6,6 +6,7 @@ using System.Data;
 
 namespace Goliath.Data.Providers.SqlServer
 {
+    [Serializable]
     public class Mssq2008SqlMapper : SqlMapper
     {
         /// <summary>

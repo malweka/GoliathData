@@ -21,6 +21,7 @@ namespace Goliath.Data.DataAccess
     /// <summary>
     /// 
     /// </summary>
+    [Serializable]
     public class EntitySerializer : IEntitySerializer
     {
 
@@ -217,7 +218,7 @@ namespace Goliath.Data.DataAccess
         /// <returns></returns>
         public object ReadFieldData(Type expectedType, int ordinal, DbDataReader dataReader)
         {
-            
+
             var dr = dataReader[ordinal];
             if ((dataReader[ordinal] != null) && (dataReader[ordinal] != DBNull.Value))
             {

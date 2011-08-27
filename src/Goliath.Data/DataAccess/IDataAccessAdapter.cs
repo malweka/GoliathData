@@ -11,7 +11,7 @@ namespace Goliath.Data
     /// 
     /// </summary>
     /// <typeparam name="TEntity">The type of the entity.</typeparam>
-    public interface IDataAccessAdapter<TEntity>
+    public interface IDataAccessAdapter<TEntity> : IDisposable
     {
 
         #region Updates

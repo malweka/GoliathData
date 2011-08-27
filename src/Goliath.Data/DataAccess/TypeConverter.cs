@@ -5,6 +5,7 @@ using System.Text;
 
 namespace Goliath.Data.DataAccess
 {
+    [Serializable]
     public class TypeConverterStore : ITypeConverterStore
     {
         Dictionary<Type, Func<Object, Object>> converters = new Dictionary<Type, Func<Object, Object>>();

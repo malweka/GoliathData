@@ -65,10 +65,5 @@ namespace Goliath.Data.Config
         /// </summary>
         ISessionFactory Init();
     }
-
-    interface IConfigurationSettings
-    {
-        Mapping.MapConfig Map { get; }
-        DbAccess CreateAccessor();
-    }
+    
 }

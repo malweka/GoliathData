@@ -9,6 +9,7 @@ namespace Goliath.Data.Sql
     /// 
     /// </summary>
     [System.Diagnostics.DebuggerDisplay("{CommandType} = {SqlText}")]
+    [Serializable]
     public struct SqlOperationInfo
     {
         /// <summary>
@@ -35,6 +36,7 @@ namespace Goliath.Data.Sql
     }
 
     [System.Diagnostics.DebuggerDisplay("Priority = {Priority}, Operation = {Operation.SqlText}")]
+    [Serializable]
     public struct KeyGenOperationInfo
     {
         /// <summary>
@@ -72,6 +74,7 @@ namespace Goliath.Data.Sql
     }
 
     [System.Diagnostics.DebuggerDisplay("Priority = {Priority}, Operations = {Operations.Count}, SubOperations = {SubOperations.Count}")]
+    [Serializable]
     public class BatchSqlOperation : IDisposable
     {
         /// <summary>
@@ -137,6 +140,7 @@ namespace Goliath.Data.Sql
     /// <summary>
     /// 
     /// </summary>
+     [Serializable]
     public enum SqlOperationPriority
     {
         /// <summary>

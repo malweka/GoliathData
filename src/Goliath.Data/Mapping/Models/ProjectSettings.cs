@@ -8,6 +8,7 @@ namespace Goliath.Data.Mapping
 {
     [Serializable]
     [DataContract]
+    //TODO: make this a struct?
     public class ProjectSettings
     {
         [DataMember]
@@ -23,16 +24,5 @@ namespace Goliath.Data.Mapping
         [DataMember]
         public string BaseModel { get; set; }
 
-        //static ProjectSettings defaultSettings = new ProjectSettings()
-        //{
-        //    Version = "1",
-        //    ConnectionString = "Data Source=localhost;Initial Catalog=myDatabase;Integrated Security=True",
-        //    Namespace = "MyNameSpace"
-        //};
-
-        //public static ProjectSettings CurrentSettings
-        //{
-        //    get { return defaultSettings; }
-        //}
     }
 }
