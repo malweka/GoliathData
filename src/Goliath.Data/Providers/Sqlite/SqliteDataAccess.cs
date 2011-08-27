@@ -7,12 +7,17 @@ using Goliath.Data.Diagnostics;
 
 namespace Goliath.Data.Providers.Sqlite
 {
+    /// <summary>
+    /// 
+    /// </summary>
+    [Serializable]
     public class SqliteDbConnector : DbConnector
     {
         static ILogger logger;
 
         static SqliteDbConnector()
         {
+            logger = Logger.GetLogger(typeof(SqliteDbConnector));
         }
 
         /// <summary>
@@ -22,7 +27,7 @@ namespace Goliath.Data.Providers.Sqlite
         public SqliteDbConnector(string connectionString)
             : base(connectionString, Constants.ProviderName)
         {
-            logger = Logger.GetLogger(typeof(SqliteDbConnector));
+            AllowMultipleConnections = false;
         }
 
         /// <summary>

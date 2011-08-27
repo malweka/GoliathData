@@ -9,6 +9,7 @@ using System.Collections.Concurrent;
 
 namespace Goliath.Data.DataAccess
 {
+    [Serializable]
     class DataAccessAdapterFactory : IDataAccessAdapterFactory
     {
         //IDbAccess db;

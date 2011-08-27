@@ -11,6 +11,7 @@ namespace Goliath.Data.Providers
     /// <summary>
     /// 
     /// </summary>
+    [Serializable]
     public abstract class SqlMapper
     {
 

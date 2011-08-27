@@ -9,6 +9,7 @@ using Goliath.Data.Mapping;
 
 namespace Goliath.Data.Providers.Sqlite
 {
+    [Serializable]
     public class SqliteSchemaDescriptor : SchemaDescriptor
     {
         IDbAccess db;
@@ -41,7 +42,7 @@ namespace Goliath.Data.Providers.Sqlite
         {
             this.db = db;
             this.dbConnector = dbConnector;
-            this.mapper = mapper;            
+            this.mapper = mapper;
             ProjectSettings = settings;
         }
 

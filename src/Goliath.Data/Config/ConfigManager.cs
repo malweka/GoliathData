@@ -11,7 +11,7 @@ namespace Goliath.Data.Config
     using Providers;
     using DataAccess;
 
-    class ConfigManager : IConfigurationManager, IConfigurationSettings
+    class ConfigManager : IConfigurationManager, ISessionSettings
     {
         MapConfig mainMap;
         IDbProvider provider;
@@ -20,13 +20,7 @@ namespace Goliath.Data.Config
         IEntitySerializer entitySerializerFactory;
         internal Func<Type, ILogger> LoggerFactory { get; set; }
 
-        public MapConfig Map
-        {
-            get
-            {
-                return mainMap;
-            }
-        }
+        
 
         public IDbProvider DbProvider
         {
@@ -152,11 +146,11 @@ namespace Goliath.Data.Config
             var dbConnector = DbProvider.GetDatabaseConnector(mainMap.Settings.ConnectionString);
             settings = this;
 
-            var sessFact = new SessionFactoryImpl(dbConnector, new DbAccess(dbConnector), dataAccessAdapterFactory);
+            var sessFact = new SessionFactoryImpl(dbConnector, new DbAccess(dbConnector), dataAccessAdapterFactory, this);
             return sessFact;
         }
 
-        DbAccess IConfigurationSettings.CreateAccessor()
+        DbAccess ISessionSettings.CreateAccessor()
         {
             var dbConnector = DbProvider.GetDatabaseConnector(mainMap.Settings.ConnectionString);
             var dbAccess = new DbAccess(dbConnector);
@@ -165,11 +159,38 @@ namespace Goliath.Data.Config
 
         #endregion
 
-        private static IConfigurationSettings settings;
+        private static ISessionSettings settings;
 
-        internal static IConfigurationSettings CurrentSettings
+        internal static ISessionSettings CurrentSettings
         {
             get { return settings; }
         }
+
+        #region ISessionSettings Members
+
+        public MapConfig Map
+        {
+            get
+            {
+                return mainMap;
+            }
+        }
+
+        public SqlMapper SqlMapper
+        {
+            get { throw new NotImplementedException(); }
+        }
+
+        public IDbConnector Connector
+        {
+            get { throw new NotImplementedException(); }
+        }
+
+        public IDbAccess DbAccess
+        {
+            get { throw new NotImplementedException(); }
+        }
+
+        #endregion
     }
 }

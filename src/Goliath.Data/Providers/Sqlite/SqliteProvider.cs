@@ -5,6 +5,7 @@ using System.Text;
 
 namespace Goliath.Data.Providers.Sqlite
 {
+    [Serializable]
     public class SqliteProvider : IDbProvider
     {
         #region IDbProvider Members

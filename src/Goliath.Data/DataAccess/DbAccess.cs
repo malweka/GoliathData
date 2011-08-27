@@ -7,6 +7,7 @@ namespace Goliath.Data
     /// <summary>
     /// 
     /// </summary>
+    [Serializable]
     public sealed class DbAccess : IDbAccess
     {
         #region properties and variables

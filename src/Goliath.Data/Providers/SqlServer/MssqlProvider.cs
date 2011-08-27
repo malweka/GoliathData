@@ -5,6 +5,7 @@ using System.Text;
 
 namespace Goliath.Data.Providers.SqlServer
 {
+    [Serializable]
     public class MssqlProvider : IDbProvider
     {
         #region IDbProvider Members

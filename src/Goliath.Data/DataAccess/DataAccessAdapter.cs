@@ -15,7 +15,8 @@ namespace Goliath.Data
     /// 
     /// </summary>
     /// <typeparam name="TEntity">The type of the entity.</typeparam>
-    public class DataAccessAdapter<TEntity> : IDataAccessAdapter<TEntity>
+    [Serializable]
+    public class DataAccessAdapter<TEntity> : IDataAccessAdapter<TEntity>, IDisposable
     {
         /// <summary>
         /// data access o
@@ -382,6 +383,27 @@ namespace Goliath.Data
         }
 
 
+
+        #endregion
+
+        #region IDisposable Members
+
+
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
+        public void Dispose()
+        {
+            //clean up to avoid leaks
+            IEntitySerializer serializerRef = this.serializer;
+            this.serializer = null;
+
+            IDbAccess dAccessRef = this.dataAccess;
+            this.dataAccess = null;
+
+            EntityMap entMapRef = this.entityMap;
+            this.entityMap = null;
+        }
 
         #endregion
     }

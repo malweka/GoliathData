@@ -9,6 +9,7 @@ using System.Reflection;
 
 namespace Goliath.Data.DataAccess
 {
+    [Serializable]
     class GetSetStore
     {
         static readonly ConcurrentDictionary<Type, EntityGetSetInfo> store;
@@ -41,6 +42,7 @@ namespace Goliath.Data.DataAccess
 
     }
 
+    [Serializable]
     struct PropInfo
     {
         public MemberSetter Setter { get; set; }
@@ -49,6 +51,7 @@ namespace Goliath.Data.DataAccess
         public string Name { get; set; }
     }
 
+    [Serializable]
      class EntityGetSetInfo
     {
         readonly Dictionary<string, PropInfo> properties;

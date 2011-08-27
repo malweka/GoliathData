@@ -8,6 +8,7 @@ namespace Goliath.Data.Mapping
     /// <summary>
     /// 
     /// </summary>
+    [Serializable]
     public class PrimaryKeyPropertyCollection : KeyedCollectionBase<string, PrimaryKeyProperty>// System.Collections.ObjectModel.KeyedCollection<string, PrimaryKeyProperty>
     {
         /// <summary>

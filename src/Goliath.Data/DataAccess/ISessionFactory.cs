@@ -12,6 +12,11 @@ namespace Goliath.Data
     public interface ISessionFactory
     {
         /// <summary>
+        /// Gets the session settings.
+        /// </summary>
+        Config.ISessionSettings SessionSettings { get; }
+
+        /// <summary>
         /// Opens the session.
         /// </summary>
         /// <param name="connection">The connection.</param>

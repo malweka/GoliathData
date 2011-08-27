@@ -8,16 +8,21 @@ namespace Goliath.Data.DataAccess
     using DataAccess;
     using Diagnostics;
 
+    [Serializable]
     class SessionFactoryImpl : ISessionFactory
     {
         IDbAccess dbAccess;
         IDbConnector dbConnector;
         IDataAccessAdapterFactory adapterFactory;
-        public SessionFactoryImpl(IDbConnector dbConnector, IDbAccess dbAccess, IDataAccessAdapterFactory adapterFactory)
+
+        public Config.ISessionSettings SessionSettings { get; private set; }
+
+        public SessionFactoryImpl(IDbConnector dbConnector, IDbAccess dbAccess, IDataAccessAdapterFactory adapterFactory, Config.ISessionSettings settings)
         {
             this.dbConnector = dbConnector;
             this.dbAccess = dbAccess;
             this.adapterFactory = adapterFactory;
+            SessionSettings = settings;
         }
 
         #region ISessionFactory Members

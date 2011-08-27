@@ -5,6 +5,7 @@ using System.Text;
 using System.Collections.Concurrent;
 namespace Goliath.Data.DynamicProxy
 {
+    [Serializable]
     class ProxyCache
     {
         static readonly ConcurrentDictionary<Type, Type> proxies;

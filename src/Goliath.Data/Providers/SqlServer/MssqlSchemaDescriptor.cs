@@ -10,6 +10,7 @@ using Goliath.Data.Diagnostics;
 
 namespace Goliath.Data.Providers.SqlServer
 {
+    [Serializable]
     public class MssqlSchemaDescriptor : SchemaDescriptor
     {
         static ILogger logger;

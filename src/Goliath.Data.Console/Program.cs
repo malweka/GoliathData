@@ -178,7 +178,7 @@ namespace WebZoo.Data
             var acceptingZoos = zoodapter.FindAll(new PropertyQueryParam("AcceptNewAnimals", true));
             long total;
             var top5Zoo = zoodapter.FindAll(5, 0, out total);
-
+            
             Sqlite.Zoo zooM = new WebZoo.Data.Sqlite.Zoo() { Name = "Kitona", City = "Kitona", AcceptNewAnimals = true };
             var an1 = new Sqlite.Animal()
             {
