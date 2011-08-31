@@ -8,7 +8,7 @@ namespace Goliath.Data
     /// <summary>
     /// 
     /// </summary>
-    public interface IDabaseSettings
+    public interface IDatabaseSettings
     {
         Mapping.MapConfig Map { get; }
         /// <summary>

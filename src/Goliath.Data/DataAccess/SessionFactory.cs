@@ -10,13 +10,19 @@ namespace Goliath.Data.DataAccess
     using Mapping;
 
     [Serializable]
-    class SessionFactoryImpl : ISessionFactory
+    class SessionFactory : ISessionFactory
     {
         //IDbAccess dbAccess;
         //IDbConnector dbConnector;
         Func<MapConfig, IEntitySerializer, IDataAccessAdapterFactory> adapterFactoryFactoryMethod;
         IDataAccessAdapterFactory adapterFactory;
         IEntitySerializer serializer;
+
+
+        public IEntitySerializer DataSerializer
+        {
+            get { return serializer; }
+        }
 
         public IDataAccessAdapterFactory AdapterFactory
         {
@@ -30,22 +36,25 @@ namespace Goliath.Data.DataAccess
             }
         }
 
-        public IDabaseSettings DbSettings { get; private set; }
+        public IDatabaseSettings DbSettings { get; private set; }
 
-        public SessionFactoryImpl(IDabaseSettings settings, Func<MapConfig, IEntitySerializer, IDataAccessAdapterFactory> adapterFactoryFactoryMethod, IEntitySerializer serializer)
+        public SessionFactory(IDatabaseSettings settings, Func<MapConfig, IEntitySerializer, IDataAccessAdapterFactory> adapterFactoryFactoryMethod, IEntitySerializer serializer)
         {
             if (settings == null)
                 throw new ArgumentNullException("settings");
             if (adapterFactory == null)
                 throw new ArgumentNullException("adapterFactory");
+            if (serializer == null)
+                throw new ArgumentNullException("serializer");
 
-            adapterFactoryFactoryMethod = adapterFactoryFactoryMethod;
+            this.serializer = serializer;
+            this.adapterFactoryFactoryMethod = adapterFactoryFactoryMethod;
             DbSettings = settings;
         }
 
         ISession CreateSession(IConnectionProvider connProvider)
         {
-            return new SessionImpl(this, connProvider);
+            return new Session(this, connProvider);
         }
 
         #region ISessionFactory Members

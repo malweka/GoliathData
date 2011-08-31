@@ -47,9 +47,9 @@ namespace Goliath.Data.DataAccess
             try
             {
                 if (isolatedLevel == IsolationLevel.Unspecified)
-                    transaction = session.Connection.BeginTransaction();
+                    transaction = session.ConnectionManager.CurrentConnection.BeginTransaction();
                 else
-                    transaction = session.Connection.BeginTransaction(isolatedLevel);
+                    transaction = session.ConnectionManager.CurrentConnection.BeginTransaction(isolatedLevel);
             }
             catch (Exception ex)
             {

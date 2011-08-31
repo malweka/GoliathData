@@ -11,7 +11,7 @@ namespace Goliath.Data.Config
     using Providers;
     using DataAccess;
 
-    class ConfigManager : IConfigurationManager, IDabaseSettings
+    class ConfigManager : IConfigurationManager, IDatabaseSettings
     {
         MapConfig mainMap;
         IDbProvider provider;
@@ -150,11 +150,11 @@ namespace Goliath.Data.Config
             var dbConnector = DbProvider.GetDatabaseConnector(mainMap.Settings.ConnectionString);
             settings = this;
 
-            var sessFact = new SessionFactoryImpl(this, dataAccessAdapterFactory, entitySerializerFactory);
+            var sessFact = new SessionFactory(this, dataAccessAdapterFactory, entitySerializerFactory);
             return sessFact;
         }
 
-        DbAccess IDabaseSettings.CreateAccessor()
+        DbAccess IDatabaseSettings.CreateAccessor()
         {
             var dbConnector = DbProvider.GetDatabaseConnector(mainMap.Settings.ConnectionString);
             var dbAccess = new DbAccess(dbConnector);
@@ -163,7 +163,7 @@ namespace Goliath.Data.Config
 
         #endregion
 
-        private static IDabaseSettings settings;
+        private static IDatabaseSettings settings;
 
         //internal static ISessionSettings CurrentSettings
         //{

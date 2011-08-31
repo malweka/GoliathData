@@ -29,12 +29,19 @@ namespace Goliath.Data.DataAccess
         {
             if (dbConnection != null)
             {
-                if (dbConnection.State == ConnectionState.Open)
+                try
                 {
-                    dbConnection.Close();
-                }
+                    if (dbConnection.State == ConnectionState.Open)
+                    {
+                        dbConnection.Close();
+                    }
 
-                dbConnection.Dispose();
+                    dbConnection.Dispose();
+                }
+                catch (Exception ex)
+                {
+                    //log exception
+                }
             }
 
             return dbConnection;

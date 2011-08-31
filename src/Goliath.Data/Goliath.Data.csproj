@@ -86,8 +86,8 @@
     <Compile Include="DynamicProxy\IProxyHydrator.cs" />
     <Compile Include="DynamicProxy\ProxySerializer.cs" />
     <Compile Include="DataAccess\QueryImpl.cs" />
-    <Compile Include="DataAccess\SessionFactoryImpl.cs" />
-    <Compile Include="DataAccess\SessionImpl.cs" />
+    <Compile Include="DataAccess\SessionFactory.cs" />
+    <Compile Include="DataAccess\Session.cs" />
     <Compile Include="DataAccess\TypeConversionException.cs" />
     <Compile Include="DataAccess\TypeConverter.cs" />
     <Compile Include="Database.cs" />
