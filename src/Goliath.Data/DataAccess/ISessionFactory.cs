@@ -9,12 +9,18 @@ namespace Goliath.Data
     /// <summary>
     /// 
     /// </summary>
-    public interface ISessionFactory
+    public interface ISessionFactory : IDisposable
     {
         /// <summary>
         /// Gets the session settings.
         /// </summary>
-        Config.ISessionSettings SessionSettings { get; }
+        IDabaseSettings DbSettings { get; }
+
+        /// <summary>
+        /// Gets the adapter factory.
+        /// </summary>
+        /// <value>The adapter factory.</value>
+        IDataAccessAdapterFactory AdapterFactory { get; }
 
         /// <summary>
         /// Opens the session.
@@ -22,6 +28,7 @@ namespace Goliath.Data
         /// <param name="connection">The connection.</param>
         /// <returns></returns>
         ISession OpenSession(DbConnection connection);
+
         /// <summary>
         /// Opens the session.
         /// </summary>

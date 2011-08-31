@@ -40,7 +40,7 @@ namespace Goliath.Data.Config
         /// </summary>
         /// <param name="dataAccessAdapter">The data access adapter.</param>
         /// <returns></returns>
-        IConfigurationManager OverrideDataAccessAdapterFactory(IDataAccessAdapterFactory dataAccessAdapter);
+        IConfigurationManager OverrideDataAccessAdapterFactory(Func<Mapping.MapConfig, IEntitySerializer, IDataAccessAdapterFactory> dataAccessAdapter);
         /// <summary>
         /// Overrides the type converter factory.
         /// </summary>
@@ -60,6 +60,7 @@ namespace Goliath.Data.Config
         /// <param name="typeConverterFactoryMethod">The type converter factory method.</param>
         /// <returns></returns>
         IConfigurationManager RegisterTypeConverter<TEntity>(Func<Object, Object> typeConverterFactoryMethod);
+
         /// <summary>
         /// Inits this instance.
         /// </summary>

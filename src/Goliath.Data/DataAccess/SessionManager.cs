@@ -5,7 +5,8 @@ using System.Text;
 
 namespace Goliath.Data.DataAccess
 {
-    class SessionManager
+    public static class SessionStoreManager
     {
+
     }
 }

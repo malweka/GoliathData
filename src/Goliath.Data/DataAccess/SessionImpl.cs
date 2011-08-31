@@ -14,27 +14,26 @@ namespace Goliath.Data.DataAccess
     {
         static ILogger logger;
         string id;
-        IDbAccess dbAccess;
         DbConnection connection;
         ITransaction currentTransaction;
-        bool weOwnConnection = true;
-        IDataAccessAdapterFactory adapterFactory;
+        public ConnectionManager ConnectionManager { get; private set; }
 
         static SessionImpl()
         {
             logger = Logger.GetLogger(typeof(SessionImpl));
         }
 
-        public SessionImpl(IDbAccess dbAccess, IDataAccessAdapterFactory adapterFactory, DbConnection connection)
+        public SessionImpl(ISessionFactory sessionFactory, IConnectionProvider connectionProvider)
         {
-            this.dbAccess = dbAccess;
             id = Guid.NewGuid().ToString().Replace("-", string.Empty).ToLower();
-            if (connection != null)
-            {
-                this.connection = connection;
-                weOwnConnection = false;
-            }
-            this.adapterFactory = adapterFactory;
+            SessionFactory = sessionFactory;
+            ConnectionManager = new ConnectionManager(connectionProvider, !sessionFactory.DbSettings.Connector.AllowMultipleConnections);
+            //if (connection != null)
+            //{
+            //    this.connection = connection;
+            //    weOwnConnection = false;
+            //}
+            //this.adapterFactory = adapterFactory;
         }
 
         void DisposeOfConnection(IDbConnection connection)
@@ -72,9 +71,9 @@ namespace Goliath.Data.DataAccess
             }
         }
 
-        public IDbAccess DbAccess
+        public IDbAccess DataAccess
         {
-            get { return dbAccess; }
+            get { return SessionFactory.DbSettings.DbAccess; }
         }
 
         public ITransaction Transaction
@@ -95,17 +94,11 @@ namespace Goliath.Data.DataAccess
 
         public IDataAccessAdapter<T> CreateDataAccessAdapter<T>()
         {
-            return adapterFactory.Create<T>(dbAccess, connection);
+            var adapterFactory = SessionFactory.AdapterFactory;
+            return adapterFactory.Create<T>(SessionFactory.DbSettings.DbAccess, connection);
         }
 
-        #endregion
-
-        #region IDisposable Members
-
-        public void Dispose()
-        {
-            throw new NotImplementedException();
-        }
+        public ISessionFactory SessionFactory { get; private set; }
 
         #endregion
     }
