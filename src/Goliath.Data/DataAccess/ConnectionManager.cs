@@ -7,23 +7,43 @@ using System.Data.Common;
 
 namespace Goliath.Data.DataAccess
 {
-    class ConnectionManager
+    public class ConnectionManager
     {
         IConnectionProvider connectionProvider;
+        bool keepConnectionAlive;
         DbConnection currentConn;
 
-        public ConnectionManager(IConnectionProvider connectionProvider)
+        public ConnectionManager(IConnectionProvider connectionProvider, bool keepConnectionAlive)
         {
             this.connectionProvider = connectionProvider;
+            this.keepConnectionAlive = keepConnectionAlive;
+
+            if (keepConnectionAlive)
+                currentConn = connectionProvider.GetConnection();
         }
 
         public IDbConnection OpenConnection()
         {
-            throw new NotImplementedException();
+            if (keepConnectionAlive)
+            {
+                if (currentConn.State != ConnectionState.Open)
+                    currentConn.Open();
+
+                return currentConn;
+            }
+            else
+            {
+                currentConn = connectionProvider.GetConnection();
+                currentConn.Open();
+            }
+            return currentConn;
         }
 
         public void CloseConnection()
         {
+            connectionProvider.DiscardOfConnection(currentConn);
+            DbConnection connRef = currentConn;
+            currentConn = null;
         }
     }
 

@@ -13,19 +13,38 @@ namespace Goliath.Data
     /// <summary>
     /// 
     /// </summary>
-    public interface ISession : IDisposable
+    public interface ISession
     {
+        /// <summary>
+        /// Gets the session factory.
+        /// </summary>
+        /// <value>The session factory.</value>
+        ISessionFactory SessionFactory { get; }
+
+        /// <summary>
+        /// Gets the connection manager.
+        /// </summary>
+        /// <value>The connection manager.</value>
+        ConnectionManager ConnectionManager { get; }
+
+        /// <summary>
+        /// Gets the id.
+        /// </summary>
+        /// <value>The id.</value>
         string Id { get; }
+
         /// <summary>
         /// Gets the connection.
         /// </summary>
         /// <value>The connection.</value>
         DbConnection Connection { get; }
+
         /// <summary>
-        /// Gets the db access.
+        /// Gets the data access.
         /// </summary>
-        /// <value>The db access.</value>
-        IDbAccess DbAccess { get; }
+        /// <value>The data access.</value>
+        IDbAccess DataAccess { get; }
+
         /// <summary>
         /// Gets the transaction.
         /// </summary>
@@ -38,6 +57,7 @@ namespace Goliath.Data
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
         IQuery<T> Query<T>();
+
         /// <summary>
         /// Creates the data access adapter.
         /// </summary>

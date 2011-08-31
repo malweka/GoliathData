@@ -19,10 +19,9 @@ namespace Goliath.Data
     public class DataAccessAdapter<TEntity> : IDataAccessAdapter<TEntity>, IDisposable
     {
         /// <summary>
-        /// data access o
+        /// current session
         /// </summary>
-        protected IDbAccess dataAccess;
-        DbConnection dbConnection;
+        protected ISession session;
         IEntitySerializer serializer;
         Type entityType;
         static ILogger logger;
@@ -39,21 +38,18 @@ namespace Goliath.Data
         /// <param name="serializer">The serializer.</param>
         /// <param name="dataAccess">The data access.</param>
         /// <param name="dbConnection">The db connection.</param>
-        public DataAccessAdapter(IEntitySerializer serializer, IDbAccess dataAccess, DbConnection dbConnection)
+        public DataAccessAdapter(EntityMap entityMap, IEntitySerializer serializer, ISession session)
         {
-            if (dataAccess == null)
-                throw new ArgumentNullException("dataAccess");
+            if (session == null)
+                throw new ArgumentNullException("session");
             this.serializer = serializer;
-            this.dataAccess = dataAccess;
-            this.dbConnection = dbConnection;
+            this.session = session;
+
             entityType = typeof(TEntity);
 
             if (entityMap == null)
             {
-                ConfigManager.CurrentSettings.Map.EntityConfigs.TryGetValue(entityType.FullName, out entityMap);
-
-                if (entityMap == null)
-                    throw new ArgumentException(string.Format("Typ {0} is not map entity", entityType.FullName));
+                throw new ArgumentNullException("entityMap");
             }
         }
 
@@ -145,7 +141,7 @@ namespace Goliath.Data
             if (batchOp == null)
                 throw new ArgumentNullException("batchOp");
 
-           
+
             if (batchOp.KeyGenerationOperations.Count > 0)
             {
                 var hasGreaterPriority = batchOp.KeyGenerationOperations.Where(op => op.Value.Priority > batchOp.Priority).ToList();
@@ -167,14 +163,14 @@ namespace Goliath.Data
             for (int i = 0; i < batchOp.Operations.Count; i++)
             {
                 inserts.Add(batchOp.Operations[i].SqlText);
-                
+
                 insertParams.AddRange(batchOp.Operations[i].Parameters);
             }
 
             //read if we have post insert get id sql
             if (batchOp.KeyGenerationOperations.Count > 0)
             {
-                foreach(var kop in batchOp.KeyGenerationOperations)
+                foreach (var kop in batchOp.KeyGenerationOperations)
                 {
                     inserts.Add(kop.Value.Operation.SqlText);
                 }
@@ -189,7 +185,7 @@ namespace Goliath.Data
                 }
                 batchInserts.AddRange(inserts);
 
-                for (int i = 0; i < batchOp.SubOperations.Count;i++ )
+                for (int i = 0; i < batchOp.SubOperations.Count; i++)
                 {
                     BuildOrExecuteInsertBatchOperation(batchOp.SubOperations[i], neededParams, batchInserts);
                 }
@@ -199,8 +195,8 @@ namespace Goliath.Data
             {
                 //execute operations
                 DbDataReader dataReader;
-                CheckConnection(dbConnection);
-                var paramList = dataAccess.CreateParameters(neededParams.Values);
+                //session.ConnectionManager.OpenConnection();
+                var paramList = session.DataAccess.CreateParameters(neededParams.Values);
                 var sql = string.Join(";\n", inserts);
                 //dataReader = dataAccess.ExecuteReader(dbConnection, sql, paramList.ToArray());
 
@@ -217,8 +213,7 @@ namespace Goliath.Data
             var paramName = kpair.Key;
 
             DbDataReader dataReader;
-            CheckConnection(dbConnection);
-            dataReader = dataAccess.ExecuteReader(dbConnection, kgInfo.Operation.SqlText);
+            dataReader = session.DataAccess.ExecuteReader(session.Connection, kgInfo.Operation.SqlText);
             if (dataReader.HasRows)
             {
                 dataReader.Read();
@@ -245,8 +240,7 @@ namespace Goliath.Data
             try
             {
                 DbDataReader dataReader;
-                CheckConnection(dbConnection);
-                dataReader = dataAccess.ExecuteReader(dbConnection, sqlQuery, parameters);
+                dataReader = session.DataAccess.ExecuteReader(session.Connection, sqlQuery, parameters);
                 var entities = serializer.SerializeAll<TEntity>(dataReader, entityMap);
                 dataReader.Dispose();
                 return entities;
@@ -270,7 +264,7 @@ namespace Goliath.Data
         public IList<TEntity> FindAll(params PropertyQueryParam[] filters)
         {
             ICollection<DbParameter> dbParams;
-            SelectSqlBuilder queryBuilder = SqlWorker.BuildSelectSql(entityMap, serializer.SqlMapper, dataAccess, filters, out dbParams);
+            SelectSqlBuilder queryBuilder = SqlWorker.BuildSelectSql(entityMap, serializer.SqlMapper, session.DataAccess, filters, out dbParams);
             DbDataReader dataReader;
 
             DbParameter[] parameters = dbParams.ToArray();
@@ -278,8 +272,7 @@ namespace Goliath.Data
             logger.Log(LogType.Debug, query);
             try
             {
-                CheckConnection(dbConnection);
-                dataReader = dataAccess.ExecuteReader(dbConnection, query, parameters);
+                dataReader = session.DataAccess.ExecuteReader(session.Connection, query, parameters);
                 var entities = serializer.SerializeAll<TEntity>(dataReader, entityMap);
                 dataReader.Dispose();
                 return entities;
@@ -313,7 +306,7 @@ namespace Goliath.Data
                 throw new ArgumentException(" cannot have a pageSize of less than or equal to 0");
 
             ICollection<DbParameter> dbParams;
-            SelectSqlBuilder queryBuilder = SqlWorker.BuildSelectSql(entityMap, serializer.SqlMapper, dataAccess, filters, out dbParams);
+            SelectSqlBuilder queryBuilder = SqlWorker.BuildSelectSql(entityMap, serializer.SqlMapper, session.DataAccess, filters, out dbParams);
             string selectCount = queryBuilder.SelectCount();
 
             totalRecords = 0;
@@ -325,8 +318,7 @@ namespace Goliath.Data
             {
                 DbParameter[] parameters = dbParams.ToArray();
                 DbDataReader dataReader;
-                CheckConnection(dbConnection);
-                dataReader = dataAccess.ExecuteReader(dbConnection, query, parameters);
+                dataReader = session.DataAccess.ExecuteReader(session.Connection, query, parameters);
 
                 //First resultset contains the count
                 while (dataReader.Read())
@@ -397,9 +389,6 @@ namespace Goliath.Data
             //clean up to avoid leaks
             IEntitySerializer serializerRef = this.serializer;
             this.serializer = null;
-
-            IDbAccess dAccessRef = this.dataAccess;
-            this.dataAccess = null;
 
             EntityMap entMapRef = this.entityMap;
             this.entityMap = null;

@@ -15,8 +15,14 @@ namespace Goliath.Data
     public class Database
     {
         IConfigurationManager configManager;
-		
-		public IConfigurationManager Configure(string mapFile)
+
+        /// <summary>
+        /// Configures the specified map file.
+        /// </summary>
+        /// <param name="mapFile">The map file.</param>
+        /// <param name="sessionStore">The session store.</param>
+        /// <returns></returns>
+		public IConfigurationManager Configure(string mapFile, ISessionStore sessionStore = null)
         {
             return Configure(mapFile, null);
         }
@@ -25,8 +31,10 @@ namespace Goliath.Data
         /// Configures the specified map file.
         /// </summary>
         /// <param name="mapFile">The map file.</param>
+        /// <param name="connectionString">The connection string.</param>
+        /// <param name="sessionStore">The session store.</param>
         /// <returns></returns>
-        public IConfigurationManager Configure(string mapFile, string connectionString)
+        public IConfigurationManager Configure(string mapFile, string connectionString, ISessionStore sessionStore = null)
         {
 			if(string.IsNullOrWhiteSpace(mapFile))
 				throw new ArgumentNullException("mapFile");
@@ -43,8 +51,14 @@ namespace Goliath.Data
         /// </summary>
         /// <param name="map">The map.</param>
         /// <returns></returns>
-        public IConfigurationManager Configure(MapConfig map)
+        public IConfigurationManager Configure(MapConfig map, ISessionStore sessionStore = null)
         {
+            if (map == null)
+                throw new ArgumentNullException("map");
+            if (sessionStore == null)
+            {
+                sessionStore = new ThreadStaticSessionStore();
+            }
             configManager = new ConfigManager(map);
             return configManager;
         }

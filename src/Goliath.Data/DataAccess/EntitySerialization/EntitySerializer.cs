@@ -17,7 +17,6 @@ using Goliath.Data.Sql;
 namespace Goliath.Data.DataAccess
 {
     //TODO make this internal class
-    //TODO use singleton for entitySerializer;
     /// <summary>
     /// 
     /// </summary>
@@ -26,15 +25,25 @@ namespace Goliath.Data.DataAccess
     {
 
         static ConcurrentDictionary<Type, Delegate> factoryList = new ConcurrentDictionary<Type, Delegate>();
+
         static ILogger logger;
         internal ITypeConverterStore TypeConverterStore { get; set; }
         GetSetStore getSetStore = new GetSetStore();
+        IDabaseSettings settings;
+
+        MapConfig Map
+        {
+            get { return settings.Map; }
+        }
 
         /// <summary>
         /// Gets the SQL mapper.
         /// </summary>
         /// <value></value>
-        public SqlMapper SqlMapper { get; internal set; }
+        public SqlMapper SqlMapper
+        {
+            get { return settings.SqlMapper; }
+        }
 
         //DbAccess dbAccess;
 
@@ -46,22 +55,25 @@ namespace Goliath.Data.DataAccess
         /// <summary>
         /// Initializes a new instance of the <see cref="EntitySerializer"/> class.
         /// </summary>
-        public EntitySerializer(SqlMapper sqlMapper) : this(sqlMapper, null) { }
+        /// <param name="sqlMapper">The SQL mapper.</param>
+        /// <param name="map">The map.</param>
+        public EntitySerializer(IDabaseSettings settings) : this(settings, null) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="EntitySerializer"/> class.
         /// </summary>
         /// <param name="sqlMapper">The SQL mapper.</param>
         /// <param name="typeConverterStore">The type converter.</param>
-        public EntitySerializer(SqlMapper sqlMapper, ITypeConverterStore typeConverterStore)
+        /// <param name="map">The map.</param>
+        public EntitySerializer(IDabaseSettings settings, ITypeConverterStore typeConverterStore)
         {
-            if (sqlMapper == null)
-                throw new ArgumentNullException("sqlMapper");
+            if (settings == null)
+                throw new ArgumentNullException("settings");
 
             if (typeConverterStore == null)
                 typeConverterStore = new TypeConverterStore();
 
-            this.SqlMapper = sqlMapper;
+            this.settings = settings;
             //this.dbAccess = dbAccess;
             this.TypeConverterStore = typeConverterStore;
         }
@@ -146,8 +158,8 @@ namespace Goliath.Data.DataAccess
             Type typeOfInstance = entity.GetType();
             if (!getSetStore.TryGetValue(typeOfInstance, out getSetInfo))
             {
-                var map = Config.ConfigManager.CurrentSettings.Map;
-                var entityMap = map.GetEntityMap(typeOfInstance.FullName);
+               //var map = Config.ConfigManager.CurrentSettings.Map;
+                var entityMap = Map.GetEntityMap(typeOfInstance.FullName);
 
                 getSetInfo = new EntityGetSetInfo(typeOfInstance);
                 getSetInfo.Load(entityMap);

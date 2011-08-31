@@ -11,16 +11,15 @@ namespace Goliath.Data.Config
     using Providers;
     using DataAccess;
 
-    class ConfigManager : IConfigurationManager, ISessionSettings
+    class ConfigManager : IConfigurationManager, IDabaseSettings
     {
         MapConfig mainMap;
         IDbProvider provider;
-        IDataAccessAdapterFactory dataAccessAdapterFactory;
+        Func<MapConfig, IEntitySerializer, IDataAccessAdapterFactory> dataAccessAdapterFactory;
         ITypeConverterStore typeConverterStore;
         IEntitySerializer entitySerializerFactory;
         internal Func<Type, ILogger> LoggerFactory { get; set; }
 
-        
 
         public IDbProvider DbProvider
         {
@@ -33,8 +32,7 @@ namespace Goliath.Data.Config
             if (config == null)
                 throw new ArgumentNullException("config");
 
-            mainMap = config;
-            dataAccessAdapterFactory = new DataAccessAdapterFactory();
+            mainMap = config;            
             typeConverterStore = new TypeConverterStore();
         }
 
@@ -81,11 +79,11 @@ namespace Goliath.Data.Config
         /// </summary>
         /// <param name="dataAccessAdapter">The data access adapter.</param>
         /// <returns></returns>
-        public IConfigurationManager OverrideDataAccessAdapterFactory(IDataAccessAdapterFactory dataAccessAdapter)
+        public IConfigurationManager OverrideDataAccessAdapterFactory(Func<MapConfig,IEntitySerializer,IDataAccessAdapterFactory> factoryMethod)
         {
-            if (dataAccessAdapter == null)
-                throw new ArgumentNullException("dataAccessAdapter");
-            this.dataAccessAdapterFactory = dataAccessAdapter;
+            if (factoryMethod == null)
+                throw new ArgumentNullException("factoryMethod");
+            this.dataAccessAdapterFactory = factoryMethod;
             return this;
         }
 
@@ -136,21 +134,27 @@ namespace Goliath.Data.Config
             {
                 LoggerFactory = x => { return new ConsoleLogger(); };
             }
+
             if (entitySerializerFactory == null)
             {
-                entitySerializerFactory = new EntitySerializer(DbProvider.SqlMapper, typeConverterStore);
+                entitySerializerFactory = new EntitySerializer(this, typeConverterStore);
             }
 
-            dataAccessAdapterFactory.SetSerializerFactory(entitySerializerFactory);
+            if (dataAccessAdapterFactory == null)
+            {
+                dataAccessAdapterFactory = (map, serializer) => {
+                    return new DataAccessAdapterFactory(map, serializer);
+                };
+            }
 
             var dbConnector = DbProvider.GetDatabaseConnector(mainMap.Settings.ConnectionString);
             settings = this;
 
-            var sessFact = new SessionFactoryImpl(dbConnector, new DbAccess(dbConnector), dataAccessAdapterFactory, this);
+            var sessFact = new SessionFactoryImpl(this, dataAccessAdapterFactory, entitySerializerFactory);
             return sessFact;
         }
 
-        DbAccess ISessionSettings.CreateAccessor()
+        DbAccess IDabaseSettings.CreateAccessor()
         {
             var dbConnector = DbProvider.GetDatabaseConnector(mainMap.Settings.ConnectionString);
             var dbAccess = new DbAccess(dbConnector);
@@ -159,12 +163,12 @@ namespace Goliath.Data.Config
 
         #endregion
 
-        private static ISessionSettings settings;
+        private static IDabaseSettings settings;
 
-        internal static ISessionSettings CurrentSettings
-        {
-            get { return settings; }
-        }
+        //internal static ISessionSettings CurrentSettings
+        //{
+        //    get { return settings; }
+        //}
 
         #region ISessionSettings Members
 

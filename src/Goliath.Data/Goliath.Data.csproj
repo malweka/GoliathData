@@ -67,7 +67,7 @@
     <Compile Include="Collections\ILazyList.cs" />
     <Compile Include="Config\ConfigManager.cs" />
     <Compile Include="Config\IConfigurationManager.cs" />
-    <Compile Include="Config\ISessionSettings.cs" />
+    <Compile Include="Config\IDatabaseSettings.cs" />
     <Compile Include="DataAccess\AdoTransaction.cs" />
     <Compile Include="DataAccess\ConnectionManager.cs" />
     <Compile Include="DataAccess\ConnectionProvider.cs" />
@@ -176,6 +176,7 @@
     <Compile Include="Sql\SqlStatement.cs" />
     <Compile Include="Sql\SqlWorker.cs" />
     <Compile Include="Sql\WhereStatement.cs" />
+    <Compile Include="ThreadStaticSessionStore.cs" />
     <Compile Include="Transformers\Abbreviator.cs" />
     <Compile Include="Transformers\ColumnPropertyNameTransformer.cs" />
     <Compile Include="Transformers\DefaultTableEntityNameTransformer.cs" />

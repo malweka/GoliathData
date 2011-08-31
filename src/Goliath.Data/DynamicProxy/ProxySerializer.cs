@@ -18,24 +18,28 @@ namespace Goliath.Data.DynamicProxy
         EntityMap entityMap;
         IEntitySerializer serialFactory;
         static ILogger logger;
+        ConnectionManager connManager;
+        IDabaseSettings settings;
 
         static ProxySerializer()
         {
             logger = Logger.GetLogger(typeof(ProxySerializer));
         }
 
-        public ProxySerializer(SqlOperationInfo query, Type type, EntityMap entityMap, IEntitySerializer factory)
+        public ProxySerializer(SqlOperationInfo query, Type type, EntityMap entityMap, IEntitySerializer factory, IDabaseSettings settings)
         {
             this.query = query;
             this.type = type;
             this.entityMap = entityMap;
             serialFactory = factory;
+            this.settings = settings;
         }
 
         public void Hydrate(object instance, Type type)
         {
             logger.Log(LogType.Debug, "opening connection for proxy query");
-            var dbAccess = Config.ConfigManager.CurrentSettings.CreateAccessor();
+            var dbAccess = settings.CreateAccessor();
+            ConnectionManager connManager = new ConnectionManager(new ConnectionProvider(settings.Connector), !settings.Connector.AllowMultipleConnections);
             using (var conn = dbAccess.CreateConnection())
             {
                 conn.Open();
@@ -54,5 +58,14 @@ namespace Goliath.Data.DynamicProxy
                 dataReader.Dispose();
             }
         }
+
+        #region IDisposable Members
+
+        public void Dispose()
+        {
+            
+        }
+
+        #endregion
     }
 }

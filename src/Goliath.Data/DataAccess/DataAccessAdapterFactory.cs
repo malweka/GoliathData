@@ -20,23 +20,26 @@ namespace Goliath.Data.DataAccess
         static ILogger logger;
         IEntitySerializer serializerFactory;
         bool isReady;
+        MapConfig map;
 
         static DataAccessAdapterFactory()
         {
             logger = Logger.GetLogger(typeof(DataAccessAdapterFactory));
+            
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DataAccessAdapterFactory"/> class.
         /// </summary>
-        public DataAccessAdapterFactory()
+        public DataAccessAdapterFactory(MapConfig map, IEntitySerializer serializerFactory)
         {
             //db = dataAccess;
             //this.dbConnector = dbConnector;
-            
+            this.map = map;
+            SetSerializerFactory(serializerFactory);
         }
 
-        public void SetSerializerFactory(IEntitySerializer serializerFactory)
+        void SetSerializerFactory(IEntitySerializer serializerFactory)
         {
             if (serializerFactory == null)
                 throw new ArgumentNullException("serializerFactory");
@@ -100,7 +103,6 @@ namespace Goliath.Data.DataAccess
         internal Func<IEntitySerializer, IDbAccess, DbConnection, IDataAccessAdapter<TEntity>> CreateAdapter<TEntity>()
         {
             Type type = typeof(TEntity);
-            var map = Config.ConfigManager.CurrentSettings.Map;
 
             if (map != null)
             {
