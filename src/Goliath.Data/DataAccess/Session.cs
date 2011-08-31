@@ -10,20 +10,21 @@ namespace Goliath.Data.DataAccess
     using Diagnostics;
 
     [Serializable]
-    class SessionImpl : ISession
+    class Session : ISession
     {
         static ILogger logger;
         string id;
         DbConnection connection;
         ITransaction currentTransaction;
         public ConnectionManager ConnectionManager { get; private set; }
+        IConnectionProvider connectionProvider;
 
-        static SessionImpl()
+        static Session()
         {
-            logger = Logger.GetLogger(typeof(SessionImpl));
+            logger = Logger.GetLogger(typeof(Session));
         }
 
-        public SessionImpl(ISessionFactory sessionFactory, IConnectionProvider connectionProvider)
+        public Session(ISessionFactory sessionFactory, IConnectionProvider connectionProvider)
         {
             id = Guid.NewGuid().ToString().Replace("-", string.Empty).ToLower();
             SessionFactory = sessionFactory;
@@ -51,25 +52,18 @@ namespace Goliath.Data.DataAccess
             get { return id; }
         }
 
-        public System.Data.Common.DbConnection Connection
-        {
-            get
-            {
-                //if (!weOwnConnection)
-                //    return connection;
+        //public System.Data.Common.DbConnection Connection
+        //{
+        //    get
+        //    {
+        //        if (connection == null)
+        //        {
+        //            connection = ConnectionManager.
+        //        }
 
-                //if (connection == null)
-                //    connection = dbAccess.CreateNewConnection();
-
-                //else if ((connection.State == ConnectionState.Broken) || (connection.State == ConnectionState.Closed))
-                //{
-                //    DisposeOfConnection(connection);
-                //    connection = dbAccess.CreateNewConnection();
-                //}
-
-                return connection;
-            }
-        }
+        //        return connection;
+        //    }
+        //}
 
         public IDbAccess DataAccess
         {
@@ -95,7 +89,7 @@ namespace Goliath.Data.DataAccess
         public IDataAccessAdapter<T> CreateDataAccessAdapter<T>()
         {
             var adapterFactory = SessionFactory.AdapterFactory;
-            return adapterFactory.Create<T>(SessionFactory.DbSettings.DbAccess, connection);
+            return adapterFactory.Create<T>(SessionFactory.DbSettings.DbAccess, this);
         }
 
         public ISessionFactory SessionFactory { get; private set; }

@@ -33,11 +33,11 @@ namespace Goliath.Data
         /// <value>The id.</value>
         string Id { get; }
 
-        /// <summary>
-        /// Gets the connection.
-        /// </summary>
-        /// <value>The connection.</value>
-        DbConnection Connection { get; }
+        ///// <summary>
+        ///// Gets the connection.
+        ///// </summary>
+        ///// <value>The connection.</value>
+        //DbConnection Connection { get; }
 
         /// <summary>
         /// Gets the data access.

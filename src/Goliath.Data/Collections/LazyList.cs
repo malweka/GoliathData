@@ -24,6 +24,7 @@ namespace Goliath.Data.Collections
         EntityMap entityMap;
         IEntitySerializer factory;
         static ILogger logger;
+        IDatabaseSettings settings;
 
         static LazyList()
         {
@@ -36,11 +37,12 @@ namespace Goliath.Data.Collections
         /// <param name="query">The query.</param>
         /// <param name="entityMap">The entity map.</param>
         /// <param name="factory">The factory.</param>
-        public LazyList(SqlOperationInfo query, EntityMap entityMap, IEntitySerializer factory)
+        public LazyList(SqlOperationInfo query, EntityMap entityMap, IEntitySerializer factory, IDatabaseSettings settings)
         {
             this.query = query;
             this.entityMap = entityMap;
             this.factory = factory;
+            this.settings = settings;
             list = new List<T>();
         }
 
@@ -60,7 +62,8 @@ namespace Goliath.Data.Collections
             if (!isLoaded)
             {
                 logger.Log(LogType.Debug, "opening connection for lazy collection query");
-                var dbAccess = Config.ConfigManager.CurrentSettings.CreateAccessor();
+                var dbAccess = settings.CreateAccessor();
+                ConnectionManager connManager = new ConnectionManager(new ConnectionProvider(settings.Connector), !settings.Connector.AllowMultipleConnections);
                 using (var conn = dbAccess.CreateConnection())
                 {
                     conn.Open();
@@ -78,7 +81,18 @@ namespace Goliath.Data.Collections
                 }
 
                 isLoaded = true;
+                CleanUp();
             }
+        }
+
+        void CleanUp()
+        {
+            EntityMap entMapRef = entityMap;
+            entityMap = null;
+            IEntitySerializer serializerRef = factory;
+            factory = null;
+            IDatabaseSettings settingsRef = settings;
+            settings = null;
         }
 
         #region IList<T> Members

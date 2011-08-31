@@ -21,7 +21,7 @@ namespace Goliath.Data.DataAccess
         {
         }
 
-        public override void Serialize(EntitySerializer serializer, Relation rel, object instanceEntity, PropInfo pInfo, EntityMap entityMap, EntityGetSetInfo getSetInfo, Dictionary<string, int> columns, DbDataReader dbReader)
+        public override void Serialize(IDatabaseSettings settings, EntitySerializer serializer, Relation rel, object instanceEntity, PropInfo pInfo, EntityMap entityMap, EntityGetSetInfo getSetInfo, Dictionary<string, int> columns, DbDataReader dbReader)
         {
             if (!rel.LazyLoad)
             {
@@ -61,7 +61,7 @@ namespace Goliath.Data.DataAccess
                         qInfo.SqlText = sqlBuilder.ToSqlString();
                         qInfo.Parameters = new QueryParam[] { qp };
 
-                        IProxyHydrator hydrator = new ProxySerializer(qInfo, pInfo.PropertType, relEntMap, serializer);
+                        IProxyHydrator hydrator = new ProxySerializer(qInfo, pInfo.PropertType, relEntMap, serializer, settings);
                         var proxyType = pbuilder.CreateProxy(pInfo.PropertType, relEntMap);
                         object proxyobj = Activator.CreateInstance(proxyType, new object[] { pInfo.PropertType, hydrator });
                         pInfo.Setter(instanceEntity, proxyobj);

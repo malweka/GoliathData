@@ -7,44 +7,65 @@ using System.Data.Common;
 
 namespace Goliath.Data.DataAccess
 {
-    public class ConnectionManager
+    public class ConnectionManager : IDisposable
     {
         IConnectionProvider connectionProvider;
         bool keepConnectionAlive;
         DbConnection currentConn;
 
+        public DbConnection CurrentConnection
+        {
+            get { return currentConn; }
+        }
+
+        public bool HasOpenConnection { get; private set; }
+
         public ConnectionManager(IConnectionProvider connectionProvider, bool keepConnectionAlive)
         {
             this.connectionProvider = connectionProvider;
             this.keepConnectionAlive = keepConnectionAlive;
-
-            if (keepConnectionAlive)
-                currentConn = connectionProvider.GetConnection();
+            currentConn = connectionProvider.GetConnection();
         }
 
-        public IDbConnection OpenConnection()
+        public DbConnection OpenConnection()
         {
-            if (keepConnectionAlive)
+            if (!HasOpenConnection)
             {
                 if (currentConn.State != ConnectionState.Open)
                     currentConn.Open();
-
-                return currentConn;
-            }
-            else
-            {
-                currentConn = connectionProvider.GetConnection();
-                currentConn.Open();
+                HasOpenConnection = true;
             }
             return currentConn;
         }
 
         public void CloseConnection()
         {
-            connectionProvider.DiscardOfConnection(currentConn);
-            DbConnection connRef = currentConn;
-            currentConn = null;
+            if (!keepConnectionAlive)
+            {
+                connectionProvider.DiscardOfConnection(currentConn);
+                currentConn = connectionProvider.GetConnection();
+            }
+            HasOpenConnection = false;
         }
+
+        #region IDisposable Members
+
+        public void Dispose()
+        {
+            if (currentConn != null)
+            {
+                connectionProvider.DiscardOfConnection(currentConn);
+
+                if (keepConnectionAlive)
+                {
+                    DbConnection connRef = currentConn;
+                    currentConn = null;
+                }
+            }
+            
+        }
+
+        #endregion
     }
 
     //class ConnectionProvider

@@ -75,8 +75,7 @@ namespace Goliath.Data.DynamicProxy
             ConstructorInfo ctor1 = baseClass.GetConstructor(
                 BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic,
                 null,
-                new Type[]{
-            },
+                new Type[]{},
                 null
                 );
 

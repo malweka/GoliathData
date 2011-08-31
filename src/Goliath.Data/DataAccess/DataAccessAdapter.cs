@@ -36,6 +36,16 @@ namespace Goliath.Data
         /// Initializes a new instance of the <see cref="DataAccessAdapter&lt;TEntity&gt;"/> class.
         /// </summary>
         /// <param name="serializer">The serializer.</param>
+        /// <param name="session">The session.</param>
+        public DataAccessAdapter(IEntitySerializer serializer, ISession session)
+            : this(null, serializer, session)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DataAccessAdapter&lt;TEntity&gt;"/> class.
+        /// </summary>
+        /// <param name="serializer">The serializer.</param>
         /// <param name="dataAccess">The data access.</param>
         /// <param name="dbConnection">The db connection.</param>
         public DataAccessAdapter(EntityMap entityMap, IEntitySerializer serializer, ISession session)
@@ -49,8 +59,11 @@ namespace Goliath.Data
 
             if (entityMap == null)
             {
-                throw new ArgumentNullException("entityMap");
+                var map = session.SessionFactory.DbSettings.Map;
+                entityMap = map.GetEntityMap(entityType.FullName);
             }
+
+            this.entityMap = entityMap;
         }
 
 
@@ -97,9 +110,11 @@ namespace Goliath.Data
         public int Insert(TEntity entity, bool recursive = false)
         {
             Type type = typeof(TEntity);
-            var map = ConfigManager.CurrentSettings.Map;
+
+            //var map = session.SessionFactory.DbSettings.Map;
             var sqlWorker = serializer.CreateSqlWorker();
-            using (var trans = dbConnection.BeginTransaction())
+
+            using (var trans = session.ConnectionManager.OpenConnection().BeginTransaction())
             {
                 Dictionary<string, QueryParam> neededParams = new Dictionary<string, QueryParam>();
                 List<string> inserts = new List<string>();
@@ -213,7 +228,7 @@ namespace Goliath.Data
             var paramName = kpair.Key;
 
             DbDataReader dataReader;
-            dataReader = session.DataAccess.ExecuteReader(session.Connection, kgInfo.Operation.SqlText);
+            dataReader = session.DataAccess.ExecuteReader(session.ConnectionManager.OpenConnection(), kgInfo.Operation.SqlText);
             if (dataReader.HasRows)
             {
                 dataReader.Read();
@@ -240,7 +255,7 @@ namespace Goliath.Data
             try
             {
                 DbDataReader dataReader;
-                dataReader = session.DataAccess.ExecuteReader(session.Connection, sqlQuery, parameters);
+                dataReader = session.DataAccess.ExecuteReader(session.ConnectionManager.OpenConnection(), sqlQuery, parameters);
                 var entities = serializer.SerializeAll<TEntity>(dataReader, entityMap);
                 dataReader.Dispose();
                 return entities;
@@ -272,7 +287,7 @@ namespace Goliath.Data
             logger.Log(LogType.Debug, query);
             try
             {
-                dataReader = session.DataAccess.ExecuteReader(session.Connection, query, parameters);
+                dataReader = session.DataAccess.ExecuteReader(session.ConnectionManager.OpenConnection(), query, parameters);
                 var entities = serializer.SerializeAll<TEntity>(dataReader, entityMap);
                 dataReader.Dispose();
                 return entities;
@@ -318,7 +333,7 @@ namespace Goliath.Data
             {
                 DbParameter[] parameters = dbParams.ToArray();
                 DbDataReader dataReader;
-                dataReader = session.DataAccess.ExecuteReader(session.Connection, query, parameters);
+                dataReader = session.DataAccess.ExecuteReader(session.ConnectionManager.OpenConnection(), query, parameters);
 
                 //First resultset contains the count
                 while (dataReader.Read())

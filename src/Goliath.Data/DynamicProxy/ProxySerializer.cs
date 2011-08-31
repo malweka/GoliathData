@@ -19,14 +19,14 @@ namespace Goliath.Data.DynamicProxy
         IEntitySerializer serialFactory;
         static ILogger logger;
         ConnectionManager connManager;
-        IDabaseSettings settings;
+        IDatabaseSettings settings;
 
         static ProxySerializer()
         {
             logger = Logger.GetLogger(typeof(ProxySerializer));
         }
 
-        public ProxySerializer(SqlOperationInfo query, Type type, EntityMap entityMap, IEntitySerializer factory, IDabaseSettings settings)
+        public ProxySerializer(SqlOperationInfo query, Type type, EntityMap entityMap, IEntitySerializer factory, IDatabaseSettings settings)
         {
             this.query = query;
             this.type = type;
@@ -63,7 +63,12 @@ namespace Goliath.Data.DynamicProxy
 
         public void Dispose()
         {
-            
+            EntityMap entMapRef = entityMap;
+            entityMap = null;
+            IEntitySerializer serializerRef = serialFactory;
+            serialFactory = null;
+            IDatabaseSettings settingsRef = settings;
+            settings = null;
         }
 
         #endregion

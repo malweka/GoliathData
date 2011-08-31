@@ -29,7 +29,7 @@ namespace Goliath.Data.DataAccess
         static ILogger logger;
         internal ITypeConverterStore TypeConverterStore { get; set; }
         GetSetStore getSetStore = new GetSetStore();
-        IDabaseSettings settings;
+        IDatabaseSettings settings;
 
         MapConfig Map
         {
@@ -57,7 +57,7 @@ namespace Goliath.Data.DataAccess
         /// </summary>
         /// <param name="sqlMapper">The SQL mapper.</param>
         /// <param name="map">The map.</param>
-        public EntitySerializer(IDabaseSettings settings) : this(settings, null) { }
+        public EntitySerializer(IDatabaseSettings settings) : this(settings, null) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="EntitySerializer"/> class.
@@ -65,7 +65,7 @@ namespace Goliath.Data.DataAccess
         /// <param name="sqlMapper">The SQL mapper.</param>
         /// <param name="typeConverterStore">The type converter.</param>
         /// <param name="map">The map.</param>
-        public EntitySerializer(IDabaseSettings settings, ITypeConverterStore typeConverterStore)
+        public EntitySerializer(IDatabaseSettings settings, ITypeConverterStore typeConverterStore)
         {
             if (settings == null)
                 throw new ArgumentNullException("settings");
@@ -329,12 +329,12 @@ namespace Goliath.Data.DataAccess
                         {
                             case RelationshipType.ManyToOne:
                                 SerializeManyToOne manyToOneHelper = new SerializeManyToOne(SqlMapper, getSetStore);
-                                manyToOneHelper.Serialize(this, rel, instanceEntity, keyVal.Value, entityMap, getSetInfo, columns, dbReader);
+                                manyToOneHelper.Serialize(settings, this, rel, instanceEntity, keyVal.Value, entityMap, getSetInfo, columns, dbReader);
                                 //logger.Log(LogType.Info, string.Format("\t\t{0} is a ManyToOne", keyVal.Key));
                                 break;
                             case RelationshipType.OneToMany:
                                 SerializeOneToMany oneToManyHelper = new SerializeOneToMany(SqlMapper, getSetStore);
-                                oneToManyHelper.Serialize(this, rel, instanceEntity, keyVal.Value, entityMap, getSetInfo, columns, dbReader);
+                                oneToManyHelper.Serialize(settings, this, rel, instanceEntity, keyVal.Value, entityMap, getSetInfo, columns, dbReader);
                                 //logger.Log(LogType.Info, string.Format("\t\t{0} is a OneToMany", keyVal.Key));
                                 break;
                             case RelationshipType.ManyToMany:
