@@ -15,6 +15,8 @@ namespace Goliath.Data
     /// </summary>
     public interface ISession
     {
+        #region Properties 
+
         /// <summary>
         /// Gets the session factory.
         /// </summary>
@@ -45,11 +47,16 @@ namespace Goliath.Data
         /// <value>The data access.</value>
         IDbAccess DataAccess { get; }
 
+
         /// <summary>
-        /// Gets the transaction.
+        /// Gets the current transaction.
         /// </summary>
-        /// <value>The transaction.</value>
-        ITransaction Transaction { get; }
+        /// <value>The current transaction.</value>
+        ITransaction CurrentTransaction { get; }
+
+        #endregion
+
+        #region Data Access
 
         /// <summary>
         /// create a query object 
@@ -64,5 +71,19 @@ namespace Goliath.Data
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
         IDataAccessAdapter<T> CreateDataAccessAdapter<T>();
+
+        #endregion
+
+        #region Transactions
+
+        ITransaction BeginTransaction();
+
+        ITransaction BeginTransaction(System.Data.IsolationLevel isolationLevel);
+
+        ITransaction CommitTransaction();
+
+        ITransaction RollbackTransaction();
+
+        #endregion
     }
 }

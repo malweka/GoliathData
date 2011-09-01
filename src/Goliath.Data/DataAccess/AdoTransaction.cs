@@ -26,6 +26,7 @@ namespace Goliath.Data.DataAccess
         {
             if (session == null)
                 throw new ArgumentNullException("session");
+
             this.session = session;
         }
 
@@ -37,11 +38,18 @@ namespace Goliath.Data.DataAccess
 
         public bool WasRolledBack { get; private set; }
 
+        /// <summary>
+        /// begin transaction with isolation level READ COMMiTTED
+        /// </summary>
         public void Begin()
         {
-            Begin(IsolationLevel.Unspecified);
+            Begin(IsolationLevel.ReadCommitted);
         }
 
+        /// <summary>
+        /// Begins the specified isolated level.
+        /// </summary>
+        /// <param name="isolatedLevel">The isolated level.</param>
         public void Begin(System.Data.IsolationLevel isolatedLevel)
         {
             try
@@ -49,14 +57,14 @@ namespace Goliath.Data.DataAccess
                 if (isolatedLevel == IsolationLevel.Unspecified)
                     transaction = session.ConnectionManager.CurrentConnection.BeginTransaction();
                 else
-                    transaction = session.ConnectionManager.CurrentConnection.BeginTransaction(isolatedLevel);
+                    transaction = session.ConnectionManager.CurrentConnection.BeginTransaction(isolatedLevel);               
             }
             catch (Exception ex)
             {
                 logger.Log(session.Id, "could not begin session", ex);
                 throw new DataAccessException("could not begin session", ex);
             }
-
+           
             IsStarted = true;
         }
 
@@ -107,7 +115,10 @@ namespace Goliath.Data.DataAccess
 
         public void Dispose()
         {
-
+            if (transaction != null)
+            {
+                transaction.Dispose();
+            }
         }
 
         #endregion
