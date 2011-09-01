@@ -226,8 +226,7 @@ namespace Goliath.Data.DynamicProxy
                 methodName,
                 BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic,
                 null,
-                new Type[]{
-            },
+                new Type[]{},
                 null
                 );
             // Setting return type
@@ -297,7 +296,7 @@ namespace Goliath.Data.DynamicProxy
         bool IsProxyLoaded { get; }
     }
 
-    /* example*/
+    /* example
 public class FakeBaseProxy
 {
     public virtual string Name { get; set; }
@@ -369,5 +368,5 @@ public class FakeProxyClass : FakeBaseProxy, ILazyBum
 
     #endregion
 }
- /* */
+  */
 }
