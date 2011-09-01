@@ -15,6 +15,9 @@ namespace Goliath.Data.Config
     {
         MapConfig mainMap;
         IDbProvider provider;
+        IDbAccess dbAccess;
+        IDbConnector connector;
+
         Func<MapConfig, IEntitySerializer, IDataAccessAdapterFactory> dataAccessAdapterFactory;
         ITypeConverterStore typeConverterStore;
         IEntitySerializer entitySerializerFactory;
@@ -154,7 +157,7 @@ namespace Goliath.Data.Config
             return sessFact;
         }
 
-        DbAccess IDatabaseSettings.CreateAccessor()
+       public  DbAccess CreateAccessor()
         {
             var dbConnector = DbProvider.GetDatabaseConnector(mainMap.Settings.ConnectionString);
             var dbAccess = new DbAccess(dbConnector);
@@ -182,17 +185,27 @@ namespace Goliath.Data.Config
 
         public SqlMapper SqlMapper
         {
-            get { throw new NotImplementedException(); }
+            get { return DbProvider.SqlMapper; }
         }
 
         public IDbConnector Connector
         {
-            get { throw new NotImplementedException(); }
+            get
+            {
+                if (this.connector == null)
+                    connector = this.DbProvider.GetDatabaseConnector(mainMap.Settings.ConnectionString);
+                return connector;
+            }
         }
 
         public IDbAccess DbAccess
         {
-            get { throw new NotImplementedException(); }
+            get
+            {
+                if (dbAccess == null)
+                    dbAccess = CreateAccessor();
+                return dbAccess;
+            }
         }
 
         #endregion

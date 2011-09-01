@@ -30,8 +30,8 @@ namespace WebZoo.Data
 
             Console.WriteLine("Start run");
 
-            BuildSqlite(sqliteWorkingDirectory);
-            BuildSqlServer(sqlServerWorkingDirectory);
+            //BuildSqlite(sqliteWorkingDirectory);
+            //BuildSqlServer(sqlServerWorkingDirectory);
 
             //Generate(sqlServerWorkingDirectory, templatePath);
             //Generate(sqliteWorkingDirectory, templatePath);
@@ -220,7 +220,7 @@ namespace WebZoo.Data
 
             try
             {
-                zoodapter.Insert(zooM, true);
+                //zoodapter.Insert(zooM, true);
                 //animalapter.Insert(an1);
             }
             catch (Exception ex)
@@ -265,7 +265,8 @@ namespace WebZoo.Data
                 var animalQuery = new SelectSqlBuilder(mapper, animalEntMap).WithPaging(15, 0).ToSqlString();
                 var zooQuery = new SelectSqlBuilder(mapper, zooEntMap).ToSqlString();
 
-                EntitySerializer serializer = new EntitySerializer(mapper);
+                var serializer = sess.SessionFactory.DataSerializer;
+
                 var dataReader = dbAccess.ExecuteReader(conn, animalQuery);
                 var animals = serializer.SerializeAll<WebZoo.Data.Sqlite.Animal>(dataReader, animalEntMap);
                 dataReader.Dispose();

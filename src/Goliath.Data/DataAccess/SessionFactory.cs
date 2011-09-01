@@ -42,8 +42,8 @@ namespace Goliath.Data.DataAccess
         {
             if (settings == null)
                 throw new ArgumentNullException("settings");
-            if (adapterFactory == null)
-                throw new ArgumentNullException("adapterFactory");
+            if (adapterFactoryFactoryMethod == null)
+                throw new ArgumentNullException("adapterFactoryFactoryMethod");
             if (serializer == null)
                 throw new ArgumentNullException("serializer");
 
