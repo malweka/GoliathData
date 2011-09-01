@@ -47,7 +47,7 @@ namespace Goliath.Data.DataAccess
                         qInfo.Parameters = new QueryParam[] { qp };
 
                         var collectionType = typeof(Collections.LazyList<>).MakeGenericType(new Type[] { refEntityType });
-                        var lazyCol = Activator.CreateInstance(collectionType, qInfo, relEntMap, serializer);
+                        var lazyCol = Activator.CreateInstance(collectionType, qInfo, relEntMap, serializer, settings);
                         pInfo.Setter(instanceEntity, lazyCol);
                     }
                     else

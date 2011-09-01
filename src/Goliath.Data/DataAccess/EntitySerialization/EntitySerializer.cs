@@ -21,7 +21,7 @@ namespace Goliath.Data.DataAccess
     /// 
     /// </summary>
     [Serializable]
-    public class EntitySerializer : IEntitySerializer
+    class EntitySerializer : IEntitySerializer
     {
 
         static ConcurrentDictionary<Type, Delegate> factoryList = new ConcurrentDictionary<Type, Delegate>();
