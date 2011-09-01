@@ -65,6 +65,7 @@ namespace Goliath.Data.DataAccess
                         var proxyType = pbuilder.CreateProxy(pInfo.PropertType, relEntMap);
                         object proxyobj = Activator.CreateInstance(proxyType, new object[] { pInfo.PropertType, hydrator });
                         pInfo.Setter(instanceEntity, proxyobj);
+                        
                     }
                 }
             }

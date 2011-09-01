@@ -120,16 +120,17 @@ namespace Goliath.Data.DynamicProxy
                 | MethodAttributes.HideBySig;
 
             MethodBuilder method = type.DefineMethod("LoadMe", methodAttributes);
-            MethodInfo method4 = typeof(IProxyHydrator).GetMethod(
+            MethodInfo hydrateMethod = typeof(IProxyHydrator).GetMethod(
                 "Hydrate",
                 BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic,
                 null,
-                new Type[]{
-            typeof(Object),
-            typeof(Type)
-            },
-                null
-                );
+                new Type[]{typeof(Object),typeof(Type)},
+                null);
+
+            MethodInfo disposeMethod = typeof(IDisposable).GetMethod("Dispose", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic,
+                null,
+                new Type[]{},
+                null);
 
             // Setting return type
             method.SetReturnType(typeof(void));
@@ -151,11 +152,15 @@ namespace Goliath.Data.DynamicProxy
             gen.Emit(OpCodes.Ldarg_0);
             gen.Emit(OpCodes.Ldarg_0);
             gen.Emit(OpCodes.Ldfld, typeProxy);
-            gen.Emit(OpCodes.Callvirt, method4);
+            gen.Emit(OpCodes.Callvirt, hydrateMethod);
             gen.Emit(OpCodes.Nop);
             gen.Emit(OpCodes.Ldarg_0);
             gen.Emit(OpCodes.Ldc_I4_1);
             gen.Emit(OpCodes.Stfld, isloaded);
+            gen.Emit(OpCodes.Ldarg_0);
+            gen.Emit(OpCodes.Ldfld, proxyHydra);
+            gen.Emit(OpCodes.Callvirt, disposeMethod);
+            gen.Emit(OpCodes.Nop);
             gen.Emit(OpCodes.Nop);
             gen.MarkLabel(label39);
             gen.Emit(OpCodes.Ret);
@@ -292,7 +297,7 @@ namespace Goliath.Data.DynamicProxy
         bool IsProxyLoaded { get; }
     }
 
-    /* example
+    /* example*/
 public class FakeBaseProxy
 {
     public virtual string Name { get; set; }
@@ -321,7 +326,6 @@ public class FakeProxyClass : FakeBaseProxy, ILazyBum
         }
         set
         {
-            LoadMe();
             base.Name = value;
         }
     }
@@ -347,6 +351,7 @@ public class FakeProxyClass : FakeBaseProxy, ILazyBum
             //load me here
             _proxyHydrator.Hydrate(this, _typeToProxy);
             _isLoaded = true;
+            _proxyHydrator.Dispose();
         }
     }
 
@@ -364,5 +369,5 @@ public class FakeProxyClass : FakeBaseProxy, ILazyBum
 
     #endregion
 }
- * */
+ /* */
 }
