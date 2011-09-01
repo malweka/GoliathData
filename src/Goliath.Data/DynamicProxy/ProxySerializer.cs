@@ -18,7 +18,6 @@ namespace Goliath.Data.DynamicProxy
         EntityMap entityMap;
         IEntitySerializer serialFactory;
         static ILogger logger;
-        ConnectionManager connManager;
         IDatabaseSettings settings;
 
         static ProxySerializer()
@@ -39,23 +38,30 @@ namespace Goliath.Data.DynamicProxy
         {
             logger.Log(LogType.Debug, "opening connection for proxy query");
             var dbAccess = settings.CreateAccessor();
-            ConnectionManager connManager = new ConnectionManager(new ConnectionProvider(settings.Connector), !settings.Connector.AllowMultipleConnections);
-            using (var conn = dbAccess.CreateConnection())
+            using (ConnectionManager connManager = new ConnectionManager(new ConnectionProvider(settings.Connector), !settings.Connector.AllowMultipleConnections))
             {
-                conn.Open();
-                DbParameter[] parameters;
-                if (query.Parameters == null)
+                try
                 {
-                    parameters = new DbParameter[] { };
-                }
-                else
-                    parameters = dbAccess.CreateParameters(query.Parameters).ToArray();
+                    DbParameter[] parameters;
+                    if (query.Parameters == null)
+                    {
+                        parameters = new DbParameter[] { };
+                    }
+                    else
+                        parameters = dbAccess.CreateParameters(query.Parameters).ToArray();
 
-                logger.Log(LogType.Debug, string.Format("executing query {0}", query.SqlText));
-                var dataReader = dbAccess.ExecuteReader(conn, query.SqlText, parameters);
-                //logger.Log(LogType.Debug, string.Format("datareader has row? {0}", dataReader.HasRows));
-                serialFactory.Hydrate(instance, type, entityMap, dataReader);
-                dataReader.Dispose();
+                    logger.Log(LogType.Debug, string.Format("executing query {0}", query.SqlText));
+                    var dataReader = dbAccess.ExecuteReader(connManager.OpenConnection(), query.SqlText, parameters);
+                    //logger.Log(LogType.Debug, string.Format("datareader has row? {0}", dataReader.HasRows));
+                    serialFactory.Hydrate(instance, type, entityMap, dataReader);
+                    dataReader.Dispose();
+
+                    connManager.CloseConnection();
+                }
+                catch (Exception ex)
+                {
+                    logger.Log("Hydrate failed", ex);
+                }
             }
         }
 
@@ -63,6 +69,7 @@ namespace Goliath.Data.DynamicProxy
 
         public void Dispose()
         {
+            logger.Log(LogType.Debug, "Disposing of proxy");
             EntityMap entMapRef = entityMap;
             entityMap = null;
             IEntitySerializer serializerRef = serialFactory;
