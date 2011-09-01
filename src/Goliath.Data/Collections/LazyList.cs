@@ -63,23 +63,23 @@ namespace Goliath.Data.Collections
             {
                 logger.Log(LogType.Debug, "opening connection for lazy collection query");
                 var dbAccess = settings.CreateAccessor();
-                ConnectionManager connManager = new ConnectionManager(new ConnectionProvider(settings.Connector), !settings.Connector.AllowMultipleConnections);
-                using (var conn = dbAccess.CreateConnection())
+                using (ConnectionManager connManager = new ConnectionManager(new ConnectionProvider(settings.Connector), !settings.Connector.AllowMultipleConnections))
                 {
-                    conn.Open();
-                    DbParameter[] parameters;
-                    if (query.Parameters == null)
-                    {
-                        parameters = new DbParameter[] { };
-                    }
-                    else
-                        parameters = dbAccess.CreateParameters(query.Parameters).ToArray();
+                   
+                        DbParameter[] parameters;
+                        if (query.Parameters == null)
+                        {
+                            parameters = new DbParameter[] { };
+                        }
+                        else
+                            parameters = dbAccess.CreateParameters(query.Parameters).ToArray();
 
-                    logger.Log(LogType.Debug, string.Format("executing query {0}", query.SqlText));
-                    var dataReader = dbAccess.ExecuteReader(conn, query.SqlText, parameters);
-                    list = factory.SerializeAll<T>(dataReader, entityMap);
+                        logger.Log(LogType.Debug, string.Format("executing query {0}", query.SqlText));
+                        var dataReader = dbAccess.ExecuteReader(connManager.OpenConnection(), query.SqlText, parameters);
+                        list = factory.SerializeAll<T>(dataReader, entityMap);
+
+                        connManager.CloseConnection();
                 }
-
                 isLoaded = true;
                 CleanUp();
             }
