@@ -25,11 +25,11 @@ namespace Goliath.Data
         /// <value><c>true</c> if [was rolled back]; otherwise, <c>false</c>.</value>
         bool WasRolledBack { get; }
         /// <summary>
-        /// Begins this instance.
+        /// begin transaction with default isolation level
         /// </summary>
         void Begin();
         /// <summary>
-        /// Begins the specified isolated level.
+        /// Begins the transaction.
         /// </summary>
         /// <param name="isolatedLevel">The isolated level.</param>
         void Begin(System.Data.IsolationLevel isolatedLevel);
