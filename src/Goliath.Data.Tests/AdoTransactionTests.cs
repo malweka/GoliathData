@@ -9,7 +9,7 @@ using Goliath.Data.DataAccess;
 
 namespace Goliath.Data.Tests
 {
-    [TestFixture]
+    [TestFixture, TestsOn(typeof(AdoTransaction))]
     public class AdoTransactionTests
     {
         ISession session;

@@ -39,11 +39,6 @@ namespace Goliath.Data
 
         #region Connection and parameter methods
 
-        internal DbConnection CreateConnection()
-        {
-            return dbConnector.CreateNewConnection();
-        }
-
         public DbParameter CreateParameter(int i, object value)
         {
             return dbConnector.CreateParameter(i.ToString(), value);
@@ -84,7 +79,19 @@ namespace Goliath.Data
         /// <param name="conn">The conn.</param>
         /// <param name="sql">The SQL.</param>
         /// <param name="parameters">The parameters.</param>
-        public int ExecuteNonQuery(DbConnection conn, string sql, params DbParameter[] parameters)
+        /// <returns></returns>
+        public int ExecuteNonQuery(DbConnection conn,  string sql, params DbParameter[] parameters)
+        {
+            return ExecuteNonQuery(conn, null, sql, parameters);
+        }
+
+        /// <summary>
+        /// Executes the non query.
+        /// </summary>
+        /// <param name="conn">The conn.</param>
+        /// <param name="sql">The SQL.</param>
+        /// <param name="parameters">The parameters.</param>
+        public int ExecuteNonQuery(DbConnection conn, ITransaction transaction, string sql, params DbParameter[] parameters)
         {
             using (DbCommand cmd = conn.CreateCommand())
             {
@@ -100,6 +107,9 @@ namespace Goliath.Data
                         cmd.Parameters.Add(parameters[i]);
                     }
                 }
+
+                if (transaction != null)
+                    transaction.Enlist(cmd);
 
                return cmd.ExecuteNonQuery();
             }
@@ -114,6 +124,18 @@ namespace Goliath.Data
         /// <returns></returns>
         public object ExecuteScalar(DbConnection conn, string sql, params DbParameter[] parameters)
         {
+            return ExecuteScalar(conn, null, sql, parameters);
+        }
+
+        /// <summary>
+        /// Executes the scalar.
+        /// </summary>
+        /// <param name="conn">The conn.</param>
+        /// <param name="sql">The SQL.</param>
+        /// <param name="parameters">The parameters.</param>
+        /// <returns></returns>
+        public object ExecuteScalar(DbConnection conn, ITransaction transaction, string sql, params DbParameter[] parameters)
+        {
             using (DbCommand cmd = conn.CreateCommand())
             {
                 cmd.CommandText = sql;
@@ -128,6 +150,10 @@ namespace Goliath.Data
                         cmd.Parameters.Add(parameters[i]);
                     }
                 }
+
+                if (transaction != null)
+                    transaction.Enlist(cmd);
+
                 return cmd.ExecuteScalar();
             }
         }
@@ -140,6 +166,18 @@ namespace Goliath.Data
         /// <param name="parameters">The parameters.</param>
         /// <returns></returns>
         public DbDataReader ExecuteReader(DbConnection conn, string sql, params DbParameter[] parameters)
+        {
+            return ExecuteReader(conn, null, sql, parameters);
+        }
+
+        /// <summary>
+        /// Executes the reader.
+        /// </summary>
+        /// <param name="conn">The conn.</param>
+        /// <param name="sql">The SQL.</param>
+        /// <param name="parameters">The parameters.</param>
+        /// <returns></returns>
+        public DbDataReader ExecuteReader(DbConnection conn, ITransaction transaction, string sql, params DbParameter[] parameters)
         {            
             using (DbCommand cmd = conn.CreateCommand())
             {
@@ -155,7 +193,10 @@ namespace Goliath.Data
                         cmd.Parameters.Add(parameters[i]);
                     }
                 }
-                
+
+                if (transaction != null)
+                    transaction.Enlist(cmd);
+
                 return cmd.ExecuteReader();
             }
         }

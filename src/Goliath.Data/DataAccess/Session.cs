@@ -97,7 +97,7 @@ namespace Goliath.Data.DataAccess
 
         public ITransaction BeginTransaction(System.Data.IsolationLevel isolationLevel)
         {
-            if ((currentTransaction == null) && (!currentTransaction.IsStarted))
+            if ((currentTransaction == null) || (!currentTransaction.IsStarted))
             {
                 currentTransaction = new AdoTransaction(this);
             }

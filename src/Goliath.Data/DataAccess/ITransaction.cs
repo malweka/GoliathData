@@ -41,5 +41,10 @@ namespace Goliath.Data
         /// Rollbacks this instance.
         /// </summary>
         void Rollback();
+        /// <summary>
+        /// Enlists the specified command.
+        /// </summary>
+        /// <param name="command">The command.</param>
+        void Enlist(System.Data.IDbCommand command);
     }
 }

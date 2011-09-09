@@ -15,6 +15,8 @@ namespace Goliath.Data.DataAccess
 
         public ConnectionProvider(IDbConnector connector)
         {
+            if (connector == null)
+                throw new ArgumentNullException("connector");
             this.connector = connector;
         }
 
