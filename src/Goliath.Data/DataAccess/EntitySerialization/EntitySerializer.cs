@@ -179,7 +179,7 @@ namespace Goliath.Data.DataAccess
         /// <returns></returns>
         public ISqlWorker CreateSqlWorker()
         {
-            return new SqlWorker(SqlMapper, getSetStore);
+            return new SqlWorker(SqlMapper, getSetStore, settings.ConverterStore);
         }
 
         /// <summary>

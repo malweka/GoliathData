@@ -1,15 +1,12 @@
-﻿
+﻿using System;
 
 namespace Goliath.Data.Config
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
-    using Mapping;
-    using Diagnostics;
-    using Providers;
+
     using DataAccess;
+    using Diagnostics;
+    using Mapping;
+    using Providers;
 
     class ConfigManager : IConfigurationManager, IDatabaseSettings
     {
@@ -23,6 +20,10 @@ namespace Goliath.Data.Config
         IEntitySerializer entitySerializerFactory;
         internal Func<Type, ILogger> LoggerFactory { get; set; }
 
+        public ITypeConverterStore ConverterStore
+        {
+            get { return typeConverterStore; }
+        }
 
         public IDbProvider DbProvider
         {

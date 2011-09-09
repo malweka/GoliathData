@@ -5,6 +5,9 @@ using System.Text;
 
 namespace Goliath.Data.DataAccess
 {
+    using Mapping;
+    using DataAccess;
+
     [Serializable]
     public class TypeConverterStore : ITypeConverterStore
     {
@@ -363,5 +366,36 @@ namespace Goliath.Data.DataAccess
         }
 
         #endregion
+    }
+
+    internal static class TypeConversionExtensions
+    {
+        public static bool CanGenerateKey(this PrimaryKeyProperty pk, PropInfo pInfo, object entity, ITypeConverterStore typeConverterStore)
+        {
+            if (pk.KeyGenerator == null)
+                return false;
+
+            //now let's  check the value
+            var idValue = pInfo.Getter.Invoke(entity);
+            
+            if (idValue == null)
+                return true;
+
+            var converter = typeConverterStore.GetConverterFactoryMethod(idValue.GetType());
+
+            try
+            {
+                object unsavedVal = converter.Invoke(pk.UnsavedValue);
+                if (idValue.Equals(unsavedVal))
+                    return true;
+
+                return false;
+            }
+            catch (Exception ex)
+            {
+                throw new MappingException(string.Format("Could not convert '{0}' to {1} for property {2}", pk.UnsavedValue, idValue.GetType().FullName, pk.Key.PropertyName), ex);
+            }
+
+        }
     }
 }
