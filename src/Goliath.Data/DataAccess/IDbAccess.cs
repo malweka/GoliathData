@@ -45,6 +45,15 @@ namespace Goliath.Data
         /// <returns></returns>
         int ExecuteNonQuery(DbConnection conn, string sql, params DbParameter[] parameters);
 
+        /// <summary>
+        /// Executes the non query.
+        /// </summary>
+        /// <param name="conn">The conn.</param>
+        /// <param name="transaction">The transaction.</param>
+        /// <param name="sql">The SQL.</param>
+        /// <param name="parameters">The parameters.</param>
+        /// <returns></returns>
+        int ExecuteNonQuery(DbConnection conn, ITransaction transaction, string sql, params DbParameter[] parameters);
 
         /// <summary>
         /// Executes the scalar.
@@ -56,6 +65,16 @@ namespace Goliath.Data
         object ExecuteScalar(DbConnection conn, string sql, params DbParameter[] parameters);
 
         /// <summary>
+        /// Executes the scalar.
+        /// </summary>
+        /// <param name="conn">The conn.</param>
+        /// <param name="transaction">The transaction.</param>
+        /// <param name="sql">The SQL.</param>
+        /// <param name="parameters">The parameters.</param>
+        /// <returns></returns>
+        object ExecuteScalar(DbConnection conn, ITransaction transaction, string sql, params DbParameter[] parameters);
+
+        /// <summary>
         /// Executes the reader.
         /// </summary>
         /// <param name="conn">The conn.</param>
@@ -63,6 +82,16 @@ namespace Goliath.Data
         /// <param name="parameters">The parameters.</param>
         /// <returns></returns>
         DbDataReader ExecuteReader(DbConnection conn, string sql, params DbParameter[] parameters);
+
+        /// <summary>
+        /// Executes the reader.
+        /// </summary>
+        /// <param name="conn">The conn.</param>
+        /// <param name="transaction">The transaction.</param>
+        /// <param name="sql">The SQL.</param>
+        /// <param name="parameters">The parameters.</param>
+        /// <returns></returns>
+        DbDataReader ExecuteReader(DbConnection conn, ITransaction transaction, string sql, params DbParameter[] parameters);
 
         #endregion
     }

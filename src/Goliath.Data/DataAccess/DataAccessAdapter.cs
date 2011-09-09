@@ -114,44 +114,49 @@ namespace Goliath.Data
             //var map = session.SessionFactory.DbSettings.Map;
             var sqlWorker = serializer.CreateSqlWorker();
 
-            using (var trans = session.ConnectionManager.OpenConnection().BeginTransaction())
+            bool ownTransaction = false;
+            int result = 0;
+
+            if ((session.CurrentTransaction == null) || !session.CurrentTransaction.IsStarted)
             {
-                Dictionary<string, QueryParam> neededParams = new Dictionary<string, QueryParam>();
-                List<string> inserts = new List<string>();
-
-                using (var batchOp = sqlWorker.BuildInsertSql(entityMap, entity, recursive))
-                {
-                    BuildOrExecuteInsertBatchOperation(batchOp, neededParams, inserts);
-                }
-                var cur = System.Transactions.Transaction.Current;
-                if (cur != null)
-                    Console.WriteLine(cur.TransactionInformation.LocalIdentifier);
-
+                session.BeginTransaction();
+                ownTransaction = true;
             }
-            //logger.Log(LogType.Debug, qInfo.SqlText);
-            //var parameters = dataAccess.CreateParameters(qInfo.Parameters).ToArray();
-            //try
-            //{
-            //    CheckConnection(dbConnection);
-            //    int qResult = dataAccess.ExecuteNonQuery(dbConnection, qInfo.SqlText, parameters);
-            //    return qResult;
-            //}
-            //catch (GoliathDataException ex)
-            //{
-            //    Console.WriteLine("goliath exception {0}", ex.Message);
-            //    throw;
-            //}
-            //catch (Exception ex)
-            //{
-            //    throw new GoliathDataException(string.Format("Exception while inserting: {0}", qInfo.SqlText), ex);
-            //}
 
-            return 0;
+            Dictionary<string, QueryParam> neededParams = new Dictionary<string, QueryParam>();
+            List<string> inserts = new List<string>();
+
+            using (var batchOp = sqlWorker.BuildInsertSql(entityMap, entity, recursive))
+            {
+                BuildOrExecuteInsertBatchOperation(session.CurrentTransaction, batchOp, neededParams, inserts);
+            }
+
+            var paramList = session.DataAccess.CreateParameters(neededParams.Values);
+            var sql = string.Join(";\n", inserts);
+
+            logger.Log(LogType.Debug, sql);
+            try
+            {
+                result = session.DataAccess.ExecuteNonQuery(session.ConnectionManager.OpenConnection(), session.CurrentTransaction, sql, paramList.ToArray());
+                if (ownTransaction)
+                    session.CommitTransaction();
+            }
+            catch (GoliathDataException ex)
+            {
+                Console.WriteLine("goliath exception: {0}", ex.Message);
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new GoliathDataException(string.Format("Exception while inserting: {0}", sql), ex);
+            }
+
+            return result;
         }
 
         #endregion
 
-        void BuildOrExecuteInsertBatchOperation(BatchSqlOperation batchOp, Dictionary<string, QueryParam> neededParams, List<string> batchInserts)
+        void BuildOrExecuteInsertBatchOperation(ITransaction transaction, BatchSqlOperation batchOp, Dictionary<string, QueryParam> neededParams, List<string> batchInserts)
         {
             if (batchOp == null)
                 throw new ArgumentNullException("batchOp");
@@ -178,7 +183,6 @@ namespace Goliath.Data
             for (int i = 0; i < batchOp.Operations.Count; i++)
             {
                 inserts.Add(batchOp.Operations[i].SqlText);
-
                 insertParams.AddRange(batchOp.Operations[i].Parameters);
             }
 
@@ -202,22 +206,20 @@ namespace Goliath.Data
 
                 for (int i = 0; i < batchOp.SubOperations.Count; i++)
                 {
-                    BuildOrExecuteInsertBatchOperation(batchOp.SubOperations[i], neededParams, batchInserts);
+                    BuildOrExecuteInsertBatchOperation(transaction, batchOp.SubOperations[i], neededParams, batchInserts);
                 }
             }
 
             else
             {
-                //execute operations
-                DbDataReader dataReader;
-                //session.ConnectionManager.OpenConnection();
                 var paramList = session.DataAccess.CreateParameters(neededParams.Values);
                 var sql = string.Join(";\n", inserts);
-                //dataReader = dataAccess.ExecuteReader(dbConnection, sql, paramList.ToArray());
-
-                if (batchOp.KeyGenerationOperations.Count > 0) // read resulting id that were created
+                using (DbDataReader dataReader = session.DataAccess.ExecuteReader(session.ConnectionManager.OpenConnection(), transaction, sql, paramList.ToArray()))
                 {
-                    Console.Write("bo");
+                    if (batchOp.KeyGenerationOperations.Count > 0) // read resulting id that were created
+                    {
+                        //TODO: generated keys from database
+                    }
                 }
             }
         }
@@ -389,24 +391,21 @@ namespace Goliath.Data
             throw new NotImplementedException();
         }
 
-
-
         #endregion
 
         #region IDisposable Members
-
 
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
         public void Dispose()
         {
-            //clean up to avoid leaks
-            IEntitySerializer serializerRef = this.serializer;
-            this.serializer = null;
+            ////clean up to avoid leaks
+            //IEntitySerializer serializerRef = this.serializer;
+            //this.serializer = null;
 
-            EntityMap entMapRef = this.entityMap;
-            this.entityMap = null;
+            //EntityMap entMapRef = this.entityMap;
+            //this.entityMap = null;
         }
 
         #endregion

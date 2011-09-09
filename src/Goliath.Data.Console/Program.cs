@@ -213,15 +213,48 @@ namespace WebZoo.Data
                 //ZooId = acceptingZoos[0].Id,
             };
 
+            Sqlite.Employee emp1 = new Sqlite.Employee()
+            {
+                FirstName = "John",
+                LastName = "Smith",
+                HiredOn = DateTime.Now,
+                Title = "Trainer",
+                EmailAddress = "emp1@mail.com",
+                AssignedToZoo = zooM
+            };
+
+            Sqlite.Employee emp2 = new Sqlite.Employee()
+            {
+                FirstName = "Jerry",
+                LastName = "Seinfeld",
+                HiredOn = DateTime.Now,
+                Title = "Comedian",
+                EmailAddress = "emp2@mail.com",
+                AssignedToZoo = zooM
+            };
+
             zooM.AnimalsOnZooId = new List<Sqlite.Animal>();
+            zooM.EmployeesOnAssignedToZooId = new List<Sqlite.Employee>();
+
             zooM.AnimalsOnZooId.Add(monkey);
             zooM.AnimalsOnZooId.Add(an1);
             zooM.AnimalsOnZooId.Add(an3);
 
+            zooM.EmployeesOnAssignedToZooId.Add(emp1);
+            zooM.EmployeesOnAssignedToZooId.Add(emp2);
+
+            emp1.AnimalsOnAnimalsHandler_EmployeeId = new List<Sqlite.Animal>();
+            an1.EmployeesOnAnimalsHandler_AnimalId = new List<Sqlite.Employee>();
+
+            emp1.AnimalsOnAnimalsHandler_EmployeeId.Add(an1);
+            an1.EmployeesOnAnimalsHandler_AnimalId.Add(emp1);
+
             try
             {
-                //zoodapter.Insert(zooM, true);
+                zoodapter.Insert(zooM, true);
                 //animalapter.Insert(an1);
+
+                animalapter.Insert(an1, true);
             }
             catch (Exception ex)
             {

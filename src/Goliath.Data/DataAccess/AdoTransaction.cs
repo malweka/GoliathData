@@ -57,14 +57,14 @@ namespace Goliath.Data.DataAccess
                 if (isolatedLevel == IsolationLevel.Unspecified)
                     transaction = session.ConnectionManager.CurrentConnection.BeginTransaction();
                 else
-                    transaction = session.ConnectionManager.CurrentConnection.BeginTransaction(isolatedLevel);               
+                    transaction = session.ConnectionManager.CurrentConnection.BeginTransaction(isolatedLevel);
             }
             catch (Exception ex)
             {
                 logger.Log(session.Id, "could not begin session", ex);
                 throw new DataAccessException("could not begin session", ex);
             }
-           
+
             IsStarted = true;
         }
 
@@ -107,6 +107,16 @@ namespace Goliath.Data.DataAccess
                 logger.Log(session.Id, "Rollback failed", ex);
                 throw new DataAccessException("Rollback failed", ex);
             }
+        }
+
+        public void Enlist(IDbCommand command)
+        {
+            if (!IsStarted)
+            {
+                throw new DataAccessException("Transaction not started");
+            }
+
+            command.Transaction = transaction;
         }
 
         #endregion

@@ -198,7 +198,6 @@ namespace Goliath.Data.Sql
                     else if (rel.RelationType == RelationshipType.OneToMany)
                     {
                         PropInfo pInfo;
-
                         if (entGetSets.Properties.TryGetValue(rel.PropertyName, out pInfo))
                         {
                             var colGetter = pInfo.Getter(entity);
@@ -223,14 +222,31 @@ namespace Goliath.Data.Sql
                     }
                     else if (rel.RelationType == RelationshipType.ManyToMany)
                     {
+                        PropInfo pInfo;
+                        if(entGetSets.Properties.TryGetValue(rel.PropertyName, out pInfo))
+                        {
+                            var colGetter = pInfo.Getter(entity);
+                            if((colGetter != null) && (colGetter is System.Collections.IEnumerable))
+                            {
+                                var list = (System.Collections.IEnumerable)colGetter;
+                                foreach (var o in list)
+                                {
+                                    if (o == null)
+                                        continue;
+
+                                    var reltype = o.GetType();
+                                    var relMap = entityMap.Parent.GetEntityMap(reltype.FullName);
+                                }
+                            }
+                        }
                     }
                 }
-                if (isSubclass)
-                {
-                    foreach (var rel in baseEntMap.Relations)
-                    {
-                    }
-                }
+                //if (isSubclass)
+                //{
+                //    foreach (var rel in baseEntMap.Relations)
+                //    {
+                //    }
+                //}
             }
         }
 
