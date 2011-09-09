@@ -5,17 +5,21 @@ using System.Text;
 
 namespace Goliath.Data
 {
+    using DataAccess;
+    using Providers;
+    using Mapping;
+
     /// <summary>
     /// 
     /// </summary>
     public interface IDatabaseSettings
     {
-        Mapping.MapConfig Map { get; }
+        MapConfig Map { get; }
         /// <summary>
         /// Gets the SQL mapper.
         /// </summary>
         /// <value>The SQL mapper.</value>
-        Providers.SqlMapper SqlMapper { get; }
+        SqlMapper SqlMapper { get; }
         /// <summary>
         /// Gets the connector.
         /// </summary>
@@ -26,6 +30,12 @@ namespace Goliath.Data
         /// </summary>
         /// <value>The db access.</value>
         IDbAccess DbAccess { get; }
+
+        /// <summary>
+        /// Gets the converter store.
+        /// </summary>
+        /// <value>The converter store.</value>
+        ITypeConverterStore ConverterStore { get; }
 
         DbAccess CreateAccessor();
     }
