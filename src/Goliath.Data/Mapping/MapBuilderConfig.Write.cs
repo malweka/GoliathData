@@ -359,6 +359,13 @@ namespace Goliath.Data.Mapping
                     xmlWriter.WriteString(rel.Exclude.ToString());
                     xmlWriter.WriteEndAttribute();
                 }
+
+                if ((rel.RelationType == RelationshipType.ManyToMany) && (rel.Inverse))
+                {
+                    xmlWriter.WriteStartAttribute("inverse");
+                    xmlWriter.WriteString(rel.Inverse.ToString());
+                    xmlWriter.WriteEndAttribute();
+                }
             }
 
             //if (!string.IsNullOrWhiteSpace(transformation.Errors))

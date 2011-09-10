@@ -97,6 +97,11 @@ namespace Goliath.Data
 
         #region Inserts
 
+        /// <summary>
+        /// Inserts the batch.
+        /// </summary>
+        /// <param name="batch">The batch.</param>
+        /// <returns></returns>
         public int InsertBatch(IEnumerable<TEntity> batch)
         {
             throw new NotImplementedException();
@@ -149,6 +154,10 @@ namespace Goliath.Data
             catch (Exception ex)
             {
                 throw new GoliathDataException(string.Format("Exception while inserting: {0}", sql), ex);
+            }
+            finally
+            {
+                neededParams.Clear();
             }
 
             return result;

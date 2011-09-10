@@ -11,6 +11,9 @@ namespace Goliath.Data
     [CollectionDataContract]
     public abstract class KeyedCollectionBase<S, T> : KeyedCollection<S, T>
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="KeyedCollectionBase&lt;S, T&gt;"/> class.
+        /// </summary>
         protected KeyedCollectionBase()
         {
         }

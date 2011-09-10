@@ -47,6 +47,7 @@ namespace Goliath.Data.Mapping
                                     ReferenceEntityName = bEnt.FullName,
                                     ReferenceTable = bEnt.TableName,
                                     RelationType = RelationshipType.ManyToMany,
+                                    Inverse = true,
                                 });
 
                                 bEnt.Relations.Add(new Relation()

@@ -57,7 +57,7 @@ namespace Goliath.Data.Sql
             }
         }
 
-        public Dictionary<string, QueryParam> BuildQueryParams(object entity, GetSetStore getSetStore, int level, int rootLevel)
+        public Dictionary<string, ParamHolder> BuildQueryParams(object entity, GetSetStore getSetStore, int level, int rootLevel)
         {
             Type entityType = entity.GetType();
             EntityGetSetInfo getSetInfo;
@@ -72,12 +72,12 @@ namespace Goliath.Data.Sql
             return BuildQueryParams(entity, getSetInfo, entMap, getSetStore, level, rootLevel);
         }
 
-        public static Dictionary<string, QueryParam> BuildQueryParams(object entity, EntityGetSetInfo getSetInfo, EntityMap entityMap, GetSetStore getSetStore, int level, int rootLevel)
+        public static Dictionary<string, ParamHolder> BuildQueryParams(object entity, EntityGetSetInfo getSetInfo, EntityMap entityMap, GetSetStore getSetStore, int level, int rootLevel)
         {
-            Dictionary<string, QueryParam> parameters = new Dictionary<string, QueryParam>();
+            Dictionary<string, ParamHolder> parameters = new Dictionary<string, ParamHolder>();
             foreach (var prop in entityMap)
             {
-                object val = null;
+               // object val = null;
                 if ((prop is Relation) && !prop.IsPrimaryKey)
                 {
                     Relation rel = (Relation)prop;
@@ -103,14 +103,14 @@ namespace Goliath.Data.Sql
                             if (relGetSet.Properties.TryGetValue(rel.ReferenceProperty, out referenceProp))
                             {
                                 var relEntMap = entityMap.Parent.GetEntityMap(rel.ReferenceEntityName);
-                                string paramName = paramName = BuildParameterNameWithLevel(rel.ReferenceColumn, relEntMap.TableAlias, rootLevel);                                
+                                string paramName = paramName = BuildParameterNameWithLevel(rel.ReferenceColumn, relEntMap.TableAlias, rootLevel);
 
-                                QueryParam param = new QueryParam(paramName);
-                                val = referenceProp.Getter(relInstance);
+                                ParamHolder param = new ParamHolder(paramName, referenceProp.Getter, relInstance) { IsNullable = prop.IsNullable };
+                                //val = referenceProp.Getter(relInstance);
 
-                                if ((val == null) && !prop.IsNullable)
-                                    throw new DataAccessException("{0}.{1} is cannot be null.", entityMap.Name, prop.PropertyName);
-                                param.Value = val;
+                                //if ((val == null) && !prop.IsNullable)
+                                //    throw new DataAccessException("{0}.{1} is cannot be null.", entityMap.Name, prop.PropertyName);
+                                //param.Value = val;
                                 if (parameters.ContainsKey(prop.ColumnName))
                                 {
                                     parameters.Remove(prop.ColumnName);
@@ -145,13 +145,13 @@ namespace Goliath.Data.Sql
                             paramName = BuildParameterNameWithLevel(prop.ColumnName, entityMap.TableAlias, level);
                         }
 
-                        QueryParam param = new QueryParam(paramName);
-                        val = pInfo.Getter(entity);
+                        ParamHolder param = new ParamHolder(paramName, pInfo.Getter, entity) { IsNullable = prop.IsNullable };
+                        //val = pInfo.Getter(entity);
 
-                        if ((val == null) && !prop.IsNullable)
-                            throw new DataAccessException("{0}.{1} is cannot be null.", entityMap.Name, prop.PropertyName);
+                        //if ((val == null) && !prop.IsNullable)
+                        //    throw new DataAccessException("{0}.{1} is cannot be null.", entityMap.Name, prop.PropertyName);
 
-                        param.Value = val;
+                        //param.Value = val;
                         if (parameters.ContainsKey(prop.ColumnName))
                         {
                             //var containedParam = parameters[prop.ColumnName];

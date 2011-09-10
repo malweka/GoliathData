@@ -214,6 +214,10 @@ namespace Goliath.Data.Mapping
                                 InitializeRelObject(ref rel, property);
                                 rel.Exclude = ReadBool(reader.Value);
                                 break;
+                            case "inverse":
+                                InitializeRelObject(ref rel, property);
+                                rel.Inverse = ReadBool(reader.Value);
+                                break;
                             case "mapColumn":
                                 InitializeRelObject(ref rel, property);
                                 rel.MapColumn = reader.Value;
