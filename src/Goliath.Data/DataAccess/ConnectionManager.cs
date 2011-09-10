@@ -7,19 +7,37 @@ using System.Data.Common;
 
 namespace Goliath.Data.DataAccess
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class ConnectionManager : IDisposable
     {
         IConnectionProvider connectionProvider;
         bool keepConnectionAlive;
         DbConnection currentConn;
 
+        /// <summary>
+        /// Gets the current connection.
+        /// </summary>
+        /// <value>The current connection.</value>
         public DbConnection CurrentConnection
         {
             get { return currentConn; }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether this instance has open connection.
+        /// </summary>
+        /// <value>
+        /// 	<c>true</c> if this instance has open connection; otherwise, <c>false</c>.
+        /// </value>
         public bool HasOpenConnection { get; private set; }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ConnectionManager"/> class.
+        /// </summary>
+        /// <param name="connectionProvider">The connection provider.</param>
+        /// <param name="keepConnectionAlive">if set to <c>true</c> [keep connection alive].</param>
         public ConnectionManager(IConnectionProvider connectionProvider, bool keepConnectionAlive)
         {
             this.connectionProvider = connectionProvider;
@@ -27,6 +45,10 @@ namespace Goliath.Data.DataAccess
             currentConn = connectionProvider.GetConnection();
         }
 
+        /// <summary>
+        /// Opens the connection.
+        /// </summary>
+        /// <returns></returns>
         public DbConnection OpenConnection()
         {
             if (!HasOpenConnection)
@@ -38,6 +60,9 @@ namespace Goliath.Data.DataAccess
             return currentConn;
         }
 
+        /// <summary>
+        /// Closes the connection.
+        /// </summary>
         public void CloseConnection()
         {
             if (!keepConnectionAlive)
@@ -50,6 +75,9 @@ namespace Goliath.Data.DataAccess
 
         #region IDisposable Members
 
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
         public void Dispose()
         {
             if (currentConn != null)

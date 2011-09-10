@@ -21,7 +21,7 @@ namespace Goliath.Data
         /// <value>
         /// The value.
         /// </value>
-        public object Value { get; set; }
+        public virtual object Value { get; set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="QueryParam"/> class.
@@ -99,6 +99,39 @@ namespace Goliath.Data
         internal void SetParameterName(string columnName, string tableAlias)
         {
             Name = ParameterNameBuilderHelper.ColumnQueryName(columnName, tableAlias);
+        }
+    }
+
+    internal class ParamHolder : QueryParam
+    {
+        public bool IsNullable { get; set; }
+        public Fasterflect.MemberGetter Getter { get; private set; }
+        public Object Entity { get; private set; }
+
+        public ParamHolder(string name, Fasterflect.MemberGetter getter, Object entity)
+            : base(name)
+        {
+            Getter = getter;
+            IsNullable = true;
+            Entity = entity;
+        }
+
+        public override object Value
+        {
+            get
+            {
+                object val = Getter(Entity);
+                if (val == null && !IsNullable)
+                {
+                    throw new DataAccessException("parameter {0} cannot be null", Name);
+                }
+
+                return val;
+            }
+            set
+            {
+                
+            }
         }
     }
 }

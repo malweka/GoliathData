@@ -119,7 +119,7 @@ namespace Goliath.Data.Sql
         public BatchSqlOperation BuildInsertSql<TEntity>(EntityMap entityMap, TEntity entity, bool recursive)
         {
             BatchSqlOperation operation = new BatchSqlOperation() { Priority = SqlOperationPriority.Medium };
-            Dictionary<string, PropertyQueryParam> neededParams = new Dictionary<string, PropertyQueryParam>();
+            //Dictionary<string, PropertyQueryParam> neededParams = new Dictionary<string, PropertyQueryParam>();
             BuildInsertSql(entity, entityMap, typeof(TEntity), null, null, null, operation, recursive, 0, -1);
 
             return operation;
@@ -166,7 +166,9 @@ namespace Goliath.Data.Sql
                 var baseParamDictionary = InsertSqlBuilder.BuildQueryParams(entity, entGetSets, baseEntMap, getSetStore, recursionLevel, rootRecursionLevel);
                 SqlOperationInfo baseClassOperation = new SqlOperationInfo() { CommandType = SqlStatementType.Insert };
                 baseClassOperation.SqlText = baseInsertSqlBuilder.ToSqlString();
-                baseClassOperation.Parameters = baseParamDictionary.Values;
+                List<QueryParam> baseParameters = new List<QueryParam>();
+                baseParameters.AddRange(baseParamDictionary.Values);
+                baseClassOperation.Parameters = baseParameters;
                 operation = new BatchSqlOperation() { Priority = SqlOperationPriority.Medium };
 
                 batchOperation.Operations.Add(baseClassOperation);
@@ -184,7 +186,9 @@ namespace Goliath.Data.Sql
             var paramDictionary = InsertSqlBuilder.BuildQueryParams(entity, entGetSets, entityMap, getSetStore, recursionLevel, rootRecursionLevel);
             SqlOperationInfo operationInfo = new SqlOperationInfo() { CommandType = SqlStatementType.Insert };
             operationInfo.SqlText = entInsertSqlBuilder.ToSqlString();
-            operationInfo.Parameters = paramDictionary.Values;
+            List<QueryParam> parameters = new List<QueryParam>();
+            parameters.AddRange(paramDictionary.Values);
+            operationInfo.Parameters = parameters;
             operation.Operations.Add(operationInfo);
 
             if (keygenerationOperations.Count > 0)
@@ -226,13 +230,13 @@ namespace Goliath.Data.Sql
                             }
                         }
                     }
-                    else if (rel.RelationType == RelationshipType.ManyToMany)
+                    else if ((rel.RelationType == RelationshipType.ManyToMany) && rel.Inverse)
                     {
                         PropInfo pInfo;
-                        if(entGetSets.Properties.TryGetValue(rel.PropertyName, out pInfo))
+                        if (entGetSets.Properties.TryGetValue(rel.PropertyName, out pInfo))
                         {
                             var colGetter = pInfo.Getter(entity);
-                            if((colGetter != null) && (colGetter is System.Collections.IEnumerable))
+                            if ((colGetter != null) && (colGetter is System.Collections.IEnumerable))
                             {
                                 var list = (System.Collections.IEnumerable)colGetter;
                                 foreach (var o in list)

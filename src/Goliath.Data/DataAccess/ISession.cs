@@ -76,12 +76,29 @@ namespace Goliath.Data
 
         #region Transactions
 
+        /// <summary>
+        /// Begins the transaction.
+        /// </summary>
+        /// <returns></returns>
         ITransaction BeginTransaction();
 
+        /// <summary>
+        /// Begins the transaction.
+        /// </summary>
+        /// <param name="isolationLevel">The isolation level.</param>
+        /// <returns></returns>
         ITransaction BeginTransaction(System.Data.IsolationLevel isolationLevel);
 
+        /// <summary>
+        /// Commits the transaction.
+        /// </summary>
+        /// <returns></returns>
         ITransaction CommitTransaction();
 
+        /// <summary>
+        /// Rollbacks the transaction.
+        /// </summary>
+        /// <returns></returns>
         ITransaction RollbackTransaction();
 
         #endregion

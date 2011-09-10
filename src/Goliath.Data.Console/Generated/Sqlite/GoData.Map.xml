@@ -59,8 +59,8 @@
         <property name="Location" column="Location" clrType="System.String" dbType="AnsiStringFixedLength" sqlType="char" scale="0" />
         <property name="ReceivedOn" column="ReceivedOn" clrType="System.DateTime" dbType="DateTime" sqlType="datetime" scale="0" nullable="False" />
         <property name="ZooId" column="ZooId" clrType="System.Guid" dbType="Guid" sqlType="uniqueidentifier" scale="0" nullable="False" />
-        <reference name="Zoo" column="ZooId" clrType="System.Guid" dbType="Guid" lazy="True" sqlType="uniqueidentifier" scale="0" nullable="False" relation="ManyToOne" referenceTable="zoos" referenceColumn="Id" referenceProperty="Id" refConstraint="fk_animals_zoos0" refEntity="WebZoo.Data.Sqlite.Zoo" />
-        <list name="EmployeesOnAnimalsHandler_AnimalId" column="Id" dbType="AnsiString" scale="0" type="" lazy="True" relation="ManyToMany" referenceTable="employees" referenceColumn="Id" referenceProperty="Id" refEntity="WebZoo.Data.Sqlite.Employee" mapColumn="AnimalId" mapTable="animals_handlers" />
+        <reference name="Zoo" column="ZooId" clrType="System.Guid" dbType="Guid" sqlType="uniqueidentifier" scale="0" nullable="False" relation="ManyToOne" referenceTable="zoos" referenceColumn="Id" referenceProperty="Id" refConstraint="fk_animals_zoos0" refEntity="WebZoo.Data.Sqlite.Zoo" />
+        <list name="EmployeesOnAnimalsHandler_AnimalId" column="Id" dbType="AnsiString" scale="0" type="" lazy="True" relation="ManyToMany" referenceTable="employees" referenceColumn="Id" referenceProperty="Id" refEntity="WebZoo.Data.Sqlite.Employee" inverse="True" mapColumn="AnimalId" mapTable="animals_handlers" />
       </properties>
     </entity>
     <entity name="Agent" extends="WebZoo.Data.BaseEntity" assembly="WebZoo.Data" entityNamespace="WebZoo.Data.Sqlite" table="agents" schema="main" alias="agen">

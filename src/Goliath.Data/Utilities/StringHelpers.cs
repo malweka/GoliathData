@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Goliath.Data.Utilities
+namespace Goliath.Data.Utils
 {
     /// <summary>
     /// string helper utility class

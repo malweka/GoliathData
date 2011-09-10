@@ -8,12 +8,22 @@ using Goliath.Data.Utils;
 
 namespace Goliath.Data.Mapping
 {
+    /// <summary>
+    /// 
+    /// </summary>
     [Serializable]
     [DataContract]
     public class Relation : Property
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Relation"/> class.
+        /// </summary>
         public Relation() { }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Relation"/> class.
+        /// </summary>
+        /// <param name="prop">The prop.</param>
         public Relation(Property prop)
         {
             LazyLoad = prop.LazyLoad;
@@ -40,28 +50,87 @@ namespace Goliath.Data.Mapping
 
         }
 
+        /// <summary>
+        /// Gets or sets the type of the relation.
+        /// </summary>
+        /// <value>The type of the relation.</value>
         [DataMember]
         public RelationshipType RelationType { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether this <see cref="Relation"/> is exclude.
+        /// </summary>
+        /// <value><c>true</c> if exclude; otherwise, <c>false</c>.</value>
         [DataMember]
         public bool Exclude { get; set; }
-        //[DataMember]
-        //public string KeyFieldName { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether this <see cref="Relation"/> is inverse.
+        /// </summary>
+        /// <value><c>true</c> if inverse; otherwise, <c>false</c>.</value>
+        [DataMember]
+        public bool Inverse { get; set; }
+
+        /// <summary>
+        /// Gets or sets the reference table.
+        /// </summary>
+        /// <value>The reference table.</value>
         [DataMember]
         public string ReferenceTable { get; set; }
+
+        /// <summary>
+        /// Gets or sets the reference column.
+        /// </summary>
+        /// <value>The reference column.</value>
         [DataMember]
         public string ReferenceColumn { get; set; }
+
+        /// <summary>
+        /// Gets or sets the reference property.
+        /// </summary>
+        /// <value>The reference property.</value>
         [DataMember]
         public string ReferenceProperty { get; set; }
+
+        /// <summary>
+        /// Gets or sets the name of the reference table schema.
+        /// </summary>
+        /// <value>The name of the reference table schema.</value>
         [DataMember]
         public string ReferenceTableSchemaName { get; set; }
+
+        /// <summary>
+        /// Gets or sets the name of the reference constraint.
+        /// </summary>
+        /// <value>The name of the reference constraint.</value>
         [DataMember]
         public string ReferenceConstraintName { get; set; }
+
+        /// <summary>
+        /// Gets or sets the name of the reference entity.
+        /// </summary>
+        /// <value>The name of the reference entity.</value>
         [DataMember]
         public string ReferenceEntityName { get; set; }
+
+        /// <summary>
+        /// Gets or sets the name of the map table.
+        /// </summary>
+        /// <value>The name of the map table.</value>
         [DataMember]
         public string MapTableName { get; set; }
+
+        /// <summary>
+        /// Gets or sets the map column.
+        /// </summary>
+        /// <value>The map column.</value>
         [DataMember]
         public string MapColumn { get; set; }
+
+        /// <summary>
+        /// Gets or sets the type of the collection.
+        /// </summary>
+        /// <value>The type of the collection.</value>
         [DataMember]
         public CollectionType CollectionType { get; set; }
     }

@@ -6,7 +6,6 @@ using System.Runtime.Serialization;
 
 namespace Goliath.Data.Mapping
 {
-    //TODO: key generation algorithm
     /// <summary>
     /// 
     /// </summary>

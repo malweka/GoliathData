@@ -62,6 +62,11 @@ namespace Goliath.Data.Mapping
             PrimaryKeyGeneratorStore.Add(new Generators.GuidCombGenerator() { });
         }
 
+        /// <summary>
+        /// Gets the entity map.
+        /// </summary>
+        /// <param name="entityMapFullName">Full name of the entity map.</param>
+        /// <returns></returns>
         public EntityMap GetEntityMap(string entityMapFullName)
         {
             EntityMap ent;
