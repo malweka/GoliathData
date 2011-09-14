@@ -1,17 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.IO;
+﻿using System.IO;
 
-namespace Goliath.Data.Console
+namespace Goliath.Data.CodeGen
 {
     using Generators;
     using Mapping;
     using Providers;
     using Providers.Sqlite;
     using Providers.SqlServer;
-    using Sql;
     using Transformers;
 
     class CodeGenerator : IGenerator
@@ -34,10 +29,10 @@ namespace Goliath.Data.Console
                 generator.Generate(Path.Combine(templateFolder, "Class.razt"), fname, table);
             }
         }
-
+             
         public void GenerateMapping(string workingFolder, ProjectSettings settings, ComplexType baseModel, SupportedRdbms rdbms)
         {
-            if ((rdbms == SupportedRdbms.SqlServer2005) || (rdbms == SupportedRdbms.SqlServer2008))
+            if ((rdbms == SupportedRdbms.Mssql2005) || (rdbms == SupportedRdbms.Mssql2008))
             {
                 SqlMapper mapper = new Mssq2008SqlMapper();
                 IDbConnector dbConnector = new MssqlDbConnector(settings.ConnectionString);

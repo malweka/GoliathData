@@ -81,13 +81,14 @@
     <Compile Include="IRunner.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TransactionWrapper.cs" />
     <Compile Include="WebZooRunner.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Class.razt" />
+    <None Include="Templates\Class.razt" />
     <None Include="Data\WebZoo.db" />
   </ItemGroup>
   <ItemGroup>
@@ -105,11 +106,26 @@
       <SubType>Designer</SubType>
     </Content>
     <Content Include="Scripts\05_data_insert.sql" />
-    <Content Include="Scripts\Mssql2008\01_animals.sql" />
-    <Content Include="Scripts\Mssql2008\00_zoos.sql" />
-    <Content Include="Scripts\Mssql2008\02_employees.sql" />
-    <Content Include="Scripts\Mssql2008\03_animals_handlers.sql" />
-    <Content Include="Scripts\Mssql2008\04_monkeys.sql" />
+    <Content Include="Scripts\Mssql2008\WebZooAutoIncrement\01_animals.sql" />
+    <Content Include="Scripts\Mssql2008\WebZooAutoIncrement\00_zoos.sql" />
+    <Content Include="Scripts\Mssql2008\WebZooAutoIncrement\02_employees.sql" />
+    <Content Include="Scripts\Mssql2008\WebZooAutoIncrement\03_animals_handlers.sql" />
+    <Content Include="Scripts\Mssql2008\WebZooAutoIncrement\04_monkeys.sql" />
+    <Content Include="Scripts\Mssql2008\WebZooGuid\00_zoos.sql" />
+    <Content Include="Scripts\Mssql2008\WebZooGuid\01_animals.sql" />
+    <Content Include="Scripts\Mssql2008\WebZooGuid\02_employees.sql" />
+    <Content Include="Scripts\Mssql2008\WebZooGuid\03_animals_handlers.sql" />
+    <Content Include="Scripts\Mssql2008\WebZooGuid\04_monkeys.sql" />
+    <Content Include="Scripts\Sqlite3\WebZooAutoIncrement\00_zoos.sql" />
+    <Content Include="Scripts\Sqlite3\WebZooAutoIncrement\01_animals.sql" />
+    <Content Include="Scripts\Sqlite3\WebZooAutoIncrement\02_employees.sql" />
+    <Content Include="Scripts\Sqlite3\WebZooAutoIncrement\03_animals_handlers.sql" />
+    <Content Include="Scripts\Sqlite3\WebZooAutoIncrement\04_monkeys.sql" />
+    <Content Include="Scripts\Sqlite3\WebZooGuid\00_zoos.sql" />
+    <Content Include="Scripts\Sqlite3\WebZooGuid\01_animals.sql" />
+    <Content Include="Scripts\Sqlite3\WebZooGuid\02_employees.sql" />
+    <Content Include="Scripts\Sqlite3\WebZooGuid\03_animals_handlers.sql" />
+    <Content Include="Scripts\Sqlite3\WebZooGuid\04_monkeys.sql" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

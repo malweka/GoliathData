@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Goliath.Data.Console
+namespace Goliath.Data.CodeGen
 {
     using Generators;
     using Mapping;
@@ -26,8 +26,8 @@ namespace Goliath.Data.Console
 
     public enum SupportedRdbms
     {
-        SqlServer2005,
-        SqlServer2008,
+        Mssql2005,
+        Mssql2008,
         Sqlite3,
         Postgresql9,
     }

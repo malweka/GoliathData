@@ -15,4 +15,9 @@ namespace WebZoo.Data
         /// </value>
         public virtual Guid Id { get; set; }
     }
+
+    public abstract class BaseEntityInt
+    {
+        public virtual int Id { get; set; }
+    }
 }
