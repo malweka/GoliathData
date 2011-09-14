@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.Common;
-using Goliath.Data.DynamicProxy;
-using Goliath.Data.Mapping;
-using Goliath.Data.Providers;
-using Goliath.Data.Sql;
 
 namespace Goliath.Data.DataAccess
 {
+    using DynamicProxy;
+    using Mapping;
+    using Providers;
+    using Sql;
+
     class SerializeManyToMany : RelationSerializer
     {
         public SerializeManyToMany(SqlMapper sqlMapper, GetSetStore getSetStore)

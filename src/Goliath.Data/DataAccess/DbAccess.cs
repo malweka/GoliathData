@@ -4,6 +4,7 @@ using System.Data.Common;
 
 namespace Goliath.Data
 {
+    using Diagnostics;
     /// <summary>
     /// 
     /// </summary>
@@ -12,6 +13,7 @@ namespace Goliath.Data
     {
         #region properties and variables
 
+        static ILogger logger;
         IDbConnector dbConnector;
 
         int? CommandTimeout
@@ -25,6 +27,11 @@ namespace Goliath.Data
         #endregion
 
         #region .ctors
+
+        static DbAccess()
+        {
+            logger = Logger.GetLogger(typeof(DbAccess));
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DbAccess"/> class.
@@ -48,8 +55,14 @@ namespace Goliath.Data
         {
             if (queryParam == null)
                 throw new ArgumentNullException("queryParam");
-
-            return dbConnector.CreateParameter(queryParam.Name, queryParam.Value);
+            try
+            {
+                return dbConnector.CreateParameter(queryParam.Name, queryParam.Value);
+            }
+            catch (Exception ex)
+            {
+                throw new GoliathDataException(string.Format("Error while trying to create parameter {0}", queryParam.Name), ex);
+            }
         }
 
         /// <summary>

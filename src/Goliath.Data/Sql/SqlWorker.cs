@@ -239,13 +239,34 @@ namespace Goliath.Data.Sql
                             if ((colGetter != null) && (colGetter is System.Collections.IEnumerable))
                             {
                                 var list = (System.Collections.IEnumerable)colGetter;
-                                foreach (var o in list)
+                                foreach (var mappedObject in list)
                                 {
-                                    if (o == null)
+                                    if (mappedObject == null)
                                         continue;
 
-                                    var reltype = o.GetType();
+                                    var reltype = mappedObject.GetType();
                                     var relMap = entityMap.Parent.GetEntityMap(reltype.FullName);
+                                    //build insert statement
+                                    SqlOperationInfo manyToManyOp = new SqlOperationInfo();
+                                    Relation mapRel = relMap.Relations.Where(r => r.ColumnName.Equals(rel.ReferenceColumn) && r.MapTableName.Equals(rel.MapTableName)).FirstOrDefault();
+
+                                    if (mapRel != null)
+                                    {
+                                        var paramName1 = InsertSqlBuilder.BuildParameterNameWithLevel(rel.MapColumn, rel.MapTableName, recursionLevel);
+                                        var paramName2 = InsertSqlBuilder.BuildParameterNameWithLevel(mapRel.MapColumn, mapRel.MapTableName, recursionLevel);
+                                        manyToManyOp.SqlText = string.Format("INSERT INTO {0} ({1}, {2}) VALUES({3},{4})",rel.MapTableName, rel.MapColumn, mapRel.MapColumn, sqlMapper.CreateParameterName(paramName1), sqlMapper.CreateParameterName(paramName2));
+                                        var param1Prop = entGetSets.Properties[mapRel.ReferenceProperty];
+                                        EntityGetSetInfo mappedGetSet;
+                                        if (!getSetStore.TryGetValue(reltype, out mappedGetSet))
+                                        {
+                                            mappedGetSet = getSetStore.Add(reltype, relMap);
+                                        }
+                                        var param2Prop = mappedGetSet.Properties[rel.ReferenceProperty];
+                                        manyToManyOp.Parameters = new ParamHolder[] { new ParamHolder(paramName1, param1Prop.Getter, entity) { IsNullable = rel.IsNullable }, 
+                                            new ParamHolder(paramName2, param2Prop.Getter, mappedObject) { IsNullable = mapRel.IsNullable } };
+
+                                        operation.Operations.Add(manyToManyOp);
+                                    }
                                 }
                             }
                         }

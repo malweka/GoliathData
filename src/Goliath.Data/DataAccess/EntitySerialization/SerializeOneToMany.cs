@@ -2,16 +2,16 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-
-using Goliath.Data.Mapping;
 using System.Data.Common;
-using Goliath.Data.Diagnostics;
-using Goliath.Data.DynamicProxy;
-using Goliath.Data.Sql;
-using Goliath.Data.Providers;
 
 namespace Goliath.Data.DataAccess
 {
+    using Mapping;    
+    using Diagnostics;
+    using DynamicProxy;
+    using Sql;
+    using Providers;
+
     class SerializeOneToMany : RelationSerializer
     {
         public SerializeOneToMany(SqlMapper sqlMapper, GetSetStore getSetStore)
@@ -25,6 +25,7 @@ namespace Goliath.Data.DataAccess
             var propType = pInfo.PropertType;
             var relEntMap = entityMap.Parent.GetEntityMap(rel.ReferenceEntityName);
             Type refEntityType = propType.GetGenericArguments().FirstOrDefault();
+
             if (refEntityType == null)
             {
                 throw new MappingException(string.Format("property type mismatch: {0} should be IList<T>", rel.PropertyName));
