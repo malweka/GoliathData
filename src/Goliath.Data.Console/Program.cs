@@ -10,8 +10,9 @@ using Goliath.Data.Providers.Sqlite;
 using Goliath.Data.Providers.SqlServer;
 using Goliath.Data.Sql;
 using Goliath.Data.Transformers;
-//using WebZoo.Data;
+using WebZoo.Data;
 //using WebZoo.Data.SqlServer;
+using Goliath.Data.CodeGen;
 
 namespace WebZoo.Data
 {
@@ -25,16 +26,20 @@ namespace WebZoo.Data
             string sqlServerWorkingDirectory = Path.Combine(currentDir, "Generated", "Mssql2008");
             string sqliteWorkingDirectory = Path.Combine(currentDir, "Generated", "Sqlite");
             string templatePath = currentDir;
-
+            
             Console.WriteLine("Start run");
 
+            SupportedRdbms rdbms = SupportedRdbms.Sqlite3;
+            WebZooRunner zoorunner = new WebZooRunner(rdbms, new CodeGenerator(), true);
+            zoorunner.CreateMap();
+            zoorunner.GenerateCode();
             //BuildSqlite(sqliteWorkingDirectory);
             //BuildSqlServer(sqlServerWorkingDirectory);
 
             //Generate(sqlServerWorkingDirectory, templatePath);
             //Generate(sqliteWorkingDirectory, templatePath);
 
-            QueryTest(sqliteWorkingDirectory);
+            //QueryTest(sqliteWorkingDirectory);
             Console.WriteLine("done");
             //Console.ReadKey();
 
