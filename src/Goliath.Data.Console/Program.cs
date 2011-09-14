@@ -1,17 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
-using System.Text;
+using Goliath.Data;
+using Goliath.Data.Generators;
+using Goliath.Data.Mapping;
 using Goliath.Data.Providers;
 using Goliath.Data.Providers.Sqlite;
 using Goliath.Data.Providers.SqlServer;
-using Goliath.Data.Generators;
-using System.IO;
-using Goliath.Data.Mapping;
-using Goliath.Data.Transformers;
-using Goliath.Data.DataAccess;
 using Goliath.Data.Sql;
-using Goliath.Data;
+using Goliath.Data.Transformers;
 //using WebZoo.Data;
 //using WebZoo.Data.SqlServer;
 
@@ -254,7 +252,7 @@ namespace WebZoo.Data
                 zoodapter.Insert(zooM, true);
                 //animalapter.Insert(an1);
 
-                animalapter.Insert(an1, true);
+                //animalapter.Insert(an1, true);
             }
             catch (Exception ex)
             {

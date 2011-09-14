@@ -40,6 +40,14 @@ namespace Goliath.Data.DataAccess
             return store.TryGetValue(key, out getSetterInfo);
         }
 
+        public EntityGetSetInfo Add(Type key, EntityMap entityMap)
+        {
+            EntityGetSetInfo info = new EntityGetSetInfo(key);
+            info.Load(entityMap);
+            Add(key, info);
+            return info;
+        }
+
     }
 
     [Serializable]

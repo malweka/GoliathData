@@ -3,14 +3,15 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Linq;
-using Goliath.Data.Config;
-using Goliath.Data.DataAccess;
-using Goliath.Data.Diagnostics;
-using Goliath.Data.Mapping;
-using Goliath.Data.Sql;
 
 namespace Goliath.Data
 {
+    using Config;
+    using DataAccess;
+    using Diagnostics;
+    using Mapping;
+    using Sql;
+
     /// <summary>
     /// 
     /// </summary>
