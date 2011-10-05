@@ -6,7 +6,6 @@ using System.Linq.Expressions;
 
 namespace Goliath
 {
-
     [Serializable]
     public class ChangeItem
     {
