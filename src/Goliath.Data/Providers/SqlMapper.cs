@@ -17,8 +17,8 @@ namespace Goliath.Data.Providers
 
         Dictionary<string, DbTypeInfo> typeMap = new Dictionary<string, DbTypeInfo>();
         //Dictionary<SqlStatement, string> statements = new Dictionary<SqlStatement, string>(Utils.EnumComparer<SqlStatement>.Instance);
-        Dictionary<string, ISqlFunction> functionMap = new Dictionary<string, ISqlFunction>();
-        Dictionary<string, string> translationTypeMap;// = new Dictionary<string, string>();
+        protected Dictionary<string, ISqlFunction> functionMap = new Dictionary<string, ISqlFunction>();
+        protected Dictionary<string, string> translationTypeMap;// = new Dictionary<string, string>();
         List<string> reservedWords = new List<string>();
 
         /// <summary>
@@ -137,6 +137,7 @@ namespace Goliath.Data.Providers
                 canTranslate = true;
 
                 RegisterTranslateType("integer", "integer");
+                RegisterTranslateType("int", "integer");
                 RegisterTranslateType("char", "char");
                 RegisterTranslateType("nvarchar", "nvarchar");
                 RegisterTranslateType("nchar", "nchar");
@@ -174,6 +175,10 @@ namespace Goliath.Data.Providers
             if (!string.IsNullOrWhiteSpace(fType))
             {
                 translationTypeMap.TryGetValue(fType, out to);
+
+                if (to == null)
+                    to = fType;
+
                 if ((fromType.Length > 0) && !fType.Equals("text") && !fType.Equals("ntext") && !fType.Equals("image"))
                 {
                     if (!string.IsNullOrWhiteSpace(to) && to.ToUpper().Equals("BLOB"))
@@ -229,7 +234,7 @@ namespace Goliath.Data.Providers
                     translationTypeMap.Remove(fromType);
                 }
 
-                translationTypeMap.Add(fromType, toType.ToUpper());
+                translationTypeMap.Add(fromType, toType);
             }
         }
 

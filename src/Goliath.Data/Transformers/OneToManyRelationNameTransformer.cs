@@ -32,7 +32,7 @@ namespace Goliath.Data.Transformers
                     return original.Pascalize();
                 }
 
-                if (original.EndsWith(prefix, StringComparison.InvariantCultureIgnoreCase))
+                if (original.EndsWith(prefix, StringComparison.InvariantCultureIgnoreCase) && !mapModel.IsPrimaryKey)
                 {
                     string name = original.Substring(0, original.IndexOf("Id", StringComparison.OrdinalIgnoreCase));
                     //mapModel.PropertyName = name;
@@ -44,6 +44,8 @@ namespace Goliath.Data.Transformers
                     //mapModel.KeyFieldName = mapModel.PropertyName + "_Key";
                     return original.Pascalize();
                 }
+
+                //return original.Pascalize();
             }
             catch (Exception ex)
             {

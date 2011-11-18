@@ -157,6 +157,7 @@ namespace Goliath.Data.Mapping
                                 break;
                             case "type":
                                 property.ComplexTypeName = reader.Value;
+                                property.IsComplexType = true;
                                 break;
                             case "lazy":
                                 property.LazyLoad = ReadBool(reader.Value);
