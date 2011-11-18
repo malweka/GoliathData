@@ -41,10 +41,11 @@ namespace Goliath.Data.Mapping
             {
                 table.Name = tableNamer.Transform(table, table.Name);
                 table.TableAlias = tableAbbreviator.Abbreviate(table.Name);
+                var propertyListClone = table.ToArray();
 
-                for(int i=0; i<table.Count; i++)//foreach (var prop in table)
+                foreach (var prop in propertyListClone)
                 {
-                    var prop = table[i];
+                    //var prop = table[i];
 
                     if (prop is Relation)
                     {

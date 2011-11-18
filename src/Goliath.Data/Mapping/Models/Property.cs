@@ -245,28 +245,8 @@ namespace Goliath.Data.Mapping
         /// </returns>
         public virtual string ToString(Providers.SqlMapper sqlMapper)
         {
-            StringBuilder sqlSb = new StringBuilder(ColumnName);
-            var sType = sqlMapper.TranslateToSqlStringType(this) ?? SqlType;
-            sqlSb.AppendFormat(" {0}", sType);
-
-            //if (this.IsPrimaryKey)
-            //{
-            //    sqlSb.AppendFormat(" {0}", sqlMapper.PrimarykeySql().ToUpper());
-            //}
-            if (!string.IsNullOrWhiteSpace(DefaultValue))
-            {
-                string dVal = DefaultValue;
-                var sfunc = sqlMapper.GetFunction(DefaultValue);
-                if (sfunc != null)
-                    dVal = sfunc.ToString();
-                sqlSb.AppendFormat(" DEFAULT({0})", dVal);
-            }
-            if (!IsNullable)
-            {
-                sqlSb.Append(" NOT NULL");
-            }
-            
-            return sqlSb.ToString();
+            var txt = sqlMapper.TranslateToSqlStringType(this);
+            return txt;
         }
 
         /// <summary>
