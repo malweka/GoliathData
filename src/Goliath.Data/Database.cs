@@ -24,7 +24,7 @@ namespace Goliath.Data
         /// <returns></returns>
 		public IConfigurationManager Configure(string mapFile, ISessionStore sessionStore = null)
         {
-            return Configure(mapFile, null);
+            return Configure(mapFile, string.Empty, null);
         }
 
         /// <summary>

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -10,7 +10,6 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Goliath.Data.Console</RootNamespace>
     <AssemblyName>Goliath.Data.Console</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <SccProjectName>
     </SccProjectName>
@@ -54,35 +53,15 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="CodeGenerator.cs" />
-    <Compile Include="Generated\Mssql2008\Animal.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Generated\Mssql2008\Employee.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Generated\Mssql2008\Monkey.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Generated\Mssql2008\Zoo.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Generated\Sqlite\Animal.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Generated\Sqlite\Employee.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Generated\Sqlite\Monkey.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Generated\Sqlite\Zoo.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="IRunner.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TransactionWrapper.cs" />
     <Compile Include="WebZooRunner.cs" />
+    <Compile Include="Generated\Animal.cs" />
+    <Compile Include="Generated\Employee.cs" />
+    <Compile Include="Generated\Monkey.cs" />
+    <Compile Include="Generated\Zoo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config">
@@ -90,6 +69,7 @@
     </None>
     <None Include="Templates\Class.razt" />
     <None Include="Data\WebZoo.db" />
+    <None Include="Generated\GoData.Map.xml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Goliath.Data\Goliath.Data.csproj">
@@ -99,12 +79,6 @@
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
-    <Content Include="Generated\Mssql2008\GoData.Map.xml">
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Generated\Sqlite\GoData.Map.xml">
-      <SubType>Designer</SubType>
-    </Content>
     <Content Include="Scripts\05_data_insert.sql" />
     <Content Include="Scripts\Mssql2008\WebZooAutoIncrement\01_animals.sql" />
     <Content Include="Scripts\Mssql2008\WebZooAutoIncrement\00_zoos.sql" />
@@ -135,4 +109,7 @@
   <Target Name="AfterBuild">
   </Target>
   -->
+  <ItemGroup>
+    <Folder Include="Generated\" />
+  </ItemGroup>
 </Project>

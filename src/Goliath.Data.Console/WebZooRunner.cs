@@ -64,19 +64,26 @@ namespace Goliath.Data.CodeGen
                 return workingFolder;
             }
         }
+		
+		string databaseFolder = string.Empty;
+		public string DatabaseFolder
+		{
+			get{ return databaseFolder;}
+		}
 
-        public WebZooRunner(SupportedRdbms rdbms, IGenerator codeGen, bool autoIncrement)
+        public WebZooRunner(SupportedRdbms rdbms, IGenerator codeGen, string databaseFolder, bool autoIncrement)
         {
             this.rdbms = rdbms;
             this.projectFolder = AppDomain.CurrentDomain.BaseDirectory.Substring(0, AppDomain.CurrentDomain.BaseDirectory.IndexOf("bin")); ;
             this.codeGen = codeGen;
             this.autoIncrement = autoIncrement;
-
+			this.databaseFolder = databaseFolder;
+			
             settings = new ProjectSettings();
 
             if (rdbms == SupportedRdbms.Sqlite3)
             {
-                string dbfile = Path.Combine(WorkingFolder, "WebZoo.db");
+                string dbfile = Path.Combine(databaseFolder, "WebZoo.db");
                 settings.ConnectionString = string.Format("Data Source={0}; Version=3", dbfile);
 
                 if (!File.Exists(dbfile))
@@ -99,7 +106,7 @@ namespace Goliath.Data.CodeGen
 
         void CreateSqliteDatabase(string dbfile)
         {
-            SqlMapper mapper = new SqliteSqlMapper();
+            //SqlMapper mapper = new SqliteSqlMapper();
             IDbConnector dbConnector = new SqliteDbConnector(settings.ConnectionString);
             IDbAccess db = new DbAccess(dbConnector);
 
@@ -124,7 +131,7 @@ namespace Goliath.Data.CodeGen
                     }
                     transaction.Commit();
                 }
-                catch (Exception ex)
+                catch //(Exception ex)
                 {
                     transaction.Rollback();
                     throw;
@@ -133,7 +140,7 @@ namespace Goliath.Data.CodeGen
             }
         }
 
-        public void CreateMap()
+        public Mapping.MapConfig CreateMap()
         {
             ComplexType baseModel = null;
             if (autoIncrement)
@@ -158,7 +165,7 @@ namespace Goliath.Data.CodeGen
             }
 
             settings.BaseModel = baseModel.FullName;
-            codeGen.GenerateMapping(WorkingFolder, settings, baseModel, rdbms);
+            return codeGen.GenerateMapping(WorkingFolder, settings, baseModel, rdbms);
         }
 
         public void GenerateCode()
