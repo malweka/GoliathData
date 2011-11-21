@@ -8,7 +8,7 @@
 using System;
 using System.Collections.Generic;
 @{
-	ILogger logger = Logger.GetLogger(this.GetType());
+	//ILogger logger = Logger.GetLogger(this.GetType());
 	string _extends = string.Empty;
 	if(!string.IsNullOrWhiteSpace(Model.Extends))
 		_extends = string.Format(": {0}", Model.Extends);

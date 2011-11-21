@@ -21,7 +21,7 @@ namespace Goliath.Data.CodeGen
     public interface IGenerator
     {
         void GenerateCode(string templateFolder, string workingFolder);
-        void GenerateMapping(string workingFolder, ProjectSettings settings, ComplexType baseModel, SupportedRdbms rdbms);
+        MapConfig GenerateMapping(string workingFolder, ProjectSettings settings, ComplexType baseModel, SupportedRdbms rdbms);
     }
 
     public enum SupportedRdbms
