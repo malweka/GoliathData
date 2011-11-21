@@ -1,0 +1,74 @@
+﻿<goliath.data version="1.0.1.15" xmlns="http://schemas.hamsman.com/goliath/data/1.1">
+  <connectionString>Data Source=/Users/hamsman/development/goliathdata/src/Goliath.Data.Console/bin/Debug/WebZoo.db; Version=3</connectionString>
+  <tablePrefixes />
+  <namespace>WebZoo.Data</namespace>
+  <baseModel>WebZoo.Data.BaseEntityInt</baseModel>
+  <generatedBy>Sqlite</generatedBy>
+  <entities>
+    <entity name="Zoo" extends="WebZoo.Data.BaseEntityInt" assembly="WebZoo.Data" entityNamespace="WebZoo.Data" table="zoos" schema="main" alias="zoo">
+      <primaryKey>
+        <key name="Id" column="Id" clrType="System.Int32" dbType="Int32" sqlType="integer" scale="0" unique="True" primaryKey="True" nullable="False" />
+      </primaryKey>
+      <properties>
+        <property name="Name" column="Name" clrType="System.String" dbType="String" sqlType="nvarchar" length="50" scale="0" nullable="False" />
+        <property name="City" column="City" clrType="System.String" dbType="String" sqlType="nvarchar" length="50" scale="0" />
+        <property name="AcceptNewAnimals" column="AcceptNewAnimals" clrType="System.Boolean" dbType="Boolean" sqlType="bit" scale="0" default="0" nullable="False" />
+        <list name="AnimalsOnZooId" column="Id" dbType="AnsiString" scale="0" type="" lazy="True" relation="OneToMany" referenceTable="animals" referenceColumn="ZooId" referenceProperty="Zoo" refEntity="WebZoo.Data.Animal" />
+        <list name="EmployeesOnAssignedToZooId" column="Id" dbType="AnsiString" scale="0" type="" lazy="True" relation="OneToMany" referenceTable="employees" referenceColumn="AssignedToZooId" referenceProperty="AssignedToZoo" refEntity="WebZoo.Data.Employee" />
+      </properties>
+    </entity>
+    <entity name="Animal" extends="WebZoo.Data.BaseEntityInt" assembly="WebZoo.Data" entityNamespace="WebZoo.Data" table="animals" schema="main" alias="anim">
+      <primaryKey>
+        <key name="Id" column="Id" clrType="System.Int32" dbType="Int32" sqlType="integer" scale="0" unique="True" primaryKey="True" nullable="False" />
+      </primaryKey>
+      <properties>
+        <property name="Name" column="Name" clrType="System.String" dbType="String" sqlType="nvarchar" length="50" scale="0" nullable="False" />
+        <property name="Age" column="Age" clrType="System.Double" dbType="Single" sqlType="float" scale="0" nullable="False" />
+        <property name="Location" column="Location" clrType="System.String" dbType="AnsiStringFixedLength" sqlType="char" length="10" scale="0" />
+        <property name="ReceivedOn" column="ReceivedOn" clrType="System.DateTime" dbType="DateTime" sqlType="datetime" scale="0" nullable="False" />
+        <property name="ZooId" column="ZooId" clrType="System.Int32" dbType="Int32" sqlType="integer" scale="0" nullable="False" />
+        <reference name="Zoo" column="ZooId" clrType="System.Int32" dbType="Int32" sqlType="integer" scale="0" nullable="False" relation="ManyToOne" referenceTable="zoos" referenceColumn="Id" referenceProperty="Id" refConstraint="fk_animals_zoos0" refEntity="WebZoo.Data.Zoo" />
+        <list name="EmployeesOnAnimalsHandler_AnimalId" column="Id" dbType="AnsiString" scale="0" type="" lazy="True" relation="ManyToMany" referenceTable="employees" referenceColumn="Id" referenceProperty="Id" refEntity="WebZoo.Data.Employee" inverse="True" mapColumn="AnimalId" mapTable="animals_handlers" />
+      </properties>
+    </entity>
+    <entity name="Employee" extends="WebZoo.Data.BaseEntityInt" assembly="WebZoo.Data" entityNamespace="WebZoo.Data" table="employees" schema="main" alias="empl">
+      <primaryKey>
+        <key name="Id" column="Id" clrType="System.Int32" dbType="Int32" sqlType="integer" scale="0" unique="True" primaryKey="True" nullable="False" />
+      </primaryKey>
+      <properties>
+        <property name="FirstName" column="FirstName" clrType="System.String" dbType="String" sqlType="nvarchar" length="50" scale="0" nullable="False" />
+        <property name="LastName" column="LastName" clrType="System.String" dbType="String" sqlType="nvarchar" length="50" scale="0" nullable="False" />
+        <property name="EmailAddress" column="EmailAddress" clrType="System.String" dbType="String" sqlType="nvarchar" length="50" scale="0" />
+        <property name="Telephone" column="Telephone" clrType="System.String" dbType="String" sqlType="nvarchar" length="50" scale="0" />
+        <property name="Title" column="Title" clrType="System.String" dbType="String" sqlType="nvarchar" length="150" scale="0" />
+        <property name="HiredOn" column="HiredOn" clrType="System.DateTime" dbType="DateTime" sqlType="datetime" scale="0" nullable="False" />
+        <property name="AssignedToZooId" column="AssignedToZooId" clrType="System.Nullable`1[System.Int32]" dbType="Int32" sqlType="integer" scale="0" />
+        <reference name="AssignedToZoo" column="AssignedToZooId" clrType="System.Nullable`1[System.Int32]" dbType="Int32" sqlType="integer" scale="0" relation="ManyToOne" referenceTable="zoos" referenceColumn="Id" referenceProperty="Id" refConstraint="fk_employees_zoos0" refEntity="WebZoo.Data.Zoo" />
+        <list name="AnimalsOnAnimalsHandler_EmployeeId" column="Id" dbType="AnsiString" scale="0" type="" lazy="True" relation="ManyToMany" referenceTable="animals" referenceColumn="Id" referenceProperty="Id" refEntity="WebZoo.Data.Animal" mapColumn="EmployeeId" mapTable="animals_handlers" />
+      </properties>
+    </entity>
+    <entity name="AnimalsHandler" extends="WebZoo.Data.BaseEntityInt" linkTable="True" assembly="WebZoo.Data" entityNamespace="WebZoo.Data" table="animals_handlers" schema="main" alias="ani1">
+      <primaryKey>
+        <key name="AnimalId" column="AnimalId" clrType="System.Int32" dbType="Int32" sqlType="integer" scale="0" unique="True" primaryKey="True" nullable="False" relation="ManyToOne" referenceTable="animals" referenceColumn="Id" referenceProperty="Id" refConstraint="fk_animals_handlers_animals1" refEntity="WebZoo.Data.Animal" />
+        <key name="EmployeeId" column="EmployeeId" clrType="System.Int32" dbType="Int32" sqlType="integer" scale="0" unique="True" primaryKey="True" nullable="False" relation="ManyToOne" referenceTable="employees" referenceColumn="Id" referenceProperty="Id" refConstraint="fk_animals_handlers_employees0" refEntity="WebZoo.Data.Employee" />
+      </primaryKey>
+      <properties />
+    </entity>
+    <entity name="Monkey" extends="WebZoo.Data.Animal" assembly="WebZoo.Data" entityNamespace="WebZoo.Data" table="monkeys" schema="main" alias="monk">
+      <primaryKey>
+        <key name="Id" column="Id" clrType="System.Int32" dbType="Int32" sqlType="integer" scale="0" unique="True" primaryKey="True" nullable="False" relation="ManyToOne" referenceTable="animals" referenceColumn="Id" referenceProperty="Id" refConstraint="fk_monkeys_animals0" refEntity="WebZoo.Data.Animal" />
+      </primaryKey>
+      <properties>
+        <property name="Family" column="Family" clrType="System.String" dbType="String" sqlType="nvarchar" length="50" scale="0" />
+        <property name="CanDoTricks" column="CanDoTricks" clrType="System.Boolean" dbType="Boolean" sqlType="bit" scale="0" default="0" nullable="False" />
+      </properties>
+    </entity>
+  </entities>
+  <complexTypes>
+    <type fullname="WebZoo.Data.BaseEntityInt" enum="False">
+      <properties>
+        <property name="Id" column="Id" clrType="System.Int32" dbType="Guid" scale="0" unique="True" primaryKey="True" />
+      </properties>
+    </type>
+  </complexTypes>
+</goliath.data>
