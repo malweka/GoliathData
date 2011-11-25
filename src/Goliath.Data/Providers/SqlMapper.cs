@@ -354,6 +354,12 @@ namespace Goliath.Data.Providers
         public abstract string IdentitySql(int increment, int seed);
 
         /// <summary>
+        /// Selects the last insert row id SQL.
+        /// </summary>
+        /// <returns></returns>
+        public abstract string SelectLastInsertRowIdSql();
+
+        /// <summary>
         /// Gets the column create SQL.
         /// </summary>
         /// <param name="column">The column.</param>

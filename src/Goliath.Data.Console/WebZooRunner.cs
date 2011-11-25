@@ -86,11 +86,12 @@ namespace Goliath.Data.CodeGen
                 string dbfile = Path.Combine(databaseFolder, "WebZoo.db");
                 settings.ConnectionString = string.Format("Data Source={0}; Version=3", dbfile);
 
-                if (!File.Exists(dbfile))
+                if (File.Exists(dbfile))
                 {
-                    CreateSqliteDatabase(dbfile);
+                    File.Delete(dbfile);
                 }
 
+                CreateSqliteDatabase(dbfile);
             }
             else
             {

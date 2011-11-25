@@ -2,10 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Goliath.Data.Mapping;
 
 namespace Goliath.Data.Generators
 {
+    using Providers;
+    using Mapping;
+
     /// <summary>
     /// 
     /// </summary>
@@ -20,7 +22,7 @@ namespace Goliath.Data.Generators
         /// <param name="entityMap">The entity map.</param>
         /// <param name="propertyName">Name of the property.</param>
         /// <returns></returns>
-        public Guid Generate(EntityMap entityMap, string propertyName, out Sql.SqlOperationPriority priority)
+        public Guid Generate(SqlMapper sqlMapper, EntityMap entityMap, string propertyName, out Sql.SqlOperationPriority priority)
         {
             priority = Sql.SqlOperationPriority.Low;
             return NewGuidComb();
@@ -60,9 +62,9 @@ namespace Goliath.Data.Generators
         /// <param name="entityMap">The entity map.</param>
         /// <param name="propertyName">Name of the property.</param>
         /// <returns></returns>
-        object IKeyGenerator.GenerateKey(EntityMap entityMap, string propertyName, out Sql.SqlOperationPriority priority)
+        object IKeyGenerator.GenerateKey(SqlMapper sqlMapper, EntityMap entityMap, string propertyName, out Sql.SqlOperationPriority priority)
         {
-            return Generate(entityMap, propertyName, out priority);
+            return Generate(sqlMapper, entityMap, propertyName, out priority);
         }
 
         #endregion

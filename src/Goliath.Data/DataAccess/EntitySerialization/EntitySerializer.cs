@@ -234,18 +234,25 @@ namespace Goliath.Data.DataAccess
             var dr = dataReader[ordinal];
             if ((dataReader[ordinal] != null) && (dataReader[ordinal] != DBNull.Value))
             {
-                Type actualType = dr.GetType();
-                if (actualType.Equals(expectedType))
-                    return dr;
-                else
-                {
-                    var converter = TypeConverterStore.GetConverterFactoryMethod(expectedType);
-                    return converter.Invoke(dr);
-                }
-
+                return ReadFieldData(expectedType, dr);
             }
             else
                 return null;
+        }
+
+        public object ReadFieldData(Type expectedType, object value)
+        {
+            if (value == null)
+                return null;
+
+            Type actualType = value.GetType();
+            if (actualType.Equals(expectedType))
+                return value;
+            else
+            {
+                var converter = TypeConverterStore.GetConverterFactoryMethod(expectedType);
+                return converter.Invoke(value);
+            }
         }
 
         #endregion

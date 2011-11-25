@@ -47,6 +47,15 @@ namespace Goliath.Data.Providers.Sqlite
             return "autoincrement";
         }
 
+        /// <summary>
+        /// Selects the last insert row id SQL.
+        /// </summary>
+        /// <returns></returns>
+        public override string SelectLastInsertRowIdSql()
+        {
+            return "SELECT last_insert_rowid()";
+        }
+
         public override string CreateParameterName(string variableName)
         {
             return string.Format("${0}", variableName);
