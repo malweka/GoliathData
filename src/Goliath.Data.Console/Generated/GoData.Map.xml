@@ -1,5 +1,5 @@
 ﻿<goliath.data version="1.0.1.15" xmlns="http://schemas.hamsman.com/goliath/data/1.1">
-  <connectionString>Data Source=C:\Development\Me\GoliathDataEditor\GoliathData\src\Goliath.Data.Console\bin\Debug\WebZoo.db; Version=3</connectionString>
+  <connectionString>Data Source=WebZoo.db; Version=3</connectionString>
   <tablePrefixes />
   <namespace>WebZoo.Data</namespace>
   <baseModel>WebZoo.Data.BaseEntityInt</baseModel>
