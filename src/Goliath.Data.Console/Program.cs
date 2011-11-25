@@ -314,6 +314,7 @@ namespace WebZoo.Data
             }
 
             Console.WriteLine("we have sessions");
+			Console.ReadLine();
         }
     }
 }
