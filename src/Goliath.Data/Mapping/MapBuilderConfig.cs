@@ -59,7 +59,8 @@ namespace Goliath.Data.Mapping
             ComplexTypes = new ComplexTypeCollection();
             Settings = new ProjectSettings();
             PrimaryKeyGeneratorStore = new KeyGeneratorStore();
-            PrimaryKeyGeneratorStore.Add(new Generators.GuidCombGenerator() { });
+            PrimaryKeyGeneratorStore.Add(new Generators.GuidCombGenerator());
+            PrimaryKeyGeneratorStore.Add(new Generators.AutoIncrementGenerator());
         }
 
         /// <summary>

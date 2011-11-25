@@ -5,6 +5,7 @@ using System.Text;
 
 namespace Goliath.Data.Mapping
 {
+    using Providers;
     /// <summary>
     /// 
     /// </summary>
@@ -19,10 +20,12 @@ namespace Goliath.Data.Mapping
         /// <summary>
         /// Generates the key.
         /// </summary>
+        /// <param name="sqlMapper">The SQL mapper.</param>
         /// <param name="entityMap">The entity map.</param>
         /// <param name="propertyName">Name of the property.</param>
+        /// <param name="priority">The priority.</param>
         /// <returns></returns>
-        Object GenerateKey(EntityMap entityMap, string propertyName, out Sql.SqlOperationPriority priority);
+        Object GenerateKey(SqlMapper sqlMapper, EntityMap entityMap, string propertyName, out Sql.SqlOperationPriority priority);
         /// <summary>
         /// Gets a value indicating whether this instance is database generated.
         /// </summary>
@@ -41,8 +44,12 @@ namespace Goliath.Data.Mapping
         /// <summary>
         /// Generates this instance.
         /// </summary>
+        /// <param name="sqlMapper">The SQL mapper.</param>
+        /// <param name="entityMap">The entity map.</param>
+        /// <param name="propertyName">Name of the property.</param>
+        /// <param name="priority">The priority.</param>
         /// <returns></returns>
-        T Generate(EntityMap entityMap, string propertyName, out Sql.SqlOperationPriority priority);
+        T Generate(SqlMapper sqlMapper, EntityMap entityMap, string propertyName, out Sql.SqlOperationPriority priority);
     }
 
     public interface IKeyGeneratorStore

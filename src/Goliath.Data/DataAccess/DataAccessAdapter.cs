@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Linq;
+using System.Text;
 
 namespace Goliath.Data
 {
@@ -130,7 +131,7 @@ namespace Goliath.Data
             }
 
             Dictionary<string, QueryParam> neededParams = new Dictionary<string, QueryParam>();
-            List<string> inserts = new List<string>();
+            List<SqlOperationInfo> inserts = new List<SqlOperationInfo>();
 
             using (var batchOp = sqlWorker.BuildInsertSql(entityMap, entity, recursive))
             {
@@ -138,8 +139,13 @@ namespace Goliath.Data
             }
 
             var paramList = session.DataAccess.CreateParameters(neededParams.Values);
-            var sql = string.Join(";\n", inserts);
-
+            StringBuilder sqlInserts = new StringBuilder();
+            for (int i = 0; i < inserts.Count; i++)
+            {
+                sqlInserts.Append(inserts[i].SqlText);
+                sqlInserts.Append(";\n");
+            }
+            string sql = sqlInserts.ToString();
             logger.Log(LogType.Debug, sql);
             try
             {
@@ -166,7 +172,7 @@ namespace Goliath.Data
 
         #endregion
 
-        void BuildOrExecuteInsertBatchOperation(ITransaction transaction, BatchSqlOperation batchOp, Dictionary<string, QueryParam> neededParams, List<string> batchInserts)
+        void BuildOrExecuteInsertBatchOperation(ITransaction transaction, BatchSqlOperation batchOp, Dictionary<string, QueryParam> neededParams, List<SqlOperationInfo> batchOperations)
         {
             if (batchOp == null)
                 throw new ArgumentNullException("batchOp");
@@ -180,78 +186,89 @@ namespace Goliath.Data
                 {
                     //we expects that this queries will be for generating ideas and that the ID will be the first column
                     //returned and only 1 row of data. Therefore, we will reader column 1 row 1 ignore rest.
-                    ReadGeneratedData(hasGreaterPriority[i], neededParams);
+                    ReadGeneratedId(hasGreaterPriority[i], neededParams);
                     batchOp.KeyGenerationOperations.Remove(hasGreaterPriority[i].Key);
                 }
             }
 
-            List<string> inserts = new List<string>();
+            List<SqlOperationInfo> inserts = new List<SqlOperationInfo>();
 
             List<QueryParam> insertParams = new List<QueryParam>();
             insertParams.AddRange(neededParams.Values);
 
             for (int i = 0; i < batchOp.Operations.Count; i++)
             {
-                inserts.Add(batchOp.Operations[i].SqlText);
+                inserts.Add(batchOp.Operations[i]);
                 insertParams.AddRange(batchOp.Operations[i].Parameters);
             }
 
-            //read if we have post insert get id sql
-            if (batchOp.KeyGenerationOperations.Count > 0)
+            ////read if we have post insert get id sql
+            //if (batchOp.KeyGenerationOperations.Count > 0)
+            //{
+            //    foreach (var kop in batchOp.KeyGenerationOperations)
+            //    {
+            //       inserts.Add(kop.Value.Operation.SqlText);
+            //        //ReadGeneratedId(kop, neededParams);
+            //    }
+
+            //    //batchOp.KeyGenerationOperations.Clear();
+            //}
+
+            foreach (var param in insertParams)
             {
-                foreach (var kop in batchOp.KeyGenerationOperations)
-                {
-                    inserts.Add(kop.Value.Operation.SqlText);
-                }
+                if (!neededParams.ContainsKey(param.Name))
+                    neededParams.Add(param.Name, param);
             }
 
             if (batchOp.Priority < SqlOperationPriority.High)
             {
-                foreach (var param in insertParams)
-                {
-                    if (!neededParams.ContainsKey(param.Name))
-                        neededParams.Add(param.Name, param);
-                }
-                batchInserts.AddRange(inserts);
-
-                for (int i = 0; i < batchOp.SubOperations.Count; i++)
-                {
-                    BuildOrExecuteInsertBatchOperation(transaction, batchOp.SubOperations[i], neededParams, batchInserts);
-                }
+                batchOperations.AddRange(inserts);
             }
-
             else
             {
                 var paramList = session.DataAccess.CreateParameters(neededParams.Values);
-                var sql = string.Join(";\n", inserts);
-                using (DbDataReader dataReader = session.DataAccess.ExecuteReader(session.ConnectionManager.OpenConnection(), transaction, sql, paramList.ToArray()))
+
+                for (int i = 0; i < inserts.Count; i++)
                 {
-                    if (batchOp.KeyGenerationOperations.Count > 0) // read resulting id that were created
+                    var sql = inserts[i].SqlText;
+                    var xt = session.DataAccess.ExecuteNonQuery(session.ConnectionManager.OpenConnection(), transaction, sql, paramList.ToArray());
+                    logger.Log(LogType.Debug, sql);
+                    if (batchOp.KeyGenerationOperations.Count > 0 && i == 0) // read resulting id that were created
                     {
                         //TODO: generated keys from database
+                        foreach (var kop in batchOp.KeyGenerationOperations)
+                        {
+                            //inserts.Add(kop.Value.Operation.SqlText);
+                            ReadGeneratedId(kop, neededParams);
+                        }
                     }
                 }
+
+            }
+
+            for (int i = 0; i < batchOp.SubOperations.Count; i++)
+            {
+                BuildOrExecuteInsertBatchOperation(transaction, batchOp.SubOperations[i], neededParams, batchOperations);
             }
         }
 
-        void ReadGeneratedData(KeyValuePair<string, KeyGenOperationInfo> kpair, Dictionary<string, QueryParam> neededParams)
+        void ReadGeneratedId(KeyValuePair<string, KeyGenOperationInfo> kpair, Dictionary<string, QueryParam> neededParams)
         {
             var kgInfo = kpair.Value;
             var paramName = kpair.Key;
 
-            DbDataReader dataReader;
-            dataReader = session.DataAccess.ExecuteReader(session.ConnectionManager.OpenConnection(), kgInfo.Operation.SqlText);
-            if (dataReader.HasRows)
+
+            var val = session.DataAccess.ExecuteScalar(session.ConnectionManager.OpenConnection(), kgInfo.Operation.SqlText);
+            if (val != null)
             {
-                dataReader.Read();
-                object id = serializer.ReadFieldData(kgInfo.PropertyType, 0, dataReader);
+                object id = serializer.ReadFieldData(kgInfo.PropertyType, val);
                 serializer.SetPropertyValue(kgInfo.Entity, kgInfo.PropertyName, id);
 
                 if (!neededParams.ContainsKey(paramName))
                     neededParams.Add(paramName, new QueryParam(paramName, id));
             }
 
-            dataReader.Dispose();
+            //dataReader.Dispose();
         }
 
         #region Queries

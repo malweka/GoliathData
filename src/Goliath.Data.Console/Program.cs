@@ -31,14 +31,10 @@ namespace WebZoo.Data
 
             SupportedRdbms rdbms = SupportedRdbms.Sqlite3;
             WebZooRunner zoorunner = new WebZooRunner(rdbms, new CodeGenerator(), AppDomain.CurrentDomain.BaseDirectory, true);
-            var mapConfig = zoorunner.CreateMap();
-            zoorunner.GenerateCode();
-            //BuildSqlite(sqliteWorkingDirectory);
-            //BuildSqlServer(sqlServerWorkingDirectory);
-
-            //Generate(sqlServerWorkingDirectory, templatePath);
-            //Generate(sqliteWorkingDirectory, templatePath);
-
+            //var mapConfig = zoorunner.CreateMap();
+            //zoorunner.GenerateCode();
+            string mapfile = Path.Combine(zoorunner.WorkingFolder, Goliath.Data.CodeGen.Constants.MapFileName);
+            var mapConfig = MapConfig.Create(mapfile);
             QueryTest(mapConfig);
             Console.WriteLine("done");
             //Console.ReadKey();
@@ -186,9 +182,9 @@ namespace WebZoo.Data
             var an1 = new Animal()
             {
                 Age = 12,
-                Location = "dw 44",
+                Location = "ERT 90-9",
                 ReceivedOn = DateTime.Now,
-                Name = "Snow Leopard",
+                Name = "Lion",
                 Zoo = zooM,
                 //Zoo = acceptingZoos[0],
                 //ZooId = acceptingZoos[0].Id,

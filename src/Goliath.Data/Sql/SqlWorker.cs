@@ -84,14 +84,14 @@ namespace Goliath.Data.Sql
                         if (getSetInfo.Properties.TryGetValue(pk.Key.PropertyName, out pInfo) && pk.CanGenerateKey(pInfo, entity, typeConverterStore))
                         {
                             SqlOperationPriority priority;
-                            var id = pk.KeyGenerator.GenerateKey(entityMap, pk.Key.PropertyName, out priority);
+                            var id = pk.KeyGenerator.GenerateKey(sqlMapper, entityMap, pk.Key.PropertyName, out priority);
                             pInfo.Setter(entity, id);
                         }
                     }
                     else
                     {
                         SqlOperationPriority priority;
-                        string genText = pk.KeyGenerator.GenerateKey(entityMap, pk.Key.PropertyName, out priority).ToString();
+                        string genText = pk.KeyGenerator.GenerateKey(sqlMapper, entityMap, pk.Key.PropertyName, out priority).ToString();
                         SqlOperationInfo genOper = new SqlOperationInfo() { CommandType = SqlStatementType.Select, Parameters = new QueryParam[] { }, SqlText = genText };
                         var genParamName = ParameterNameBuilderHelper.ColumnQueryName(pk.Key.ColumnName, entityMap.TableAlias);
 
@@ -169,9 +169,10 @@ namespace Goliath.Data.Sql
                 List<QueryParam> baseParameters = new List<QueryParam>();
                 baseParameters.AddRange(baseParamDictionary.Values);
                 baseClassOperation.Parameters = baseParameters;
-                operation = new BatchSqlOperation() { Priority = SqlOperationPriority.Medium };
+                operation = new BatchSqlOperation() { Priority = SqlOperationPriority.Low };
 
                 batchOperation.Operations.Add(baseClassOperation);
+                batchOperation.Priority = SqlOperationPriority.Medium;
                 batchOperation.SubOperations.Add(operation);
                 //level++;
             }
@@ -179,6 +180,7 @@ namespace Goliath.Data.Sql
             {
                 keygenerationOperations = GeneratePksForInsert(entity, entityMap, entGetSets);
                 operation = batchOperation;
+                operation.Priority = SqlOperationPriority.Medium;
             }
 
             InsertSqlBuilder entInsertSqlBuilder = new InsertSqlBuilder(sqlMapper, entityMap, recursionLevel, rootRecursionLevel);
@@ -193,8 +195,17 @@ namespace Goliath.Data.Sql
 
             if (keygenerationOperations.Count > 0)
             {
-                operation.KeyGenerationOperations = keygenerationOperations;
-                operation.Priority = SqlOperationPriority.High;
+                
+                if (isSubclass)
+                {
+                    batchOperation.KeyGenerationOperations = keygenerationOperations;
+                    batchOperation.Priority = SqlOperationPriority.High;
+                }
+                else
+                {
+                    operation.KeyGenerationOperations = keygenerationOperations;
+                    operation.Priority = SqlOperationPriority.High;
+                }
             }
 
             if (recursive)
@@ -252,9 +263,9 @@ namespace Goliath.Data.Sql
 
                                     if (mapRel != null)
                                     {
-                                        var paramName1 = InsertSqlBuilder.BuildParameterNameWithLevel(rel.MapColumn, rel.MapTableName, recursionLevel);
-                                        var paramName2 = InsertSqlBuilder.BuildParameterNameWithLevel(mapRel.MapColumn, mapRel.MapTableName, recursionLevel);
-                                        manyToManyOp.SqlText = string.Format("INSERT INTO {0} ({1}, {2}) VALUES({3},{4})",rel.MapTableName, rel.MapColumn, mapRel.MapColumn, sqlMapper.CreateParameterName(paramName1), sqlMapper.CreateParameterName(paramName2));
+                                        var paramName1 = InsertSqlBuilder.BuildParameterNameWithLevel(rel.MapColumn, entityMap.TableAlias, recursionLevel);
+                                        var paramName2 = InsertSqlBuilder.BuildParameterNameWithLevel(mapRel.MapColumn, relMap.TableAlias, recursionLevel);
+                                        manyToManyOp.SqlText = string.Format("INSERT INTO {0} ({1}, {2}) VALUES({3},{4})", rel.MapTableName, rel.MapColumn, mapRel.MapColumn, sqlMapper.CreateParameterName(paramName1), sqlMapper.CreateParameterName(paramName2));
                                         var param1Prop = entGetSets.Properties[mapRel.ReferenceProperty];
                                         EntityGetSetInfo mappedGetSet;
                                         if (!getSetStore.TryGetValue(reltype, out mappedGetSet))
@@ -265,7 +276,11 @@ namespace Goliath.Data.Sql
                                         manyToManyOp.Parameters = new ParamHolder[] { new ParamHolder(paramName1, param1Prop.Getter, entity) { IsNullable = rel.IsNullable }, 
                                             new ParamHolder(paramName2, param2Prop.Getter, mappedObject) { IsNullable = mapRel.IsNullable } };
 
-                                        operation.Operations.Add(manyToManyOp);
+                                        var manyToManySubOp = new BatchSqlOperation(){ Priority = SqlOperationPriority.Low, KeyGenerationOperations = new Dictionary<string,KeyGenOperationInfo>()};
+                                        manyToManySubOp.Operations.Add(manyToManyOp);
+                                        operation.SubOperations.Add(manyToManySubOp);
+                                        
+                                        //operation.Operations.Add(manyToManyOp);
                                     }
                                 }
                             }

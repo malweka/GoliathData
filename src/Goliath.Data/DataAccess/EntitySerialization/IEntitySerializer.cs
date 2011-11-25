@@ -78,6 +78,13 @@ namespace Goliath.Data.DataAccess
         /// <param name="dataReader">The data reader.</param>
         /// <returns></returns>
         object ReadFieldData(Type expectedType, int ordinal, DbDataReader dataReader);
+        /// <summary>
+        /// Reads the field data.
+        /// </summary>
+        /// <param name="expectedType">The expected type.</param>
+        /// <param name="value">The value.</param>
+        /// <returns></returns>
+        object ReadFieldData(Type expectedType, object value);
 
         /// <summary>
         /// Sets the property value.

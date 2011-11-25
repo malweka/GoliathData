@@ -28,7 +28,7 @@ namespace Goliath.Data.DataAccess
             AddConverter(typeof(int), ReadInt32);
             //Int64
             AddConverter(typeof(Nullable<long>), ReadNullableInt64);
-            AddConverter(typeof(int), ReadInt64);
+            AddConverter(typeof(long), ReadInt64);
             //Datetime
             AddConverter(typeof(Nullable<DateTime>), ReadNullableDateTime);
             AddConverter(typeof(DateTime), ReadDateTime);
@@ -80,7 +80,7 @@ namespace Goliath.Data.DataAccess
         public Func<Object, Object> GetConverterFactoryMethod(Type typeToConverTo)
         {
             if (typeToConverTo == null)
-                throw new ArgumentNullException("from");
+                throw new ArgumentNullException("typeToConverTo");
 
             Func<Object, Object> converter;
             if (converters.TryGetValue(typeToConverTo, out converter))

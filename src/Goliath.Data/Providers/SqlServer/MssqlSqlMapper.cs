@@ -87,6 +87,18 @@ namespace Goliath.Data.Providers.SqlServer
             return string.Format("identity({0},{1})", increment, seed);
         }
 
+        /// <summary>
+        /// Selects the last insert row id SQL.
+        /// </summary>
+        /// <returns></returns>
+        public override string SelectLastInsertRowIdSql()
+        {
+            //oracle SELECT SEQNAME.CURRVAL FROM DUAL;
+            //mysql SELECT LAST_INSERT_ID();
+            //postgresql SELECT lastval();
+            //sqlite SELECT last_insert_rowid()
+            return "SELECT SCOPE_IDENTITY()";
+        }
         //protected override string OnTranslateToSqlTypeString(Property fromType)
         //{
 
