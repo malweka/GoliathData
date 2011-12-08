@@ -396,6 +396,7 @@ namespace Goliath.Data.Mapping
                             entMap.AddKeyRange(keys);
                         }
 
+
                         else if (reader.CanReadElement("properties"))
                         {
                             bool hasReachedEndGracefully = false;
@@ -541,6 +542,41 @@ namespace Goliath.Data.Mapping
                 throw new MappingSerializationException(typeof(ComplexTypeCollection), "missing a </complexTypes> end tag");
             }
 
+            void Read_Project_PropertiesElement(XmlReader reader, MapConfig config)
+            {
+                //bool hasReachedEndGracefully = false;
+                while (reader.Read())
+                {
+                    if (reader.CanReadElement("property"))
+                    {
+                        string propName = null;
+                        string propValue = null;
+                        while (reader.MoveToNextAttribute())
+                        {
+                            var currAttribute = reader.Name;
+                            
+                            switch (currAttribute)
+                            {
+                                case "name":
+                                    propName = reader.Value;
+                                    break;
+                                case "value":
+                                    propValue = reader.Value;
+                                    break;
+                                default:
+                                    break;
+                            }
+                            
+                        }
+
+                        if (!string.IsNullOrWhiteSpace(propName))
+                            config.Settings.SetPropety(propName, propValue);
+                    }
+                    else if (reader.HasReachedEndOfElement("project.properties"))
+                        return;
+                }
+            }
+
             void Read_GoDataElements(XmlReader reader, MapConfig config)
             {
                 string previousElement = string.Empty;
@@ -562,6 +598,10 @@ namespace Goliath.Data.Mapping
                             case "complexTypes":
                                 if (reader.CanReadElement("complexTypes"))
                                     Read_ComplexTypesElement(reader, config);
+                                break;
+                            case "project.properties":
+                                if (reader.CanReadElement("project.properties"))
+                                    Read_Project_PropertiesElement(reader, config);
                                 break;
                             default:
                                 break;

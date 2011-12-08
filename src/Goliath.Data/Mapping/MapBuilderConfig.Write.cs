@@ -55,6 +55,22 @@ namespace Goliath.Data.Mapping
                     xmlWriter.WriteEndElement();
                 }
 
+                if (Settings.Properties.Count > 0)
+                {
+                    xmlWriter.WriteStartElement("project.properties");
+                    foreach (var prop in Settings.Properties)
+                    {
+                        xmlWriter.WriteStartElement("property");
+                        xmlWriter.WriteStartAttribute("name");
+                        xmlWriter.WriteString(prop.Key);
+                        xmlWriter.WriteEndAttribute();
+                        xmlWriter.WriteStartAttribute("value");
+                        xmlWriter.WriteString(prop.Value.ToString());
+                        xmlWriter.WriteEndAttribute();
+                        xmlWriter.WriteEndElement();
+                    }
+                    xmlWriter.WriteEndElement();
+                }
                 xmlWriter.WriteStartElement("entities");
                 foreach (var entity in EntityConfigs)
                 {

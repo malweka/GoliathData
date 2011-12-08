@@ -4,6 +4,9 @@
   <namespace>WebZoo.Data</namespace>
   <baseModel>WebZoo.Data.BaseEntityInt</baseModel>
   <generatedBy>Sqlite</generatedBy>
+  <project.properties>
+    <property name="Save_all_dates_UTC" value="True"/>
+  </project.properties>
   <entities>
     <entity name="Zoo" extends="WebZoo.Data.BaseEntityInt" assembly="WebZoo.Data" entityNamespace="WebZoo.Data" table="zoos" schema="main" alias="zoo">
       <primaryKey>
