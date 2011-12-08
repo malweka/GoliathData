@@ -65,6 +65,15 @@ namespace Goliath.Data
                 entityMap = map.GetEntityMap(entityType.FullName);
             }
 
+            //if (entityMap.Parent != null)
+            //{
+            //    string save_utc_prop;
+            //    if (entityMap.Parent.Settings.TryGetProperty(ProjectSettings.PropertyNames.SaveAllDateUTC, out save_utc_prop))
+            //    {
+            //        bool.TryParse(save_utc_prop, out saveDataInUtcFormat);
+            //    }
+            //}
+
             this.entityMap = entityMap;
         }
 
@@ -199,7 +208,10 @@ namespace Goliath.Data
             for (int i = 0; i < batchOp.Operations.Count; i++)
             {
                 inserts.Add(batchOp.Operations[i]);
-                insertParams.AddRange(batchOp.Operations[i].Parameters);
+                foreach (var paramet in batchOp.Operations[i].Parameters)
+                {
+                    insertParams.Add(paramet);
+                }
             }
 
             ////read if we have post insert get id sql
@@ -217,7 +229,9 @@ namespace Goliath.Data
             foreach (var param in insertParams)
             {
                 if (!neededParams.ContainsKey(param.Name))
+                {
                     neededParams.Add(param.Name, param);
+                }
             }
 
             if (batchOp.Priority < SqlOperationPriority.High)

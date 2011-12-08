@@ -57,7 +57,8 @@ namespace Goliath.Data
                 throw new ArgumentNullException("queryParam");
             try
             {
-                return dbConnector.CreateParameter(queryParam.Name, queryParam.Value);
+                object val = queryParam.Value;
+                return dbConnector.CreateParameter(queryParam.Name, val);
             }
             catch (Exception ex)
             {

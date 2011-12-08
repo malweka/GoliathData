@@ -53,9 +53,6 @@
       <HintPath>..\..\Dependencies\Razor\RazorEngine.dll</HintPath>
     </Reference>
     <Reference Include="System.Configuration" />
-    <Reference Include="System.Data.SQLite">
-      <HintPath>..\..\Dependencies\Sqlite\System.Data.SQLite.dll</HintPath>
-    </Reference>
     <Reference Include="System.Web.Razor">
       <HintPath>..\..\Dependencies\Razor\System.Web.Razor.dll</HintPath>
     </Reference>
@@ -145,7 +142,6 @@
     <Compile Include="Mapping\PostGenProcessors\RelationshipProcessor.cs" />
     <Compile Include="Mapping\Models\PrimaryKey.cs" />
     <Compile Include="Providers\SchemaDescriptor.cs" />
-    <Compile Include="Providers\Sqlite\SqliteProvider.cs" />
     <Compile Include="Providers\SqlServer\Constants.cs" />
     <Compile Include="Providers\SqlServer\Functions.cs" />
     <Compile Include="Providers\SqlServer\MssqlProvider.cs" />
@@ -157,11 +153,7 @@
     <Compile Include="Sql\ISqlWorker.cs" />
     <Compile Include="Sql\SqlOperationInfo.cs" />
     <Compile Include="QueryParam.cs" />
-    <Compile Include="Providers\Sqlite\SqliteDataAccess.cs" />
-    <Compile Include="Providers\Sqlite\SqliteSchemaDescriptor.cs" />
-    <Compile Include="Providers\Sqlite\SqliteSqlMapper.cs" />
     <Compile Include="Providers\SqlMapper.cs" />
-    <Compile Include="Providers\Sqlite\Constants.cs" />
     <Compile Include="Sql\Enums.cs" />
     <Compile Include="Sql\GroupBy.cs" />
     <Compile Include="Sql\InsertSqlBuilder.cs" />
