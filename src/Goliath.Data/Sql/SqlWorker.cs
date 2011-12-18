@@ -35,7 +35,7 @@ namespace Goliath.Data.Sql
             this.typeConverterStore = typeConverterStore;
         }
 
-        internal static SelectSqlBuilder BuildSelectSql(EntityMap entityMap, SqlMapper sqlMapper, IDbAccess dataAccess, PropertyQueryParam[] filters, out ICollection<DbParameter> dbParams)
+        internal static SelectSqlBuilder BuildSelectSql(EntityMap entityMap, SqlMapper sqlMapper, IDbAccess dataAccess, PropertyQueryParam[] filters)
         {
             SelectSqlBuilder queryBuilder = new SelectSqlBuilder(sqlMapper, entityMap);
             if ((filters != null) && (filters.Length > 0))
@@ -55,11 +55,7 @@ namespace Goliath.Data.Sql
                     };
                     queryBuilder.Where(w);
                 }
-
-                dbParams = dataAccess.CreateParameters(filters);
             }
-            else
-                dbParams = new DbParameter[] { };
 
             return queryBuilder;
         }

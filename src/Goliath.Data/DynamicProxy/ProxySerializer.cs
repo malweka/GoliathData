@@ -42,13 +42,13 @@ namespace Goliath.Data.DynamicProxy
             {
                 try
                 {
-                    DbParameter[] parameters;
+                    QueryParam[] parameters;
                     if (query.Parameters == null)
                     {
-                        parameters = new DbParameter[] { };
+                        parameters = new QueryParam[] { };
                     }
                     else
-                        parameters = dbAccess.CreateParameters(query.Parameters).ToArray();
+                        parameters = query.Parameters.ToArray();
 
                     logger.Log(LogType.Debug, string.Format("executing query {0}", query.SqlText));
                     var dataReader = dbAccess.ExecuteReader(connManager.OpenConnection(), query.SqlText, parameters);

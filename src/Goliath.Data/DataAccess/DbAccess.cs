@@ -46,41 +46,41 @@ namespace Goliath.Data
 
         #region Connection and parameter methods
 
-        public DbParameter CreateParameter(int i, object value)
-        {
-            return dbConnector.CreateParameter(i.ToString(), value);
-        }
+        //public DbParameter CreateParameter(int i, object value)
+        //{
+        //    return dbConnector.CreateParameter(i.ToString(), value);
+        //}
 
-        public DbParameter CreateParameter(QueryParam queryParam)
-        {
-            if (queryParam == null)
-                throw new ArgumentNullException("queryParam");
-            try
-            {
-                object val = queryParam.Value;
-                return dbConnector.CreateParameter(queryParam.Name, val);
-            }
-            catch (Exception ex)
-            {
-                throw new GoliathDataException(string.Format("Error while trying to create parameter {0}", queryParam.Name), ex);
-            }
-        }
+        //public DbParameter CreateParameter(QueryParam queryParam)
+        //{
+        //    if (queryParam == null)
+        //        throw new ArgumentNullException("queryParam");
+        //    try
+        //    {
+        //        object val = queryParam.Value;
+        //        return dbConnector.CreateParameter(queryParam.Name, val);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw new GoliathDataException(string.Format("Error while trying to create parameter {0}", queryParam.Name), ex);
+        //    }
+        //}
 
-        /// <summary>
-        /// Creates the parameters.
-        /// </summary>
-        /// <param name="queryParams">The query params.</param>
-        /// <returns></returns>
-        public ICollection<DbParameter> CreateParameters(IEnumerable<QueryParam> queryParams)
-        {
-            if(queryParams == null)
-                throw new ArgumentNullException("queryParams");
-            List<DbParameter> parameters = new List<DbParameter>();
-            foreach (var qp in queryParams)
-                parameters.Add(CreateParameter(qp));
+        ///// <summary>
+        ///// Creates the parameters.
+        ///// </summary>
+        ///// <param name="queryParams">The query params.</param>
+        ///// <returns></returns>
+        //public ICollection<DbParameter> CreateParameters(IEnumerable<QueryParam> queryParams)
+        //{
+        //    if(queryParams == null)
+        //        throw new ArgumentNullException("queryParams");
+        //    List<DbParameter> parameters = new List<DbParameter>();
+        //    foreach (var qp in queryParams)
+        //        parameters.Add(CreateParameter(qp));
 
-            return parameters;
-        }
+        //    return parameters;
+        //}
 
 
         #endregion
@@ -94,7 +94,7 @@ namespace Goliath.Data
         /// <param name="sql">The SQL.</param>
         /// <param name="parameters">The parameters.</param>
         /// <returns></returns>
-        public int ExecuteNonQuery(DbConnection conn,  string sql, params DbParameter[] parameters)
+        public int ExecuteNonQuery(DbConnection conn, string sql, params QueryParam[] parameters)
         {
             return ExecuteNonQuery(conn, null, sql, parameters);
         }
@@ -105,7 +105,7 @@ namespace Goliath.Data
         /// <param name="conn">The conn.</param>
         /// <param name="sql">The SQL.</param>
         /// <param name="parameters">The parameters.</param>
-        public int ExecuteNonQuery(DbConnection conn, ITransaction transaction, string sql, params DbParameter[] parameters)
+        public int ExecuteNonQuery(DbConnection conn, ITransaction transaction, string sql, params QueryParam[] parameters)
         {
             using (DbCommand cmd = conn.CreateCommand())
             {
@@ -118,14 +118,15 @@ namespace Goliath.Data
                 {
                     for (int i = 0; i < parameters.Length; i++)
                     {
-                        cmd.Parameters.Add(parameters[i]);
+                        var dbParam = dbConnector.CreateParameter(parameters[i].Name, parameters[i].Value);
+                        cmd.Parameters.Add(dbParam);
                     }
                 }
 
                 if (transaction != null)
                     transaction.Enlist(cmd);
 
-               return cmd.ExecuteNonQuery();
+                return cmd.ExecuteNonQuery();
             }
         }
 
@@ -136,7 +137,7 @@ namespace Goliath.Data
         /// <param name="sql">The SQL.</param>
         /// <param name="parameters">The parameters.</param>
         /// <returns></returns>
-        public object ExecuteScalar(DbConnection conn, string sql, params DbParameter[] parameters)
+        public object ExecuteScalar(DbConnection conn, string sql, params QueryParam[] parameters)
         {
             return ExecuteScalar(conn, null, sql, parameters);
         }
@@ -148,7 +149,7 @@ namespace Goliath.Data
         /// <param name="sql">The SQL.</param>
         /// <param name="parameters">The parameters.</param>
         /// <returns></returns>
-        public object ExecuteScalar(DbConnection conn, ITransaction transaction, string sql, params DbParameter[] parameters)
+        public object ExecuteScalar(DbConnection conn, ITransaction transaction, string sql, params QueryParam[] parameters)
         {
             using (DbCommand cmd = conn.CreateCommand())
             {
@@ -161,7 +162,8 @@ namespace Goliath.Data
                 {
                     for (int i = 0; i < parameters.Length; i++)
                     {
-                        cmd.Parameters.Add(parameters[i]);
+                        var dbParam = dbConnector.CreateParameter(parameters[i].Name, parameters[i].Value);
+                        cmd.Parameters.Add(dbParam);
                     }
                 }
 
@@ -179,7 +181,7 @@ namespace Goliath.Data
         /// <param name="sql">The SQL.</param>
         /// <param name="parameters">The parameters.</param>
         /// <returns></returns>
-        public DbDataReader ExecuteReader(DbConnection conn, string sql, params DbParameter[] parameters)
+        public DbDataReader ExecuteReader(DbConnection conn, string sql, params QueryParam[] parameters)
         {
             return ExecuteReader(conn, null, sql, parameters);
         }
@@ -191,20 +193,21 @@ namespace Goliath.Data
         /// <param name="sql">The SQL.</param>
         /// <param name="parameters">The parameters.</param>
         /// <returns></returns>
-        public DbDataReader ExecuteReader(DbConnection conn, ITransaction transaction, string sql, params DbParameter[] parameters)
-        {            
+        public DbDataReader ExecuteReader(DbConnection conn, ITransaction transaction, string sql, params QueryParam[] parameters)
+        {
             using (DbCommand cmd = conn.CreateCommand())
             {
                 cmd.CommandText = sql;
                 cmd.Connection = conn;
                 if (CommandTimeout != null)
                     cmd.CommandTimeout = CommandTimeout.Value;
-  
+
                 if (parameters != null)
                 {
                     for (int i = 0; i < parameters.Length; i++)
                     {
-                        cmd.Parameters.Add(parameters[i]);
+                        var dbParam = dbConnector.CreateParameter(parameters[i].Name, parameters[i].Value);
+                        cmd.Parameters.Add(dbParam);
                     }
                 }
 

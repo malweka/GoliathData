@@ -65,20 +65,20 @@ namespace Goliath.Data.Collections
                 var dbAccess = settings.CreateAccessor();
                 using (ConnectionManager connManager = new ConnectionManager(new ConnectionProvider(settings.Connector), !settings.Connector.AllowMultipleConnections))
                 {
-                   
-                        DbParameter[] parameters;
-                        if (query.Parameters == null)
-                        {
-                            parameters = new DbParameter[] { };
-                        }
-                        else
-                            parameters = dbAccess.CreateParameters(query.Parameters).ToArray();
+                    QueryParam[] parameters = null;
 
-                        logger.Log(LogType.Debug, string.Format("executing query {0}", query.SqlText));
-                        var dataReader = dbAccess.ExecuteReader(connManager.OpenConnection(), query.SqlText, parameters);
-                        list = factory.SerializeAll<T>(dataReader, entityMap);
+                    if (query.Parameters == null)
+                    {
+                        query.Parameters = new QueryParam[] { };
+                    }
+                    else
+                        parameters = query.Parameters.ToArray();
 
-                        connManager.CloseConnection();
+                    logger.Log(LogType.Debug, string.Format("executing query {0}", query.SqlText));
+                    var dataReader = dbAccess.ExecuteReader(connManager.OpenConnection(), query.SqlText, parameters);
+                    list = factory.SerializeAll<T>(dataReader, entityMap);
+
+                    connManager.CloseConnection();
                 }
                 isLoaded = true;
                 CleanUp();

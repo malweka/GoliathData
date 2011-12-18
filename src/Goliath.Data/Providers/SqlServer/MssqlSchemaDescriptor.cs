@@ -137,7 +137,7 @@ WHERE FK.TABLE_NAME = @tableName";
         protected virtual Dictionary<string, Property> ProcessColumns(EntityMap table)
         {
             Dictionary<string, Property> columnList = new Dictionary<string, Property>();
-            using (DbDataReader reader = db.ExecuteReader(Connection, SELECT_COLUMNS, dbConnector.CreateParameter("tableName", table.TableName)))
+            using (DbDataReader reader = db.ExecuteReader(Connection, SELECT_COLUMNS, new QueryParam("tableName", table.TableName)))
             {
                 while (reader.Read())
                 {
@@ -196,7 +196,7 @@ WHERE FK.TABLE_NAME = @tableName";
         protected virtual void ProcessConstraints(EntityMap table, Dictionary<string, Property> columnList)
         {
             List<string> constraints = new List<string>();
-            using (var reader = db.ExecuteReader(Connection, SELECT_CONSTRAINTS, dbConnector.CreateParameter("tableName", table.TableName)))
+            using (var reader = db.ExecuteReader(Connection, SELECT_CONSTRAINTS, new QueryParam("tableName", table.TableName)))
             {
                 while (reader.Read())
                 {
@@ -247,7 +247,7 @@ WHERE FK.TABLE_NAME = @tableName";
 
         protected virtual void ProcessReferences(EntityMap table, Dictionary<string, Property> columns)
         {
-            using (var reader = db.ExecuteReader(Connection, SELECT_REFERENCES, dbConnector.CreateParameter("tableName", table.TableName)))
+            using (var reader = db.ExecuteReader(Connection, SELECT_REFERENCES, new QueryParam("tableName", table.TableName)))
             {
                 while (reader.Read())
                 {
@@ -291,7 +291,7 @@ WHERE FK.TABLE_NAME = @tableName";
 
         void ProcessForeignKeys(EntityMap table)
         {
-            using (var reader = db.ExecuteReader(Connection, FIND_FOREIGN_KEYS, dbConnector.CreateParameter("tableName", table.TableName)))
+            using (var reader = db.ExecuteReader(Connection, FIND_FOREIGN_KEYS, new QueryParam("tableName", table.TableName)))
             {
                 while (reader.Read())
                 {
