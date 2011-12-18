@@ -12,27 +12,27 @@ namespace Goliath.Data
     /// </summary>
     public interface IDbAccess //: IDisposable
     {
-        /// <summary>
-        /// Creates the parameter.
-        /// </summary>
-        /// <param name="queryParam">The query param.</param>
-        /// <returns></returns>
-        DbParameter CreateParameter(QueryParam queryParam);
+        ///// <summary>
+        ///// Creates the parameter.
+        ///// </summary>
+        ///// <param name="queryParam">The query param.</param>
+        ///// <returns></returns>
+        //DbParameter CreateParameter(QueryParam queryParam);
 
-        /// <summary>
-        /// Creates the parameter.
-        /// </summary>
-        /// <param name="i">The i.</param>
-        /// <param name="value">The value.</param>
-        /// <returns></returns>
-        DbParameter CreateParameter(int i, object value);
+        ///// <summary>
+        ///// Creates the parameter.
+        ///// </summary>
+        ///// <param name="i">The i.</param>
+        ///// <param name="value">The value.</param>
+        ///// <returns></returns>
+        //DbParameter CreateParameter(int i, object value);
 
-        /// <summary>
-        /// Creates the parameters.
-        /// </summary>
-        /// <param name="queryParams">The query params.</param>
-        /// <returns></returns>
-        ICollection<DbParameter> CreateParameters(IEnumerable<QueryParam> queryParams);
+        ///// <summary>
+        ///// Creates the parameters.
+        ///// </summary>
+        ///// <param name="queryParams">The query params.</param>
+        ///// <returns></returns>
+        //ICollection<DbParameter> CreateParameters(IEnumerable<QueryParam> queryParams);
 
         #region Data access
 
@@ -43,7 +43,7 @@ namespace Goliath.Data
         /// <param name="sql">The SQL.</param>
         /// <param name="parameters">The parameters.</param>
         /// <returns></returns>
-        int ExecuteNonQuery(DbConnection conn, string sql, params DbParameter[] parameters);
+        int ExecuteNonQuery(DbConnection conn, string sql, params QueryParam[] parameters);
 
         /// <summary>
         /// Executes the non query.
@@ -53,7 +53,7 @@ namespace Goliath.Data
         /// <param name="sql">The SQL.</param>
         /// <param name="parameters">The parameters.</param>
         /// <returns></returns>
-        int ExecuteNonQuery(DbConnection conn, ITransaction transaction, string sql, params DbParameter[] parameters);
+        int ExecuteNonQuery(DbConnection conn, ITransaction transaction, string sql, params QueryParam[] parameters);
 
         /// <summary>
         /// Executes the scalar.
@@ -62,7 +62,7 @@ namespace Goliath.Data
         /// <param name="sql">The SQL.</param>
         /// <param name="parameters">The parameters.</param>
         /// <returns></returns>
-        object ExecuteScalar(DbConnection conn, string sql, params DbParameter[] parameters);
+        object ExecuteScalar(DbConnection conn, string sql, params QueryParam[] parameters);
 
         /// <summary>
         /// Executes the scalar.
@@ -72,7 +72,7 @@ namespace Goliath.Data
         /// <param name="sql">The SQL.</param>
         /// <param name="parameters">The parameters.</param>
         /// <returns></returns>
-        object ExecuteScalar(DbConnection conn, ITransaction transaction, string sql, params DbParameter[] parameters);
+        object ExecuteScalar(DbConnection conn, ITransaction transaction, string sql, params QueryParam[] parameters);
 
         /// <summary>
         /// Executes the reader.
@@ -81,7 +81,7 @@ namespace Goliath.Data
         /// <param name="sql">The SQL.</param>
         /// <param name="parameters">The parameters.</param>
         /// <returns></returns>
-        DbDataReader ExecuteReader(DbConnection conn, string sql, params DbParameter[] parameters);
+        DbDataReader ExecuteReader(DbConnection conn, string sql, params QueryParam[] parameters);
 
         /// <summary>
         /// Executes the reader.
@@ -91,7 +91,7 @@ namespace Goliath.Data
         /// <param name="sql">The SQL.</param>
         /// <param name="parameters">The parameters.</param>
         /// <returns></returns>
-        DbDataReader ExecuteReader(DbConnection conn, ITransaction transaction, string sql, params DbParameter[] parameters);
+        DbDataReader ExecuteReader(DbConnection conn, ITransaction transaction, string sql, params QueryParam[] parameters);
 
         #endregion
     }

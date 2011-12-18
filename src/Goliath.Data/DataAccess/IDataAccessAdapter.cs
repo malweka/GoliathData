@@ -11,7 +11,7 @@ namespace Goliath.Data
     /// 
     /// </summary>
     /// <typeparam name="TEntity">The type of the entity.</typeparam>
-    public interface IDataAccessAdapter<TEntity> : IDisposable
+    public interface IDataAccessAdapter<TEntity> : IDataAccessAdapter, IDisposable
     {
 
         #region Updates
@@ -66,7 +66,7 @@ namespace Goliath.Data
         /// <param name="sqlQuery">The SQL query.</param>
         /// <param name="parameters">The parameters.</param>
         /// <returns></returns>
-        IList<TEntity> FindAll(string sqlQuery, params System.Data.Common.DbParameter[] parameters);
+        IList<TEntity> FindAll(string sqlQuery, params QueryParam[] parameters);
 
         /// <summary>
         /// Finds all.

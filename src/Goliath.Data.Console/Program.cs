@@ -173,10 +173,6 @@ namespace WebZoo.Data
             var zoodapter = sess.CreateDataAccessAdapter<Zoo>();
             var animalapter = sess.CreateDataAccessAdapter<Animal>();
 
-            var allzoos = zoodapter.FindAll();
-            var acceptingZoos = zoodapter.FindAll(new PropertyQueryParam("AcceptNewAnimals", true));
-            long total;
-            var top5Zoo = zoodapter.FindAll(5, 0, out total);
             
             Zoo zooM = new Zoo() { Name = "Kitona", City = "Kitona", AcceptNewAnimals = true };
             var an1 = new Animal()
@@ -248,9 +244,10 @@ namespace WebZoo.Data
             emp1.AnimalsOnAnimalsHandler_EmployeeId.Add(an1);
             an1.EmployeesOnAnimalsHandler_AnimalId.Add(emp1);
 
+            zoodapter.Insert(zooM, true);
             try
             {
-                zoodapter.Insert(zooM, true);
+               
                 //animalapter.Insert(an1);
 
                 //animalapter.Insert(an1, true);
@@ -260,12 +257,16 @@ namespace WebZoo.Data
                 Console.WriteLine(ex.Message);
             }
 
+            var allzoos = zoodapter.FindAll();
+            var acceptingZoos = zoodapter.FindAll(new PropertyQueryParam("AcceptNewAnimals", true));
+            long total;
+            var top5Zoo = zoodapter.FindAll(5, 0, out total);
+
             MapConfig map = mapConfig;
 
             //var dbConnector = new Providers.SqlServer.MssqlDbConnector("Data Source=localhost;Initial Catalog=DbZoo;Integrated Security=True");
             var dbConnector = new Goliath.Data.Providers.Sqlite.SqliteDbConnector(mapConfig.Settings.ConnectionString);
             var dbAccess = new DbAccess(dbConnector);
-
 
             using (var conn = dbConnector.CreateNewConnection())
             {
