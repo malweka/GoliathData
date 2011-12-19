@@ -4,10 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Data;
 using System.Data.Common;
-using Goliath.Data.Providers;
+
 
 namespace Goliath.Data.DataAccess
 {
+    using Providers;
+
     [Serializable]
     class ConnectionProvider : IConnectionProvider
     {

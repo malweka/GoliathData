@@ -3,14 +3,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Data.Common;
-using Goliath.Data.DataAccess;
-using Goliath.Data.Providers;
-using Goliath.Data.Diagnostics;
-using Goliath.Data.Mapping;
-
 
 namespace Goliath.Data.Sql
 {
+    using DataAccess;
+    using Providers;
+    using Diagnostics;
+    using Mapping;
+
+    /// <summary>
+    /// 
+    /// </summary>
     public sealed class SqlWorker : ISqlWorker
     {
         SqlMapper sqlMapper;
@@ -59,6 +62,8 @@ namespace Goliath.Data.Sql
 
             return queryBuilder;
         }
+
+        #region Inserts
 
         internal Dictionary<string, KeyGenOperationInfo> GeneratePksForInsert(object entity, EntityMap entityMap, EntityGetSetInfo getSetInfo)
         {
@@ -159,7 +164,7 @@ namespace Goliath.Data.Sql
                 baseInsertSqlBuilder = new InsertSqlBuilder(sqlMapper, baseEntMap, recursionLevel, rootRecursionLevel);
                 keygenerationOperations = GeneratePksForInsert(entity, baseEntMap, entGetSets);
 
-                var baseParamDictionary = InsertSqlBuilder.BuildQueryParams(entity, entGetSets, baseEntMap, getSetStore, recursionLevel, rootRecursionLevel);
+                var baseParamDictionary = InsertSqlBuilder.BuildInsertQueryParams(entity, entGetSets, baseEntMap, getSetStore, recursionLevel, rootRecursionLevel);
                 SqlOperationInfo baseClassOperation = new SqlOperationInfo() { CommandType = SqlStatementType.Insert };
                 baseClassOperation.SqlText = baseInsertSqlBuilder.ToSqlString();
                 List<QueryParam> baseParameters = new List<QueryParam>();
@@ -181,7 +186,7 @@ namespace Goliath.Data.Sql
 
             InsertSqlBuilder entInsertSqlBuilder = new InsertSqlBuilder(sqlMapper, entityMap, recursionLevel, rootRecursionLevel);
 
-            var paramDictionary = InsertSqlBuilder.BuildQueryParams(entity, entGetSets, entityMap, getSetStore, recursionLevel, rootRecursionLevel);
+            var paramDictionary = InsertSqlBuilder.BuildInsertQueryParams(entity, entGetSets, entityMap, getSetStore, recursionLevel, rootRecursionLevel);
             SqlOperationInfo operationInfo = new SqlOperationInfo() { CommandType = SqlStatementType.Insert };
             operationInfo.SqlText = entInsertSqlBuilder.ToSqlString();
             List<QueryParam> parameters = new List<QueryParam>();
@@ -290,6 +295,21 @@ namespace Goliath.Data.Sql
                 //    }
                 //}
             }
+        }
+
+        #endregion
+
+        public BatchSqlOperation BuildUpdateSql<TEntity>(EntityMap entityMap, TEntity entity, bool updateManyToManyRelation = false)
+        {
+            EntityMap baseEntMap = null;
+
+            if (entityMap.IsSubClass)
+            {
+                baseEntMap = entityMap.Parent.GetEntityMap(entityMap.Extends);
+            }
+
+            throw new NotImplementedException();
+            
         }
 
     }

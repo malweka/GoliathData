@@ -1,13 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.IO;
 using System.Text;
-using System.IO;
-using Goliath.Data.Utils;
 using RazorEngine;
 
 namespace Goliath.Data.Generators
 {
+    using Utils;
+
    public class RazorCodeGenerator : ICodeGenerator
    {
       #region ICodeGenerator Members

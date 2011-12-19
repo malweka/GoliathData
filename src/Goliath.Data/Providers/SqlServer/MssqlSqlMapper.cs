@@ -1,12 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Data;
+using System.Text;
 
 namespace Goliath.Data.Providers.SqlServer
 {
-    using Mapping;
 
     [Serializable]
     public class Mssq2008SqlMapper : SqlMapper

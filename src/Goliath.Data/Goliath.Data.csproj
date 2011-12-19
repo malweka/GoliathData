@@ -167,6 +167,7 @@
     <Compile Include="Sql\SqlJoin.cs" />
     <Compile Include="Sql\SqlStatement.cs" />
     <Compile Include="Sql\SqlWorker.cs" />
+    <Compile Include="Sql\UpdateSqlBuilder.cs" />
     <Compile Include="Sql\WhereStatement.cs" />
     <Compile Include="ThreadStaticSessionStore.cs" />
     <Compile Include="Transformers\Abbreviator.cs" />

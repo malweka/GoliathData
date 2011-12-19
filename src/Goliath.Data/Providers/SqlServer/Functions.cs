@@ -1,11 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Goliath.Data.Sql;
 
 namespace Goliath.Data.Providers.SqlServer
 {
+    using Sql;
+
     [Serializable]
     class NewGuid : SqlFunction
     {
