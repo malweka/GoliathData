@@ -1,12 +1,7 @@
-﻿
+﻿using System;
+
 namespace Goliath.Data.DataAccess
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
-    using DataAccess;
-    using Diagnostics;
     using Mapping;
 
     [Serializable]

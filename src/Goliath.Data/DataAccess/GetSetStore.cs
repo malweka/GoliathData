@@ -1,14 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Collections.Concurrent;
-using Fasterflect;
-using Goliath.Data.Mapping;
+using System.Collections.Generic;
 using System.Reflection;
+using Fasterflect;
 
 namespace Goliath.Data.DataAccess
 {
+    using Mapping;
+
     [Serializable]
     class GetSetStore
     {

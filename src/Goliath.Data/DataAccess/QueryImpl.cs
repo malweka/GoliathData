@@ -1,13 +1,10 @@
-﻿namespace Goliath.Data.DataAccess
+﻿using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq.Expressions;
+
+namespace Goliath.Data.DataAccess
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Linq.Expressions;
-    using System.Text;
-    using System.Data;
-    using Diagnostics;
-    using Sql;
 
     class QueryImpl<T> : IQuery<T>
     {

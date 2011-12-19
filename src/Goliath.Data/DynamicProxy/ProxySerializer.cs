@@ -2,15 +2,16 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using Goliath.Data.Mapping;
 using System.Data.Common;
-using Goliath.Data.DataAccess;
-using Goliath.Data.Providers;
-using Goliath.Data.Diagnostics;
-using Goliath.Data.Sql;
 
 namespace Goliath.Data.DynamicProxy
 {
+    using Mapping;
+    using DataAccess;
+    using Providers;
+    using Diagnostics;
+    using Sql;
+
     class ProxySerializer : IProxyHydrator
     {
         SqlOperationInfo query;

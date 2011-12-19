@@ -7,7 +7,6 @@ using System.Text;
 
 namespace Goliath.Data
 {
-    using Config;
     using DataAccess;
     using Diagnostics;
     using Mapping;

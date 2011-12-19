@@ -2,13 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Goliath.Data.Mapping;
-using Goliath.Data.Diagnostics;
-using Goliath.Data.Providers;
-using Goliath.Data.Config;
 
 namespace Goliath.Data
 {
+    using Mapping;
+    using Diagnostics;
+    using Providers;
+    using Config;
+
     /// <summary>
     /// 
     /// </summary>

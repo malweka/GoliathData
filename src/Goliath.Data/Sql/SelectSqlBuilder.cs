@@ -2,11 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Goliath.Data.Providers;
-using Goliath.Data.Mapping;
 
 namespace Goliath.Data.Sql
 {
+    using Providers;
+    using Mapping;
+
     class SelectSqlBuilder : SqlBuilder
     {
         //SqlMapper sqlMapper;

@@ -1,15 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Data;
 using System.Data.Common;
-using Goliath.Data.Transformers;
-using Goliath.Data.Mapping;
-using Goliath.Data.Diagnostics;
 
 namespace Goliath.Data.Providers.SqlServer
 {
+    using Diagnostics;
+    using Mapping;
+
     [Serializable]
     public class MssqlSchemaDescriptor : SchemaDescriptor
     {
