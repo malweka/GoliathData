@@ -290,6 +290,11 @@ namespace WebZoo.Data
                 .Where(wst.NotNull());
                 string sstring = selectBuilder.ToSqlString();
 
+                UpdateSqlBuilder updateBuilder = new UpdateSqlBuilder(mapper, animalEntMap);
+                string updateString = updateBuilder.ToSqlString();
+
+                Console.WriteLine(sstring);
+                Console.WriteLine(updateString);
                 //dataReader.Read();
                 //Providers.SqlServer.Mssq2008SqlMapper mapper = new Mssq2008SqlMapper();
 
