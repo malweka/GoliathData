@@ -88,15 +88,93 @@ namespace Goliath.Data
 
         #region Updates
 
+        /// <summary>
+        /// Updates the specified entity.
+        /// </summary>
+        /// <param name="entity">The entity.</param>
+        /// <returns></returns>
         public int Update(TEntity entity)
         {
-            throw new NotImplementedException();
+            var sqlWorker = serializer.CreateSqlWorker();
+            bool ownTransaction = false;
+            int result = 0;
+
+            var dbConn = session.ConnectionManager.OpenConnection();
+
+            if ((session.CurrentTransaction == null) || !session.CurrentTransaction.IsStarted)
+            {
+                session.BeginTransaction();
+                ownTransaction = true;
+            }
+
+            Dictionary<string, QueryParam> neededParams = new Dictionary<string, QueryParam>();
+            List<SqlOperationInfo> operations = new List<SqlOperationInfo>();
+
+            using (var batchOp = sqlWorker.BuildUpdateSql<TEntity>(entityMap, entity, false))
+            {
+                BuildUpdateOperations(batchOp, neededParams, operations);
+            }
+            var paramList = neededParams.Values.ToArray();
+            StringBuilder sqlUpdates = new StringBuilder();
+
+            for (int i = 0; i < operations.Count; i++)
+            {
+                sqlUpdates.Append(operations[i].SqlText);
+                sqlUpdates.Append(";\n");
+            }
+
+            string sql = sqlUpdates.ToString();
+            logger.Log(LogType.Debug, sql);
+
+            try
+            {
+                result = session.DataAccess.ExecuteNonQuery(dbConn, session.CurrentTransaction, sql, paramList);
+                if (ownTransaction)
+                    session.CommitTransaction();
+            }
+            catch (GoliathDataException ex)
+            {
+                Console.WriteLine("goliath exception: {0}", ex.Message);
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new GoliathDataException(string.Format("Exception while inserting: {0}", sql), ex);
+            }
+            finally
+            {
+                neededParams.Clear();
+            }
+
+            return result;
         }
 
-        public int Update(TEntity entity, QueryParam[] filters)
+        void BuildUpdateOperations(BatchSqlOperation batchOp, Dictionary<string, QueryParam> parameters, List<SqlOperationInfo> operations)
         {
-            throw new NotImplementedException();
+            List<SqlOperationInfo> inserts = new List<SqlOperationInfo>();
+
+
+            for (int i = 0; i < batchOp.Operations.Count; i++)
+            {
+                inserts.Add(batchOp.Operations[i]);
+                foreach (var paramet in batchOp.Operations[i].Parameters)
+                {
+                    if (!parameters.ContainsKey(paramet.Name))
+                        parameters.Add(paramet.Name, paramet);
+                }
+            }
+
+            operations.AddRange(inserts);
+            for (int i = 0; i < batchOp.SubOperations.Count; i++)
+            {
+                BuildUpdateOperations(batchOp.SubOperations[i], parameters, operations);
+            }
         }
+
+        //public int Update(TEntity entity, QueryParam[] filters)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
         public int UpdateBatch(IEnumerable<TEntity> entityList)
         {
@@ -124,9 +202,6 @@ namespace Goliath.Data
         /// <returns></returns>
         public int Insert(TEntity entity, bool recursive = false)
         {
-            Type type = typeof(TEntity);
-
-            //var map = session.SessionFactory.DbSettings.Map;
             var sqlWorker = serializer.CreateSqlWorker();
 
             bool ownTransaction = false;
@@ -136,7 +211,7 @@ namespace Goliath.Data
 
             if ((session.CurrentTransaction == null) || !session.CurrentTransaction.IsStarted)
             {
-                
+
                 session.BeginTransaction();
                 ownTransaction = true;
             }

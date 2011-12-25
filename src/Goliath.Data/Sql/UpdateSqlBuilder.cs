@@ -40,7 +40,7 @@ namespace Goliath.Data.Sql
 
                 //if (prop.IsPrimaryKey)
                 //    continue;
-                
+
                 if (prop is Relation)
                 {
                     var rel = (Relation)prop;
@@ -53,9 +53,44 @@ namespace Goliath.Data.Sql
                 if (!Columns.ContainsKey(prop.ColumnName))
                 {
                     Columns.Add(prop.ColumnName, sqlMapper.CreateParameterName(paramName));
-                }              
+                }
 
             }
+        }
+
+        public UpdateSqlBuilder Where(params WhereStatement[] whereCollection)
+        {
+            if (whereCollection != null)
+            {
+                foreach (var w in whereCollection)
+                    wheres.Add(w);
+            }
+
+            return this;
+        }
+
+        public static WhereStatement[] BuildWhereStatementFromPrimaryKey(EntityMap entMap, SqlMapper sqlMapper, int level)
+        {
+            if (entMap == null)
+                throw new ArgumentNullException("entMap");
+
+            List<WhereStatement> wheres = new List<WhereStatement>();
+            if (entMap.PrimaryKey != null)
+            {
+                for (int i = 0; i < entMap.PrimaryKey.Keys.Count; i++)
+                {
+                    string colname = entMap.PrimaryKey.Keys[i].Key.ColumnName;
+                    var paramName = BuildParameterNameWithLevel(colname, entMap.TableAlias, level);
+
+                    var whs = new WhereStatement(ParameterNameBuilderHelper.ColumnWithTableAlias(entMap.TableName, colname))
+                                    .Equals(sqlMapper.CreateParameterName(paramName));
+
+
+                    wheres.Add(whs);
+                }
+            }
+
+            return wheres.ToArray();
         }
 
         public override string ToSqlString()
@@ -80,18 +115,22 @@ namespace Goliath.Data.Sql
             }
 
             sb.Append("\nWHERE ");
-
-            for (int i = 0; i < entMap.PrimaryKey.Keys.Count; i++)
+            foreach (var w in wheres)
             {
-                if (i > 0)
-                {
-                    sb.Append(" AND ");
-                }
-
-                string colname = entMap.PrimaryKey.Keys[i].Key.ColumnName;
-                var paramName = BuildParameterNameWithLevel(colname, entMap.TableAlias, level);
-                sb.AppendFormat("{0} = {1}", colname, sqlMapper.CreateParameterName(paramName));
+                sb.AppendFormat("{0} ", w.ToString());
             }
+
+            //for (int i = 0; i < entMap.PrimaryKey.Keys.Count; i++)
+            //{
+            //    if (i > 0)
+            //    {
+            //        sb.Append(" AND ");
+            //    }
+
+            //    string colname = entMap.PrimaryKey.Keys[i].Key.ColumnName;
+            //    var paramName = BuildParameterNameWithLevel(colname, entMap.TableAlias, level);
+            //    sb.AppendFormat("{0} = {1}", colname, sqlMapper.CreateParameterName(paramName));
+            //}
 
             return sb.ToString();
         }
@@ -168,7 +207,7 @@ namespace Goliath.Data.Sql
                         }
 
                         ParamHolder param = new ParamHolder(paramName, pInfo.Getter, entity) { IsNullable = prop.IsNullable };
-       
+
                         if (parameters.ContainsKey(prop.ColumnName))
                         {
                             parameters.Remove(prop.ColumnName);

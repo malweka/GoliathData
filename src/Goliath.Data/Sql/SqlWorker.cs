@@ -175,7 +175,6 @@ namespace Goliath.Data.Sql
                 batchOperation.Operations.Add(baseClassOperation);
                 batchOperation.Priority = SqlOperationPriority.Medium;
                 batchOperation.SubOperations.Add(operation);
-                //level++;
             }
             else
             {
@@ -196,7 +195,7 @@ namespace Goliath.Data.Sql
 
             if (keygenerationOperations.Count > 0)
             {
-                
+
                 if (isSubclass)
                 {
                     batchOperation.KeyGenerationOperations = keygenerationOperations;
@@ -277,10 +276,10 @@ namespace Goliath.Data.Sql
                                         manyToManyOp.Parameters = new ParamHolder[] { new ParamHolder(paramName1, param1Prop.Getter, entity) { IsNullable = rel.IsNullable }, 
                                             new ParamHolder(paramName2, param2Prop.Getter, mappedObject) { IsNullable = mapRel.IsNullable } };
 
-                                        var manyToManySubOp = new BatchSqlOperation(){ Priority = SqlOperationPriority.Low, KeyGenerationOperations = new Dictionary<string,KeyGenOperationInfo>()};
+                                        var manyToManySubOp = new BatchSqlOperation() { Priority = SqlOperationPriority.Low, KeyGenerationOperations = new Dictionary<string, KeyGenOperationInfo>() };
                                         manyToManySubOp.Operations.Add(manyToManyOp);
                                         operation.SubOperations.Add(manyToManySubOp);
-                                        
+
                                         //operation.Operations.Add(manyToManyOp);
                                     }
                                 }
@@ -299,18 +298,93 @@ namespace Goliath.Data.Sql
 
         #endregion
 
+        /// <summary>
+        /// Builds the update SQL.
+        /// </summary>
+        /// <typeparam name="TEntity">The type of the entity.</typeparam>
+        /// <param name="entityMap">The entity map.</param>
+        /// <param name="entity">The entity.</param>
+        /// <param name="updateManyToManyRelation">if set to <c>true</c> [update many to many relation].</param>
+        /// <returns></returns>
         public BatchSqlOperation BuildUpdateSql<TEntity>(EntityMap entityMap, TEntity entity, bool updateManyToManyRelation = false)
         {
-            EntityMap baseEntMap = null;
+            BatchSqlOperation operation = new BatchSqlOperation() { Priority = SqlOperationPriority.Medium };
 
-            if (entityMap.IsSubClass)
-            {
-                baseEntMap = entityMap.Parent.GetEntityMap(entityMap.Extends);
-            }
+            BuildUpdateSql(entity, entityMap, typeof(TEntity), null, null, null, operation, updateManyToManyRelation, 0, 0);
 
-            throw new NotImplementedException();
-            
+            return operation;
+
         }
 
+
+        void BuildUpdateSql
+       (
+           object entity,
+           EntityMap entityMap,
+           Type entityType,
+
+           object parentEntity,
+           EntityMap parentEntityMap,
+           Type parentEntityType,
+           BatchSqlOperation batchOperation,
+
+           bool recursive,
+           int recursionLevel = 0,
+           int rootRecursionLevel = 0
+        )
+        {
+            EntityMap baseEntMap = null;
+            EntityGetSetInfo entGetSets;
+            UpdateSqlBuilder baseUpdateBuilder = null;
+            BatchSqlOperation operation = null;
+            bool isSubclass = entityMap.IsSubClass;
+
+            
+
+            if (!getSetStore.TryGetValue(entityType, out entGetSets))
+            {
+                entGetSets = new EntityGetSetInfo(entityType);
+                entGetSets.Load(entityMap);
+                getSetStore.Add(entityType, entGetSets);
+            }
+
+
+            if (isSubclass)
+            {
+                baseEntMap = entityMap.Parent.GetEntityMap(entityMap.Extends);
+                baseUpdateBuilder = new UpdateSqlBuilder(sqlMapper, baseEntMap, recursionLevel, rootRecursionLevel);
+
+                var baseParamDictionary = UpdateSqlBuilder.BuildUpdateQueryParams(entity, entGetSets, baseEntMap, getSetStore, recursionLevel, rootRecursionLevel);
+                SqlOperationInfo baseSqlOp = new SqlOperationInfo() { CommandType = SqlStatementType.Update };
+
+                var whereCollection = UpdateSqlBuilder.BuildWhereStatementFromPrimaryKey(baseEntMap, sqlMapper, recursionLevel);
+                baseSqlOp.SqlText = baseUpdateBuilder.Where(whereCollection).ToSqlString();
+                List<QueryParam> baseParameters = new List<QueryParam>();
+                baseParameters.AddRange(baseParamDictionary.Values);
+                baseSqlOp.Parameters = baseParameters;
+                operation = new BatchSqlOperation() { Priority = SqlOperationPriority.Low };
+
+                batchOperation.Operations.Add(baseSqlOp);
+                batchOperation.Priority = SqlOperationPriority.Medium;
+                batchOperation.SubOperations.Add(operation);
+            }
+            else
+            {
+                operation = batchOperation;
+                operation.Priority = SqlOperationPriority.Medium;
+            }
+
+            var wheres = UpdateSqlBuilder.BuildWhereStatementFromPrimaryKey(entityMap, sqlMapper, recursionLevel);
+            UpdateSqlBuilder entUpdateSqlBuilder = new UpdateSqlBuilder(sqlMapper, entityMap, recursionLevel, rootRecursionLevel);
+            var paramDictionary = UpdateSqlBuilder.BuildUpdateQueryParams(entity, entGetSets, entityMap, getSetStore, recursionLevel, rootRecursionLevel);
+            SqlOperationInfo operationInfo = new SqlOperationInfo { CommandType = SqlStatementType.Update };
+            operationInfo.SqlText = entUpdateSqlBuilder.Where(wheres).ToSqlString();
+
+            List<QueryParam> parameters = new List<QueryParam>();
+            parameters.AddRange(paramDictionary.Values);
+            operationInfo.Parameters = parameters;
+            operation.Operations.Add(operationInfo);
+
+        }
     }
 }

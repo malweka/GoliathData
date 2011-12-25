@@ -26,7 +26,7 @@ namespace Goliath.Data.Sql
             get { return joins; }
         }
 
-        List<WhereStatement> wheres = new List<WhereStatement>();
+
         List<OrderBy> sortList = new List<OrderBy>();
 
         //TODO: mechanism to cache select builder
@@ -75,7 +75,9 @@ namespace Goliath.Data.Sql
 
         public SelectSqlBuilder Where(WhereStatement where)
         {
-            this.wheres.Add(where);
+            if (where != null)
+                wheres.Add(where);
+
             return this;
         }
 
@@ -172,7 +174,7 @@ namespace Goliath.Data.Sql
             }
         }
 
-        
+
     }
 
     [System.Diagnostics.DebuggerDisplay("{ColumnEnumeration} {From} {JoinEnumeration} ...")]

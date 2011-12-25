@@ -291,7 +291,8 @@ namespace WebZoo.Data
                 string sstring = selectBuilder.ToSqlString();
 
                 UpdateSqlBuilder updateBuilder = new UpdateSqlBuilder(mapper, animalEntMap);
-                string updateString = updateBuilder.ToSqlString();
+                var wheres = UpdateSqlBuilder.BuildWhereStatementFromPrimaryKey(animalEntMap, mapper, 0);
+                string updateString = updateBuilder.Where(wheres).ToSqlString();
 
                 Console.WriteLine(sstring);
                 Console.WriteLine(updateString);
@@ -316,6 +317,13 @@ namespace WebZoo.Data
                 dataReader = dbAccess.ExecuteReader(conn, animalQuery);
                 serializer.SerializeAll<WebZoo.Data.Animal>(dataReader, animalEntMap);
                 dataReader.Dispose();
+
+                var m1 = animals[0];
+                m1.Name = "Just_Updated";
+                m1.Location = "UP345";
+
+                var aniAdapter = sess.CreateDataAccessAdapter<Animal>();
+                aniAdapter.Update(m1);
 
             }
 

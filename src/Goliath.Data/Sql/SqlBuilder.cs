@@ -11,6 +11,7 @@ namespace Goliath.Data.Sql
     {
         protected SqlMapper sqlMapper;
         protected EntityMap entMap;
+        protected List<WhereStatement> wheres = new List<WhereStatement>();
 
         public SqlMapper SqlMapper
         {
