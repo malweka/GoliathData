@@ -23,13 +23,14 @@ namespace Goliath.Data
         /// <returns></returns>
         int Update(TEntity entity);
 
-        /// <summary>
-        /// Updates the specified entity.
-        /// </summary>
-        /// <param name="entity">The entity.</param>
-        /// <param name="filters">The filters.</param>
-        /// <returns></returns>
-        int Update(TEntity entity, QueryParam[] filters);
+        ///// <summary>
+        ///// Updates the specified entity.
+        ///// </summary>
+        ///// <param name="entity">The entity.</param>
+        ///// <param name="filters">The filters.</param>
+        ///// <returns></returns>
+        //int Update(TEntity entity, QueryParam[] filters);
+
         /// <summary>
         /// Updates the batch.
         /// </summary>

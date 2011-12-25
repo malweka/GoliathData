@@ -69,7 +69,7 @@ namespace Goliath.Data.Sql
         }
 
         public static Dictionary<string, ParamHolder> BuildInsertQueryParams(object entity, EntityGetSetInfo getSetInfo,
-    EntityMap entityMap, GetSetStore getSetStore, int level, int rootLevel)
+            EntityMap entityMap, GetSetStore getSetStore, int level, int rootLevel)
         {
             Dictionary<string, ParamHolder> parameters = new Dictionary<string, ParamHolder>();
             foreach (var prop in entityMap)
