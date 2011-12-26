@@ -1,21 +1,15 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Data;
 using System.Data.Common;
-using System.Linq;
-using System.Reflection;
-using System.Reflection.Emit;
-using System.Text;
-
-using Goliath.Data.Diagnostics;
-using Goliath.Data.DynamicProxy;
-using Goliath.Data.Mapping;
-using Goliath.Data.Providers;
-using Goliath.Data.Sql;
 
 namespace Goliath.Data.DataAccess
 {
+    using Diagnostics;
+    using Mapping;
+    using Providers;
+    using Sql;
+
     //TODO make this internal class
     /// <summary>
     /// 
@@ -74,7 +68,6 @@ namespace Goliath.Data.DataAccess
                 typeConverterStore = new TypeConverterStore();
 
             this.settings = settings;
-            //this.dbAccess = dbAccess;
             this.TypeConverterStore = typeConverterStore;
         }
 
@@ -119,6 +112,7 @@ namespace Goliath.Data.DataAccess
             IList<TEntity> entityList = factoryMethod.Invoke(dataReader, entityMap);
             return entityList;
         }
+
 
         /// <summary>
         /// Hydrates the specified instance to hydrate.
@@ -337,12 +331,10 @@ namespace Goliath.Data.DataAccess
                             case RelationshipType.ManyToOne:
                                 SerializeManyToOne manyToOneHelper = new SerializeManyToOne(SqlMapper, getSetStore);
                                 manyToOneHelper.Serialize(settings, this, rel, instanceEntity, keyVal.Value, entityMap, getSetInfo, columns, dbReader);
-                                //logger.Log(LogType.Info, string.Format("\t\t{0} is a ManyToOne", keyVal.Key));
                                 break;
                             case RelationshipType.OneToMany:
                                 SerializeOneToMany oneToManyHelper = new SerializeOneToMany(SqlMapper, getSetStore);
                                 oneToManyHelper.Serialize(settings, this, rel, instanceEntity, keyVal.Value, entityMap, getSetInfo, columns, dbReader);
-                                //logger.Log(LogType.Info, string.Format("\t\t{0} is a OneToMany", keyVal.Key));
                                 break;
                             case RelationshipType.ManyToMany:
                                 break;
@@ -358,13 +350,11 @@ namespace Goliath.Data.DataAccess
                         if (fieldType.Equals(keyVal.Value.PropertType))
                         {
                             keyVal.Value.Setter(instanceEntity, val);
-                            //logger.Log(LogType.Info, string.Format("Read {0}: {1}", keyVal.Key, val));
                         }
                         else if (keyVal.Value.PropertType.IsEnum)
                         {
                             var enumVal = TypeConverterStore.ConvertToEnum(keyVal.Value.PropertType, val);
                             keyVal.Value.Setter(instanceEntity, enumVal);
-                            //logger.Log(LogType.Info, string.Format("read {0}: value was {1}", keyVal.Key, enumVal));
                         }
                         else
                         {

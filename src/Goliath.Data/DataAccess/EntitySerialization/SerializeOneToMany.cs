@@ -1,16 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Data.Common;
+using System.Linq;
 
 namespace Goliath.Data.DataAccess
 {
-    using Mapping;    
-    using Diagnostics;
-    using DynamicProxy;
-    using Sql;
+    using Mapping;
     using Providers;
+    using Sql;
 
     class SerializeOneToMany : RelationSerializer
     {

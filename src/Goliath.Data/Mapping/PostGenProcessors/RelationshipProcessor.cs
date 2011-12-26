@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Goliath.Data.Utils;
+﻿using System.Collections.Generic;
 
 namespace Goliath.Data.Mapping
 {
+    using Utils;
+
     class RelationshipProcessor : IPostGenerationProcessor
     {
         public virtual void Process(IDictionary<string, EntityMap> entityList)

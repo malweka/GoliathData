@@ -1,10 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Data.Common;
-using Goliath.Data.Mapping;
-using Goliath.Data.Providers;
 
 namespace Goliath.Data.DataAccess
 {
+    using Mapping;
+    using Providers;
+
     abstract class RelationSerializer
     {
         protected SqlMapper sqlMapper;

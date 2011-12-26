@@ -58,7 +58,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ChangeSet.cs" />
+    <Compile Include="Entity\ChangeSet.cs" />
     <Compile Include="Collections\ILazyList.cs" />
     <Compile Include="Config\ConfigManager.cs" />
     <Compile Include="Config\IConfigurationManager.cs" />
@@ -79,7 +79,7 @@
     <Compile Include="DataAccess\EntitySerialization\RelationSerializer.cs" />
     <Compile Include="DataAccess\SessionManager.cs" />
     <Compile Include="DynamicProxy\IProxyHydrator.cs" />
-    <Compile Include="DynamicProxy\ProxySerializer.cs" />
+    <Compile Include="DynamicProxy\ProxyHydrator.cs" />
     <Compile Include="DataAccess\QueryImpl.cs" />
     <Compile Include="DataAccess\SessionFactory.cs" />
     <Compile Include="DataAccess\Session.cs" />
@@ -99,6 +99,7 @@
     <Compile Include="DataAccess\DataAccessHelper.cs" />
     <Compile Include="DynamicProxy\ProxyBuilder.cs" />
     <Compile Include="DynamicProxy\ProxyCache.cs" />
+    <Compile Include="Entity\ITrackable.cs" />
     <Compile Include="Generators\AutoIncrement.cs" />
     <Compile Include="Generators\GuidCombGenerator.cs" />
     <Compile Include="GoliathDataException.cs" />

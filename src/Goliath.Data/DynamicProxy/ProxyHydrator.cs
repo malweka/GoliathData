@@ -12,26 +12,26 @@ namespace Goliath.Data.DynamicProxy
     using Diagnostics;
     using Sql;
 
-    class ProxySerializer : IProxyHydrator
+    class ProxyHydrator : IProxyHydrator
     {
         SqlOperationInfo query;
         Type type;
         EntityMap entityMap;
-        IEntitySerializer serialFactory;
+        IEntitySerializer serializer;
         static ILogger logger;
         IDatabaseSettings settings;
 
-        static ProxySerializer()
+        static ProxyHydrator()
         {
-            logger = Logger.GetLogger(typeof(ProxySerializer));
+            logger = Logger.GetLogger(typeof(ProxyHydrator));
         }
 
-        public ProxySerializer(SqlOperationInfo query, Type type, EntityMap entityMap, IEntitySerializer factory, IDatabaseSettings settings)
+        public ProxyHydrator(SqlOperationInfo query, Type type, EntityMap entityMap, IEntitySerializer serializer, IDatabaseSettings settings)
         {
             this.query = query;
             this.type = type;
             this.entityMap = entityMap;
-            serialFactory = factory;
+            this.serializer = serializer;
             this.settings = settings;
         }
 
@@ -54,7 +54,7 @@ namespace Goliath.Data.DynamicProxy
                     logger.Log(LogType.Debug, string.Format("executing query {0}", query.SqlText));
                     var dataReader = dbAccess.ExecuteReader(connManager.OpenConnection(), query.SqlText, parameters);
                     //logger.Log(LogType.Debug, string.Format("datareader has row? {0}", dataReader.HasRows));
-                    serialFactory.Hydrate(instance, type, entityMap, dataReader);
+                    serializer.Hydrate(instance, type, entityMap, dataReader);
                     dataReader.Dispose();
 
                     connManager.CloseConnection();
@@ -73,8 +73,8 @@ namespace Goliath.Data.DynamicProxy
             logger.Log(LogType.Debug, "Disposing of proxy");
             EntityMap entMapRef = entityMap;
             entityMap = null;
-            IEntitySerializer serializerRef = serialFactory;
-            serialFactory = null;
+            IEntitySerializer serializerRef = serializer;
+            serializer = null;
             IDatabaseSettings settingsRef = settings;
             settings = null;
         }

@@ -1,17 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Data;
-using System.Data.Common;
-using Goliath.Data.Mapping;
-using Goliath.Data.DataAccess;
-using Goliath.Data.Providers;
-using Goliath.Data.Diagnostics;
-using Goliath.Data.Sql;
 
 namespace Goliath.Data.Collections
 {
+    using DataAccess;
+    using Diagnostics;
+    using Mapping;
+    using Sql;
+
     /// <summary>
     /// 
     /// </summary>
@@ -25,7 +21,7 @@ namespace Goliath.Data.Collections
         IEntitySerializer factory;
         static ILogger logger;
         IDatabaseSettings settings;
-
+        
         static LazyList()
         {
             logger = Logger.GetLogger(typeof(LazyList<>));
