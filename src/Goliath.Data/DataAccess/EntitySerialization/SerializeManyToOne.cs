@@ -61,7 +61,7 @@ namespace Goliath.Data.DataAccess
                         qInfo.SqlText = sqlBuilder.ToSqlString();
                         qInfo.Parameters = new QueryParam[] { qp };
 
-                        IProxyHydrator hydrator = new ProxySerializer(qInfo, pInfo.PropertType, relEntMap, serializer, settings);
+                        IProxyHydrator hydrator = new ProxyHydrator(qInfo, pInfo.PropertType, relEntMap, serializer, settings);
                         var proxyType = pbuilder.CreateProxy(pInfo.PropertType, relEntMap);
                         object proxyobj = Activator.CreateInstance(proxyType, new object[] { pInfo.PropertType, hydrator });
                         pInfo.Setter(instanceEntity, proxyobj);

@@ -1,13 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Data;
-using System.Data.Common;
+﻿using System.Data.Common;
 
 namespace Goliath.Data.CodeGen
 {
-    using DataAccess;
     class TransactionWrapper : ITransaction
     {
         DbTransaction transaction;

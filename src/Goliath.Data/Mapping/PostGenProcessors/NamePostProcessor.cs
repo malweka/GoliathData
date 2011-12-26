@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using Goliath.Data.Transformers;
 
 namespace Goliath.Data.Mapping
 {
+    using Transformers;
+
     class NamePostProcessor : IPostGenerationProcessor
     {
         NameTransformerFactory transfactory;

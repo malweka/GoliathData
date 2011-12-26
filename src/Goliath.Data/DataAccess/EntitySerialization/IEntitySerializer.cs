@@ -1,17 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.Common;
-using Goliath.Data.Mapping;
 
 namespace Goliath.Data.DataAccess
 {
+    using Mapping;
+
     /// <summary>
     /// 
     /// </summary>
     public interface IEntitySerializer
     {
         /// <summary>
-        /// Gets the SQL mapper.
+        /// Gets the SQL mapper.gem
         /// </summary>
         Providers.SqlMapper SqlMapper { get; }
 

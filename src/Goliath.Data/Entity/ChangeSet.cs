@@ -1,19 +1,44 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Linq.Expressions;
 
-namespace Goliath
+namespace Goliath.Data.Entity
 {
+    /// <summary>
+    /// 
+    /// </summary>
     [Serializable]
     public class ChangeItem
     {
+        /// <summary>
+        /// Gets the name of the item.
+        /// </summary>
+        /// <value>
+        /// The name of the item.
+        /// </value>
         public string ItemName { get; private set; }
+        /// <summary>
+        /// Gets or sets the value.
+        /// </summary>
+        /// <value>
+        /// The value.
+        /// </value>
         public object Value { get; set; }
+        /// <summary>
+        /// Gets the initial value.
+        /// </summary>
         public object InitialValue { get; internal set; }
+        /// <summary>
+        /// Gets the version.
+        /// </summary>
         public long Version { get; internal set; }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ChangeItem"/> class.
+        /// </summary>
+        /// <param name="itemName">Name of the item.</param>
+        /// <param name="initialValue">The initial value.</param>
         public ChangeItem(string itemName, object initialValue)
         {
             ItemName = itemName;
@@ -35,11 +60,17 @@ namespace Goliath
 
         bool tracking = false;
 
+        /// <summary>
+        /// Starts the tracking.
+        /// </summary>
         public void StartTracking()
         {
             tracking = true;
         }
 
+        /// <summary>
+        /// Stops the tracking.
+        /// </summary>
         public void StopTracking()
         {
             tracking = false;
@@ -64,6 +95,9 @@ namespace Goliath
             }
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ChangeSet"/> class.
+        /// </summary>
         public ChangeSet()
         {
             Version = DateTime.Now.Ticks;

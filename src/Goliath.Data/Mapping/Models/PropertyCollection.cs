@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Runtime.Serialization;
 
 namespace Goliath.Data.Mapping
@@ -15,7 +12,7 @@ namespace Goliath.Data.Mapping
          return item.PropertyName;
       }
    }
-
+    
    [Serializable]
    [CollectionDataContract]
    public class RelationCollection : KeyedCollectionBase<string, Relation>
