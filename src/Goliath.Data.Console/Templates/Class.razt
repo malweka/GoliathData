@@ -2,16 +2,25 @@
 @using Goliath.Data.Diagnostics
 ///////////////////////////////////////////////////////////////////
 //	
-//	Auto generated -  Class Template 1.1.0
+//	Auto generated -  Class Template 1.2.0
 //
 ///////////////////////////////////////////////////////////////////
 using System;
 using System.Collections.Generic;
 @{
 	//ILogger logger = Logger.GetLogger(this.GetType());
-	string _extends = string.Empty;
+	string _extends = string.Empty; 
+
 	if(!string.IsNullOrWhiteSpace(Model.Extends))
 		_extends = string.Format(": {0}", Model.Extends);
+
+	if(Model.PrimaryKey != null)
+	{
+		if(string.IsNullOrEmpty(_extends))
+			_extends = string.Format(": IEquatable<{0}>", Model.Name);
+		else
+			_extends = string.Format("{0}, IEquatable<{1}>", _extends, Model.Name); 
+	}
 }
 
 namespace @Model.Namespace
@@ -68,6 +77,56 @@ namespace @Model.Namespace
 		}
 
 		#endregion
+		@{
+			if(Model.PrimaryKey != null)
+			{
+		@:
+		@:#region Equatable
+		@:
+		@:/// <summary>
+        @:/// Determines whether the specified <see cref="@(Model.Name)"/> is equal to this instance.
+        @:/// </summary>
+        @:/// <param name="other">The <see cref="@(Model.Name)"/> to compare with this instance.</param>
+        @:/// <returns>
+        @:/// 	<c>true</c> if the specified <see cref="@(Model.Name)"/> is equal to this instance; otherwise, <c>false</c>.
+        @:/// </returns>
+		@:public bool Equals(@(Model.Name) other)
+		@:{
+		@:	if(other == null)
+		@:		return false;
+		@:	
+		@:	return other.@(Model.PrimaryKey.Keys[0].Key.PropertyName).Equals(@(Model.PrimaryKey.Keys[0].Key.PropertyName));
+		@:}
+		@:
+		@:/// <summary>
+        @:/// Returns a hash code for this instance.
+        @:/// </summary>
+        @:/// <returns>
+        @:/// A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table. 
+        @:/// </returns>
+		@:public override int GetHashCode()
+        @:{
+        @:	return @(Model.PrimaryKey.Keys[0].Key.PropertyName).GetHashCode();
+        @:}
+		@:
+		@:/// <summary>
+        @:/// Determines whether the specified <see cref="System.Object"/> is equal to this instance.
+        @:/// </summary>
+        @:/// <param name="obj">The <see cref="System.Object"/> to compare with this instance.</param>
+        @:/// <returns>
+        @:/// 	<c>true</c> if the specified <see cref="System.Object"/> is equal to this instance; otherwise, <c>false</c>.
+        @:/// </returns>
+		@:public override bool Equals(object obj)
+        @:{
+        @:    if (obj is @(Model.Name))
+        @:        return Equals((@(Model.Name))obj);
+		@:
+        @:    return base.Equals(obj);
+		@:}
+		@:#endregion
+			}
+		}
+		
 	}
 
 	#region metadata

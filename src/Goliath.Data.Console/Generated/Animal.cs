@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////
 //	
-//	Auto generated -  Class Template 1.1.0
+//	Auto generated -  Class Template 1.2.0
 //
 ///////////////////////////////////////////////////////////////////
 using System;
@@ -8,7 +8,7 @@ using System.Collections.Generic;
 
 namespace WebZoo.Data
 {
-	public partial class Animal : WebZoo.Data.BaseEntityInt
+	public partial class Animal : WebZoo.Data.BaseEntityInt, IEquatable<Animal>
 	{
 		#region Primary Key
 
@@ -31,6 +31,51 @@ namespace WebZoo.Data
 		public virtual IList<WebZoo.Data.Employee> EmployeesOnAnimalsHandler_AnimalId { get; set; }
 
 		#endregion
+		
+		#region Equatable
+		
+		/// <summary>
+        /// Determines whether the specified <see cref="Animal"/> is equal to this instance.
+        /// </summary>
+        /// <param name="other">The <see cref="Animal"/> to compare with this instance.</param>
+        /// <returns>
+        /// 	<c>true</c> if the specified <see cref="Animal"/> is equal to this instance; otherwise, <c>false</c>.
+        /// </returns>
+		public bool Equals(Animal other)
+		{
+			if(other == null)
+				return false;
+			
+			return other.Id.Equals(Id);
+		}
+		
+		/// <summary>
+        /// Returns a hash code for this instance.
+        /// </summary>
+        /// <returns>
+        /// A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table. 
+        /// </returns>
+		public override int GetHashCode()
+        {
+        	return Id.GetHashCode();
+        }
+		
+		/// <summary>
+        /// Determines whether the specified <see cref="System.Object"/> is equal to this instance.
+        /// </summary>
+        /// <param name="obj">The <see cref="System.Object"/> to compare with this instance.</param>
+        /// <returns>
+        /// 	<c>true</c> if the specified <see cref="System.Object"/> is equal to this instance; otherwise, <c>false</c>.
+        /// </returns>
+		public override bool Equals(object obj)
+        {
+            if (obj is Animal)
+                return Equals((Animal)obj);
+		
+            return base.Equals(obj);
+		}
+		#endregion
+		
 	}
 
 	#region metadata

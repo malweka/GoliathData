@@ -26,9 +26,9 @@ namespace Goliath.Data.Entity
         /// </value>
         long Version { get; set; }
 
-        /// <summary>
-        /// Gets the created on.
-        /// </summary>
-        DateTime CreatedOn { get; }
+        ///// <summary>
+        ///// Gets the created on.
+        ///// </summary>
+        //DateTime CreatedOn { get; }
     }
 }
