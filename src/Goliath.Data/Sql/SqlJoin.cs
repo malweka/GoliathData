@@ -46,8 +46,10 @@ namespace Goliath.Data.Sql
         public SqlJoin(EntityMap table, JoinType joinType)
         {
             JoinType = joinType;
+
             if(table == null)
                 throw new ArgumentNullException("table");
+
             Table = table;
         }
 

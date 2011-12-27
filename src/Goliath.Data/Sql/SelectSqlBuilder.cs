@@ -38,27 +38,34 @@ namespace Goliath.Data.Sql
         public SelectSqlBuilder(SqlMapper sqlMapper, EntityMap entMap)
             : base(sqlMapper, entMap)
         {
-            foreach (var col in entMap)
+            if (entMap is UnMappedTableMap)
             {
-                if (col is Relation)
+                //we should do nothing
+            }
+            else
+            {
+                foreach (var col in entMap)
                 {
-                    Relation rel = (Relation)col;
-                    if (rel.RelationType != RelationshipType.ManyToOne)
-                        continue;
-                    if (!rel.LazyLoad)
+                    if (col is Relation)
                     {
-                        var rightTable = entMap.Parent.GetEntityMap(rel.ReferenceEntityName);
-                        //var rightColumn = rightTable[rel.ReferenceColumn];
-                        AddJoin(new SqlJoin(entMap, JoinType.Inner).OnTable(rightTable)
-                            .OnRightColumn(rel.ReferenceColumn)
-                            .OnLeftColumn(rel));
+                        Relation rel = (Relation)col;
+                        if (rel.RelationType != RelationshipType.ManyToOne)
+                            continue;
+                        if (!rel.LazyLoad)
+                        {
+                            var rightTable = entMap.Parent.GetEntityMap(rel.ReferenceEntityName);
+                            //var rightColumn = rightTable[rel.ReferenceColumn];
+                            AddJoin(new SqlJoin(entMap, JoinType.Inner).OnTable(rightTable)
+                                .OnRightColumn(rel.ReferenceColumn)
+                                .OnLeftColumn(rel));
+                        }
                     }
-                }
 
-                string colKey = ParameterNameBuilderHelper.ColumnWithTableAlias(entMap.TableAlias, col.ColumnName);  //string.Format("{0}.{1}", entMap.TableAlias, col.ColumnName);
-                //var tuple = Tuple.Create<string, string>(sqlMapper.CreateParameterName(col.Name), CreateColumnName(entMap, col));
-                if (!Columns.ContainsKey(colKey))
-                    Columns.Add(colKey, BuildColumnSelectString(col.ColumnName, entMap.TableAlias));
+                    string colKey = ParameterNameBuilderHelper.ColumnWithTableAlias(entMap.TableAlias, col.ColumnName);  //string.Format("{0}.{1}", entMap.TableAlias, col.ColumnName);
+                    //var tuple = Tuple.Create<string, string>(sqlMapper.CreateParameterName(col.Name), CreateColumnName(entMap, col));
+                    if (!Columns.ContainsKey(colKey))
+                        Columns.Add(colKey, BuildColumnSelectString(col.ColumnName, entMap.TableAlias));
+                }
             }
 
         }
@@ -112,10 +119,12 @@ namespace Goliath.Data.Sql
 
         public SqlQueryBody Build()
         {
-            List<string> printColumns = new List<string>();
+            Dictionary<string, string> printColumns = new Dictionary<string, string>();
             List<SqlJoin> sJoins = new List<SqlJoin>();
             sJoins.AddRange(Joins);
-            printColumns.AddRange(Columns.Values);
+
+            foreach (var keyPair in Columns)
+                printColumns.Add(keyPair.Key, keyPair.Value);
 
             SqlQueryBody queryBody = new SqlQueryBody();
 
@@ -127,12 +136,12 @@ namespace Goliath.Data.Sql
                 }
             }
 
-            queryBody.ColumnEnumeration = string.Join(", ", printColumns);
+            queryBody.ColumnEnumeration = string.Join(", ", printColumns.Values);
             queryBody.From = BuildTableFromString(entMap.TableName, entMap.TableAlias);
 
             if (sJoins.Count > 0)
             {
-                queryBody.JoinEnumeration = string.Join(", ", sJoins);
+                queryBody.JoinEnumeration = string.Join(" ", sJoins);
             }
 
             int wheresCount = wheres.Count;
@@ -162,10 +171,19 @@ namespace Goliath.Data.Sql
             return queryBody.ToString();
         }
 
-        void BuildColumsAndJoins(EntityMap entMap, List<string> cols, List<SqlJoin> sjoins)
+        void BuildColumsAndJoins(EntityMap entMap, Dictionary<string, string> cols, List<SqlJoin> sjoins)
         {
+           
+            if (entMap is UnMappedTableMap)
+                return;
+
             SelectSqlBuilder selBuilder = new SelectSqlBuilder(sqlMapper, entMap);
-            cols.AddRange(selBuilder.Columns.Values);
+            foreach (var kp in selBuilder.Columns)
+            {
+                if (!cols.ContainsKey(kp.Key))
+                    cols.Add(kp.Key, kp.Value);
+            }
+            
             for (int i = 0; i < selBuilder.Joins.Count; i++)
             {
                 var jn = selBuilder.Joins[i];

@@ -337,6 +337,8 @@ namespace Goliath.Data.DataAccess
                                 oneToManyHelper.Serialize(settings, this, rel, instanceEntity, keyVal.Value, entityMap, getSetInfo, columns, dbReader);
                                 break;
                             case RelationshipType.ManyToMany:
+                                SerializeManyToMany manyToMany = new SerializeManyToMany(SqlMapper, getSetStore);
+                                manyToMany.Serialize(settings, this, rel, instanceEntity, keyVal.Value, entityMap, getSetInfo, columns, dbReader);
                                 break;
                             default:
                                 break;
@@ -347,7 +349,7 @@ namespace Goliath.Data.DataAccess
                     {
                         var val = dbReader[ordinal];
                         var fieldType = dbReader.GetFieldType(ordinal);
-                        if (fieldType.Equals(keyVal.Value.PropertType))
+                        if (fieldType.Equals(keyVal.Value.PropertType) && (val != DBNull.Value))
                         {
                             keyVal.Value.Setter(instanceEntity, val);
                         }
