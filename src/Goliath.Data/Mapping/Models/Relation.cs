@@ -71,6 +71,7 @@ namespace Goliath.Data.Mapping
         [DataMember]
         public bool Inverse { get; set; }
 
+
         /// <summary>
         /// Gets or sets the reference table.
         /// </summary>
@@ -126,6 +127,13 @@ namespace Goliath.Data.Mapping
         /// <value>The map column.</value>
         [DataMember]
         public string MapColumn { get; set; }
+
+        /// <summary>
+        /// Gets or sets the map reference column.
+        /// </summary>
+        /// <value>The map reference column.</value>
+        [DataMember]
+        public string MapReferenceColumn { get; set; }
 
         /// <summary>
         /// Gets or sets the type of the collection.

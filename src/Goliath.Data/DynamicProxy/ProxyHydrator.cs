@@ -1,15 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Data;
 using System.Linq;
-using System.Data.Common;
 
 namespace Goliath.Data.DynamicProxy
 {
-    using Mapping;
     using DataAccess;
-    using Providers;
     using Diagnostics;
+    using Mapping;
     using Sql;
 
     class ProxyHydrator : IProxyHydrator

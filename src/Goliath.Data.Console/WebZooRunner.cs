@@ -5,6 +5,7 @@ namespace Goliath.Data.CodeGen
 {
     using Mapping;
     using Providers.Sqlite;
+    using Providers.SqlServer;
 
     public class WebZooRunner
     {
@@ -14,7 +15,8 @@ namespace Goliath.Data.CodeGen
         string scriptFolder;
         string workingFolder;
         string templateFolder;
-        ProjectSettings settings;
+        public ProjectSettings Settings{get; private set;}
+
         bool autoIncrement;
 
         public string ScriptFolder
@@ -71,12 +73,12 @@ namespace Goliath.Data.CodeGen
             this.autoIncrement = autoIncrement;
 			this.databaseFolder = databaseFolder;
 			
-            settings = new ProjectSettings();
+            Settings = new ProjectSettings();
 
             if (rdbms == SupportedRdbms.Sqlite3)
             {
                 string dbfile = Path.Combine(databaseFolder, "WebZoo.db");
-                settings.ConnectionString = string.Format("Data Source={0}; Version=3", dbfile);
+                Settings.ConnectionString = string.Format("Data Source={0}; Version=3", dbfile);
 
                 if (File.Exists(dbfile))
                 {
@@ -87,20 +89,56 @@ namespace Goliath.Data.CodeGen
             }
             else
             {
-                settings.ConnectionString = "Data Source=localhost;Initial Catalog=DbZoo;Integrated Security=True";
+                Settings.ConnectionString = "Data Source=localhost;Initial Catalog=DbZoo;Integrated Security=True";
+                CreateSqlServerDatabase();
             }
 
 
-            settings.Namespace = "WebZoo.Data";
-            settings.Version = "1.0";
-            settings.AssemblyName = "WebZoo.Data";
+            Settings.Namespace = "WebZoo.Data";
+            Settings.Version = "1.0";
+            Settings.AssemblyName = "WebZoo.Data";
 
+        }
+
+        void CreateSqlServerDatabase()
+        {
+            IDbConnector dbConnector = new MssqlDbConnector(Settings.ConnectionString);
+            IDbAccess db = new DbAccess(dbConnector);
+
+            var scriptFiles = Directory.GetFiles(ScriptFolder, "*.sql", SearchOption.TopDirectoryOnly);
+            using (var conn = dbConnector.CreateNewConnection())
+            {
+                conn.Open();
+                var transaction = new TransactionWrapper(conn.BeginTransaction());
+                try
+                {
+                    foreach (var file in scriptFiles)
+                    {
+                        System.Console.WriteLine("running script {0}", file);
+                        using (FileStream fs = File.OpenRead(file))
+                        {
+                            using (StreamReader freader = new StreamReader(fs))
+                            {
+                                var sql = freader.ReadToEnd();
+                                db.ExecuteNonQuery(conn, transaction, sql);
+                            }
+                        }
+                    }
+                    transaction.Commit();
+                }
+                catch //(Exception ex)
+                {
+                    transaction.Rollback();
+                    throw;
+                }
+                transaction.Dispose();
+            }
         }
 
         void CreateSqliteDatabase(string dbfile)
         {
             //SqlMapper mapper = new SqliteSqlMapper();
-            IDbConnector dbConnector = new SqliteDbConnector(settings.ConnectionString);
+            IDbConnector dbConnector = new SqliteDbConnector(Settings.ConnectionString);
             IDbAccess db = new DbAccess(dbConnector);
 
             var scriptFiles = Directory.GetFiles(ScriptFolder, "*.sql", SearchOption.TopDirectoryOnly);
@@ -157,8 +195,8 @@ namespace Goliath.Data.CodeGen
                 });
             }
 
-            settings.BaseModel = baseModel.FullName;
-            return codeGen.GenerateMapping(WorkingFolder, settings, baseModel, rdbms);
+            Settings.BaseModel = baseModel.FullName;
+            return codeGen.GenerateMapping(WorkingFolder, Settings, baseModel, rdbms);
         }
 
         public void GenerateCode()

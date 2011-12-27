@@ -1,21 +1,18 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Reflection;
 using System.Reflection.Emit;
-using Goliath.Data.Mapping;
-using Goliath.Data.DataAccess;
 
 namespace Goliath.Data.DynamicProxy
 {
+    using Mapping;
+
 
     class ProxyBuilder
     {
 
-        const string LazyBumTriggerFieldName = "_lazyBumLoaded";
-        const string LazyBumProxyFieldName = "_lazyBumProxyOf";
-        const string LazyBumProxyHydrator = "_lazyBumHydrator";
+        const string LazyObjectTriggerFieldName = "_lazyObjectLoaded";
+        const string LazyObjectProxyFieldName = "_lazyObjectProxyOf";
+        const string LazyObjectProxyHydrator = "_lazyObjectHydrator";
 
         static readonly ModuleBuilder moduleBuilder;
 
@@ -32,21 +29,21 @@ namespace Goliath.Data.DynamicProxy
             ProxyCache pcache = new ProxyCache();
             if (!pcache.TryGetProxyType(typeToProxy, out proxyType))
             {
-                var typeBuilder = moduleBuilder.DefineType(string.Format("LazyBum_{0}{1}", typeToProxy.Name, Guid.NewGuid().ToString().Replace("-", string.Empty)), TypeAttributes.Public);
+                var typeBuilder = moduleBuilder.DefineType(string.Format("LazyObject_{0}{1}", typeToProxy.Name, Guid.NewGuid().ToString("N")), TypeAttributes.Public);
 
-                var fieldBuilderIsLoaded = typeBuilder.DefineField(LazyBumTriggerFieldName, typeof(bool), FieldAttributes.Private);
-                var fieldBuilderProxyOf = typeBuilder.DefineField(LazyBumProxyFieldName, typeof(Type), FieldAttributes.Private);
-                var fieldBuilderHydrator = typeBuilder.DefineField(LazyBumProxyHydrator, typeof(IProxyHydrator), FieldAttributes.Private);
+                var fieldBuilderIsLoaded = typeBuilder.DefineField(LazyObjectTriggerFieldName, typeof(bool), FieldAttributes.Private);
+                var fieldBuilderProxyOf = typeBuilder.DefineField(LazyObjectProxyFieldName, typeof(Type), FieldAttributes.Private);
+                var fieldBuilderHydrator = typeBuilder.DefineField(LazyObjectProxyHydrator, typeof(IProxyHydrator), FieldAttributes.Private);
                 //var methods = typeToProxy.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.NonPublic);
                 var properties = typeToProxy.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.NonPublic);
 
                 typeBuilder.SetParent(typeToProxy);
-                typeBuilder.AddInterfaceImplementation(typeof(ILazyBum));
+                typeBuilder.AddInterfaceImplementation(typeof(ILazyObject));
 
                 var ctorBuilder = BuildConstructor(typeBuilder, typeToProxy, fieldBuilderProxyOf, fieldBuilderIsLoaded, fieldBuilderHydrator);
                 var loadMeMethodBuilder = BuildLoadMeMethod(typeBuilder, fieldBuilderProxyOf, fieldBuilderIsLoaded, fieldBuilderHydrator);
 
-                CreateILazyBumProperties(typeBuilder, fieldBuilderProxyOf, fieldBuilderIsLoaded);
+                CreateILazyObjectProperties(typeBuilder, fieldBuilderProxyOf, fieldBuilderIsLoaded);
 
                 foreach (var pinfo in properties)
                 {
@@ -169,7 +166,7 @@ namespace Goliath.Data.DynamicProxy
 
         }
 
-        public void CreateILazyBumProperties(TypeBuilder typeBuilder, FieldBuilder typeProxy, FieldBuilder isloaded)
+        public void CreateILazyObjectProperties(TypeBuilder typeBuilder, FieldBuilder typeProxy, FieldBuilder isloaded)
         {
             MethodAttributes methodAttributes = MethodAttributes.Public
                 | MethodAttributes.Virtual
@@ -290,11 +287,7 @@ namespace Goliath.Data.DynamicProxy
 
     }
 
-    public interface ILazyBum
-    {
-        Type ProxyOf { get; }
-        bool IsProxyLoaded { get; }
-    }
+
 
     /* example
 public class FakeBaseProxy
@@ -303,7 +296,7 @@ public class FakeBaseProxy
     public virtual double Age { get; set; }
 }
 
-public class FakeProxyClass : FakeBaseProxy, ILazyBum
+public class FakeProxyClass : FakeBaseProxy, ILazyObject
 {
     Type _typeToProxy;
     bool _isLoaded;
@@ -354,7 +347,7 @@ public class FakeProxyClass : FakeBaseProxy, ILazyBum
         }
     }
 
-    #region ILazyBum Members
+    #region ILazyObject Members
 
     public Type ProxyOf
     {
