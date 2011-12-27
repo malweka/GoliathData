@@ -28,13 +28,17 @@ namespace WebZoo.Data
             //string templatePath = currentDir;
             
             Console.WriteLine("Start run");
-
-            SupportedRdbms rdbms = SupportedRdbms.Sqlite3;
+            //Console.WriteLine(Guid.NewGuid().ToString("N"));
+            MapConfig mapConfig = null;
+            SupportedRdbms rdbms = SupportedRdbms.Mssql2008;
             WebZooRunner zoorunner = new WebZooRunner(rdbms, new CodeGenerator(), AppDomain.CurrentDomain.BaseDirectory, true);
-            //var mapConfig = zoorunner.CreateMap();
+            //mapConfig = zoorunner.CreateMap();
             //zoorunner.GenerateCode();
             string mapfile = Path.Combine(zoorunner.WorkingFolder, Goliath.Data.CodeGen.Constants.MapFileName);
-            var mapConfig = MapConfig.Create(mapfile);
+            mapConfig = MapConfig.Create(mapfile);
+
+            zoorunner = new WebZooRunner(SupportedRdbms.Sqlite3, new CodeGenerator(), AppDomain.CurrentDomain.BaseDirectory, true);
+            mapConfig.Settings.ConnectionString = zoorunner.Settings.ConnectionString;
             QueryTest(mapConfig);
             Console.WriteLine("done");
             //Console.ReadKey();
@@ -164,7 +168,7 @@ namespace WebZoo.Data
             //string dbfile = Path.Combine(pdir, "Data", "WebZoo.db");
             //string cs = string.Format("Data Source={0}; Version=3", dbfile);
 
-            //string mapfile = Path.Combine(workingFolder, MapFileName);
+
             var sessionFactory = new Database().Configure(mapConfig)
                 .Provider(new SqliteProvider()).Init();
 

@@ -89,6 +89,7 @@
     <Content Include="Scripts\Mssql2008\WebZooAutoIncrement\02_employees.sql" />
     <Content Include="Scripts\Mssql2008\WebZooAutoIncrement\03_animals_handlers.sql" />
     <Content Include="Scripts\Mssql2008\WebZooAutoIncrement\04_monkeys.sql" />
+    <Content Include="Scripts\Mssql2008\WebZooAutoIncrement\00_00Dropzone.sql" />
     <Content Include="Scripts\Mssql2008\WebZooGuid\00_zoos.sql" />
     <Content Include="Scripts\Mssql2008\WebZooGuid\01_animals.sql" />
     <Content Include="Scripts\Mssql2008\WebZooGuid\02_employees.sql" />

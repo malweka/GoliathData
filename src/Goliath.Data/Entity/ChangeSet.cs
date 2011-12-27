@@ -5,6 +5,8 @@ using System.Linq.Expressions;
 
 namespace Goliath.Data.Entity
 {
+    using Utils;
+
     /// <summary>
     /// 
     /// </summary>
@@ -18,6 +20,7 @@ namespace Goliath.Data.Entity
         /// The name of the item.
         /// </value>
         public string ItemName { get; private set; }
+
         /// <summary>
         /// Gets or sets the value.
         /// </summary>
@@ -25,10 +28,12 @@ namespace Goliath.Data.Entity
         /// The value.
         /// </value>
         public object Value { get; set; }
+
         /// <summary>
         /// Gets the initial value.
         /// </summary>
         public object InitialValue { get; internal set; }
+
         /// <summary>
         /// Gets the version.
         /// </summary>
@@ -196,23 +201,8 @@ namespace Goliath.Data.Entity
         /// <param name="value">The value.</param>
         public void Track<TProperty>(Expression<Func<TProperty>> property, object value)
         {
-            string propertyName = GetMemberName(property);
+            string propertyName = property.GetMemberName();
             Track(propertyName, value);
-        }
-
-        string GetMemberName<TProperty>(Expression<Func<TProperty>> property)
-        {
-            var lambda = (LambdaExpression)property;
-
-            MemberExpression memberExpression;
-            if (lambda.Body is UnaryExpression)
-            {
-                var unaryExpression = (UnaryExpression)lambda.Body;
-                memberExpression = (MemberExpression)unaryExpression.Operand;
-            }
-            else memberExpression = (MemberExpression)lambda.Body;
-
-            return memberExpression.Member.Name;
         }
 
     }

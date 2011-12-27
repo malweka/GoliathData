@@ -94,6 +94,11 @@ namespace Goliath.Data.Mapping
                             pk.KeyGenerationStrategy = Generators.GuidCombGenerator.GeneratorName;
                             pk.UnsavedValue = Guid.Empty.ToString();
                         }
+                        else if (pk.Key.IsIdentity)
+                        {
+                            pk.KeyGenerationStrategy = Goliath.Data.Generators.AutoIncrementGenerator.GeneratorName;
+                            pk.UnsavedValue = "-1";
+                        }
                     }
                 }
 

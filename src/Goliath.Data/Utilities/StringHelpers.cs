@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Linq.Expressions;
 
 namespace Goliath.Data.Utils
 {
@@ -24,8 +25,10 @@ namespace Goliath.Data.Utils
         {
             if (string.IsNullOrWhiteSpace(tableLeft))
                 throw new ArgumentNullException("tableLeft");
+
             if (string.IsNullOrWhiteSpace(column))
                 throw new ArgumentNullException("column");
+
             if (string.IsNullOrWhiteSpace(postfix))
                 throw new ArgumentNullException("postfix");
 
@@ -50,7 +53,14 @@ namespace Goliath.Data.Utils
 
         }
 
-        static string GetTableName(string tableName, string abbr, int length)
+        /// <summary>
+        /// Gets the name of the table.
+        /// </summary>
+        /// <param name="tableName">Name of the table.</param>
+        /// <param name="abbr">The abbr.</param>
+        /// <param name="length">The length.</param>
+        /// <returns></returns>
+        internal static string GetTableName(string tableName, string abbr, int length)
         {
             if (!string.IsNullOrWhiteSpace(tableName))
             {
@@ -71,6 +81,27 @@ namespace Goliath.Data.Utils
             }
             else
                 return string.Empty;
+        }
+
+        /// <summary>
+        /// Gets the name of the member.
+        /// </summary>
+        /// <typeparam name="TProperty">The type of the property.</typeparam>
+        /// <param name="property">The property.</param>
+        /// <returns></returns>
+        public static string GetMemberName<TProperty>(this Expression<Func<TProperty>> property)
+        {
+            var lambda = (LambdaExpression)property;
+
+            MemberExpression memberExpression;
+            if (lambda.Body is UnaryExpression)
+            {
+                var unaryExpression = (UnaryExpression)lambda.Body;
+                memberExpression = (MemberExpression)unaryExpression.Operand;
+            }
+            else memberExpression = (MemberExpression)lambda.Body;
+
+            return memberExpression.Member.Name;
         }
     }
 }

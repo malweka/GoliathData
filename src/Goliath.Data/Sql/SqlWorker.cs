@@ -259,14 +259,14 @@ namespace Goliath.Data.Sql
                                     var relMap = entityMap.Parent.GetEntityMap(reltype.FullName);
                                     //build insert statement
                                     SqlOperationInfo manyToManyOp = new SqlOperationInfo();
-                                    Relation mapRel = relMap.Relations.Where(r => r.ColumnName.Equals(rel.ReferenceColumn) && r.MapTableName.Equals(rel.MapTableName)).FirstOrDefault();
+                                    Property mapRel = relMap.GetProperty(rel.ReferenceProperty);
 
                                     if (mapRel != null)
                                     {
                                         var paramName1 = InsertSqlBuilder.BuildParameterNameWithLevel(rel.MapColumn, entityMap.TableAlias, recursionLevel);
-                                        var paramName2 = InsertSqlBuilder.BuildParameterNameWithLevel(mapRel.MapColumn, relMap.TableAlias, recursionLevel);
-                                        manyToManyOp.SqlText = string.Format("INSERT INTO {0} ({1}, {2}) VALUES({3},{4})", rel.MapTableName, rel.MapColumn, mapRel.MapColumn, sqlMapper.CreateParameterName(paramName1), sqlMapper.CreateParameterName(paramName2));
-                                        var param1Prop = entGetSets.Properties[mapRel.ReferenceProperty];
+                                        var paramName2 = InsertSqlBuilder.BuildParameterNameWithLevel(rel.MapReferenceColumn, relMap.TableAlias, recursionLevel);
+                                        manyToManyOp.SqlText = string.Format("INSERT INTO {0} ({1}, {2}) VALUES({3},{4})", rel.MapTableName, rel.MapColumn, rel.MapReferenceColumn, sqlMapper.CreateParameterName(paramName1), sqlMapper.CreateParameterName(paramName2));
+                                        var param1Prop = entGetSets.Properties[mapRel.PropertyName];
                                         EntityGetSetInfo mappedGetSet;
                                         if (!getSetStore.TryGetValue(reltype, out mappedGetSet))
                                         {

@@ -58,6 +58,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DynamicProxy\ILazyObject.cs" />
     <Compile Include="Entity\ChangeSet.cs" />
     <Compile Include="Collections\ILazyList.cs" />
     <Compile Include="Config\ConfigManager.cs" />

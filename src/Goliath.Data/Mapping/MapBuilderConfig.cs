@@ -111,6 +111,7 @@ namespace Goliath.Data.Mapping
             }
         }
 
+        public bool IsLoaded { get; private set; }
 
         /// <summary>
         /// Loads the specified filename.
@@ -118,6 +119,9 @@ namespace Goliath.Data.Mapping
         /// <param name="filename">The filename.</param>
         public void Load(string filename)
         {
+            if (IsLoaded)
+                throw new InvalidOperationException("map config already loaded");
+
             using (var filestream = File.Open(filename, FileMode.Open, FileAccess.Read))
             {
                 Load(filestream);
@@ -130,13 +134,50 @@ namespace Goliath.Data.Mapping
         /// <param name="xmlStream">The XML stream.</param>
         public void Load(Stream xmlStream)
         {
+            if (IsLoaded)
+                throw new InvalidOperationException("map config already loaded");
+
             using (XmlReader reader = XmlReader.Create(xmlStream, new XmlReaderSettings() { IgnoreComments = true, IgnoreWhitespace = true }))
             {
                 MapReader mr = new MapReader();
                 mr.Read(reader, this);
+                ProcessAndInspectRelationship();
+                IsLoaded = true;
             }
 
             //return config;
+        }
+
+        void ProcessAndInspectRelationship()
+        {
+            foreach (var entMap in EntityConfigs)
+            {
+                if (entMap.IsLinkTable)
+                    continue;
+
+                foreach (var rel in entMap.Relations)
+                {
+                    var relEntMap = GetEntityMap(rel.ReferenceEntityName);
+                    if (relEntMap == null)
+                        throw new MappingException(string.Format("Could not find Mapped Entity {0} for property {1}.{2}", rel.ReferenceEntityName, entMap.Name, rel.PropertyName));
+                   
+                    rel.ReferenceTable = relEntMap.TableName;
+                    rel.ReferenceTableSchemaName = relEntMap.SchemaName;
+
+                    var refProperty = relEntMap.GetProperty(rel.ReferenceProperty);
+                    if (refProperty == null)
+                        throw new MappingException(string.Format("Could not find ReferenceProperty {0} for property {1}.{2}",
+                            rel.ReferenceProperty, entMap.Name, rel.PropertyName));
+
+                    rel.ReferenceColumn = refProperty.ColumnName;
+
+                    //if (rel.RelationType == RelationshipType.ManyToOne)
+                    //{
+
+                    //    continue;
+                    //}
+                }
+            }
         }
 
         /// <summary>
