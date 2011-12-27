@@ -177,7 +177,7 @@ namespace Goliath.Data.CodeGen
             if (autoIncrement)
             {
                 baseModel = new ComplexType("WebZoo.Data.BaseEntityInt");
-                baseModel.Properties.Add(new Property("Id", "Id", System.Data.DbType.Guid)
+                baseModel.Properties.Add(new Property("Id", "Id", System.Data.DbType.Int32)
                 {
                     ClrType = typeof(int),
                     IsPrimaryKey = true,
