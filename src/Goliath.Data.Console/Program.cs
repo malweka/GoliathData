@@ -287,6 +287,9 @@ namespace WebZoo.Data
                 var zooEntMap = map.EntityConfigs.Where(c => string.Equals(c.Name, "Zoo", StringComparison.Ordinal))
                     .FirstOrDefault();
 
+                var employeeMap = map.EntityConfigs.Where(c => string.Equals(c.Name, "Employee", StringComparison.Ordinal))
+                    .FirstOrDefault();
+
                 var wst = new WhereStatement("Id");
 
                 SelectSqlBuilder selectBuilder = new SelectSqlBuilder(mapper, animalEntMap)
@@ -304,6 +307,19 @@ namespace WebZoo.Data
                 //Providers.SqlServer.Mssq2008SqlMapper mapper = new Mssq2008SqlMapper();
 
 
+                var leftColumn1 = new Relation() { ColumnName = "EmployeeId", PropertyName = "EmployeeId" };
+                var leftcolumn2 = new Relation() { ColumnName = "AnimalId", PropertyName = "AnimalId"};
+
+                var mapTableMap = UnMappedTableMap.Create("animals_handlers", leftColumn1, leftcolumn2);
+                mapTableMap.TableAlias = "mX1";
+
+                var currEntMap = UnMappedTableMap.Create(animalEntMap.TableName);
+
+                SelectSqlBuilder manytomanySql = new SelectSqlBuilder(mapper, mapTableMap)
+                       .AddJoin(new SqlJoin(mapTableMap, JoinType.Inner).OnTable(employeeMap).OnLeftColumn(leftColumn1).OnRightColumn("Id"))
+                       .AddJoin(new SqlJoin(mapTableMap, JoinType.Inner).OnTable(currEntMap).OnLeftColumn(leftcolumn2).OnRightColumn("Id"));
+
+                string sql = manytomanySql.ToSqlString();
 
                 var animalQuery = new SelectSqlBuilder(mapper, animalEntMap).WithPaging(15, 0).ToSqlString();
                 var zooQuery = new SelectSqlBuilder(mapper, zooEntMap).ToSqlString();
@@ -322,10 +338,11 @@ namespace WebZoo.Data
                 serializer.SerializeAll<WebZoo.Data.Animal>(dataReader, animalEntMap);
                 dataReader.Dispose();
 
-                var m1 = animals[0];
+                var m1 = animals[1];
                 m1.Name = "Just_Updated";
                 m1.Location = "UP345";
 
+                Console.WriteLine(m1.EmployeesOnAnimalsHandler_AnimalId.Count);
                 var aniAdapter = sess.CreateDataAccessAdapter<Animal>();
                 aniAdapter.Update(m1);
 

@@ -33,14 +33,27 @@ namespace Goliath.Data.DataAccess
                 if (columns.TryGetValue(rel.ColumnName, out ordinal))
                 {
                     var val = dbReader[ordinal];
+
                     if (val != null)
                     {
-                        QueryParam qp = new QueryParam(ParameterNameBuilderHelper.ColumnQueryName(relEntMap.TableAlias, rel.ReferenceColumn)) { Value = val };
-                        SelectSqlBuilder sqlBuilder = new SelectSqlBuilder(sqlMapper, relEntMap)
-                       .Where(new WhereStatement(ParameterNameBuilderHelper.ColumnWithTableAlias(relEntMap.TableAlias, rel.ReferenceColumn))
-                                .Equals(sqlMapper.CreateParameterName(qp.Name)));
+                        var leftColumn1 = new Relation() { ColumnName = rel.MapColumn, PropertyName = rel.MapColumn };
+                        var leftcolumn2 = new Relation() { ColumnName = rel.MapReferenceColumn, PropertyName = rel.MapReferenceColumn };
+
+                        var mapTableMap = UnMappedTableMap.Create(rel.MapTableName, leftColumn1, leftcolumn2);
+                        mapTableMap.TableAlias = "mX1";
+
+                        var currEntMap = UnMappedTableMap.Create(entityMap.TableName);
+
+                        QueryParam qp = new QueryParam(ParameterNameBuilderHelper.ColumnQueryName(mapTableMap.TableAlias, rel.MapColumn)) { Value = val };
+
+                        SelectSqlBuilder sqlBuilder = new SelectSqlBuilder(sqlMapper, mapTableMap)
+                            .AddJoin(new SqlJoin(mapTableMap, JoinType.Inner).OnTable(relEntMap).OnLeftColumn(leftColumn1).OnRightColumn(rel.ReferenceColumn))
+                            .AddJoin(new SqlJoin(mapTableMap, JoinType.Inner).OnTable(currEntMap).OnLeftColumn(leftcolumn2).OnRightColumn(rel.ColumnName))
+                            .Where(new WhereStatement(ParameterNameBuilderHelper.ColumnWithTableAlias(mapTableMap.TableAlias, rel.MapColumn))
+                            .Equals(sqlMapper.CreateParameterName(qp.Name)));
 
                         SqlOperationInfo qInfo = new SqlOperationInfo() { CommandType = SqlStatementType.Select };
+
                         qInfo.SqlText = sqlBuilder.ToSqlString();
                         qInfo.Parameters = new QueryParam[] { qp };
 

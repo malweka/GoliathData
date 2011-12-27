@@ -117,6 +117,7 @@
     <Compile Include="Mapping\DataModelGenerator.cs" />
     <Compile Include="Mapping\Enums.cs" />
     <Compile Include="Mapping\Models\ConfigProperty.cs" />
+    <Compile Include="Mapping\Models\UnMappedTableMap.cs" />
     <Compile Include="Mapping\PostGenProcessors\IPostGenerationProcessor.cs" />
     <Compile Include="Mapping\MappingExtensions.cs" />
     <Compile Include="Mapping\PostGenProcessors\NamePostProcessor.cs" />
