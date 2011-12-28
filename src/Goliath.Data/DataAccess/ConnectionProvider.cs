@@ -1,19 +1,22 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Data;
 using System.Data.Common;
 
 
 namespace Goliath.Data.DataAccess
 {
-    using Providers;
+    using Diagnostics;
 
     [Serializable]
     class ConnectionProvider : IConnectionProvider
     {
+        static ILogger logger;
         IDbConnector connector;
+
+        static ConnectionProvider()
+        {
+            logger = Logger.GetLogger(typeof(ConnectionProvider));
+        }
 
         public ConnectionProvider(IDbConnector connector)
         {
@@ -44,7 +47,7 @@ namespace Goliath.Data.DataAccess
                 }
                 catch (Exception ex)
                 {
-                    //log exception
+                    logger.Log("DiscardOfConnection failed", ex);
                 }
             }
 
@@ -81,7 +84,7 @@ namespace Goliath.Data.DataAccess
                 return connectionRef;
             }
             else
-                throw new GoliathDataException("couldn't discard this connection has it's not managed by this provider");
+                throw new GoliathDataException("Couldn't discard this connection has it's not managed by this provider");
         }
 
         #endregion

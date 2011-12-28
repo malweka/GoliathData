@@ -12,7 +12,7 @@ namespace Goliath.Data.DataAccess
         string id;
         ITransaction currentTransaction;
         public ConnectionManager ConnectionManager { get; private set; }
-        IConnectionProvider connectionProvider;
+        //IConnectionProvider connectionProvider;
 
         #region .Ctor
 

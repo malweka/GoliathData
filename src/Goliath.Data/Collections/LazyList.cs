@@ -57,7 +57,7 @@ namespace Goliath.Data.Collections
         {
             if (!isLoaded)
             {
-                logger.Log(LogType.Debug, "opening connection for lazy collection query");
+                logger.Log(LogType.Debug, "Opening connection for lazy collection query");
                 var dbAccess = settings.CreateAccessor();
                 using (ConnectionManager connManager = new ConnectionManager(new ConnectionProvider(settings.Connector), !settings.Connector.AllowMultipleConnections))
                 {
@@ -70,7 +70,7 @@ namespace Goliath.Data.Collections
                     else
                         parameters = query.Parameters.ToArray();
 
-                    logger.Log(LogType.Debug, string.Format("executing query {0}", query.SqlText));
+                    logger.Log(LogType.Debug, string.Format("Executing query {0}", query.SqlText));
                     var dataReader = dbAccess.ExecuteReader(connManager.OpenConnection(), query.SqlText, parameters);
                     list = factory.SerializeAll<T>(dataReader, entityMap);
 
@@ -247,6 +247,7 @@ namespace Goliath.Data.Collections
         /// </returns>
         public IEnumerator<T> GetEnumerator()
         {
+            LoadMe();
             return list.GetEnumerator();
         }
 
@@ -262,6 +263,7 @@ namespace Goliath.Data.Collections
         /// </returns>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
         {
+            LoadMe();
             return list.GetEnumerator();
         }
 
