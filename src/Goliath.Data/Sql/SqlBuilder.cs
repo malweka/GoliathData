@@ -24,6 +24,11 @@ namespace Goliath.Data.Sql
             get { return columns; }
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SqlBuilder"/> class.
+        /// </summary>
+        /// <param name="sqlMapper">The SQL mapper.</param>
+        /// <param name="entMap">The ent map.</param>
         protected SqlBuilder(SqlMapper sqlMapper, EntityMap entMap)
         {
             if (sqlMapper == null)
