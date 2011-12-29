@@ -117,6 +117,14 @@ namespace Goliath.Data.Sql
             return keygenerationOperations;
         }
 
+        /// <summary>
+        /// Builds the insert SQL.
+        /// </summary>
+        /// <typeparam name="TEntity">The type of the entity.</typeparam>
+        /// <param name="entityMap">The entity map.</param>
+        /// <param name="entity">The entity.</param>
+        /// <param name="recursive"></param>
+        /// <returns></returns>
         public BatchSqlOperation BuildInsertSql<TEntity>(EntityMap entityMap, TEntity entity, bool recursive)
         {
             BatchSqlOperation operation = new BatchSqlOperation() { Priority = SqlOperationPriority.Medium };
@@ -148,7 +156,6 @@ namespace Goliath.Data.Sql
             EntityGetSetInfo entGetSets;
             InsertSqlBuilder baseInsertSqlBuilder = null;
             BatchSqlOperation operation = null;
-            //int level = recursionLevel;
 
             if (!getSetStore.TryGetValue(entityType, out entGetSets))
             {
@@ -279,20 +286,12 @@ namespace Goliath.Data.Sql
                                         var manyToManySubOp = new BatchSqlOperation() { Priority = SqlOperationPriority.Low, KeyGenerationOperations = new Dictionary<string, KeyGenOperationInfo>() };
                                         manyToManySubOp.Operations.Add(manyToManyOp);
                                         operation.SubOperations.Add(manyToManySubOp);
-
-                                        //operation.Operations.Add(manyToManyOp);
                                     }
                                 }
                             }
                         }
                     }
                 }
-                //if (isSubclass)
-                //{
-                //    foreach (var rel in baseEntMap.Relations)
-                //    {
-                //    }
-                //}
             }
         }
 
@@ -315,7 +314,6 @@ namespace Goliath.Data.Sql
             return operation;
 
         }
-
 
         void BuildUpdateSql
        (

@@ -10,17 +10,9 @@ namespace Goliath.Data.Sql
 
     class SelectSqlBuilder : SqlBuilder
     {
-        //SqlMapper sqlMapper;
-        //EntityMap entMap;
         PagingInfo? paging;
-
-        //readonly Dictionary<string, string> columns = new Dictionary<string, string>();
-        //internal Dictionary<string, string> Columns
-        //{
-        //    get { return columns; }
-        //}
-
         readonly List<SqlJoin> joins = new List<SqlJoin>();
+
         internal List<SqlJoin> Joins
         {
             get { return joins; }
@@ -195,33 +187,4 @@ namespace Goliath.Data.Sql
 
     }
 
-    [System.Diagnostics.DebuggerDisplay("{ColumnEnumeration} {From} {JoinEnumeration} ...")]
-    public struct SqlQueryBody
-    {
-        public string ColumnEnumeration { get; set; }
-        public string From { get; set; }
-        public string JoinEnumeration { get; set; }
-        public string WhereExpression { get; set; }
-        public string SortExpression { get; set; }
-        public string AggregateExpression { get; set; }
-
-        public string ToString(SqlMapper mapper, PagingInfo paging)
-        {
-            return mapper.QueryWithPaging(this, paging);
-        }
-
-        public override string ToString()
-        {
-            StringBuilder sb = new StringBuilder("SELECT ");
-            sb.Append(ColumnEnumeration);
-            sb.AppendFormat("\nFROM {0}", From);
-
-            if (!string.IsNullOrWhiteSpace(JoinEnumeration))
-                sb.Append(JoinEnumeration);
-            if (!string.IsNullOrWhiteSpace(WhereExpression))
-                sb.AppendFormat("\nWHERE {0}\n", WhereExpression);
-
-            return sb.ToString();
-        }
-    }
 }

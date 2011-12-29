@@ -1,16 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 
 namespace Goliath.Data.Sql
 {
-    using Diagnostics;
-    using DynamicProxy;
+    using DataAccess;
     using Mapping;
     using Providers;
-    using Sql;
-    using DataAccess;
 
     class UpdateSqlBuilder : SqlBuilder
     {
@@ -37,9 +33,6 @@ namespace Goliath.Data.Sql
                     continue;
 
                 string paramName = null;
-
-                //if (prop.IsPrimaryKey)
-                //    continue;
 
                 if (prop is Relation)
                 {
@@ -119,18 +112,6 @@ namespace Goliath.Data.Sql
             {
                 sb.AppendFormat("{0} ", w.ToString());
             }
-
-            //for (int i = 0; i < entMap.PrimaryKey.Keys.Count; i++)
-            //{
-            //    if (i > 0)
-            //    {
-            //        sb.Append(" AND ");
-            //    }
-
-            //    string colname = entMap.PrimaryKey.Keys[i].Key.ColumnName;
-            //    var paramName = BuildParameterNameWithLevel(colname, entMap.TableAlias, level);
-            //    sb.AppendFormat("{0} = {1}", colname, sqlMapper.CreateParameterName(paramName));
-            //}
 
             return sb.ToString();
         }

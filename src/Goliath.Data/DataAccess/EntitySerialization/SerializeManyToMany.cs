@@ -44,7 +44,7 @@ namespace Goliath.Data.DataAccess
 
                         var currEntMap = UnMappedTableMap.Create(entityMap.TableName);
 
-                        QueryParam qp = new QueryParam(ParameterNameBuilderHelper.ColumnQueryName(mapTableMap.TableAlias, rel.MapColumn)) { Value = val };
+                        QueryParam qp = new QueryParam(ParameterNameBuilderHelper.ColumnQueryName(rel.MapColumn, mapTableMap.TableAlias)) { Value = val };
 
                         SelectSqlBuilder sqlBuilder = new SelectSqlBuilder(sqlMapper, mapTableMap)
                             .AddJoin(new SqlJoin(mapTableMap, JoinType.Inner).OnTable(relEntMap).OnLeftColumn(leftColumn1).OnRightColumn(rel.ReferenceColumn))

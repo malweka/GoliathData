@@ -5,10 +5,17 @@ namespace Goliath.Data.DataAccess
 {
     using Mapping;
 
+    /// <summary>
+    /// 
+    /// </summary>
     [Serializable]
     public class TypeConverterStore : ITypeConverterStore
     {
         Dictionary<Type, Func<Object, Object>> converters = new Dictionary<Type, Func<Object, Object>>();
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TypeConverterStore"/> class.
+        /// </summary>
         public TypeConverterStore()
         {
             Load();
@@ -367,6 +374,16 @@ namespace Goliath.Data.DataAccess
 
     internal static class TypeConversionExtensions
     {
+        /// <summary>
+        /// Determines whether this instance [can generate key] the specified pk.
+        /// </summary>
+        /// <param name="pk">The pk.</param>
+        /// <param name="pInfo">The p info.</param>
+        /// <param name="entity">The entity.</param>
+        /// <param name="typeConverterStore">The type converter store.</param>
+        /// <returns>
+        /// 	<c>true</c> if this instance [can generate key] the specified pk; otherwise, <c>false</c>.
+        /// </returns>
         public static bool CanGenerateKey(this PrimaryKeyProperty pk, PropInfo pInfo, object entity, ITypeConverterStore typeConverterStore)
         {
             if (pk.KeyGenerator == null)

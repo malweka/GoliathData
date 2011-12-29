@@ -153,6 +153,7 @@
     <Compile Include="Providers\SqlServer\MssqlSqlMapper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Mapping\SqlTypeHelper.cs" />
+    <Compile Include="Sql\DeleteSqlBuilder.cs" />
     <Compile Include="Sql\ISqlWorker.cs" />
     <Compile Include="Sql\SqlOperationInfo.cs" />
     <Compile Include="QueryParam.cs" />
@@ -168,6 +169,7 @@
     <Compile Include="Sql\SqlBuilderExtensions.cs" />
     <Compile Include="Sql\SqlFunction.cs" />
     <Compile Include="Sql\SqlJoin.cs" />
+    <Compile Include="Sql\SqlQueryBody.cs" />
     <Compile Include="Sql\SqlStatement.cs" />
     <Compile Include="Sql\SqlWorker.cs" />
     <Compile Include="Sql\UpdateSqlBuilder.cs" />
