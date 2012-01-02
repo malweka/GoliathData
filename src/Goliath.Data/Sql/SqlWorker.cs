@@ -384,5 +384,90 @@ namespace Goliath.Data.Sql
             operation.Operations.Add(operationInfo);
 
         }
+
+        /// <summary>
+        /// Builds the delete SQL.
+        /// </summary>
+        /// <typeparam name="TEntity">The type of the entity.</typeparam>
+        /// <param name="entityMap">The entity map.</param>
+        /// <param name="entity">The entity.</param>
+        /// <param name="cascade">if set to <c>true</c> cascade delete.</param>
+        /// <returns></returns>
+        public BatchSqlOperation BuildDeleteSql<TEntity>(EntityMap entityMap, TEntity entity, bool cascade)
+        {
+            BatchSqlOperation operation = new BatchSqlOperation() { Priority = SqlOperationPriority.Medium };
+
+            return operation;
+        }
+
+        void BuildDeleteSql
+       (
+           object entity,
+           EntityMap entityMap,
+           Type entityType,
+
+           object parentEntity,
+           EntityMap parentEntityMap,
+           Type parentEntityType,
+           BatchSqlOperation batchOperation,
+
+           bool recursive,
+           int recursionLevel = 0,
+           int rootRecursionLevel = 0
+        )
+        {
+            EntityMap baseEntMap = null;
+            EntityGetSetInfo entGetSets;
+            UpdateSqlBuilder baseUpdateBuilder = null;
+            BatchSqlOperation operation = null;
+            bool isSubclass = entityMap.IsSubClass;
+
+
+
+            if (!getSetStore.TryGetValue(entityType, out entGetSets))
+            {
+                entGetSets = new EntityGetSetInfo(entityType);
+                entGetSets.Load(entityMap);
+                getSetStore.Add(entityType, entGetSets);
+            }
+
+
+            if (isSubclass)
+            {
+                baseEntMap = entityMap.Parent.GetEntityMap(entityMap.Extends);
+                baseUpdateBuilder = new UpdateSqlBuilder(sqlMapper, baseEntMap, recursionLevel, rootRecursionLevel);
+
+                var baseParamDictionary = UpdateSqlBuilder.BuildUpdateQueryParams(entity, entGetSets, baseEntMap, getSetStore, recursionLevel, rootRecursionLevel);
+                SqlOperationInfo baseSqlOp = new SqlOperationInfo() { CommandType = SqlStatementType.Delete };
+
+                var whereCollection = UpdateSqlBuilder.BuildWhereStatementFromPrimaryKey(baseEntMap, sqlMapper, recursionLevel);
+                baseSqlOp.SqlText = baseUpdateBuilder.Where(whereCollection).ToSqlString();
+                List<QueryParam> baseParameters = new List<QueryParam>();
+                baseParameters.AddRange(baseParamDictionary.Values);
+                baseSqlOp.Parameters = baseParameters;
+                operation = new BatchSqlOperation() { Priority = SqlOperationPriority.Low };
+
+                batchOperation.Operations.Add(baseSqlOp);
+                batchOperation.Priority = SqlOperationPriority.Medium;
+                batchOperation.SubOperations.Add(operation);
+            }
+            else
+            {
+                operation = batchOperation;
+                operation.Priority = SqlOperationPriority.Medium;
+            }
+
+            var wheres = UpdateSqlBuilder.BuildWhereStatementFromPrimaryKey(entityMap, sqlMapper, recursionLevel);
+            UpdateSqlBuilder entUpdateSqlBuilder = new UpdateSqlBuilder(sqlMapper, entityMap, recursionLevel, rootRecursionLevel);
+            var paramDictionary = UpdateSqlBuilder.BuildUpdateQueryParams(entity, entGetSets, entityMap, getSetStore, recursionLevel, rootRecursionLevel);
+            SqlOperationInfo operationInfo = new SqlOperationInfo { CommandType = SqlStatementType.Update };
+            operationInfo.SqlText = entUpdateSqlBuilder.Where(wheres).ToSqlString();
+
+            List<QueryParam> parameters = new List<QueryParam>();
+            parameters.AddRange(paramDictionary.Values);
+            operationInfo.Parameters = parameters;
+            operation.Operations.Add(operationInfo);
+
+        }
     }
 }

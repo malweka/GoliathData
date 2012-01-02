@@ -26,7 +26,13 @@ namespace Goliath.Data.Sql
 
         public override string ToSqlString()
         {
-            throw new NotImplementedException();
+            StringBuilder sb = new StringBuilder("DELETE FROM ");
+            sb.AppendFormat("{0} WHERE ", entMap.TableName);
+            foreach (var w in wheres)
+            {
+                sb.AppendFormat("{0} ", w.ToString());
+            }
+            return sb.ToString();
         }
     }
 }
