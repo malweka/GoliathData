@@ -301,6 +301,9 @@ namespace WebZoo.Data
                 var wheres = UpdateSqlBuilder.BuildWhereStatementFromPrimaryKey(animalEntMap, mapper, 0);
                 string updateString = updateBuilder.Where(wheres).ToSqlString();
 
+                DeleteSqlBuilder deleteBuilder = new DeleteSqlBuilder(mapper, animalEntMap);
+                string deleteString = deleteBuilder.Where(wheres).ToSqlString();
+
                 Console.WriteLine(sstring);
                 Console.WriteLine(updateString);
                 //dataReader.Read();

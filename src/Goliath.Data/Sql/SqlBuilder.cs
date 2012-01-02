@@ -47,6 +47,31 @@ namespace Goliath.Data.Sql
             return string.Format("{0}_{1}", ParameterNameBuilderHelper.ColumnQueryName(columnName, tableAlias), level);
         }
 
+        public static WhereStatement[] BuildWhereStatementFromPrimaryKey(EntityMap entMap, SqlMapper sqlMapper, int level)
+        {
+            if (entMap == null)
+                throw new ArgumentNullException("entMap");
+
+            List<WhereStatement> wheres = new List<WhereStatement>();
+            if (entMap.PrimaryKey != null)
+            {
+                for (int i = 0; i < entMap.PrimaryKey.Keys.Count; i++)
+                {
+                    string colname = entMap.PrimaryKey.Keys[i].Key.ColumnName;
+                    var paramName = BuildParameterNameWithLevel(colname, entMap.TableAlias, level);
+
+                    var whs = new WhereStatement(ParameterNameBuilderHelper.ColumnWithTableAlias(entMap.TableName, colname))
+                                    .Equals(sqlMapper.CreateParameterName(paramName));
+
+
+                    wheres.Add(whs);
+                }
+            }
+
+            return wheres.ToArray();
+        }
+
+
         public abstract string ToSqlString();
 
         public override string ToString()
