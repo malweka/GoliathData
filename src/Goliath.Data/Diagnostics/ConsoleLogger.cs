@@ -67,7 +67,7 @@ namespace Goliath.Data.Diagnostics
         /// Logs the specified exception.
         /// </summary>
         /// <param name="exception">The exception.</param>
-        public override void Log(string sessionId, string message, Exception exception)
+        public override void LogException(string sessionId, string message, Exception exception)
         {
             Log(sessionId, LogType.Error, string.Format("{0}\n{1}", message, exception.ToString()));
         }

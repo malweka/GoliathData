@@ -125,7 +125,7 @@ WHERE FK.TABLE_NAME = @tableName";
             }
             catch (Exception ex)
             {
-                logger.Log("Error while getting table structure", ex);
+                logger.LogException("Error while getting table structure", ex);
                 throw;
             }
             return tables;

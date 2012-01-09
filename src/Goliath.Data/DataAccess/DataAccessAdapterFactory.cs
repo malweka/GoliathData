@@ -85,13 +85,14 @@ namespace Goliath.Data.DataAccess
             }
             catch (GoliathDataException ex)
             {
+                Console.WriteLine(ex.ToString());
                 //logger.Log(string.Format("Error while trying to invoke DataAccessAdapter factory method for {0}", typeof(TEntity)), ex);
                 throw;
             }
             catch (Exception ex)
             {
                 string errorMessage = string.Format("Error while trying to invoke DataAccessAdapter factory method for {0}", typeof(TEntity));
-                logger.Log(errorMessage, ex);
+                //logger.LogException(errorMessage, ex);
                 throw new GoliathDataException(errorMessage, ex); ;
             }
         }

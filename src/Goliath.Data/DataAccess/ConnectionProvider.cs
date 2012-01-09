@@ -47,7 +47,7 @@ namespace Goliath.Data.DataAccess
                 }
                 catch (Exception ex)
                 {
-                    logger.Log("DiscardOfConnection failed", ex);
+                    logger.LogException("DiscardOfConnection failed", ex);
                 }
             }
 

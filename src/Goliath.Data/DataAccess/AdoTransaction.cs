@@ -61,7 +61,7 @@ namespace Goliath.Data.DataAccess
             }
             catch (Exception ex)
             {
-                logger.Log(session.Id, "could not begin session", ex);
+                logger.LogException(session.Id, "could not begin session", ex);
                 throw new DataAccessException("could not begin session", ex);
             }
 
@@ -83,7 +83,7 @@ namespace Goliath.Data.DataAccess
             }
             catch (Exception ex)
             {
-                logger.Log(session.Id, "Commit failed", ex);
+                logger.LogException(session.Id, "Commit failed", ex);
                 throw new DataAccessException("Commit failed", ex);
             }
 
@@ -104,7 +104,7 @@ namespace Goliath.Data.DataAccess
             }
             catch (Exception ex)
             {
-                logger.Log(session.Id, "Rollback failed", ex);
+                logger.LogException(session.Id, "Rollback failed", ex);
                 throw new DataAccessException("Rollback failed", ex);
             }
         }
