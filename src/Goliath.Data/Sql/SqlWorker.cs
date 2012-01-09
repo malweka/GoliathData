@@ -396,7 +396,7 @@ namespace Goliath.Data.Sql
         public BatchSqlOperation BuildDeleteSql<TEntity>(EntityMap entityMap, TEntity entity, bool cascade)
         {
             BatchSqlOperation operation = new BatchSqlOperation() { Priority = SqlOperationPriority.Medium };
-
+            BuildDeleteSql(entity, entityMap, typeof(TEntity), operation);
             return operation;
         }
 
@@ -405,21 +405,12 @@ namespace Goliath.Data.Sql
            object entity,
            EntityMap entityMap,
            Type entityType,
-
-           object parentEntity,
-           EntityMap parentEntityMap,
-           Type parentEntityType,
-           BatchSqlOperation batchOperation,
-
-           bool recursive,
-           int recursionLevel = 0,
-           int rootRecursionLevel = 0
+           BatchSqlOperation batchOperation
         )
         {
             EntityMap baseEntMap = null;
             EntityGetSetInfo entGetSets;
-            UpdateSqlBuilder baseUpdateBuilder = null;
-            BatchSqlOperation operation = null;
+ 
             bool isSubclass = entityMap.IsSubClass;
 
 
@@ -432,42 +423,37 @@ namespace Goliath.Data.Sql
             }
 
 
-            if (isSubclass)
-            {
-                baseEntMap = entityMap.Parent.GetEntityMap(entityMap.Extends);
-                baseUpdateBuilder = new UpdateSqlBuilder(sqlMapper, baseEntMap, recursionLevel, rootRecursionLevel);
-
-                var baseParamDictionary = UpdateSqlBuilder.BuildUpdateQueryParams(entity, entGetSets, baseEntMap, getSetStore, recursionLevel, rootRecursionLevel);
-                SqlOperationInfo baseSqlOp = new SqlOperationInfo() { CommandType = SqlStatementType.Delete };
-
-                var whereCollection = UpdateSqlBuilder.BuildWhereStatementFromPrimaryKey(baseEntMap, sqlMapper, recursionLevel);
-                baseSqlOp.SqlText = baseUpdateBuilder.Where(whereCollection).ToSqlString();
-                List<QueryParam> baseParameters = new List<QueryParam>();
-                baseParameters.AddRange(baseParamDictionary.Values);
-                baseSqlOp.Parameters = baseParameters;
-                operation = new BatchSqlOperation() { Priority = SqlOperationPriority.Low };
-
-                batchOperation.Operations.Add(baseSqlOp);
-                batchOperation.Priority = SqlOperationPriority.Medium;
-                batchOperation.SubOperations.Add(operation);
-            }
-            else
-            {
-                operation = batchOperation;
-                operation.Priority = SqlOperationPriority.Medium;
-            }
-
-            var wheres = UpdateSqlBuilder.BuildWhereStatementFromPrimaryKey(entityMap, sqlMapper, recursionLevel);
-            UpdateSqlBuilder entUpdateSqlBuilder = new UpdateSqlBuilder(sqlMapper, entityMap, recursionLevel, rootRecursionLevel);
-            var paramDictionary = UpdateSqlBuilder.BuildUpdateQueryParams(entity, entGetSets, entityMap, getSetStore, recursionLevel, rootRecursionLevel);
-            SqlOperationInfo operationInfo = new SqlOperationInfo { CommandType = SqlStatementType.Update };
-            operationInfo.SqlText = entUpdateSqlBuilder.Where(wheres).ToSqlString();
+            var wheres = UpdateSqlBuilder.BuildWhereStatementFromPrimaryKey(entityMap, sqlMapper, 0);
+            DeleteSqlBuilder entDeleteSqlBuilder = new DeleteSqlBuilder(sqlMapper, entityMap);
+            var paramDictionary = DeleteSqlBuilder.BuildDeleteQueryParams(entity, entGetSets, entityMap, getSetStore);
+            SqlOperationInfo operationInfo = new SqlOperationInfo { CommandType = SqlStatementType.Delete };
+            operationInfo.SqlText = entDeleteSqlBuilder.Where(wheres).ToSqlString();
 
             List<QueryParam> parameters = new List<QueryParam>();
             parameters.AddRange(paramDictionary.Values);
             operationInfo.Parameters = parameters;
-            operation.Operations.Add(operationInfo);
+            batchOperation.Operations.Add(operationInfo);
 
+
+            if (isSubclass)
+            {
+                baseEntMap = entityMap.Parent.GetEntityMap(entityMap.Extends);
+                var baseDeleteBuilder = new DeleteSqlBuilder(sqlMapper, baseEntMap);
+
+                var baseParamDictionary = DeleteSqlBuilder.BuildDeleteQueryParams(entity, entGetSets, baseEntMap, getSetStore);
+                SqlOperationInfo baseSqlOp = new SqlOperationInfo() { CommandType = SqlStatementType.Delete };
+
+                var whereCollection = UpdateSqlBuilder.BuildWhereStatementFromPrimaryKey(baseEntMap, sqlMapper, 0);
+                baseSqlOp.SqlText = baseDeleteBuilder.Where(whereCollection).ToSqlString();
+                List<QueryParam> baseParameters = new List<QueryParam>();
+                baseParameters.AddRange(baseParamDictionary.Values);
+                baseSqlOp.Parameters = baseParameters;
+               var operation = new BatchSqlOperation() { Priority = SqlOperationPriority.Low };
+
+               operation.Operations.Add(baseSqlOp);
+                batchOperation.Priority = SqlOperationPriority.Medium;
+                batchOperation.SubOperations.Add(operation);
+            }
         }
     }
 }

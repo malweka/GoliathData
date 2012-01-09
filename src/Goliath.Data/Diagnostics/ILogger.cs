@@ -38,13 +38,13 @@ namespace Goliath.Data.Diagnostics
         /// <param name="sessionId">The session id.</param>
         /// <param name="message">The message.</param>
         /// <param name="exception">The exception.</param>
-        void Log(string sessionId, string message, Exception exception);
+        void LogException(string sessionId, string message, Exception exception);
 
         /// <summary>
         /// Logs the specified exception.
         /// </summary>
         /// <param name="exception">The exception.</param>
-        void Log(string message, Exception exception);
+        void LogException(string message, Exception exception);
     }
 
     /// <summary>
@@ -64,6 +64,9 @@ namespace Goliath.Data.Diagnostics
         /// 
         /// </summary>
         Warning = 4,
+        /// <summary>
+        /// 
+        /// </summary>
         Error = 8,
         /// <summary>
         /// 
@@ -92,6 +95,9 @@ namespace Goliath.Data.Diagnostics
         /// 
         /// </summary>
         Warning = 4,
+        /// <summary>
+        /// 
+        /// </summary>
         Error = 8,
         /// <summary>
         /// 

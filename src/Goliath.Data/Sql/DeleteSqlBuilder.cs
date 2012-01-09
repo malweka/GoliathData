@@ -12,7 +12,7 @@ namespace Goliath.Data.Sql
     class DeleteSqlBuilder : SqlBuilder
     {
         public DeleteSqlBuilder(SqlMapper sqlMapper, EntityMap entMap) : base(sqlMapper, entMap) { }
-        
+
         public DeleteSqlBuilder Where(params WhereStatement[] whereCollection)
         {
             if (whereCollection != null)
@@ -22,6 +22,37 @@ namespace Goliath.Data.Sql
             }
 
             return this;
+        }
+
+        public static Dictionary<string, ParamHolder> BuildDeleteQueryParams(object entity, EntityGetSetInfo getSetInfo,
+             EntityMap entityMap, GetSetStore getSetStore)
+        {
+            
+            Dictionary<string, ParamHolder> parameters = new Dictionary<string, ParamHolder>();
+            if (entityMap.PrimaryKey != null)
+            {
+                for (int i = 0; i < entityMap.PrimaryKey.Keys.Count; i++)
+                {
+                    PropInfo pInfo;
+                    var prop = entityMap.PrimaryKey.Keys[i].Key;
+
+                    if (getSetInfo.Properties.TryGetValue(prop.PropertyName, out pInfo))
+                    {
+
+                        string colname = entityMap.PrimaryKey.Keys[i].Key.ColumnName;
+                        var paramName = BuildParameterNameWithLevel(colname, entityMap.TableAlias, 0);
+                        ParamHolder param = new ParamHolder(paramName, pInfo.Getter, entity);
+
+                        if (parameters.ContainsKey(prop.ColumnName))
+                        {
+                            parameters.Remove(prop.ColumnName);
+                        }
+
+                        parameters.Add(prop.ColumnName, param);
+                    }
+                }
+            }
+            return parameters;
         }
 
         public override string ToSqlString()

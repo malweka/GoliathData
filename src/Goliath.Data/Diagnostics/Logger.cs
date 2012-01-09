@@ -76,7 +76,7 @@ namespace Goliath.Data.Diagnostics
         /// Logs the specified exception.
         /// </summary>
         /// <param name="exception">The exception.</param>
-        public abstract void Log(string sessionId, string message, Exception exception);
+        public abstract void LogException(string sessionId, string message, Exception exception);
 
         /// <summary>
         /// Logs the specified log type.
@@ -92,9 +92,9 @@ namespace Goliath.Data.Diagnostics
         /// Logs the specified exception.
         /// </summary>
         /// <param name="exception">The exception.</param>
-        public virtual void Log(string message, Exception exception)
+        public virtual void LogException(string message, Exception exception)
         {
-            Log(null, message, exception);
+            LogException(null, message, exception);
         }
 
         #endregion

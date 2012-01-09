@@ -57,7 +57,7 @@ namespace Goliath.Data.DynamicProxy
                 }
                 catch (Exception ex)
                 {
-                    logger.Log("Hydrate failed", ex);
+                    logger.LogException("Hydrate failed", ex);
                 }
             }
         }

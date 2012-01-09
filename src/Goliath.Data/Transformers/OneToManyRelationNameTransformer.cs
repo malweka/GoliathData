@@ -7,8 +7,16 @@ using Goliath.Data.Mapping;
 
 namespace Goliath.Data.Transformers
 {
+    using Diagnostics;
+
     class OneToManyRelationNameTransformer : INameTransformer<Relation>
     {
+        static ILogger logger;
+        static OneToManyRelationNameTransformer()
+        {
+            logger = Logger.GetLogger(typeof(OneToManyRelationNameTransformer));
+        }
+
         #region INameTransformer<Relation> Members
 
         public string Transform(Relation mapModel, string original)
@@ -49,7 +57,7 @@ namespace Goliath.Data.Transformers
             }
             catch (Exception ex)
             {
-                //TODO: log error
+                logger.LogException(string.Format("Transform: {0} -> {1}", original, mapModel.Name), ex);
                 return original;
             }
         }

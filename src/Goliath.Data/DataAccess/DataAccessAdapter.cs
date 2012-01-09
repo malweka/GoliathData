@@ -176,6 +176,11 @@ namespace Goliath.Data
         //    throw new NotImplementedException();
         //}
 
+        /// <summary>
+        /// Updates the batch.
+        /// </summary>
+        /// <param name="entityList">The entity list.</param>
+        /// <returns></returns>
         public int UpdateBatch(IEnumerable<TEntity> entityList)
         {
             throw new NotImplementedException();
@@ -257,7 +262,7 @@ namespace Goliath.Data
             return result;
         }
 
-        #endregion
+       
 
         void BuildOrExecuteInsertBatchOperation(ITransaction transaction, BatchSqlOperation batchOp, Dictionary<string, QueryParam> neededParams, List<SqlOperationInfo> batchOperations)
         {
@@ -362,6 +367,8 @@ namespace Goliath.Data
 
             //dataReader.Dispose();
         }
+
+        #endregion
 
         #region Queries
 
@@ -496,11 +503,21 @@ namespace Goliath.Data
 
         #endregion
 
+        /// <summary>
+        /// Deletes the specified entity.
+        /// </summary>
+        /// <param name="entity">The entity.</param>
+        /// <returns></returns>
         public int Delete(TEntity entity)
         {
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// Deletes the specified filters.
+        /// </summary>
+        /// <param name="filters">The filters.</param>
+        /// <returns></returns>
         public int Delete(QueryParam[] filters)
         {
             throw new NotImplementedException();
