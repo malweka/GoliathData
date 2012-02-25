@@ -79,6 +79,7 @@
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
+    <Content Include="TestFiles\Test002.data.xml" />
     <Content Include="TestFiles\Test001.data.xml" />
     <None Include="Entities\AutoIncrement\GoData.Map.xml" />
     <Content Include="Scripts\Sqlite\AutoIncrement\00_zoos.sql" />
