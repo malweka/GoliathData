@@ -124,7 +124,7 @@ namespace Goliath.Data
             }
 
             string sql = sqlUpdates.ToString();
-            logger.Log(LogType.Debug, sql);
+            logger.Log(LogLevel.Debug, sql);
 
             try
             {
@@ -238,7 +238,7 @@ namespace Goliath.Data
                 sqlInserts.Append(";\n");
             }
             string sql = sqlInserts.ToString();
-            logger.Log(LogType.Debug, sql);
+            logger.Log(LogLevel.Debug, sql);
             try
             {
                 result = session.DataAccess.ExecuteNonQuery(dbConn, session.CurrentTransaction, sql, paramList);
@@ -329,7 +329,7 @@ namespace Goliath.Data
                 {
                     var sql = inserts[i].SqlText;
                     var xt = session.DataAccess.ExecuteNonQuery(session.ConnectionManager.OpenConnection(), transaction, sql, paramList);
-                    logger.Log(LogType.Debug, sql);
+                    logger.Log(LogLevel.Debug, sql);
                     if (batchOp.KeyGenerationOperations.Count > 0 && i == 0) // read resulting id that were created
                     {
                         //TODO: generated keys from database
@@ -379,7 +379,7 @@ namespace Goliath.Data
         /// <returns></returns>
         public IList<TEntity> FindAll(string sqlQuery, params QueryParam[] parameters)
         {
-            logger.Log(LogType.Debug, sqlQuery);
+            logger.Log(LogLevel.Debug, sqlQuery);
             try
             {
                 DbDataReader dataReader;
@@ -410,7 +410,7 @@ namespace Goliath.Data
             DbDataReader dataReader;
 
             var query = queryBuilder.ToSqlString();
-            logger.Log(LogType.Debug, query);
+            logger.Log(LogLevel.Debug, query);
             try
             {
                 dataReader = session.DataAccess.ExecuteReader(session.ConnectionManager.OpenConnection(), query, filters);
@@ -452,7 +452,7 @@ namespace Goliath.Data
             totalRecords = 0;
             queryBuilder = queryBuilder.WithPaging(limit, offset);
             string query = string.Format("{0};\n{1};", selectCount.Trim(), queryBuilder.ToSqlString().Trim());
-            logger.Log(LogType.Debug, query);
+            logger.Log(LogLevel.Debug, query);
 
             try
             {

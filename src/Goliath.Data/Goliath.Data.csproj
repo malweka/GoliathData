@@ -139,6 +139,7 @@
     <Compile Include="DataAccess\IMigrationGenerator.cs" />
     <Compile Include="Mapping\Models\PrimaryKeyPropertyCollection.cs" />
     <Compile Include="Mapping\Models\PrimaryKeyProperty.cs" />
+    <Compile Include="Mapping\SqlProcedure.cs" />
     <Compile Include="Providers\DbConnector.cs" />
     <Compile Include="Providers\ISchemaDescriptor.cs" />
     <Compile Include="Mapping\Models\Relation.cs" />

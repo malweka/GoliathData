@@ -68,7 +68,7 @@ namespace Goliath.Data.Mapping
             }
             catch (Exception ex)
             {
-                logger.Log(LogType.Debug, string.Format("CanPrint:{0}.{1}\n\n{2}", entity.Name, property.PropertyName, ex.ToString()));
+                logger.Log(LogLevel.Debug, string.Format("CanPrint:{0}.{1}\n\n{2}", entity.Name, property.PropertyName, ex.ToString()));
             }
             return true;
         }

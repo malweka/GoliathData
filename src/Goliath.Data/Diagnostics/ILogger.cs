@@ -19,18 +19,18 @@ namespace Goliath.Data.Diagnostics
         /// <summary>
         /// Logs the specified log type.
         /// </summary>
-        /// <param name="logType">Type of the log.</param>
+        /// <param name="LogLevel">Type of the log.</param>
         /// <param name="message">The message.</param>
-        void Log(LogType logType, string message);
+        void Log(LogLevel LogLevel, string message);
 
         /// <summary>
         /// Logs the specified log type.
         /// </summary>
         /// <param name="sessionId">The session id.</param>
         /// <param name="message">The message.</param>
-        /// <param name="logType">Type of the log.</param>
+        /// <param name="LogLevel">Type of the log.</param>
         /// <param name="message">The message.</param>
-        void Log(string sessionId,  LogType logType, string message);
+        void Log(string sessionId, LogLevel LogLevel, string message);
 
         /// <summary>
         /// Logs the specified exception.
@@ -55,11 +55,12 @@ namespace Goliath.Data.Diagnostics
         /// <summary>
         /// 
         /// </summary>
-        Info = 1,
+        Debug = 1,
         /// <summary>
         /// 
         /// </summary>
-        Debug = 2,
+        Info = 2,
+
         /// <summary>
         /// 
         /// </summary>
@@ -75,33 +76,7 @@ namespace Goliath.Data.Diagnostics
         /// <summary>
         /// 
         /// </summary>
-        All = Info
+        All = Debug
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
-    public enum LogType
-    {
-        /// <summary>
-        /// 
-        /// </summary>
-        Info = 1,
-        /// <summary>
-        /// 
-        /// </summary>
-        Debug = 2,
-        /// <summary>
-        /// 
-        /// </summary>
-        Warning = 4,
-        /// <summary>
-        /// 
-        /// </summary>
-        Error = 8,
-        /// <summary>
-        /// 
-        /// </summary>
-        Fatal = 64,
-    }
 }

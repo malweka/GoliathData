@@ -33,7 +33,7 @@ namespace Goliath.Data.DynamicProxy
 
         public void Hydrate(object instance, Type type)
         {
-            logger.Log(LogType.Debug, "opening connection for proxy query");
+            logger.Log(LogLevel.Debug, "opening connection for proxy query");
             var dbAccess = settings.CreateAccessor();
             using (ConnectionManager connManager = new ConnectionManager(new ConnectionProvider(settings.Connector), !settings.Connector.AllowMultipleConnections))
             {
@@ -47,9 +47,9 @@ namespace Goliath.Data.DynamicProxy
                     else
                         parameters = query.Parameters.ToArray();
 
-                    logger.Log(LogType.Debug, string.Format("executing query {0}", query.SqlText));
+                    logger.Log(LogLevel.Debug, string.Format("executing query {0}", query.SqlText));
                     var dataReader = dbAccess.ExecuteReader(connManager.OpenConnection(), query.SqlText, parameters);
-                    //logger.Log(LogType.Debug, string.Format("datareader has row? {0}", dataReader.HasRows));
+                    //logger.Log(LogLevel.Debug, string.Format("datareader has row? {0}", dataReader.HasRows));
                     serializer.Hydrate(instance, type, entityMap, dataReader);
                     dataReader.Dispose();
 
@@ -66,7 +66,7 @@ namespace Goliath.Data.DynamicProxy
 
         public void Dispose()
         {
-            logger.Log(LogType.Debug, "Disposing of proxy");
+            logger.Log(LogLevel.Debug, "Disposing of proxy");
             EntityMap entMapRef = entityMap;
             entityMap = null;
             IEntitySerializer serializerRef = serializer;
