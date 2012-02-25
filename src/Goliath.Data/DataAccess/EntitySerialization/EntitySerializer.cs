@@ -324,7 +324,7 @@ namespace Goliath.Data.DataAccess
                 {
                     if (prop is Relation)
                     {
-                        //logger.Log(LogType.Info, string.Format("Read {0} is a relation", keyVal.Key));
+                        //logger.Log(LogLevel.Info, string.Format("Read {0} is a relation", keyVal.Key));
                         Relation rel = (Relation)prop;
                         switch (rel.RelationType)
                         {

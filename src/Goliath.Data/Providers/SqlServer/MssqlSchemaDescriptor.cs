@@ -102,7 +102,7 @@ WHERE FK.TABLE_NAME = @tableName";
                             continue;
 
                         string schemaName = reader.GetValueAsString("TABLE_SCHEMA");
-                        logger.Log(LogType.Info, string.Format("reading table {0}", name));
+                        logger.Log(LogLevel.Info, string.Format("reading table {0}", name));
                         EntityMap table = new EntityMap(name, name);
                         table.Namespace = ProjectSettings.Namespace;
                         table.SchemaName = schemaName;
@@ -113,7 +113,7 @@ WHERE FK.TABLE_NAME = @tableName";
                 }
                 foreach (var table in tables.Values)
                 {
-                    logger.Log(LogType.Info, string.Format("processing table {0}", table.Name));
+                    logger.Log(LogLevel.Info, string.Format("processing table {0}", table.Name));
                     var columns = ProcessColumns(table);
                     ProcessConstraints(table, columns);
                     ProcessForeignKeys(table);
@@ -144,7 +144,7 @@ WHERE FK.TABLE_NAME = @tableName";
                     int? precision = reader.GetValueAsInt("NUMERIC_PRECISION");
                     int? scale = reader.GetValueAsInt("NUMERIC_SCALE");
 
-                    logger.Log(LogType.Info, string.Format("\t column: {0} {1}({2})", colName, dataType, length ?? 0));
+                    logger.Log(LogLevel.Info, string.Format("\t column: {0} {1}({2})", colName, dataType, length ?? 0));
                     Property col = null;
                     if (length.HasValue)
                     {
@@ -276,7 +276,7 @@ WHERE FK.TABLE_NAME = @tableName";
                     }
                     else
                     {
-                        logger.Log(LogType.Warning, "Not Found");
+                        logger.Log(LogLevel.Warning, "Not Found");
                     }
 
                     //column.ConstraintName = new ColumnReference(refTable, refSchema, refColName);
@@ -344,7 +344,7 @@ WHERE FK.TABLE_NAME = @tableName";
             throw new NotImplementedException();
         }
 
-        public override IDictionary<string, StoredProcedure> GetStoredProcs()
+        public override IDictionary<string, SqlProcedure> GetStoredProcs()
         {
             throw new NotImplementedException();
         }

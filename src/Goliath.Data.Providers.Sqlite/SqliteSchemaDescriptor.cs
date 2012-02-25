@@ -90,7 +90,7 @@ namespace Goliath.Data.Providers.Sqlite
             throw new NotImplementedException();
         }
 
-        public override IDictionary<string, StoredProcedure> GetStoredProcs()
+        public override IDictionary<string, SqlProcedure> GetStoredProcs()
         {
             throw new NotImplementedException();
         }

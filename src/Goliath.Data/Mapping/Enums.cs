@@ -86,4 +86,37 @@ namespace Goliath.Data.Mapping
         Set,
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    [Serializable]
+    [DataContract]
+    public enum ProcedureType
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        Query,
+        /// <summary>
+        /// 
+        /// </summary>
+        Update,
+        /// <summary>
+        /// 
+        /// </summary>
+        Insert,
+        /// <summary>
+        /// 
+        /// </summary>
+        Delete,
+        /// <summary>
+        /// 
+        /// </summary>
+        ExecuteNonQuery,
+        /// <summary>
+        /// 
+        /// </summary>
+        ExecuteScalar,
+    }
+
 }

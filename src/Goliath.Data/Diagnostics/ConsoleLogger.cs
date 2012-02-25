@@ -26,32 +26,32 @@ namespace Goliath.Data.Diagnostics
         /// <summary>
         /// Logs the specified log type.
         /// </summary>
-        /// <param name="logType">Type of the log.</param>
+        /// <param name="LogLevel">Type of the log.</param>
         /// <param name="message">The message.</param>
-        public override void Log(string sessionId, LogType logType, string message)
+        public override void Log(string sessionId, LogLevel LogLevel, string message)
         {          
-            if (CanLog(logType))
+            if (CanLog(LogLevel))
             {
                 string sessionText = string.Empty;
                 if (!string.IsNullOrEmpty(sessionId))
                     sessionText = string.Format("Session {0} -", sessionId);
 
                 var currentColor = Console.ForegroundColor;
-                Console.Write("\n{0} {1}:{2}", sessionText, logType.ToString(), DateTime.Now.ToString());
+                Console.Write("\n{0} {1}:{2}", sessionText, LogLevel.ToString(), DateTime.Now.ToString());
 
-                switch (logType)
+                switch (LogLevel)
                 {
-                    case LogType.Debug:
+                    case LogLevel.Debug:
                         Console.ForegroundColor = ConsoleColor.Green;
                         break;
-                    case LogType.Fatal:
-                    case LogType.Error:
+                    case LogLevel.Fatal:
+                    case LogLevel.Error:
                         Console.ForegroundColor = ConsoleColor.Red;
                         break;
-                    case LogType.Warning:
+                    case LogLevel.Warning:
                         Console.ForegroundColor = ConsoleColor.Yellow;
                         break;
-                    case LogType.Info:
+                    case LogLevel.Info:
                         Console.ForegroundColor = ConsoleColor.DarkYellow;
                         break;
                     default:
@@ -69,7 +69,7 @@ namespace Goliath.Data.Diagnostics
         /// <param name="exception">The exception.</param>
         public override void LogException(string sessionId, string message, Exception exception)
         {
-            Log(sessionId, LogType.Error, string.Format("{0}\n{1}", message, exception.ToString()));
+            Log(sessionId, LogLevel.Error, string.Format("{0}\n{1}", message, exception.ToString()));
         }
 
         #endregion

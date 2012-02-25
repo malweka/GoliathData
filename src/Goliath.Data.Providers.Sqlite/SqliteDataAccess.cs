@@ -58,11 +58,11 @@ namespace Goliath.Data.Providers.Sqlite
             SQLiteParameter param;
             if (value is Guid)
             {
-                logger.Log(LogType.Warning, "Convert guid to string for now. Please change before release.");
+                logger.Log(LogLevel.Warning, "Convert guid to string for now. Please change before release.");
                 param = new SQLiteParameter(string.Format("${0}", parameterName), value.ToString().ToUpper());
-                logger.Log(LogType.Warning, string.Format("=== param name = {0}", param.ParameterName));
-                logger.Log(LogType.Warning, string.Format("=== param value = {0}", param.Value));
-                logger.Log(LogType.Warning, string.Format("=== param type = {0}", param.DbType));
+                logger.Log(LogLevel.Warning, string.Format("=== param name = {0}", param.ParameterName));
+                logger.Log(LogLevel.Warning, string.Format("=== param value = {0}", param.Value));
+                logger.Log(LogLevel.Warning, string.Format("=== param type = {0}", param.DbType));
             }
             else
                 param = new SQLiteParameter(string.Format("${0}", parameterName), value);
