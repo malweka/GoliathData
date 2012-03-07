@@ -103,6 +103,17 @@ namespace Goliath.Data.DataAccess
         /// <returns></returns>
         public object ConvertToEnum(Type enumType, object value)
         {
+            return ConvertValueToEnum(enumType, value);
+        }
+
+        /// <summary>
+        /// Converts the value to enum.
+        /// </summary>
+        /// <param name="enumType">Type of the enum.</param>
+        /// <param name="value">The value.</param>
+        /// <returns></returns>
+        public static object ConvertValueToEnum(Type enumType, object value)
+        {
             if (enumType == null)
                 throw new ArgumentNullException("enumType");
 

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Xml;
+using System.Linq;
 
 namespace Goliath.Data.Mapping
 {
@@ -552,7 +553,7 @@ namespace Goliath.Data.Mapping
                         while (reader.MoveToNextAttribute())
                         {
                             var currAttribute = reader.Name;
-                            
+
                             switch (currAttribute)
                             {
                                 case "name":
@@ -564,7 +565,7 @@ namespace Goliath.Data.Mapping
                                 default:
                                     break;
                             }
-                            
+
                         }
 
                         if (!string.IsNullOrWhiteSpace(propName))
@@ -626,6 +627,9 @@ namespace Goliath.Data.Mapping
                                 config.GeneratedBy = reader.Value;
                                 //reader.ReadEndElement();
                                 break;
+                            case "rdbms":
+                                ReadRdbms(reader, config);
+                                break;
                             default:
                                 break;
                         }
@@ -637,6 +641,33 @@ namespace Goliath.Data.Mapping
 
                 throw new MappingSerializationException(typeof(MapConfig), "missing a </goliath.data> end tag");
 
+            }
+
+            void ReadRdbms(XmlReader reader, MapConfig config)
+            {
+                string values = reader.Value;
+                SupportedRdbms platform;
+                if (!string.IsNullOrWhiteSpace(values))
+                {
+                    platform = SupportedRdbms.None;
+                    var split = values.Split(new string[] { ",", ";", " ", "|" }, StringSplitOptions.RemoveEmptyEntries).Distinct();
+                    foreach (string rdbms in split)
+                    {
+                        try
+                        {
+                            var type = DataAccess.TypeConverterStore.ConvertValueToEnum(typeof(SupportedRdbms), rdbms);
+                            platform = platform | (SupportedRdbms)type;
+                        }
+                        catch
+                        {
+                            throw new MappingException(string.Format("Error trying to load mapping file. {0} is not a valid Supported RDMBS.", rdbms));
+                        }
+                    }
+                }
+                else
+                    platform = SupportedRdbms.All;
+
+                config.Platform = platform;
             }
 
             void ProcessElement(XmlReader reader, MapConfig config)

@@ -101,6 +101,7 @@
     <Compile Include="DynamicProxy\ProxyBuilder.cs" />
     <Compile Include="DynamicProxy\ProxyCache.cs" />
     <Compile Include="Entity\ITrackable.cs" />
+    <Compile Include="Enums.cs" />
     <Compile Include="Generators\AutoIncrement.cs" />
     <Compile Include="Generators\GuidCombGenerator.cs" />
     <Compile Include="GoliathDataException.cs" />
@@ -117,6 +118,7 @@
     <Compile Include="Mapping\DataModelGenerator.cs" />
     <Compile Include="Mapping\Enums.cs" />
     <Compile Include="Mapping\Models\ConfigProperty.cs" />
+    <Compile Include="Mapping\Models\SqlProcedureCollection.cs" />
     <Compile Include="Mapping\Models\UnMappedTableMap.cs" />
     <Compile Include="Mapping\PostGenProcessors\IPostGenerationProcessor.cs" />
     <Compile Include="Mapping\MappingExtensions.cs" />
@@ -139,7 +141,7 @@
     <Compile Include="DataAccess\IMigrationGenerator.cs" />
     <Compile Include="Mapping\Models\PrimaryKeyPropertyCollection.cs" />
     <Compile Include="Mapping\Models\PrimaryKeyProperty.cs" />
-    <Compile Include="Mapping\SqlProcedure.cs" />
+    <Compile Include="Mapping\Models\SqlProcedure.cs" />
     <Compile Include="Providers\DbConnector.cs" />
     <Compile Include="Providers\ISchemaDescriptor.cs" />
     <Compile Include="Mapping\Models\Relation.cs" />
