@@ -24,26 +24,4 @@ namespace Goliath.Data.CodeGen
         MapConfig GenerateMapping(string workingFolder, ProjectSettings settings, ComplexType baseModel, SupportedRdbms rdbms);
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
-    public enum SupportedRdbms
-    {
-        /// <summary>
-        /// 
-        /// </summary>
-        Mssql2005,
-        /// <summary>
-        /// 
-        /// </summary>
-        Mssql2008,
-        /// <summary>
-        /// 
-        /// </summary>
-        Sqlite3,
-        /// <summary>
-        /// 
-        /// </summary>
-        Postgresql9,
-    }
 }

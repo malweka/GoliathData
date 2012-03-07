@@ -33,7 +33,15 @@ namespace Goliath.Data.Mapping
         /// Gets or sets the type of the operation.
         /// </summary>
         /// <value>The type of the operation.</value>
-        public ProcedureType OperationType { get; private set; }
+        public virtual ProcedureType OperationType { get; private set; }
+
+        /// <summary>
+        /// Gets or sets the can run on.
+        /// </summary>
+        /// <value>
+        /// The can run on.
+        /// </value>
+        public SupportedRdbms CanRunOn { get; set; }
 
         /// <summary>
         /// Gets the name.

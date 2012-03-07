@@ -143,22 +143,5 @@ namespace Goliath.Data
         //IList<T> ToList();
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
-    public enum SortOrder
-    {
-        /// <summary>
-        /// 
-        /// </summary>
-        None,
-        /// <summary>
-        /// 
-        /// </summary>
-        Ascending,
-        /// <summary>
-        /// 
-        /// </summary>
-        Descending,
-    }
+
 }

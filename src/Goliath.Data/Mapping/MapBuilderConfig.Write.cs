@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using System.Text;
 using System.Xml;
-
+using System.Collections.Generic;
 namespace Goliath.Data.Mapping
 {
     public partial class MapConfig
@@ -48,6 +48,10 @@ namespace Goliath.Data.Mapping
                     xmlWriter.WriteString(GeneratedBy);
                     xmlWriter.WriteEndElement();
                 }
+
+                xmlWriter.WriteStartElement("rdbms");
+                xmlWriter.WriteString(WritePlatformText(Platform));
+                xmlWriter.WriteEndElement();
 
                 if (Settings.Properties.Count > 0)
                 {
@@ -474,6 +478,43 @@ namespace Goliath.Data.Mapping
 
             
             xmlWriter.WriteEndElement();//relations
+        }
+
+        string WritePlatformText(SupportedRdbms platform)
+        {
+            List<string> list = new List<string>();
+
+            if ((platform & SupportedRdbms.Mssql2005) == SupportedRdbms.Mssql2005)
+            {
+                list.Add(SupportedRdbms.Mssql2005.ToString());
+            }
+
+            if ((platform & SupportedRdbms.Mssql2008) == SupportedRdbms.Mssql2008)
+            {
+                list.Add(SupportedRdbms.Mssql2008.ToString());
+            }
+
+            if ((platform & SupportedRdbms.Mssql2008R2) == SupportedRdbms.Mssql2008R2)
+            {
+                list.Add(SupportedRdbms.Mssql2008R2.ToString());
+            }
+
+            if ((platform & SupportedRdbms.Sqlite3) == SupportedRdbms.Sqlite3)
+            {
+                list.Add(SupportedRdbms.Sqlite3.ToString());
+            }
+
+            if ((platform & SupportedRdbms.Postgresql9) == SupportedRdbms.Postgresql9)
+            {
+                list.Add(SupportedRdbms.Postgresql9.ToString());
+            }
+
+            if ((platform & SupportedRdbms.MySql5) == SupportedRdbms.MySql5)
+            {
+                list.Add(SupportedRdbms.MySql5.ToString());
+            }
+
+            return string.Join(",", list);
         }
     }
 }
