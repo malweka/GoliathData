@@ -11,25 +11,25 @@ namespace Goliath.Data.Mapping
     /// </summary>
     public class SqlProcedureCollection : KeyedCollectionBase<string, SqlProcedure>
     {
-        internal SupportedRdbms Platform{get;set;}
+        internal SupportedRdbms Platform { get; set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SqlProcedureCollection"/> class.
         /// </summary>
         public SqlProcedureCollection()
+            : this(SupportedRdbms.Sqlite3)
         {
-            Platform = SupportedRdbms.All;
         }
 
-        internal static string BuildProcedureName(EntityMap map, ProcedureType type)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SqlProcedureCollection"/> class.
+        /// </summary>
+        /// <param name="platform">The platform.</param>
+        public SqlProcedureCollection(SupportedRdbms platform)
         {
-            return string.Format("{0}_{1}", map.FullName, type); ;
+            Platform = platform;
         }
 
-        internal static string BuildProcedureName(Type type, ProcedureType procType)
-        {
-            return string.Format("{0}_{1}", type.FullName, procType); ;
-        }
 
         /// <summary>
         /// Adds the specified map.
@@ -37,10 +37,10 @@ namespace Goliath.Data.Mapping
         /// <param name="map">The map.</param>
         /// <param name="type">The type.</param>
         /// <param name="body">The body.</param>
-        public void Add(EntityMap map, ProcedureType type, string body)
+        public SqlProcedure Add(EntityMap map, ProcedureType type, string body)
         {
             string procName = BuildProcedureName(map, type);
-            Add(procName, procName, type, body);
+            return Add(procName, procName, type, body, Platform);
         }
 
         /// <summary>
@@ -50,10 +50,24 @@ namespace Goliath.Data.Mapping
         /// <param name="dbName">Name of the db.</param>
         /// <param name="type">The type.</param>
         /// <param name="body">The body.</param>
-        public void Add(EntityMap map, string dbName, ProcedureType type, string body)
+        public SqlProcedure Add(EntityMap map, string dbName, ProcedureType type, string body)
+        {
+            return Add(map, dbName, type, body, Platform);
+        }
+
+        /// <summary>
+        /// Adds the specified map.
+        /// </summary>
+        /// <param name="map">The map.</param>
+        /// <param name="dbName">Name of the db.</param>
+        /// <param name="type">The type.</param>
+        /// <param name="body">The body.</param>
+        /// <param name="supportedRdbms">The supported RDBMS.</param>
+        /// <returns></returns>
+        public SqlProcedure Add(EntityMap map, string dbName, ProcedureType type, string body, SupportedRdbms supportedRdbms)
         {
             string procName = BuildProcedureName(map, type);
-            Add(procName, dbName, type, body);
+            return Add(procName, dbName, type, body, supportedRdbms);
         }
 
         /// <summary>
@@ -63,10 +77,13 @@ namespace Goliath.Data.Mapping
         /// <param name="dbName">Name of the db.</param>
         /// <param name="type">The type.</param>
         /// <param name="body">The body.</param>
-        public void Add(string procedureName, string dbName, ProcedureType type, string body)
+        /// <param name="supportedRdbms">The supported RDBMS.</param>
+        /// <returns></returns>
+        public SqlProcedure Add(string procedureName, string dbName, ProcedureType type, string body, SupportedRdbms supportedRdbms)
         {
-            SqlProcedure proc = new SqlProcedure(procedureName, dbName, type) { Body = body };
+            SqlProcedure proc = new SqlProcedure(procedureName, dbName, type) { Body = body, CanRunOn = supportedRdbms };
             Add(proc);
+            return proc;
         }
 
         /// <summary>
@@ -105,6 +122,37 @@ namespace Goliath.Data.Mapping
         {
             var procName = BuildProcedureName(map, procType);
             return TryGetValue(procName, out val);
+        }
+
+        /// <summary>
+        /// Tries the get value.
+        /// </summary>
+        /// <param name="key">The key.</param>
+        /// <param name="val">The val.</param>
+        /// <returns></returns>
+        public override bool TryGetValue(string key, out SqlProcedure val)
+        {
+            if (base.TryGetValue(key, out val))
+            {
+                if ((val.CanRunOn & Platform) == Platform)
+                {
+                    return true;
+                }
+            }
+
+            val = null;
+            return false;
+              
+        }
+
+        internal static string BuildProcedureName(EntityMap map, ProcedureType type)
+        {
+            return string.Format("{0}_{1}", map.FullName, type); ;
+        }
+
+        internal static string BuildProcedureName(Type type, ProcedureType procType)
+        {
+            return string.Format("{0}_{1}", type.FullName, procType); ;
         }
     }
 }
