@@ -36,7 +36,7 @@ namespace Goliath.Data
         /// <param name="key">The key.</param>
         /// <param name="val">The val.</param>
         /// <returns></returns>
-        public bool TryGetValue(S key, out T val)
+        public virtual bool TryGetValue(S key, out T val)
         {
             bool isFound = false;
             val = default(T);
