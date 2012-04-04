@@ -189,6 +189,11 @@
     <Compile Include="Utilities\Extensions.cs" />
     <Compile Include="Libs\Inflector.cs" />
     <Compile Include="Utilities\StringHelpers.cs" />
+    <Compile Include="Mapping\Fluent\FluentMap.cs" />
+    <Compile Include="Mapping\Fluent\PropertyMap.cs" />
+    <Compile Include="Mapping\Fluent\ReferenceMap.cs" />
+    <Compile Include="Mapping\Fluent\ListMap.cs" />
+    <Compile Include="Mapping\Fluent\PrimaryKeyMap.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
@@ -199,4 +204,7 @@
   <Target Name="AfterBuild">
   </Target>
   -->
+  <ItemGroup>
+    <Folder Include="Mapping\Fluent\" />
+  </ItemGroup>
 </Project>
