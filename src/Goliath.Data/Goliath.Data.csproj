@@ -1,0 +1,202 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{B3FC3122-EF38-45D1-8019-4D889283B4DC}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Goliath.Data</RootNamespace>
+    <AssemblyName>Goliath.Data</AssemblyName>
+    <FileAlignment>512</FileAlignment>
+    <SccProjectName>
+    </SccProjectName>
+    <SccLocalPath>
+    </SccLocalPath>
+    <SccAuxPath>
+    </SccAuxPath>
+    <SccProvider>
+    </SccProvider>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;DOT_NET_4</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Release\Goliath.Data.XML</DocumentationFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Transactions" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+    <Reference Include="RazorEngine, Version=2.1.4141.21772, Culture=neutral, PublicKeyToken=1f722ed313f51831">
+      <HintPath>..\..\Dependencies\Razor\RazorEngine.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Web.Razor">
+      <HintPath>..\..\Dependencies\Razor\System.Web.Razor.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="DynamicProxy\ILazyObject.cs" />
+    <Compile Include="Entity\ChangeSet.cs" />
+    <Compile Include="Collections\ILazyList.cs" />
+    <Compile Include="Config\ConfigManager.cs" />
+    <Compile Include="Config\IConfigurationManager.cs" />
+    <Compile Include="Config\IDatabaseSettings.cs" />
+    <Compile Include="DataAccess\AdoTransaction.cs" />
+    <Compile Include="DataAccess\ConnectionManager.cs" />
+    <Compile Include="DataAccess\ConnectionProvider.cs" />
+    <Compile Include="DataAccess\DataAccessAdapterFactory.cs" />
+    <Compile Include="DataAccess\EntitySerialization\EntitySerializer.cs" />
+    <Compile Include="DataAccess\GetSetStore.cs" />
+    <Compile Include="DataAccess\IConnectionProvider.cs" />
+    <Compile Include="DataAccess\IDbConnector.cs" />
+    <Compile Include="DataAccess\EntitySerialization\IEntitySerializer.cs" />
+    <Compile Include="DataAccess\ITypeConverter.cs" />
+    <Compile Include="DataAccess\EntitySerialization\SerializeManyToMany.cs" />
+    <Compile Include="DataAccess\EntitySerialization\SerializeManyToOne.cs" />
+    <Compile Include="DataAccess\EntitySerialization\SerializeOneToMany.cs" />
+    <Compile Include="DataAccess\EntitySerialization\RelationSerializer.cs" />
+    <Compile Include="DataAccess\SessionManager.cs" />
+    <Compile Include="DynamicProxy\IProxyHydrator.cs" />
+    <Compile Include="DynamicProxy\ProxyHydrator.cs" />
+    <Compile Include="DataAccess\QueryImpl.cs" />
+    <Compile Include="DataAccess\SessionFactory.cs" />
+    <Compile Include="DataAccess\Session.cs" />
+    <Compile Include="DataAccess\TypeConversionException.cs" />
+    <Compile Include="DataAccess\TypeConverter.cs" />
+    <Compile Include="Database.cs" />
+    <Compile Include="Diagnostics\ConsoleLogger.cs" />
+    <Compile Include="Diagnostics\ILogger.cs" />
+    <Compile Include="Diagnostics\Logger.cs" />
+    <Compile Include="DataAccess\IDataAccessAdapter.cs" />
+    <Compile Include="DataAccess\IDataAccessAdaterFactory.cs" />
+    <Compile Include="DataAccess\EntitySerialization\IDataHydrator.cs" />
+    <Compile Include="DataAccess\IQuery.cs" />
+    <Compile Include="DataAccess\ISession.cs" />
+    <Compile Include="DataAccess\ISessionFactory.cs" />
+    <Compile Include="DataAccess\ITransaction.cs" />
+    <Compile Include="DataAccess\DataAccessHelper.cs" />
+    <Compile Include="DynamicProxy\ProxyBuilder.cs" />
+    <Compile Include="DynamicProxy\ProxyCache.cs" />
+    <Compile Include="Entity\ITrackable.cs" />
+    <Compile Include="Enums.cs" />
+    <Compile Include="Generators\AutoIncrement.cs" />
+    <Compile Include="Generators\GuidCombGenerator.cs" />
+    <Compile Include="GoliathDataException.cs" />
+    <Compile Include="ISessionStore.cs" />
+    <Compile Include="KeyedCollectionBase.cs" />
+    <Compile Include="Collections\LazyList.cs" />
+    <Compile Include="Libs\Fasterflect.cs" />
+    <Compile Include="Generators\IKeyGenerator.cs" />
+    <Compile Include="Generators\KeyGeneratorStore.cs" />
+    <Compile Include="Mapping\MapBuilderConfig.Read.cs" />
+    <Compile Include="Mapping\MapBuilderConfig.Write.cs" />
+    <Compile Include="Mapping\MappingException.cs" />
+    <Compile Include="Mapping\Models\ComplexType.cs" />
+    <Compile Include="Mapping\DataModelGenerator.cs" />
+    <Compile Include="Mapping\Enums.cs" />
+    <Compile Include="Mapping\Models\ConfigProperty.cs" />
+    <Compile Include="Mapping\Models\SqlProcedureCollection.cs" />
+    <Compile Include="Mapping\Models\UnMappedTableMap.cs" />
+    <Compile Include="Mapping\PostGenProcessors\IPostGenerationProcessor.cs" />
+    <Compile Include="Mapping\MappingExtensions.cs" />
+    <Compile Include="Mapping\PostGenProcessors\NamePostProcessor.cs" />
+    <Compile Include="Mapping\Models\ProjectSettings.cs" />
+    <Compile Include="Mapping\Models\EntityConfig.cs" />
+    <Compile Include="Mapping\Models\EntityConfigCollection.cs" />
+    <Compile Include="Mapping\Models\IMapModel.cs" />
+    <Compile Include="Mapping\MapBuilderConfig.cs" />
+    <Compile Include="Mapping\Models\Property.cs" />
+    <Compile Include="Mapping\Models\PropertyCollection.cs" />
+    <Compile Include="DataAccess\DataAccessAdapter.cs" />
+    <Compile Include="DataAccess\DataAccessException.cs" />
+    <Compile Include="DataAccess\DbAccess.cs" />
+    <Compile Include="DbTypeInfo.cs" />
+    <Compile Include="Generators\RazorCodeGenerator.cs" />
+    <Compile Include="DataAccess\IDbAccess.cs" />
+    <Compile Include="DataAccess\IDbProvider.cs" />
+    <Compile Include="Generators\ICodeGenerator.cs" />
+    <Compile Include="DataAccess\IMigrationGenerator.cs" />
+    <Compile Include="Mapping\Models\PrimaryKeyPropertyCollection.cs" />
+    <Compile Include="Mapping\Models\PrimaryKeyProperty.cs" />
+    <Compile Include="Mapping\Models\SqlProcedure.cs" />
+    <Compile Include="Providers\DbConnector.cs" />
+    <Compile Include="Providers\ISchemaDescriptor.cs" />
+    <Compile Include="Mapping\Models\Relation.cs" />
+    <Compile Include="Mapping\PostGenProcessors\RelationshipProcessor.cs" />
+    <Compile Include="Mapping\Models\PrimaryKey.cs" />
+    <Compile Include="Providers\SchemaDescriptor.cs" />
+    <Compile Include="Providers\SqlServer\Constants.cs" />
+    <Compile Include="Providers\SqlServer\Functions.cs" />
+    <Compile Include="Providers\SqlServer\MssqlProvider.cs" />
+    <Compile Include="Providers\SqlServer\MssqlSchemaDescriptor.cs" />
+    <Compile Include="Providers\SqlServer\MssqlDataAccess.cs" />
+    <Compile Include="Providers\SqlServer\MssqlSqlMapper.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Mapping\SqlTypeHelper.cs" />
+    <Compile Include="Sql\DeleteSqlBuilder.cs" />
+    <Compile Include="Sql\ISqlWorker.cs" />
+    <Compile Include="Sql\SqlOperationInfo.cs" />
+    <Compile Include="QueryParam.cs" />
+    <Compile Include="Providers\SqlMapper.cs" />
+    <Compile Include="Sql\Enums.cs" />
+    <Compile Include="Sql\GroupBy.cs" />
+    <Compile Include="Sql\InsertSqlBuilder.cs" />
+    <Compile Include="Sql\ISqlFunction.cs" />
+    <Compile Include="Sql\OrderBy.cs" />
+    <Compile Include="Sql\ParameterNameBuilderHelper.cs" />
+    <Compile Include="Sql\SelectSqlBuilder.cs" />
+    <Compile Include="Sql\SqlBuilder.cs" />
+    <Compile Include="Sql\SqlBuilderExtensions.cs" />
+    <Compile Include="Sql\SqlFunction.cs" />
+    <Compile Include="Sql\SqlJoin.cs" />
+    <Compile Include="Sql\SqlQueryBody.cs" />
+    <Compile Include="Sql\SqlStatement.cs" />
+    <Compile Include="Sql\SqlWorker.cs" />
+    <Compile Include="Sql\UpdateSqlBuilder.cs" />
+    <Compile Include="Sql\WhereStatement.cs" />
+    <Compile Include="ThreadStaticSessionStore.cs" />
+    <Compile Include="Transformers\Abbreviator.cs" />
+    <Compile Include="Transformers\ColumnPropertyNameTransformer.cs" />
+    <Compile Include="Transformers\DefaultTableEntityNameTransformer.cs" />
+    <Compile Include="Transformers\ITransformer.cs" />
+    <Compile Include="Transformers\NameTransformerFactory.cs" />
+    <Compile Include="Transformers\OneToManyRelationNameTransformer.cs" />
+    <Compile Include="Utilities\DbExtensionMethods.cs" />
+    <Compile Include="Utilities\EnumComparer.cs" />
+    <Compile Include="Utilities\Extensions.cs" />
+    <Compile Include="Libs\Inflector.cs" />
+    <Compile Include="Utilities\StringHelpers.cs" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
