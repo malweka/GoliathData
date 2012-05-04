@@ -9,26 +9,28 @@ namespace Goliath.Data.Mapping
     /// <summary>
     /// 
     /// </summary>
-    public class SqlProcedureCollection : ICollection<SqlProcedure>
+    public class SqlProcedureStore //: IEnumerable<SqlProcedure>
     {
-        internal SupportedRdbms Platform { get; set; }
-        Dictionary<string, SqlProcSet> innerProcedureList;
+        internal string Platform { get; set; }
+
+        internal Dictionary<string, SqlProcSet> InnerProcedureList { get; private set; }
+
         /// <summary>
-        /// Initializes a new instance of the <see cref="SqlProcedureCollection"/> class.
+        /// Initializes a new instance of the <see cref="SqlProcedureStore"/> class.
         /// </summary>
-        public SqlProcedureCollection()
-            : this(SupportedRdbms.Sqlite3)
+        public SqlProcedureStore()
+            : this(RdbmsBackend.SupportedSystemNames.Sqlite3)
         {
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="SqlProcedureCollection"/> class.
+        /// Initializes a new instance of the <see cref="SqlProcedureStore"/> class.
         /// </summary>
         /// <param name="platform">The platform.</param>
-        public SqlProcedureCollection(SupportedRdbms platform)
+        public SqlProcedureStore(string platform)
         {
             Platform = platform;
-            innerProcedureList = new Dictionary<string, SqlProcSet>();
+            InnerProcedureList = new Dictionary<string, SqlProcSet>();
         }
 
         /// <summary>
@@ -39,7 +41,7 @@ namespace Goliath.Data.Mapping
         public void Add(SqlProcedure item)
         {
             SqlProcSet procSet;
-            if (innerProcedureList.TryGetValue(item.Name, out procSet))
+            if (InnerProcedureList.TryGetValue(item.Name, out procSet))
             {
                 procSet.Add(item);
             }
@@ -47,7 +49,7 @@ namespace Goliath.Data.Mapping
             {
                 procSet = new SqlProcSet(item.Name);
                 procSet.Add(item);
-                innerProcedureList.Add(procSet.Name, procSet);
+                InnerProcedureList.Add(procSet.Name, procSet);
             }
         }
 
@@ -84,7 +86,7 @@ namespace Goliath.Data.Mapping
         /// <param name="body">The body.</param>
         /// <param name="supportedRdbms">The supported RDBMS.</param>
         /// <returns></returns>
-        public SqlProcedure Add(EntityMap map, string dbName, ProcedureType type, string body, SupportedRdbms supportedRdbms)
+        public SqlProcedure Add(EntityMap map, string dbName, ProcedureType type, string body, string supportedRdbms)
         {
             string procName = BuildProcedureName(map, type);
             return Add(procName, dbName, type, body, supportedRdbms);
@@ -99,7 +101,7 @@ namespace Goliath.Data.Mapping
         /// <param name="body">The body.</param>
         /// <param name="supportedRdbms">The supported RDBMS.</param>
         /// <returns></returns>
-        public SqlProcedure Add(string procedureName, string dbName, ProcedureType type, string body, SupportedRdbms supportedRdbms)
+        public SqlProcedure Add(string procedureName, string dbName, ProcedureType type, string body, string supportedRdbms)
         {
             SqlProcedure proc = new SqlProcedure(procedureName, dbName, type) { Body = body, CanRunOn = supportedRdbms };
             Add(proc);
@@ -140,18 +142,17 @@ namespace Goliath.Data.Mapping
         /// <returns></returns>
         public bool TryGetValue(string key, out SqlProcedure val)
         {
-            //if (base.TryGetValue(key, out val))
-            //{
-            //    if ((val.CanRunOn & Platform) == Platform)
-            //    {
-            //        return true;
-            //    }
-            //}
-
-            //val = null;
-            //return false;
-            throw new NotImplementedException();
-
+            SqlProcSet procSet;
+            
+            if (InnerProcedureList.TryGetValue(key, out procSet))
+            {
+                return procSet.TryGetValue(Platform, out val);
+            }
+            else
+            {
+                val = null; 
+                return false;
+            }
         }
 
         internal static string BuildProcedureName(EntityMap map, ProcedureType type)
@@ -164,133 +165,69 @@ namespace Goliath.Data.Mapping
             return string.Format("{0}_{1}", type.FullName, procType); ;
         }
 
-        #region ICollection<SqlProcedure> Members
-
-
-
-        public void Clear()
-        {
-            throw new NotImplementedException();
-        }
-
-        public bool Contains(SqlProcedure item)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void CopyTo(SqlProcedure[] array, int arrayIndex)
-        {
-            throw new NotImplementedException();
-        }
-
-        public int Count
-        {
-            get { throw new NotImplementedException(); }
-        }
-
-        public bool IsReadOnly
-        {
-            get { throw new NotImplementedException(); }
-        }
-
-        public bool Remove(SqlProcedure item)
-        {
-            throw new NotImplementedException();
-        }
-
-        #endregion
-
-        #region IEnumerable<SqlProcedure> Members
-
-        public IEnumerator<SqlProcedure> GetEnumerator()
-        {
-            throw new NotImplementedException();
-        }
-
-        #endregion
-
-        #region IEnumerable Members
-
-        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
-        {
-            throw new NotImplementedException();
-        }
-
-        #endregion
-
-        class SqlProcSet
-        {
-            //NOTE: using integer instead of the enum as dictionary key, better performance.
-            Dictionary<int, SqlProcedure> procedures = new Dictionary<int, SqlProcedure>();
-
-            public string Name { get; private set; }
-
-            public SqlProcSet(string name)
-            {
-                Name = name;
-            }
-
-            #region Access methods
-
-            public void Add(SqlProcedure proc)
-            {
-                if (proc == null)
-                    throw new ArgumentNullException("proc");
-
-                int id = (int)proc.CanRunOn;
-                Add(id, proc);
-            }
-
-            public void Add(int id, SqlProcedure proc)
-            {
-                if (procedures.ContainsKey(id))
-                    throw new GoliathDataException(string.Format("Procedure already exists {0} - {1} - {2}. Couldn't not add.", proc.Name, proc.OperationType, proc.CanRunOn));
-
-                procedures.Add(id, proc);
-            }
-
-            public bool Remove(int id)
-            {
-                return procedures.Remove(id);
-            }
-
-            public bool Remove(SupportedRdbms platform)
-            {
-                return Remove((int)platform);
-            }
-
-            public bool Remove(SqlProcedure proc)
-            {
-                if (proc == null)
-                    throw new ArgumentNullException("proc");
-
-                return Remove((int)proc.CanRunOn);
-            }
-
-            public bool Contains(int id)
-            {
-                return procedures.ContainsKey(id);
-            }
-
-            public bool Contains(SupportedRdbms platform)
-            {
-                return Contains((int)platform);
-            }
-
-            #endregion
-
-            public bool TryGetValue(int key, out SqlProcedure proc)
-            {
-                return procedures.TryGetValue(key, out proc);
-            }
-
-            public bool TryGetValue(SupportedRdbms platform, out SqlProcedure proc)
-            {
-                return TryGetValue((int)platform, out proc);
-            }
-
-        }
+        
     }
 
+    class SqlProcSet
+    {
+        //NOTE: using integer instead of the enum as dictionary key, better performance.
+        Dictionary<string, SqlProcedure> procedures = new Dictionary<string, SqlProcedure>();
 
+        public string Name { get; private set; }
+
+        public Dictionary<string, SqlProcedure> Procedures
+        {
+            get { return procedures; }
+        }
+
+        public SqlProcSet(string name)
+        {
+            Name = name;
+        }
+
+        #region Access methods
+
+        public void Add(SqlProcedure proc)
+        {
+            if (proc == null)
+                throw new ArgumentNullException("proc");
+
+            string id = proc.CanRunOn;
+            Add(id, proc);
+        }
+
+        public void Add(string id, SqlProcedure proc)
+        {
+            if (procedures.ContainsKey(id))
+                throw new GoliathDataException(string.Format("Procedure already exists {0} - {1} - {2}. Could not add.", proc.Name, proc.OperationType, proc.CanRunOn));
+
+            procedures.Add(id, proc);
+        }
+
+        public bool Remove(string platform)
+        {
+            return procedures.Remove(platform);
+        }
+
+        public bool Remove(SqlProcedure proc)
+        {
+            if (proc == null)
+                throw new ArgumentNullException("proc");
+
+            return Remove(proc.CanRunOn);
+        }
+
+        public bool Contains(string id)
+        {
+            return procedures.ContainsKey(id);
+        }
+
+        #endregion
+
+        public bool TryGetValue(string platform, out SqlProcedure proc)
+        {
+            return procedures.TryGetValue(platform, out proc);
+        }
+
+    }
 }

@@ -645,29 +645,29 @@ namespace Goliath.Data.Mapping
 
             void ReadRdbms(XmlReader reader, MapConfig config)
             {
-                string values = reader.Value;
-                SupportedRdbms platform;
-                if (!string.IsNullOrWhiteSpace(values))
-                {
-                    platform = SupportedRdbms.None;
-                    var split = values.Split(new string[] { ",", ";", " ", "|" }, StringSplitOptions.RemoveEmptyEntries).Distinct();
-                    foreach (string rdbms in split)
-                    {
-                        try
-                        {
-                            var type = DataAccess.TypeConverterStore.ConvertValueToEnum(typeof(SupportedRdbms), rdbms);
-                            platform = platform | (SupportedRdbms)type;
-                        }
-                        catch
-                        {
-                            throw new MappingException(string.Format("Error trying to load mapping file. {0} is not a valid Supported RDMBS.", rdbms));
-                        }
-                    }
-                }
-                else
-                    platform = SupportedRdbms.All;
+                //string values = reader.Value;
+                //string platform;
+                //if (!string.IsNullOrWhiteSpace(values))
+                //{
+                //    platform = string.Empty;
+                //    var split = values.Split(new string[] { ",", ";", " ", "|" }, StringSplitOptions.RemoveEmptyEntries).Distinct();
+                //    foreach (string rdbms in split)
+                //    {
+                //        try
+                //        {
+                //            var type = DataAccess.TypeConverterStore.ConvertValueToEnum(typeof(SupportedRdbms), rdbms);
+                //            platform = platform | (SupportedRdbms)type;
+                //        }
+                //        catch
+                //        {
+                //            throw new MappingException(string.Format("Error trying to load mapping file. {0} is not a valid Supported RDMBS.", rdbms));
+                //        }
+                //    }
+                //}
+                //else
+                //    platform = SupportedRdbms.All;
 
-                config.Platform = platform;
+                config.Platform = reader.Value;
             }
 
             void ProcessElement(XmlReader reader, MapConfig config)
