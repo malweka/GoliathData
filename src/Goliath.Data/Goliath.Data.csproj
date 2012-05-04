@@ -156,6 +156,9 @@
     <Compile Include="Providers\SqlServer\MssqlSqlMapper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Mapping\SqlTypeHelper.cs" />
+    <Compile Include="SqliteBackend.cs" />
+    <Compile Include="SqlServerRdbmsBackend.cs" />
+    <Compile Include="Rdbms.cs" />
     <Compile Include="Sql\DeleteSqlBuilder.cs" />
     <Compile Include="Sql\ISqlWorker.cs" />
     <Compile Include="Sql\SqlOperationInfo.cs" />

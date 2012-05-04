@@ -18,6 +18,14 @@ namespace Goliath.Data.Mapping
         Dictionary<string, object> parameters = new Dictionary<string, object>();
 
         /// <summary>
+        /// Gets a value indicating whether this instance is ready.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if this instance is ready; otherwise, <c>false</c>.
+        /// </value>
+        public bool IsReady { get; internal set; }
+
+        /// <summary>
         /// Gets the parameters.
         /// </summary>
         /// <value>The parameters.</value>
@@ -41,7 +49,7 @@ namespace Goliath.Data.Mapping
         /// <value>
         /// The can run on.
         /// </value>
-        public SupportedRdbms CanRunOn { get; set; }
+        public string CanRunOn { get; set; }
 
         /// <summary>
         /// Gets the name.
@@ -75,5 +83,50 @@ namespace Goliath.Data.Mapping
         }
 
 
+        /// <summary>
+        /// Loads this instance.
+        /// </summary>
+        public virtual void Load()
+        {
+            IsReady = true;
+        }
+
+
+    }
+
+    /// <summary>
+    /// Dynamic Sql Procedure
+    /// </summary>
+    [Serializable]
+    [DataContract]
+    public class DynamicSqlProcedure: SqlProcedure
+    {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DynamicSqlProcedure"/> class.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <param name="dbName">Name of the db.</param>
+        /// <param name="operationType">Type of the operation.</param>
+        public DynamicSqlProcedure(string name, string dbName, ProcedureType operationType):base(name, dbName, operationType){}
+
+        /// <summary>
+        /// Loads this instance.
+        /// </summary>
+        public override void Load()
+        {
+            if (!IsReady)
+            {
+                Compile();
+                base.Load();
+            }
+        }
+
+        /// <summary>
+        /// Compiles this instance.
+        /// </summary>
+        public void Compile()
+        {
+
+        }
     }
 }
