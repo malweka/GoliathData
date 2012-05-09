@@ -15,14 +15,8 @@ namespace Goliath.Data
         }
     }
 
-    ///// <summary>
-    ///// 
-    ///// </summary>
     class SqlServer2008Backend : RdbmsBackend
     {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="SqlServer2008Backend"/> class.
-        /// </summary>
         public SqlServer2008Backend()
             : base("Microsoft SQL Server 2008")
         {
@@ -42,7 +36,6 @@ namespace Goliath.Data
             CompatibilityGroup.Add(SupportedSystemNames.Mssql2008);
         }
     }
-
 
     class SqlServerAllBackend : RdbmsBackend
     {
