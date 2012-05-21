@@ -12,7 +12,7 @@ namespace Goliath.Data.Providers.Sqlite
 
         public string Name
         {
-            get { return Constants.ProviderName; }
+            get { return RdbmsBackend.SupportedSystemNames.Sqlite3; }
         }
 
         public IDbConnector GetDatabaseConnector(string connectionString)

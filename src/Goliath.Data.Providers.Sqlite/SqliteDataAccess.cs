@@ -25,7 +25,7 @@ namespace Goliath.Data.Providers.Sqlite
         /// </summary>
         /// <param name="connectionString">The connection string.</param>
         public SqliteDbConnector(string connectionString)
-            : base(connectionString, Constants.ProviderName)
+            : base(connectionString, RdbmsBackend.SupportedSystemNames.Sqlite3)
         {
             AllowMultipleConnections = false;
         }

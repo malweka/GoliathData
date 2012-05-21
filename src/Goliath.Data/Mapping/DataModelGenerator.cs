@@ -45,7 +45,8 @@ namespace Goliath.Data.Mapping
 
             MapConfig builder = new MapConfig();
             builder.Settings = settings;
-            builder.GeneratedBy = schemaDescriptor.DatabaseProviderName;
+            builder.Settings.GeneratedBy = schemaDescriptor.ToString();
+            builder.Settings.Platform = schemaDescriptor.DatabaseProviderName;
             builder.EntityConfigs.AddRange(tables.Values);
 
             ComplexType baseModel = null;

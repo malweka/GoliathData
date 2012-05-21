@@ -624,12 +624,11 @@ namespace Goliath.Data.Mapping
                                 config.Settings.BaseModel = reader.Value;
                                 break;
                             case "generatedBy":
-                                config.GeneratedBy = reader.Value;
-                                //reader.ReadEndElement();
+                                config.Settings.GeneratedBy = reader.Value;
                                 break;
-                            case "rdbms":
-                                ReadRdbms(reader, config);
-                                break;
+                            //case "rdbms":
+                            //    ReadRdbms(reader, config);
+                            //    break;
                             default:
                                 break;
                         }
@@ -643,40 +642,25 @@ namespace Goliath.Data.Mapping
 
             }
 
-            void ReadRdbms(XmlReader reader, MapConfig config)
-            {
-                //string values = reader.Value;
-                //string platform;
-                //if (!string.IsNullOrWhiteSpace(values))
-                //{
-                //    platform = string.Empty;
-                //    var split = values.Split(new string[] { ",", ";", " ", "|" }, StringSplitOptions.RemoveEmptyEntries).Distinct();
-                //    foreach (string rdbms in split)
-                //    {
-                //        try
-                //        {
-                //            var type = DataAccess.TypeConverterStore.ConvertValueToEnum(typeof(SupportedRdbms), rdbms);
-                //            platform = platform | (SupportedRdbms)type;
-                //        }
-                //        catch
-                //        {
-                //            throw new MappingException(string.Format("Error trying to load mapping file. {0} is not a valid Supported RDMBS.", rdbms));
-                //        }
-                //    }
-                //}
-                //else
-                //    platform = SupportedRdbms.All;
-
-                config.Platform = reader.Value;
-            }
-
             void ProcessElement(XmlReader reader, MapConfig config)
             {
                 if (reader.Name.Equals("goliath.data"))
                 {
-                    reader.MoveToFirstAttribute();
-                    if (reader.Name.Equals("version"))
-                        config.Settings.Version = reader.Value;
+                    while (reader.MoveToNextAttribute())
+                    {
+                        switch(reader.Name)
+                        {
+                            case "version":
+                                config.Settings.Version = reader.Value;
+                                break;
+                            case "rdbms":
+                                config.Settings.Platform = reader.Value;
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                   
 
                     Read_GoDataElements(reader, config);
                 }

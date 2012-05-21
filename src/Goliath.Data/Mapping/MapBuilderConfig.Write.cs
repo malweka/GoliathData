@@ -22,6 +22,14 @@ namespace Goliath.Data.Mapping
                     xmlWriter.Formatting = Formatting.None;
 
                 xmlWriter.WriteStartElement("goliath.data", XmlNameSpace);
+
+                if ((Settings != null) && !string.IsNullOrEmpty(Settings.Platform))
+                {
+                    xmlWriter.WriteStartAttribute("rdbms");
+                    xmlWriter.WriteString(Settings.Platform);
+                    xmlWriter.WriteEndAttribute();
+                }
+
                 xmlWriter.WriteStartAttribute("version");
                 xmlWriter.WriteString(this.GetType().Assembly.GetName().Version.ToString());
                 xmlWriter.WriteEndAttribute();
@@ -42,16 +50,12 @@ namespace Goliath.Data.Mapping
                 xmlWriter.WriteString(Settings.BaseModel);
                 xmlWriter.WriteEndElement();
 
-                if (!string.IsNullOrWhiteSpace(GeneratedBy))
+                if ((Settings != null) && !string.IsNullOrWhiteSpace(Settings.GeneratedBy))
                 {
                     xmlWriter.WriteStartElement("generatedBy");
-                    xmlWriter.WriteString(GeneratedBy);
+                    xmlWriter.WriteString(Settings.GeneratedBy);
                     xmlWriter.WriteEndElement();
                 }
-
-                xmlWriter.WriteStartElement("rdbms");
-                xmlWriter.WriteString(Platform);
-                xmlWriter.WriteEndElement();
 
                 if (Settings.Properties.Count > 0)
                 {

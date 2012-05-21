@@ -38,7 +38,7 @@ namespace Goliath.Data.Providers.Sqlite
 
 
         public SqliteSchemaDescriptor(IDbAccess db, IDbConnector dbConnector, SqlMapper mapper, ProjectSettings settings)
-            : base(Constants.ProviderName)
+            : base(RdbmsBackend.SupportedSystemNames.Sqlite3)
         {
             this.db = db;
             this.dbConnector = dbConnector;
