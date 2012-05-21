@@ -12,7 +12,7 @@ namespace Goliath.Data.Providers.SqlServer
         /// Initializes a new instance of the <see cref="Mssq2008SqlMapper"/> class.
         /// </summary>
         public Mssq2008SqlMapper()
-            : base(Constants.ProviderName)
+            : base(RdbmsBackend.SupportedSystemNames.Mssql2008R2)
         {
 
         }

@@ -9,7 +9,7 @@ namespace Goliath.Data.Providers.SqlServer
 
         public string Name
         {
-            get { return Constants.ProviderName; }
+            get { return RdbmsBackend.SupportedSystemNames.Mssql2008R2; }
         }
 
         public IDbConnector GetDatabaseConnector(string connectionString)

@@ -80,7 +80,7 @@ WHERE FK.TABLE_NAME = @tableName";
         }
 
         public MssqlSchemaDescriptor(IDbAccess db, IDbConnector dbConnector, SqlMapper mapper, ProjectSettings settings)
-            : base(Constants.ProviderName)
+            : base(RdbmsBackend.SupportedSystemNames.Mssql2008R2)
         {
             this.db = db;
             this.dbConnector = dbConnector;

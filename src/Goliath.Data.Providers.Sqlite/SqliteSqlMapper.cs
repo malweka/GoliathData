@@ -16,7 +16,7 @@ namespace Goliath.Data.Providers.Sqlite
         /// Initializes a new instance of the <see cref="SqliteSqlMapper"/> class.
         /// </summary>
         public SqliteSqlMapper()
-            : base(Constants.ProviderName)
+            : base(RdbmsBackend.SupportedSystemNames.Sqlite3)
         {
 
         }

@@ -44,6 +44,14 @@ namespace Goliath.Data.Mapping
         public virtual ProcedureType OperationType { get; private set; }
 
         /// <summary>
+        /// Gets or sets the depends on entity.
+        /// </summary>
+        /// <value>
+        /// The depends on entity.
+        /// </value>
+        public string DependsOnEntity { get; set; }
+
+        /// <summary>
         /// Gets or sets the can run on.
         /// </summary>
         /// <value>

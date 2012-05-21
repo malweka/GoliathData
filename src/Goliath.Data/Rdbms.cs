@@ -14,7 +14,7 @@ namespace Goliath.Data
             { SupportedSystemNames.Mssql2005, new Lazy<RdbmsBackend>(() => new SqlServer2005Backend()) },
             { SupportedSystemNames.Mssql2008, new Lazy<RdbmsBackend>(() => new SqlServer2008Backend()) },
             { SupportedSystemNames.Mssql2008R2, new Lazy<RdbmsBackend>(() => new SqlServer2008R2Backend()) },
-            { SupportedSystemNames.MssqlAll, new Lazy<RdbmsBackend>(() => new SqlServerAllBackend()) },
+           // { SupportedSystemNames.MssqlAll, new Lazy<RdbmsBackend>(() => new SqlServerAllBackend()) },
             { SupportedSystemNames.Sqlite3, new Lazy<RdbmsBackend>(() => new SqliteBackend()) },
             { SupportedSystemNames.Postgresql8, new Lazy<RdbmsBackend>(() => new Postgresql8Backend()) },
             { SupportedSystemNames.Postgresql9, new Lazy<RdbmsBackend>(() => new Postgresql9Backend()) },
@@ -27,25 +27,15 @@ namespace Goliath.Data
         /// <param name="key">The key.</param>
         /// <param name="item">The item.</param>
         /// <returns></returns>
-        public static bool TryGetBackend(string key, out RdbmsBackend item)
+        public static bool TryGetBackend(string key, out Lazy<RdbmsBackend> item)
         {
-            Lazy<RdbmsBackend> val;
-            if (supportedRdbms.TryGetValue(key, out val))
-            {
-                item = val.Value;
-                return true;
-            }
-            else
-            {
-                item = null;
-                return false;
-            }
+            return supportedRdbms.TryGetValue(key, out item);
         }
 
         /// <summary>
         /// Gets the id.
         /// </summary>
-        public string Id { get; internal set; }
+        public string Id { get; protected set; }
 
         /// <summary>
         /// Gets the name.
@@ -84,10 +74,10 @@ namespace Goliath.Data
             /// 
             /// </summary>
             public const string Mssql2008R2 = "Mssql2008R2";
-            /// <summary>
-            /// 
-            /// </summary>
-            public const string MssqlAll = "MssqlAll";
+            ///// <summary>
+            ///// 
+            ///// </summary>
+            //public const string MssqlAll = "MssqlAll";
             /// <summary>
             /// 
             /// </summary>

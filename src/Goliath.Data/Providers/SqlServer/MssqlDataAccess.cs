@@ -12,7 +12,7 @@ namespace Goliath.Data.Providers.SqlServer
         /// </summary>
         /// <param name="connectionString">The connection string.</param>
         public MssqlDbConnector(string connectionString)
-            : base(connectionString, Constants.ProviderName)
+            : base(connectionString, RdbmsBackend.SupportedSystemNames.Mssql2008R2)
         {
         }
 
