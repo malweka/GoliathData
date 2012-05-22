@@ -70,6 +70,7 @@
     <None Include="Templates\Class.razt" />
     <None Include="Data\WebZoo.db" />
     <None Include="Generated\GoData.Map.xml" />
+    <None Include="Templates\CRUDStoredProcSqlServer.razt" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Goliath.Data.Providers.Sqlite\Goliath.Data.Providers.Sqlite.csproj">

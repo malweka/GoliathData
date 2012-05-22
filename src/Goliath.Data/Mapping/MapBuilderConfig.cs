@@ -16,6 +16,8 @@ namespace Goliath.Data.Mapping
         internal const string XmlNameSpace = "http://schemas.hamsman.com/goliath/data/1.1";
         List<SqlProcedure> unprocessedProcedures = new List<SqlProcedure>();
 
+        internal List<SqlProcedure> UnprocessedProcedures { get { return unprocessedProcedures; } }
+
         #region Properties
         /// <summary>
         /// Gets or sets the entity maps.
@@ -199,6 +201,24 @@ namespace Goliath.Data.Mapping
             }
         }
 
+        internal void ProcessSqlProcedures(string platform)
+        {
+            Procedures.SetPlatform(platform);
+            Settings.Platform = platform;
+
+            foreach (var proc in unprocessedProcedures)
+            {
+                Procedures.Add(proc);
+            }
+
+            unprocessedProcedures.Clear();
+        }
+
+        /// <summary>
+        /// Creates the specified filename.
+        /// </summary>
+        /// <param name="filename">The filename.</param>
+        /// <returns></returns>
         public static MapConfig Create(string filename)
         {
             return Create(filename, null);

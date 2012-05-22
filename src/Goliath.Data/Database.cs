@@ -25,25 +25,27 @@ namespace Goliath.Data
         /// <returns></returns>
 		public IConfigurationManager Configure(string mapFile, ISessionStore sessionStore = null)
         {
-            return Configure(mapFile, string.Empty, null);
+            return Configure(mapFile, null, null);
         }
 
         /// <summary>
         /// Configures the specified map file.
         /// </summary>
         /// <param name="mapFile">The map file.</param>
-        /// <param name="connectionString">The connection string.</param>
+        /// <param name="settings">The settings.</param>
         /// <param name="sessionStore">The session store.</param>
         /// <returns></returns>
-        public IConfigurationManager Configure(string mapFile, string connectionString, ISessionStore sessionStore = null)
+        public IConfigurationManager Configure(string mapFile, ProjectSettings settings, ISessionStore sessionStore = null)
         {
 			if(string.IsNullOrWhiteSpace(mapFile))
 				throw new ArgumentNullException("mapFile");
 			
-            MapConfig map = MapConfig.Create(mapFile);
-			if(!string.IsNullOrWhiteSpace(connectionString))
-				map.Settings.ConnectionString = connectionString;
-			
+            MapConfig map;
+            if (settings != null)
+                map = MapConfig.Create(mapFile, settings);
+            else
+                map = MapConfig.Create(mapFile);
+
             return Configure(map);
         }
 
@@ -60,17 +62,10 @@ namespace Goliath.Data
             {
                 sessionStore = new ThreadStaticSessionStore();
             }
+
             configManager = new ConfigManager(map);
             return configManager;
         }
-
-
-        //IDataAccessAdaterFactory daFactory;
-
-        //internal IDataAccessAdaterFactory DataAccessAdapterFactory
-        //{
-        //    get { return daFactory; }
-        //}
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Database"/> class.
