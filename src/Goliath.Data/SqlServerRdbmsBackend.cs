@@ -43,16 +43,4 @@ namespace Goliath.Data
         }
     }
 
-
-    //class SqlServerAllBackend : RdbmsBackend
-    //{
-    //    public SqlServerAllBackend()
-    //        : base("Mssql2005 | Mssql2008 | Mssql2008R2")
-    //    {
-    //        Id = SupportedSystemNames.MssqlAll;
-    //        CompatibilityGroup.Add(SupportedSystemNames.Mssql2005);
-    //        CompatibilityGroup.Add(SupportedSystemNames.Mssql2008);
-    //        CompatibilityGroup.Add(SupportedSystemNames.Mssql2008R2);
-    //    }
-    //}
 }

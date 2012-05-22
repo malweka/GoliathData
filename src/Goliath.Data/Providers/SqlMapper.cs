@@ -121,16 +121,8 @@ namespace Goliath.Data.Providers
             return SqlTypeHelper.GetClrType(dbType, isNullable);
         }
 
-        /// <summary>
-        /// Translates the type of the SQL.
-        /// </summary>
-        /// <param name="fromType">From type.</param>
-        /// <returns></returns>
-        public string TranslateToSqlStringType(Property fromType)
+        void LoadSqlStringType()
         {
-            if (fromType == null)
-                throw new ArgumentNullException("fromType");
-
             if (!canTranslate)
             {
                 translationTypeMap = new Dictionary<string, string>();
@@ -145,10 +137,54 @@ namespace Goliath.Data.Providers
                 RegisterTranslateType("text", "text");
                 RegisterTranslateType("numeric", "numeric");
                 RegisterTranslateType("date", "date");
-                OnRegisterTranslationTypes(); 
+                OnRegisterTranslationTypes();
             }
+        }
+
+        /// <summary>
+        /// Translates the type of the SQL.
+        /// </summary>
+        /// <param name="fromType">From type.</param>
+        /// <returns></returns>
+        public string TranslateToSqlStringType(Property fromType)
+        {
+            if (fromType == null)
+                throw new ArgumentNullException("fromType");
+
+            LoadSqlStringType();
+            
 
             return OnTranslateToSqlTypeString(fromType);
+        }
+
+        public virtual string PrintSqlTypeString(Property fromType)
+        {
+            if (fromType == null)
+                throw new ArgumentNullException("fromType");
+
+            LoadSqlStringType();
+
+            StringBuilder sqlSb = new StringBuilder();
+            
+            string to = null;
+            string fType = fromType.SqlType.ToLower();
+            if (!string.IsNullOrWhiteSpace(fType))
+            {
+                translationTypeMap.TryGetValue(fType, out to);
+                if ((fromType.Length > 0) && !fType.Equals("text") && !fType.Equals("ntext") && !fType.Equals("image"))
+                {
+                    if (!string.IsNullOrWhiteSpace(to) && !to.ToUpper().Equals("NTEXT"))
+                    {
+                        to = string.Format("{0}({1})", to, fromType.Length);
+                    }
+                }
+            }
+
+            var sType = to ?? fromType.SqlType;
+            sqlSb.AppendFormat(" {0}", sType);
+
+            return sqlSb.ToString();
+
         }
 
         /// <summary>

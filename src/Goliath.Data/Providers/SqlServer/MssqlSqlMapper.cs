@@ -96,48 +96,49 @@ namespace Goliath.Data.Providers.SqlServer
             //sqlite SELECT last_insert_rowid()
             return "SELECT SCOPE_IDENTITY()";
         }
-        //protected override string OnTranslateToSqlTypeString(Property fromType)
-        //{
 
-        //    StringBuilder sqlSb = new StringBuilder();
-        //    sqlSb.AppendFormat("[{0}]", fromType.ColumnName);
-        //    string to = null;
-        //    string fType = fromType.SqlType.ToLower();
-        //    if (!string.IsNullOrWhiteSpace(fType))
-        //    {
-        //        translationTypeMap.TryGetValue(fType, out to);
-        //        if ((fromType.Length > 0) && !fType.Equals("text") && !fType.Equals("ntext") && !fType.Equals("image"))
-        //        {
-        //            if (!string.IsNullOrWhiteSpace(to) && !to.ToUpper().Equals("NTEXT"))
-        //            {
-        //                to = string.Format("{0}({1})", to, fromType.Length);
-        //            }
-        //        }
-        //    }
+        protected override string OnTranslateToSqlTypeString(Goliath.Data.Mapping.Property fromType)
+        {
 
-        //    var sType = to ?? fromType.SqlType;
-        //    sqlSb.AppendFormat(" {0}", sType);
+            StringBuilder sqlSb = new StringBuilder();
+            sqlSb.AppendFormat("[{0}]", fromType.ColumnName);
+            string to = null;
+            string fType = fromType.SqlType.ToLower();
+            if (!string.IsNullOrWhiteSpace(fType))
+            {
+                translationTypeMap.TryGetValue(fType, out to);
+                if ((fromType.Length > 0) && !fType.Equals("text") && !fType.Equals("ntext") && !fType.Equals("image"))
+                {
+                    if (!string.IsNullOrWhiteSpace(to) && !to.ToUpper().Equals("NTEXT"))
+                    {
+                        to = string.Format("{0}({1})", to, fromType.Length);
+                    }
+                }
+            }
 
-        //    if (fromType.IsPrimaryKey)
-        //    {
-        //        sqlSb.AppendFormat(" {0}", PrimarykeySql().ToUpper());
-        //    }
-        //    if (!string.IsNullOrWhiteSpace(fromType.DefaultValue))
-        //    {
-        //        string dVal = fromType.DefaultValue;
-        //        var sfunc = GetFunction(fromType.DefaultValue);
-        //        if (sfunc != null)
-        //            dVal = sfunc.ToString();
-        //        sqlSb.AppendFormat(" DEFAULT({0})", dVal);
-        //    }
-        //    if (!fromType.IsNullable)
-        //    {
-        //        sqlSb.Append(" NOT NULL");
-        //    }
+            var sType = to ?? fromType.SqlType;
+            sqlSb.AppendFormat(" {0}", sType);
 
-        //    return sqlSb.ToString();
+            if (fromType.IsPrimaryKey)
+            {
+                sqlSb.AppendFormat(" {0}", PrimarykeySql().ToUpper());
+            }
+            if (!string.IsNullOrWhiteSpace(fromType.DefaultValue))
+            {
+                string dVal = fromType.DefaultValue;
+                var sfunc = GetFunction(fromType.DefaultValue);
+                if (sfunc != null)
+                    dVal = sfunc.ToString();
+                sqlSb.AppendFormat(" DEFAULT({0})", dVal);
+            }
+            if (!fromType.IsNullable)
+            {
+                sqlSb.Append(" NOT NULL");
+            }
+
+            return sqlSb.ToString();
 
 
-        //}
+        }
     }
 }

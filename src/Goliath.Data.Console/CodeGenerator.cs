@@ -26,7 +26,9 @@ namespace Goliath.Data.CodeGen
                     continue;
 
                 string fname = Path.Combine(basefolder, table.Name + ".cs");
+                string storeProcName = Path.Combine(basefolder, table.Name + "_CRUD.sql");
                 generator.Generate(Path.Combine(templateFolder, "Class.razt"), fname, table);
+                generator.Generate(Path.Combine(templateFolder, "CRUDStoredProcSqlServer.razt"), storeProcName, table);
             }
         }
              
