@@ -25,7 +25,7 @@ namespace Goliath.Data.Providers
         /// Gets the stored procs.
         /// </summary>
         /// <returns></returns>
-        IDictionary<string, SqlProcedure> GetStoredProcs();
+        IDictionary<string, StatementMap> GetStoredProcs();
         /// <summary>
         /// Gets or sets the project settings.
         /// </summary>

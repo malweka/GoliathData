@@ -91,7 +91,7 @@ namespace Goliath.Data.Mapping
     /// </summary>
     [Serializable]
     [DataContract]
-    public enum ProcedureType
+    public enum MappedStatementType
     {
         /// <summary>
         /// 

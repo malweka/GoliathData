@@ -55,7 +55,7 @@ namespace Goliath.Data.Config
 
             mainMap.EntityConfigs.AddRange(map.EntityConfigs, mainMap);
             mainMap.ComplexTypes.AddRange(map.ComplexTypes, mainMap);
-            mainMap.UnprocessedProcedures.AddRange(map.UnprocessedProcedures);
+            mainMap.UnprocessedStatements.AddRange(map.UnprocessedStatements);
 
             return this;
         }
@@ -136,7 +136,7 @@ namespace Goliath.Data.Config
             if (DbProvider == null)
                 throw new GoliathDataException("no database provider specified");
 
-            mainMap.ProcessSqlProcedures(DbProvider.Name);
+            mainMap.MapStatements(DbProvider.Name);
 
             if (LoggerFactory == null)
             {

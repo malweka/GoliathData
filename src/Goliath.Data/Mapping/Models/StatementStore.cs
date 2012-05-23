@@ -9,30 +9,30 @@ namespace Goliath.Data.Mapping
     /// <summary>
     /// 
     /// </summary>
-    public class SqlProcedureStore : IEnumerable<SqlProcedure>
+    public class StatementStore : IEnumerable<StatementMap>
     {
         
         public RdbmsBackend Platform { get; private set; }
 
-        internal Dictionary<string, SqlProcedure> InnerProcedureList { get; private set; }
+        internal Dictionary<string, StatementMap> InnerProcedureList { get; private set; }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="SqlProcedureStore"/> class.
+        /// Initializes a new instance of the <see cref="StatementStore"/> class.
         /// </summary>
-        internal SqlProcedureStore()
+        internal StatementStore()
             : this(RdbmsBackend.SupportedSystemNames.Sqlite3)
         {
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="SqlProcedureStore"/> class.
+        /// Initializes a new instance of the <see cref="StatementStore"/> class.
         /// </summary>
         /// <param name="platform">The platform.</param>
-        public SqlProcedureStore(string platform)
+        public StatementStore(string platform)
         {
             //platformId = platform;
             SetPlatform(platform);
-            InnerProcedureList = new Dictionary<string, SqlProcedure>();
+            InnerProcedureList = new Dictionary<string, StatementMap>();
         }
 
         internal void SetPlatform(string platform)
@@ -50,7 +50,7 @@ namespace Goliath.Data.Mapping
         /// </summary>
         /// <param name="item">The object to add to the <see cref="T:System.Collections.Generic.ICollection`1"></see>.</param>
         /// <exception cref="T:System.NotSupportedException">The <see cref="T:System.Collections.Generic.ICollection`1"></see> is read-only.</exception>
-        public void Add(SqlProcedure item)
+        public void Add(StatementMap item)
         {
             if (item == null)
                 throw new ArgumentNullException("item");
@@ -79,7 +79,7 @@ namespace Goliath.Data.Mapping
         /// <param name="map">The map.</param>
         /// <param name="type">The type.</param>
         /// <param name="body">The body.</param>
-        public SqlProcedure Add(EntityMap map, ProcedureType type, string body)
+        public StatementMap Add(EntityMap map, MappedStatementType type, string body)
         {
             string procName = BuildProcedureName(map, type);
             return Add(procName, procName, type, body, Platform.Id);
@@ -92,7 +92,7 @@ namespace Goliath.Data.Mapping
         /// <param name="dbName">Name of the db.</param>
         /// <param name="type">The type.</param>
         /// <param name="body">The body.</param>
-        public SqlProcedure Add(EntityMap map, string dbName, ProcedureType type, string body)
+        public StatementMap Add(EntityMap map, string dbName, MappedStatementType type, string body)
         {
             return Add(map, dbName, type, body, Platform.Id);
         }
@@ -106,10 +106,10 @@ namespace Goliath.Data.Mapping
         /// <param name="body">The body.</param>
         /// <param name="supportedRdbms">The supported RDBMS.</param>
         /// <returns></returns>
-        public SqlProcedure Add(EntityMap map, string dbName, ProcedureType type, string body, string supportedRdbms)
+        public StatementMap Add(EntityMap map, string dbName, MappedStatementType type, string body, string supportedRdbms)
         {
             string procName = BuildProcedureName(map, type);
-            SqlProcedure proc = new SqlProcedure(procName, dbName, type) { Body = body, CanRunOn = supportedRdbms, DependsOnEntity = map.FullName };
+            StatementMap proc = new StatementMap(procName, dbName, type) { Body = body, CanRunOn = supportedRdbms, DependsOnEntity = map.FullName };
            Add(proc);
            return proc;
         }
@@ -123,9 +123,9 @@ namespace Goliath.Data.Mapping
         /// <param name="body">The body.</param>
         /// <param name="supportedRdbms">The supported RDBMS.</param>
         /// <returns></returns>
-        public SqlProcedure Add(string procedureName, string dbName, ProcedureType type, string body, string supportedRdbms)
+        public StatementMap Add(string procedureName, string dbName, MappedStatementType type, string body, string supportedRdbms)
         {
-            SqlProcedure proc = new SqlProcedure(procedureName, dbName, type) { Body = body, CanRunOn = supportedRdbms };
+            StatementMap proc = new StatementMap(procedureName, dbName, type) { Body = body, CanRunOn = supportedRdbms };
             Add(proc);
             return proc;
         }
@@ -137,7 +137,7 @@ namespace Goliath.Data.Mapping
         /// <param name="procType">Type of the proc.</param>
         /// <param name="val">The val.</param>
         /// <returns></returns>
-        public bool TryGetValue(Type type, ProcedureType procType, out SqlProcedure val)
+        public bool TryGetValue(Type type, MappedStatementType procType, out StatementMap val)
         {
             var procName = BuildProcedureName(type, procType);
             return TryGetValue(procName, out val);
@@ -150,7 +150,7 @@ namespace Goliath.Data.Mapping
         /// <param name="procType">Type of the proc.</param>
         /// <param name="val">The val.</param>
         /// <returns></returns>
-        public bool TryGetValue(EntityMap map, ProcedureType procType, out SqlProcedure val)
+        public bool TryGetValue(EntityMap map, MappedStatementType procType, out StatementMap val)
         {
             var procName = BuildProcedureName(map, procType);
             return TryGetValue(procName, out val);
@@ -162,17 +162,17 @@ namespace Goliath.Data.Mapping
         /// <param name="key">The key.</param>
         /// <param name="val">The val.</param>
         /// <returns></returns>
-        public bool TryGetValue(string key, out SqlProcedure val)
+        public bool TryGetValue(string key, out StatementMap val)
         {
             return InnerProcedureList.TryGetValue(key, out val);
         }
 
-        internal static string BuildProcedureName(EntityMap map, ProcedureType type)
+        internal static string BuildProcedureName(EntityMap map, MappedStatementType type)
         {
             return string.Format("{0}_{1}", map.FullName, type); ;
         }
 
-        internal static string BuildProcedureName(Type type, ProcedureType procType)
+        internal static string BuildProcedureName(Type type, MappedStatementType procType)
         {
             return string.Format("{0}_{1}", type.FullName, procType); ;
         }
@@ -187,7 +187,7 @@ namespace Goliath.Data.Mapping
         /// <returns>
         /// A <see cref="T:System.Collections.Generic.IEnumerator`1"></see> that can be used to iterate through the collection.
         /// </returns>
-        public IEnumerator<SqlProcedure> GetEnumerator()
+        public IEnumerator<StatementMap> GetEnumerator()
         {
             return InnerProcedureList.Values.GetEnumerator();
         }
