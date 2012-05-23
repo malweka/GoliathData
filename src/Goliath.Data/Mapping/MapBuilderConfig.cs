@@ -14,9 +14,9 @@ namespace Goliath.Data.Mapping
     public partial class MapConfig
     {
         internal const string XmlNameSpace = "http://schemas.hamsman.com/goliath/data/1.1";
-        List<SqlProcedure> unprocessedProcedures = new List<SqlProcedure>();
+        List<StatementMap> unprocessedStatements = new List<StatementMap>();
 
-        internal List<SqlProcedure> UnprocessedProcedures { get { return unprocessedProcedures; } }
+        internal List<StatementMap> UnprocessedStatements { get { return unprocessedStatements; } }
 
         #region Properties
         /// <summary>
@@ -34,13 +34,13 @@ namespace Goliath.Data.Mapping
         public ComplexTypeCollection ComplexTypes { get; set; }
 
         /// <summary>
-        /// Gets or sets the procedures.
+        /// Gets or sets the mapped statements.
         /// </summary>
         /// <value>
-        /// The procedures.
+        /// The mapped statements.
         /// </value>
         [DataMember]
-        public SqlProcedureStore Procedures { get; set; }
+        public StatementStore MappedStatements { get; set; }
 
         /// <summary>
         /// Gets or sets the settings.
@@ -78,7 +78,7 @@ namespace Goliath.Data.Mapping
             EntityConfigs = new EntityCollection();
             ComplexTypes = new ComplexTypeCollection();
 
-            Procedures = new SqlProcedureStore(settings.Platform);
+            MappedStatements = new StatementStore(settings.Platform);
             Settings = settings;
 
             PrimaryKeyGeneratorStore = new KeyGeneratorStore();
@@ -201,17 +201,21 @@ namespace Goliath.Data.Mapping
             }
         }
 
-        internal void ProcessSqlProcedures(string platform)
+        /// <summary>
+        /// Maps the statements.
+        /// </summary>
+        /// <param name="platform">The platform.</param>
+        internal void MapStatements(string platform)
         {
-            Procedures.SetPlatform(platform);
+            MappedStatements.SetPlatform(platform);
             Settings.Platform = platform;
 
-            foreach (var proc in unprocessedProcedures)
+            foreach (var proc in unprocessedStatements)
             {
-                Procedures.Add(proc);
+                MappedStatements.Add(proc);
             }
 
-            unprocessedProcedures.Clear();
+            unprocessedStatements.Clear();
         }
 
         /// <summary>

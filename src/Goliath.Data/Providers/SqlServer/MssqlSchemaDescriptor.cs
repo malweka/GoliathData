@@ -344,7 +344,7 @@ WHERE FK.TABLE_NAME = @tableName";
             throw new NotImplementedException();
         }
 
-        public override IDictionary<string, SqlProcedure> GetStoredProcs()
+        public override IDictionary<string, StatementMap> GetStoredProcs()
         {
             throw new NotImplementedException();
         }

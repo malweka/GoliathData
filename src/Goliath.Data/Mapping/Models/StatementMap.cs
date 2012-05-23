@@ -13,7 +13,7 @@ namespace Goliath.Data.Mapping
     /// </summary>
     [Serializable]
     [DataContract]
-    public class SqlProcedure : IMapModel
+    public class StatementMap : IMapModel
     {
         Dictionary<string, object> parameters = new Dictionary<string, object>();
 
@@ -41,15 +41,39 @@ namespace Goliath.Data.Mapping
         /// Gets or sets the type of the operation.
         /// </summary>
         /// <value>The type of the operation.</value>
-        public virtual ProcedureType OperationType { get; private set; }
+        public virtual MappedStatementType OperationType { get; private set; }
 
         /// <summary>
-        /// Gets or sets the depends on entity.
+        /// Gets or sets the depends on entity. This is mainly for code generation -- think about moving it.
         /// </summary>
         /// <value>
         /// The depends on entity.
         /// </value>
         public string DependsOnEntity { get; set; }
+
+        /// <summary>
+        /// The system full type name of the input object that will be passed to the code executing the procedure. 
+        /// </summary>
+        /// <value>
+        /// The type of the input parameter.
+        /// </value>
+        public string InputParameterType { get; set; }
+
+        /// <summary>
+        /// The type to serialize the result of the procedure.
+        /// </summary>
+        /// <value>
+        /// The result map.
+        /// </value>
+        public string ResultMap { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether [result is collection].
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if [result is collection]; otherwise, <c>false</c>.
+        /// </value>
+        public bool ResultIsCollection { get; set; }
 
         /// <summary>
         /// Gets or sets the can run on.
@@ -78,12 +102,12 @@ namespace Goliath.Data.Mapping
         public string Body { get; set; }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="SqlProcedure"/> class.
+        /// Initializes a new instance of the <see cref="StatementMap"/> class.
         /// </summary>
         /// <param name="name">The name.</param>
         /// <param name="dbName">Name of the db.</param>
         /// <param name="operationType">Type of the operation.</param>
-        public SqlProcedure(string name, string dbName, ProcedureType operationType)
+        public StatementMap(string name, string dbName, MappedStatementType operationType)
         {
             Name = name;
             DbName = dbName;
@@ -107,15 +131,15 @@ namespace Goliath.Data.Mapping
     /// </summary>
     [Serializable]
     [DataContract]
-    public class DynamicSqlProcedure: SqlProcedure
+    public class DynamicStatementMap: StatementMap
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="DynamicSqlProcedure"/> class.
+        /// Initializes a new instance of the <see cref="DynamicStatementMap"/> class.
         /// </summary>
         /// <param name="name">The name.</param>
         /// <param name="dbName">Name of the db.</param>
         /// <param name="operationType">Type of the operation.</param>
-        public DynamicSqlProcedure(string name, string dbName, ProcedureType operationType):base(name, dbName, operationType){}
+        public DynamicStatementMap(string name, string dbName, MappedStatementType operationType):base(name, dbName, operationType){}
 
         /// <summary>
         /// Loads this instance.
