@@ -14,7 +14,6 @@ namespace Goliath.Data
             { SupportedSystemNames.Mssql2005, new Lazy<RdbmsBackend>(() => new SqlServer2005Backend()) },
             { SupportedSystemNames.Mssql2008, new Lazy<RdbmsBackend>(() => new SqlServer2008Backend()) },
             { SupportedSystemNames.Mssql2008R2, new Lazy<RdbmsBackend>(() => new SqlServer2008R2Backend()) },
-           // { SupportedSystemNames.MssqlAll, new Lazy<RdbmsBackend>(() => new SqlServerAllBackend()) },
             { SupportedSystemNames.Sqlite3, new Lazy<RdbmsBackend>(() => new SqliteBackend()) },
             { SupportedSystemNames.Postgresql8, new Lazy<RdbmsBackend>(() => new Postgresql8Backend()) },
             { SupportedSystemNames.Postgresql9, new Lazy<RdbmsBackend>(() => new Postgresql9Backend()) },

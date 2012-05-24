@@ -57,6 +57,7 @@ namespace Goliath.Data
         /// The comparison operator.
         /// </value>
         public Sql.ComparisonOperator ComparisonOperator { get; set; }
+
         /// <summary>
         /// Gets or sets the post operator.
         /// </summary>
@@ -71,6 +72,7 @@ namespace Goliath.Data
         /// <param name="propertyName">Name of the property.</param>
         /// <param name="parameterName">Name of the parameter.</param>
         public PropertyQueryParam(string propertyName) : this(propertyName, null) { }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="PropertyQueryParam"/> class.
         /// </summary>
