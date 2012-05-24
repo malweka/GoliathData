@@ -157,6 +157,11 @@ namespace Goliath.Data.Providers
             return OnTranslateToSqlTypeString(fromType);
         }
 
+        /// <summary>
+        /// Prints the SQL type string.
+        /// </summary>
+        /// <param name="fromType">From type.</param>
+        /// <returns></returns>
         public virtual string PrintSqlTypeString(Property fromType)
         {
             if (fromType == null)
