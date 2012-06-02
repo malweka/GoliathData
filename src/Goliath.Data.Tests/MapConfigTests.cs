@@ -5,6 +5,7 @@ using Gallio.Framework;
 using MbUnit.Framework;
 using MbUnit.Framework.ContractVerifiers;
 using System.IO;
+using System.Linq;
 
 namespace Goliath.Data.Tests
 {
@@ -16,7 +17,7 @@ namespace Goliath.Data.Tests
         [Test]
         public void Load_simple_xml_config_should_have_valid_map_config()
         {
-            string testMapfile = Path.Combine(SessionHelper.BaseDirectory, "TestFiles", "Test001.data.xml");
+            string testMapfile = Path.Combine(SessionHelper.BaseDirectory, "TestFiles", "MapConfigTests", "Test001.data.xml");
             MapConfig config = new MapConfig();
             config.Load(testMapfile);
 
@@ -26,11 +27,99 @@ namespace Goliath.Data.Tests
         [Test, ExpectedException(typeof(MappingException))]
         public void Load_xml_config_with_entity_non_existing_map_should_throw()
         {
-            string testMapfile = Path.Combine(SessionHelper.BaseDirectory, "TestFiles", "Test002.data.xml");
+            string testMapfile = Path.Combine(SessionHelper.BaseDirectory, "TestFiles", "MapConfigTests", "Test002.data.xml");
             MapConfig config = new MapConfig();
             config.Load(testMapfile);
 
             Assert.Fail("should have thrown");
+        }
+
+        [Test]
+        public void Load_conventions_statement_without_name_should_default_to_naming_convention()
+        {
+            string testMapfile = Path.Combine(SessionHelper.BaseDirectory, "TestFiles", "MapConfigTests", "Test_statement_valid.xml");
+            MapConfig config = new MapConfig();
+            config.Load(testMapfile);
+
+            var zooInserts = config.UnprocessedStatements.Where(c => c.Name == "WebZoo.Data.Zoo_Insert").ToList();
+            Assert.AreEqual<int>(1, zooInserts.Count);
+        }
+
+        [Test]
+        public void Load_conventions_statement_insert_update_without_InputParameterType_should_default_entity_result()
+        {
+            string testMapfile = Path.Combine(SessionHelper.BaseDirectory, "TestFiles", "MapConfigTests", "Test_statement_valid.xml");
+            MapConfig config = new MapConfig();
+            config.Load(testMapfile);
+
+            var statement = config.UnprocessedStatements.Where(c => c.Name == "updateTest").First();
+            Assert.AreEqual<string>("WebZoo.Data.Zoo", statement.InputParameterType);
+
+            statement = config.UnprocessedStatements.Where(c => c.Name == "testInsert").First();
+            Assert.AreEqual<string>("WebZoo.Data.Zoo", statement.InputParameterType);
+        }
+
+        [Test]
+        public void Load_conventions_statement_insert_update_without_resul_map_should_default_integer_result()
+        {
+            string testMapfile = Path.Combine(SessionHelper.BaseDirectory, "TestFiles", "MapConfigTests", "Test_statement_valid.xml");
+            MapConfig config = new MapConfig();
+            config.Load(testMapfile);
+
+            var statement = config.UnprocessedStatements.Where(c => c.Name == "updateTest").First();
+            Assert.AreEqual<string>(typeof(int).ToString(), statement.ResultMap);
+
+            statement = config.UnprocessedStatements.Where(c => c.Name == "testInsert").First();
+            Assert.AreEqual<string>(typeof(int).ToString(), statement.ResultMap);
+        }
+
+        [Test]
+        public void Load_conventions_statement_query_without_resul_map_should_default_type_of_entity_map_result()
+        {
+            string testMapfile = Path.Combine(SessionHelper.BaseDirectory, "TestFiles", "MapConfigTests", "Test_statement_valid.xml");
+            MapConfig config = new MapConfig();
+            config.Load(testMapfile);
+
+            var statement = config.UnprocessedStatements.Where(c => c.Name == "fakequery").First();
+            Assert.AreEqual<string>("WebZoo.Data.Zoo", statement.ResultMap);
+        }
+
+        [Test]
+        public void Load_valid_map_file_return_list_of_valid_statements()
+        {
+            string testMapfile = Path.Combine(SessionHelper.BaseDirectory, "TestFiles", "MapConfigTests", "TestFullMap.xml");
+            MapConfig config = new MapConfig();
+            config.Load(testMapfile);
+
+            var statements = config.UnprocessedStatements.ToList();
+            Assert.AreEqual<int>(6, statements.Count);
+            foreach (var st in statements)
+            {
+                Assert.AreEqual("WebZoo.Data.Zoo", st.DependsOnEntity);
+            }
+
+            var statementWithParams = statements.Where(s => s.Name == "updateTest2").First();
+            Assert.AreEqual<int>(3, statementWithParams.ParametersMap.Count);
+        }
+
+        [Test, ExpectedException(typeof(MappingSerializationException))]
+        public void Load_generic_statement_without_operation_type_should_throw()
+        {
+            string testMapfile = Path.Combine(SessionHelper.BaseDirectory, "TestFiles", "MapConfigTests", "Test_statement_invalid_statement_operationType.xml");
+            MapConfig config = new MapConfig();
+            config.Load(testMapfile);
+
+            Assert.Fail("should have thrown an exception; map is invalid");
+        }
+
+        [Test, ExpectedException(typeof(MappingSerializationException))]
+        public void Load_statement_with_params_invalid_param_missing_prop_throw()
+        {
+            string testMapfile = Path.Combine(SessionHelper.BaseDirectory, "TestFiles", "MapConfigTests", "Test_statement_invalid_param_missing_prop.xml");
+            MapConfig config = new MapConfig();
+            config.Load(testMapfile);
+
+            Assert.Fail("should have thrown an exception; map is invalid");
         }
     }
 }
