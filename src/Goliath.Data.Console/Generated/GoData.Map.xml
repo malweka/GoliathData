@@ -18,7 +18,6 @@
       </properties>
       <statements>
         <query><![CDATA[select * from test where t.col = 1;]]></query>
-        <statement name="testingo" dbName="testingo_sp" />
         <update name="updateTest" dbName="updateTest_SP"></update>
         <insert name="testInsert">INSERT INTO @{TableName}(@{col:Name},@{col:City},@{col:AcceptNewAnimals}) VALUES(@{prop:Name},@{prop:City},@{prop:AcceptNewAnimals})</insert>
         <insert>INSERT INTO @{TableName}(@{col:Name},@{col:City},@{col:AcceptNewAnimals}) VALUES(@{prop:Name},@{prop:City},@{prop:AcceptNewAnimals})</insert>        

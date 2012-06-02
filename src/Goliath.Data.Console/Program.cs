@@ -10,7 +10,8 @@ using Goliath.Data.Providers.Sqlite;
 using Goliath.Data.Providers.SqlServer;
 using Goliath.Data.Sql;
 using Goliath.Data.Transformers;
-using WebZoo.Data;
+using Goliath.Data.Utils;
+
 //using WebZoo.Data.SqlServer;
 using Goliath.Data.CodeGen;
 
@@ -26,6 +27,9 @@ namespace WebZoo.Data
             //string sqlServerWorkingDirectory = Path.Combine(currentDir, "Generated", "Mssql2008");
             //string sqliteWorkingDirectory = Path.Combine(currentDir, "Generated", "Sqlite");
             //string templatePath = currentDir;
+
+            string tmytest = @"INSERT INTO @{TableName}(@{col:Name},@{col:City},@{col:AcceptNewAnimals}) VALUES(@{prop:Name},@{prop:City},@{prop:AcceptNewAnimals})";
+            
             
             Console.WriteLine("Start run");
             //Console.WriteLine(Guid.NewGuid().ToString("N"));
@@ -36,6 +40,13 @@ namespace WebZoo.Data
             //zoorunner.GenerateCode();
             string mapfile = Path.Combine(zoorunner.WorkingFolder, Goliath.Data.CodeGen.Constants.MapFileName);
             mapConfig = MapConfig.Create(mapfile);
+
+            var zooEntMap = mapConfig.EntityConfigs.Where(c => string.Equals(c.Name, "Zoo", StringComparison.Ordinal))
+                    .FirstOrDefault();
+
+ 
+            StatementMapParser parser = new StatementMapParser();
+            var compiled = parser.Parse(new SqliteSqlMapper(), zooEntMap, tmytest);
 
             zoorunner = new WebZooRunner(SupportedRdbms.Sqlite3, new CodeGenerator(), AppDomain.CurrentDomain.BaseDirectory, true);
             mapConfig.Settings.ConnectionString = zoorunner.Settings.ConnectionString;

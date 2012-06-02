@@ -58,6 +58,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CompiledStatement.cs" />
     <Compile Include="DynamicProxy\ILazyObject.cs" />
     <Compile Include="Entity\ChangeSet.cs" />
     <Compile Include="Collections\ILazyList.cs" />
@@ -180,6 +181,7 @@
     <Compile Include="Sql\SqlWorker.cs" />
     <Compile Include="Sql\UpdateSqlBuilder.cs" />
     <Compile Include="Sql\WhereStatement.cs" />
+    <Compile Include="Utilities\StatementMapParser.cs" />
     <Compile Include="ThreadStaticSessionStore.cs" />
     <Compile Include="Transformers\Abbreviator.cs" />
     <Compile Include="Transformers\ColumnPropertyNameTransformer.cs" />
