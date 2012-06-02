@@ -96,6 +96,10 @@ namespace Goliath.Data.Mapping
         /// <summary>
         /// 
         /// </summary>
+        Undefined=0,
+        /// <summary>
+        /// 
+        /// </summary>
         Query,
         /// <summary>
         /// 

@@ -15,7 +15,7 @@ namespace Goliath.Data.Mapping
     [DataContract]
     public class StatementMap : IMapModel
     {
-        Dictionary<string, object> parameters = new Dictionary<string, object>();
+        Dictionary<string, string> parameters = new Dictionary<string, string>();
 
         /// <summary>
         /// Gets a value indicating whether this instance is ready.
@@ -29,7 +29,7 @@ namespace Goliath.Data.Mapping
         /// Gets the parameters.
         /// </summary>
         /// <value>The parameters.</value>
-        public Dictionary<string, object> Parameters
+        public Dictionary<string, string> ParametersMap
         {
             get
             {
@@ -41,7 +41,7 @@ namespace Goliath.Data.Mapping
         /// Gets or sets the type of the operation.
         /// </summary>
         /// <value>The type of the operation.</value>
-        public virtual MappedStatementType OperationType { get; private set; }
+        public virtual MappedStatementType OperationType { get; internal set; }
 
         /// <summary>
         /// Gets or sets the depends on entity. This is mainly for code generation -- think about moving it.
@@ -87,19 +87,24 @@ namespace Goliath.Data.Mapping
         /// Gets the name.
         /// </summary>
         /// <value>The name.</value>
-        public string Name { get; private set; }
+        public string Name { get; internal set; }
 
         /// <summary>
         /// Gets the name of the db.
         /// </summary>
         /// <value>The name of the db.</value>
-        public string DbName { get; private set; }
+        public string DbName { get; internal set; }
 
         /// <summary>
         /// Gets or sets the body.
         /// </summary>
         /// <value>The body.</value>
         public string Body { get; set; }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="StatementMap"/> class.
+        /// </summary>
+        internal StatementMap(){}
 
         /// <summary>
         /// Initializes a new instance of the <see cref="StatementMap"/> class.
@@ -133,6 +138,11 @@ namespace Goliath.Data.Mapping
     [DataContract]
     public class DynamicStatementMap: StatementMap
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DynamicStatementMap"/> class.
+        /// </summary>
+        internal DynamicStatementMap(){}
+
         /// <summary>
         /// Initializes a new instance of the <see cref="DynamicStatementMap"/> class.
         /// </summary>
