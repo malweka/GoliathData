@@ -77,6 +77,19 @@
       </properties>
     </entity>
   </entities>
+  <statements>
+    <query><![CDATA[select * from test where t.col = 1;]]></query>
+    <update name="updateTest" dbName="updateTest_SP"></update>
+    <insert name="testInsert">INSERT INTO @{TableName}(@{col:Name},@{col:City},@{col:AcceptNewAnimals}) VALUES(@{prop:Name},@{prop:City},@{prop:AcceptNewAnimals})</insert>
+    <insert>INSERT INTO @{TableName}(@{col:Name},@{col:City},@{col:AcceptNewAnimals}) VALUES(@{prop:Name},@{prop:City},@{prop:AcceptNewAnimals})</insert>
+    <update name="updateTest2" dbName="updateTest_SP2">
+      <parameters>
+        <param name="name1" property="prop1"/>
+        <param name="name2" property="prop2"/>
+        <param name="name3" property="prop3"/>
+      </parameters>
+    </update>
+  </statements>
   <complexTypes>
     <type fullname="WebZoo.Data.BaseEntityInt" enum="False">
       <properties>

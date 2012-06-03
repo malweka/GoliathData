@@ -104,6 +104,8 @@ namespace Goliath.Data.Mapping
                     rel = new Relation(prop);
             }
 
+            #region <statement>
+
             StatementMap Read_StatementElement(XmlReader reader, MapConfig config, string elementName)
             {
                 if (reader.CanReadElement(elementName))
@@ -144,7 +146,7 @@ namespace Goliath.Data.Mapping
                     if ((statement.OperationType == MappedStatementType.Undefined) && !elementName.ToUpper().Equals("STATEMENT"))
                     {
                         statement.OperationType = ReadEnumType<MappedStatementType>(elementName);
-                    }                    
+                    }
 
                     return statement;
                 }
@@ -153,6 +155,10 @@ namespace Goliath.Data.Mapping
                     return null;
                 }
             }
+
+            #endregion
+
+            #region <property>
 
             Property Read_PropertyElement(XmlReader reader, MapConfig config, string elementName, bool forceReturnRel = false)
             {
@@ -309,60 +315,9 @@ namespace Goliath.Data.Mapping
                 return null;
             }
 
-            ComplexType Read_ComplexTypeElement(XmlReader reader, MapConfig config)
-            {
-                ComplexType compType = new ComplexType(null);
-                if (reader.CanReadElement("type"))
-                {
-                    while (reader.MoveToNextAttribute())
-                    {
-                        switch (reader.Name)
-                        {
-                            case "fullname":
-                                compType.FullName = reader.Value;
-                                break;
-                            case "enum":
-                                compType.IsEnum = ReadBool(reader.Value);
-                                break;
-                            default:
-                                break;
-                        }
-                    }
+            #endregion
 
-                    while (reader.Read())
-                    {
-                        if (reader.HasReachedEndOfElement("type"))
-                            return compType;
-
-                        else if (reader.CanReadElement("properties"))
-                        {
-                            bool hasReachedEndGracefully = false;
-                            while (reader.Read())
-                            {
-                                if (reader.CanReadElement("property"))
-                                {
-                                    var prop = Read_PropertyElement(reader, config, "property");
-                                    if (prop != null)
-                                        compType.Properties.Add(prop);
-
-                                }
-                                else if (reader.HasReachedEndOfElement("properties"))
-                                {
-                                    hasReachedEndGracefully = true;
-                                    break;
-                                }
-                            }
-
-                            if (!hasReachedEndGracefully)
-                                throw new MappingSerializationException(typeof(PropertyCollection), "missing a </properties> end tag");
-                        }
-                    }
-
-                    throw new MappingSerializationException(typeof(ComplexType), "missing a </type> end tag");
-
-                }
-                return null;
-            }
+            #region <entity>
 
             EntityMap Read_EntityElement(XmlReader reader, MapConfig config)
             {
@@ -553,6 +508,7 @@ namespace Goliath.Data.Mapping
                 if (!hasReachedEndGracefully)
                     throw new MappingSerializationException(typeof(PropertyCollection), "missing a </relations> end tag");
             }
+
             void ElementEntityReadStatements(XmlReader reader, MapConfig config, EntityMap entMap)
             {
                 bool hasReachedEndGracefully = false;
@@ -633,7 +589,7 @@ namespace Goliath.Data.Mapping
                             }
                         }
 
-                        if(statement.OperationType == MappedStatementType.Undefined)
+                        if (statement.OperationType == MappedStatementType.Undefined)
                             throw new MappingSerializationException(typeof(StatementMap), string.Format("Statement {0} must have have an operationType", statement.Name));
 
                         config.UnprocessedStatements.Add(statement);
@@ -724,6 +680,65 @@ namespace Goliath.Data.Mapping
                 throw new MappingSerializationException(typeof(EntityCollection), "missing a </entities> end tag");
             }
 
+            #endregion
+
+            #region <complexType>
+
+            ComplexType Read_ComplexTypeElement(XmlReader reader, MapConfig config)
+            {
+                ComplexType compType = new ComplexType(null);
+                if (reader.CanReadElement("type"))
+                {
+                    while (reader.MoveToNextAttribute())
+                    {
+                        switch (reader.Name)
+                        {
+                            case "fullname":
+                                compType.FullName = reader.Value;
+                                break;
+                            case "enum":
+                                compType.IsEnum = ReadBool(reader.Value);
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+
+                    while (reader.Read())
+                    {
+                        if (reader.HasReachedEndOfElement("type"))
+                            return compType;
+
+                        else if (reader.CanReadElement("properties"))
+                        {
+                            bool hasReachedEndGracefully = false;
+                            while (reader.Read())
+                            {
+                                if (reader.CanReadElement("property"))
+                                {
+                                    var prop = Read_PropertyElement(reader, config, "property");
+                                    if (prop != null)
+                                        compType.Properties.Add(prop);
+
+                                }
+                                else if (reader.HasReachedEndOfElement("properties"))
+                                {
+                                    hasReachedEndGracefully = true;
+                                    break;
+                                }
+                            }
+
+                            if (!hasReachedEndGracefully)
+                                throw new MappingSerializationException(typeof(PropertyCollection), "missing a </properties> end tag");
+                        }
+                    }
+
+                    throw new MappingSerializationException(typeof(ComplexType), "missing a </type> end tag");
+
+                }
+                return null;
+            }
+
             void Read_ComplexTypesElement(XmlReader reader, MapConfig config)
             {
                 while (reader.Read())
@@ -739,6 +754,8 @@ namespace Goliath.Data.Mapping
                 }
                 throw new MappingSerializationException(typeof(ComplexTypeCollection), "missing a </complexTypes> end tag");
             }
+
+            #endregion
 
             void Read_Project_PropertiesElement(XmlReader reader, MapConfig config)
             {
