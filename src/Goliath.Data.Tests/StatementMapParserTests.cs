@@ -1,19 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Gallio.Framework;
-using MbUnit.Framework;
-using MbUnit.Framework.ContractVerifiers;
 using System.IO;
 using System.Linq;
+using MbUnit.Framework;
 
 namespace Goliath.Data.Tests
 {
     using Mapping;
-    using Providers;
-    using DataAccess;
-    using Utils;
     using Providers.Sqlite;
+    using Utils;
+
     [TestFixture]
     public class StatementMapParserTests
     {
