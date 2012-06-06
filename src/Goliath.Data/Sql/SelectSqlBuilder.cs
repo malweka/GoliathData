@@ -62,12 +62,12 @@ namespace Goliath.Data.Sql
 
         }
 
-        internal string BuildColumnSelectString(string columnName, string tableAbbreviation)
+        public string BuildColumnSelectString(string columnName, string tableAbbreviation)
         {
             return string.Format("{2}.{0} AS {1}", columnName, ParameterNameBuilderHelper.ColumnQueryName(columnName, tableAbbreviation), tableAbbreviation);
         }
 
-        internal string BuildTableFromString(string tableName, string tableAbbreviation)
+        public string BuildTableFromString(string tableName, string tableAbbreviation)
         {
             return string.Format("{0} {1}", tableName, tableAbbreviation);
         }

@@ -15,6 +15,7 @@ namespace Goliath.Data
         /// </summary>
         /// <param name="message">The message.</param>
         public GoliathDataException(string message) : base(message) { }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="GoliathDataException"/> class.
         /// </summary>

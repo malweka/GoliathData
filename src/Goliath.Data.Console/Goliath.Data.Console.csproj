@@ -69,7 +69,9 @@
     </None>
     <None Include="Templates\Class.razt" />
     <None Include="Data\WebZoo.db" />
-    <None Include="Generated\GoData.Map.xml" />
+    <None Include="Generated\GoData.Map.xml">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Templates\CRUDStoredProcSqlServer.razt" />
   </ItemGroup>
   <ItemGroup>

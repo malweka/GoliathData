@@ -99,7 +99,7 @@ namespace Goliath.Data.Tests
             }
 
             var statementWithParams = statements.Where(s => s.Name == "updateTest2").First();
-            Assert.AreEqual<int>(3, statementWithParams.ParametersMap.Count);
+            Assert.AreEqual<int>(3, statementWithParams.DBParametersMap.Count);
         }
 
         [Test, ExpectedException(typeof(MappingSerializationException))]
@@ -119,7 +119,17 @@ namespace Goliath.Data.Tests
             MapConfig config = new MapConfig();
             config.Load(testMapfile);
 
-            Assert.Fail("should have thrown an exception; map is invalid");
+            Assert.Fail("should have thrown an exception: entity/statements/update/dbParameters/param property missing.");
+        }
+
+        [Test, ExpectedException(typeof(MappingSerializationException))]
+        public void Load_statement_not_depending_on_entity_with_no_name_should_throw()
+        {
+            string testMapfile = Path.Combine(SessionHelper.BaseDirectory, "TestFiles", "MapConfigTests", "Test_statement_invalid_missing_name.xml");
+            MapConfig config = new MapConfig();
+            config.Load(testMapfile);
+
+            Assert.Fail("should have thrown an exception: Statements/query does not have a name.");
         }
     }
 }

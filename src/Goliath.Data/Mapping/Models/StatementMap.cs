@@ -16,6 +16,7 @@ namespace Goliath.Data.Mapping
     public class StatementMap : IMapModel
     {
         Dictionary<string, string> parameters = new Dictionary<string, string>();
+        Dictionary<string, string> inputParams = new Dictionary<string, string>();
 
         /// <summary>
         /// Gets a value indicating whether this instance is ready.
@@ -29,12 +30,20 @@ namespace Goliath.Data.Mapping
         /// Gets the parameters.
         /// </summary>
         /// <value>The parameters.</value>
-        public Dictionary<string, string> ParametersMap
+        public Dictionary<string, string> DBParametersMap
         {
             get
             {
                 return parameters;
             }
+        }
+
+        /// <summary>
+        /// Gets the input parameters map.
+        /// </summary>
+        public Dictionary<string, string> InputParametersMap
+        {
+            get { return inputParams; }
         }
 
         /// <summary>
@@ -130,6 +139,8 @@ namespace Goliath.Data.Mapping
 
 
     }
+
+
 
     /// <summary>
     /// Dynamic Sql Procedure
