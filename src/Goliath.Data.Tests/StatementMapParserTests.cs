@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
-using MbUnit.Framework;
+using NUnit.Framework;
 using System.Collections.Generic;
 
 namespace Goliath.Data.Tests
@@ -28,8 +28,8 @@ namespace Goliath.Data.Tests
             StatementMapParser parser = new StatementMapParser();
             var statement = parser.Parse(new SqliteSqlMapper(), zooEntMap, template);
 
-            Assert.AreEqual<string>(compiled, statement.Body);
-            Assert.AreEqual<int>(3, statement.ParamPropertyMap.Count);
+            Assert.AreEqual(compiled, statement.Body);
+            Assert.AreEqual(3, statement.ParamPropertyMap.Count);
         }
 
         [Test, ExpectedException(typeof(GoliathDataException))]
