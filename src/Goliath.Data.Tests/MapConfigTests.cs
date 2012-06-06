@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using Gallio.Framework;
-using MbUnit.Framework;
-using MbUnit.Framework.ContractVerifiers;
+using NUnit.Framework;
 using System.IO;
 using System.Linq;
 
@@ -42,7 +40,7 @@ namespace Goliath.Data.Tests
             config.Load(testMapfile);
 
             var zooInserts = config.UnprocessedStatements.Where(c => c.Name == "WebZoo.Data.Zoo_Insert").ToList();
-            Assert.AreEqual<int>(1, zooInserts.Count);
+            Assert.AreEqual(1, zooInserts.Count);
         }
 
         [Test]
@@ -53,10 +51,10 @@ namespace Goliath.Data.Tests
             config.Load(testMapfile);
 
             var statement = config.UnprocessedStatements.Where(c => c.Name == "updateTest").First();
-            Assert.AreEqual<string>("WebZoo.Data.Zoo", statement.InputParameterType);
+            Assert.AreEqual("WebZoo.Data.Zoo", statement.InputParameterType);
 
             statement = config.UnprocessedStatements.Where(c => c.Name == "testInsert").First();
-            Assert.AreEqual<string>("WebZoo.Data.Zoo", statement.InputParameterType);
+            Assert.AreEqual("WebZoo.Data.Zoo", statement.InputParameterType);
         }
 
         [Test]
@@ -67,10 +65,10 @@ namespace Goliath.Data.Tests
             config.Load(testMapfile);
 
             var statement = config.UnprocessedStatements.Where(c => c.Name == "updateTest").First();
-            Assert.AreEqual<string>(typeof(int).ToString(), statement.ResultMap);
+            Assert.AreEqual(typeof(int).ToString(), statement.ResultMap);
 
             statement = config.UnprocessedStatements.Where(c => c.Name == "testInsert").First();
-            Assert.AreEqual<string>(typeof(int).ToString(), statement.ResultMap);
+            Assert.AreEqual(typeof(int).ToString(), statement.ResultMap);
         }
 
         [Test]
@@ -81,7 +79,7 @@ namespace Goliath.Data.Tests
             config.Load(testMapfile);
 
             var statement = config.UnprocessedStatements.Where(c => c.Name == "fakequery").First();
-            Assert.AreEqual<string>("WebZoo.Data.Zoo", statement.ResultMap);
+            Assert.AreEqual("WebZoo.Data.Zoo", statement.ResultMap);
         }
 
         [Test]
@@ -92,14 +90,14 @@ namespace Goliath.Data.Tests
             config.Load(testMapfile);
 
             var statements = config.UnprocessedStatements.ToList();
-            Assert.AreEqual<int>(6, statements.Count);
+            Assert.AreEqual(6, statements.Count);
             foreach (var st in statements)
             {
                 Assert.AreEqual("WebZoo.Data.Zoo", st.DependsOnEntity);
             }
 
             var statementWithParams = statements.Where(s => s.Name == "updateTest2").First();
-            Assert.AreEqual<int>(3, statementWithParams.DBParametersMap.Count);
+            Assert.AreEqual(3, statementWithParams.DBParametersMap.Count);
         }
 
         [Test, ExpectedException(typeof(MappingSerializationException))]

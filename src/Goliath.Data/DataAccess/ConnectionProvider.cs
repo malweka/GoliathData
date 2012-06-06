@@ -43,6 +43,7 @@ namespace Goliath.Data.DataAccess
                         dbConnection.Close();
                     }
 
+                    //NOTE: should we dispose of the connection?
                     dbConnection.Dispose();
                 }
                 catch (Exception ex)

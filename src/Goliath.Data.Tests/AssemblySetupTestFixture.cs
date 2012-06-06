@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using Gallio.Framework;
-using MbUnit.Framework;
-using MbUnit.Framework.ContractVerifiers;
+using NUnit.Framework;
 using System.IO;
 using Goliath.Data.Providers;
 using Goliath.Data.Providers.Sqlite;
@@ -15,12 +13,12 @@ using Goliath.Data;
 
 namespace Goliath.Data.Tests
 {
-    [AssemblyFixture]
+    [SetUpFixture]
     public class AssemblySetupTestFixture
     {
         const string MapFileName = "GoData.Map.xml";
 
-        [FixtureSetUp]
+        [SetUp]
         public void SetUp()
         {
             string pdir = AppDomain.CurrentDomain.BaseDirectory.Substring(0, AppDomain.CurrentDomain.BaseDirectory.IndexOf("src"));

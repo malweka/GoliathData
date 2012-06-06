@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using Gallio.Framework;
-using MbUnit.Framework;
-using MbUnit.Framework.ContractVerifiers;
+using NUnit.Framework;
 using Goliath.Data.DataAccess;
 using System.Data;
 using System.Data.Common;
@@ -11,7 +9,7 @@ using Goliath.Data.Providers;
 
 namespace Goliath.Data.Tests
 {
-    [TestFixture, TestsOn(typeof(UserProvidedConnectionProvider))]
+    [TestFixture]
     public class UserProvidedConnectionProviderTests
     {
         [Test]

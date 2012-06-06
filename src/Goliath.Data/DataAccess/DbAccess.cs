@@ -96,6 +96,7 @@ namespace Goliath.Data
         /// <returns></returns>
         public int ExecuteNonQuery(DbConnection conn, string sql, params QueryParam[] parameters)
         {
+            logger.Log(LogLevel.Debug, sql);
             return ExecuteNonQuery(conn, null, sql, parameters);
         }
 
@@ -126,6 +127,7 @@ namespace Goliath.Data
                 if (transaction != null)
                     transaction.Enlist(cmd);
 
+                logger.Log(LogLevel.Debug, sql);
                 return cmd.ExecuteNonQuery();
             }
         }
@@ -170,6 +172,7 @@ namespace Goliath.Data
                 if (transaction != null)
                     transaction.Enlist(cmd);
 
+                logger.Log(LogLevel.Debug, sql);
                 return cmd.ExecuteScalar();
             }
         }
@@ -183,6 +186,7 @@ namespace Goliath.Data
         /// <returns></returns>
         public DbDataReader ExecuteReader(DbConnection conn, string sql, params QueryParam[] parameters)
         {
+            logger.Log(LogLevel.Debug, sql);
             return ExecuteReader(conn, null, sql, parameters);
         }
 
@@ -214,6 +218,7 @@ namespace Goliath.Data
                 if (transaction != null)
                     transaction.Enlist(cmd);
 
+                logger.Log(LogLevel.Debug, sql);
                 return cmd.ExecuteReader();
             }
         }

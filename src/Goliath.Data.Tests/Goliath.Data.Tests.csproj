@@ -1,66 +1,45 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.21022</ProductVersion>
+    <ProductVersion>10.0.0</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{AFAE8D30-2FA1-43A4-87C7-DA295524022F}</ProjectGuid>
-    <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <ProjectGuid>{19367FA3-091D-4638-BFD7-0EA9A28524BB}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Goliath.Data.Tests</RootNamespace>
     <AssemblyName>Goliath.Data.Tests</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <SccProjectName>&lt;Project Location In Database&gt;</SccProjectName>
-    <SccLocalPath>&lt;Local Binding Root of Project&gt;</SccLocalPath>
-    <SccAuxPath>&lt;Source Control Database&gt;</SccAuxPath>
-    <SccProvider>Mercurial Source Control Package</SccProvider>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <OutputPath>bin\Debug</OutputPath>
+    <DefineConstants>DEBUG;</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <PlatformTarget>x86</PlatformTarget>
+    <ConsolePause>false</ConsolePause>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
+    <DebugType>none</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Release</OutputPath>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Gallio" />
-    <Reference Include="MbUnit" />
     <Reference Include="System" />
+    <Reference Include="nunit.framework">
+      <HintPath>..\..\Tools\nunit\nunit.framework.dll</HintPath>
+    </Reference>
     <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
-    <Reference Include="Gallio35" />
-    <Reference Include="MbUnit35" />
-    <Reference Include="System.Core">
-      <RequiredTargetFramework>4.0</RequiredTargetFramework>
-    </Reference>
-    <Reference Include="System.Xml.Linq">
-      <RequiredTargetFramework>4.0</RequiredTargetFramework>
-    </Reference>
-    <Reference Include="System.Data.DataSetExtensions">
-      <RequiredTargetFramework>4.0</RequiredTargetFramework>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\AssemblyInfo.Shared.cs">
-      <Link>Properties\AssemblyInfo.Shared.cs</Link>
-    </Compile>
     <Compile Include="AdoTransactionTests.cs" />
     <Compile Include="AssemblySetupTestFixture.cs" />
     <Compile Include="BaseEntity.cs" />
+    <Compile Include="ConnectionProviderTests.cs" />
     <Compile Include="DatabaseInit.cs" />
     <Compile Include="Entities\AutoIncrement\Animal.cs" />
     <Compile Include="Entities\AutoIncrement\Employee.cs" />
@@ -68,10 +47,30 @@
     <Compile Include="Entities\AutoIncrement\Zoo.cs" />
     <Compile Include="MapConfigTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ConnectionProviderTests.cs" />
     <Compile Include="SqlProcedureCollectionTests.cs" />
     <Compile Include="StatementMapParserTests.cs" />
     <Compile Include="UserProvidedConnectionProviderTests.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Entities\AutoIncrement\GoData.Map.xml" />
+    <Content Include="Scripts\Sqlite\AutoIncrement\00_zoos.sql" />
+    <Content Include="Scripts\Sqlite\AutoIncrement\01_animals.sql" />
+    <Content Include="Scripts\Sqlite\AutoIncrement\02_employees.sql" />
+    <Content Include="Scripts\Sqlite\AutoIncrement\03_animals_handlers.sql" />
+    <Content Include="Scripts\Sqlite\AutoIncrement\04_monkeys.sql" />
+    <Content Include="Scripts\Sqlite\Guid\00_zoos.sql" />
+    <Content Include="Scripts\Sqlite\Guid\01_animals.sql" />
+    <Content Include="Scripts\Sqlite\Guid\02_employees.sql" />
+    <Content Include="Scripts\Sqlite\Guid\03_animals_handlers.sql" />
+    <Content Include="Scripts\Sqlite\Guid\04_monkeys.sql" />
+    <Content Include="TestFiles\MapConfigTests\Test001.data.xml" />
+    <Content Include="TestFiles\MapConfigTests\Test002.data.xml" />
+    <Content Include="TestFiles\MapConfigTests\TestFullMap.xml" />
+    <Content Include="TestFiles\MapConfigTests\Test_statement_invalid_missing_name.xml" />
+    <Content Include="TestFiles\MapConfigTests\Test_statement_invalid_param_missing_prop.xml" />
+    <Content Include="TestFiles\MapConfigTests\Test_statement_invalid_statement_operationType.xml" />
+    <Content Include="TestFiles\MapConfigTests\Test_statement_valid.xml" />
+    <Content Include="TestFiles\MapConfigTests\Test_valid_statements.xml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Goliath.Data.Providers.Sqlite\Goliath.Data.Providers.Sqlite.csproj">
@@ -83,36 +82,5 @@
       <Name>Goliath.Data</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
-  <ItemGroup>
-    <Content Include="TestFiles\MapConfigTests\Test_statement_invalid_missing_name.xml" />
-    <Content Include="TestFiles\MapConfigTests\Test_statement_valid.xml" />
-    <Content Include="TestFiles\MapConfigTests\Test_statement_invalid_statement_operationType.xml" />
-    <Content Include="TestFiles\MapConfigTests\Test_statement_invalid_param_missing_prop.xml" />
-    <Content Include="TestFiles\MapConfigTests\TestFullMap.xml">
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="TestFiles\MapConfigTests\Test002.data.xml" />
-    <Content Include="TestFiles\MapConfigTests\Test001.data.xml" />
-    <Content Include="TestFiles\MapConfigTests\Test_valid_statements.xml" />
-    <None Include="Entities\AutoIncrement\GoData.Map.xml" />
-    <Content Include="Scripts\Sqlite\AutoIncrement\00_zoos.sql" />
-    <Content Include="Scripts\Sqlite\AutoIncrement\01_animals.sql" />
-    <Content Include="Scripts\Sqlite\AutoIncrement\02_employees.sql" />
-    <Content Include="Scripts\Sqlite\AutoIncrement\03_animals_handlers.sql" />
-    <Content Include="Scripts\Sqlite\AutoIncrement\04_monkeys.sql" />
-    <Content Include="Scripts\Sqlite\Guid\00_zoos.sql" />
-    <Content Include="Scripts\Sqlite\Guid\01_animals.sql" />
-    <Content Include="Scripts\Sqlite\Guid\02_employees.sql" />
-    <Content Include="Scripts\Sqlite\Guid\03_animals_handlers.sql" />
-    <Content Include="Scripts\Sqlite\Guid\04_monkeys.sql" />
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

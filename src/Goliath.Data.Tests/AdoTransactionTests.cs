@@ -1,21 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using Gallio.Framework;
-using MbUnit.Framework;
-using MbUnit.Framework.ContractVerifiers;
+using NUnit.Framework;
 
 using Goliath.Data.DataAccess;
 
 namespace Goliath.Data.Tests
 {
-    [TestFixture, TestsOn(typeof(AdoTransaction))]
+    [TestFixture]
     public class AdoTransactionTests
     {
         ISession session;
 
-        [FixtureSetUp]
-        void Initialize()
+        [TestFixtureSetUp]
+        public void Initialize()
         {
             session = SessionHelper.Factory.OpenSession();
         }
@@ -30,7 +28,7 @@ namespace Goliath.Data.Tests
            
         }
 
-        [Test, ExpectedArgumentNullException]
+        [Test, ExpectedException(typeof(System.ArgumentNullException))]
         public void Constructor_null_session_throws()
         {
             AdoTransaction transaction = new AdoTransaction(null);
