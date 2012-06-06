@@ -14,7 +14,7 @@ namespace Goliath.Data.Sql
         /// <value>
         /// The name of the table.
         /// </value>
-        public string TableName { get; private set; }
+        public EntityMap Table { get; private set; }
 
         /// <summary>
         /// Gets the on table.
@@ -43,11 +43,14 @@ namespace Goliath.Data.Sql
         ///// </summary>
         ///// <param name="joinType">Type of the join.</param>
         ///// <param name="tableName">Name of the table.</param>
-        public SqlJoin(JoinType joinType)
+        public SqlJoin(EntityMap table, JoinType joinType)
         {
             JoinType = joinType;
-            //if (!string.IsNullOrWhiteSpace(tableName))
-            //    TableName = tableName;
+
+            if(table == null)
+                throw new ArgumentNullException("table");
+
+            Table = table;
         }
 
         /// <summary>
@@ -81,6 +84,35 @@ namespace Goliath.Data.Sql
         {
             RightColumn = column;
             return this;
+        }
+
+        public override string ToString()
+        {
+            var str = string.Format("\n{0} {1} ON {2}.{3} = {4}.{5}", 
+                                    JoinTypeToString(JoinType),
+                                    ParameterNameBuilderHelper.CreateTableNameWithAlias(OnEntityMap.TableAlias, OnEntityMap.TableName),
+                                    Table.TableAlias, 
+                                    LeftColumn.ColumnName,
+                                    OnEntityMap.TableAlias,
+                                    RightColumn);
+            return str;
+        }
+
+        internal static string JoinTypeToString(JoinType joinType)
+        {
+            switch (joinType)
+            {
+                case JoinType.Full:
+                    return "FULL JOIN";
+                case JoinType.Inner:
+                    return "INNER JOIN";
+                case JoinType.Left:
+                    return "LEFT JOIN";
+                case JoinType.Right:
+                    return "RIGHT JOIN";
+                default:
+                    return "JOIN";
+            }
         }
     }
 

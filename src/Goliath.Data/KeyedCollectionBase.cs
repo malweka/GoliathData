@@ -11,6 +11,9 @@ namespace Goliath.Data
     [CollectionDataContract]
     public abstract class KeyedCollectionBase<S, T> : KeyedCollection<S, T>
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="KeyedCollectionBase&lt;S, T&gt;"/> class.
+        /// </summary>
         protected KeyedCollectionBase()
         {
         }
@@ -33,7 +36,7 @@ namespace Goliath.Data
         /// <param name="key">The key.</param>
         /// <param name="val">The val.</param>
         /// <returns></returns>
-        public bool TryGetValue(S key, out T val)
+        public virtual bool TryGetValue(S key, out T val)
         {
             bool isFound = false;
             val = default(T);

@@ -1,13 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Data;
 using System.Data.Common;
 using System.Data.SqlClient;
 
 namespace Goliath.Data.Providers.SqlServer
 {
+    [Serializable]
     public class MssqlDbConnector : DbConnector
     {
         /// <summary>
@@ -15,7 +12,7 @@ namespace Goliath.Data.Providers.SqlServer
         /// </summary>
         /// <param name="connectionString">The connection string.</param>
         public MssqlDbConnector(string connectionString)
-            : base(connectionString, Constants.ProviderName)
+            : base(connectionString, RdbmsBackend.SupportedSystemNames.Mssql2008R2)
         {
         }
 

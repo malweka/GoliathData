@@ -1,16 +1,16 @@
 ﻿<Properties>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Goliath.Data/Database.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Goliath.Data/DataAccess/IQuery.cs">
     <Files>
-      <File FileName="Goliath.Data.Console/Program.cs" Line="200" Column="1" />
-      <File FileName="Goliath.Data/Config/ConfigManager.cs" Line="58" Column="1" />
-      <File FileName="Goliath.Data/Database.cs" Line="37" Column="4" />
+      <File FileName="Goliath.Data/DataAccess/IQuery.cs" Line="80" Column="2" />
+      <File FileName="Goliath.Data/DataAccess/QueryImpl.cs" Line="19" Column="3" />
+      <File FileName="Goliath.Data.Console/Program.cs" Line="276" Column="50" />
+      <File FileName="Goliath.Data/Sql/SqlJoin.cs" Line="1" Column="1" />
+      <File FileName="Goliath.Data/DataAccess/ISession.cs" Line="11" Column="28" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
-    <BreakpointStore>
-      <Breakpoint file="/Users/hamsman/development/goliath-data/src/Goliath.Data.Console/Program.cs" line="200" />
-    </BreakpointStore>
+    <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
 </Properties>

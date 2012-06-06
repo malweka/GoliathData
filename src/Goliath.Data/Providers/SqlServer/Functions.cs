@@ -1,15 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Goliath.Data.Sql;
 
 namespace Goliath.Data.Providers.SqlServer
 {
+    using Sql;
+
+    [Serializable]
     class NewGuid : SqlFunction
     {
         public NewGuid()
-            : base(Functions.NewGuid, "newid")
+            : base(FunctionNames.NewGuid, "newid")
         {
         }
 
@@ -19,10 +18,11 @@ namespace Goliath.Data.Providers.SqlServer
         }
     }
 
-    class GetDate:SqlFunction
+    [Serializable]
+    class GetDate : SqlFunction
     {
         public GetDate()
-            : base(Functions.GetDate, "getdate")
+            : base(FunctionNames.GetDate, "getdate")
         {
         }
 
@@ -32,41 +32,47 @@ namespace Goliath.Data.Providers.SqlServer
         }
     }
 
+    [Serializable]
     class GetCurrentUser : SqlFunction
     {
         public GetCurrentUser()
-            : base(Functions.GetUserName, "suser_sname")
+            : base(FunctionNames.GetUserName, "suser_sname")
         {
         }
     }
 
+    [Serializable]
     class GetHostName : SqlFunction
     {
         public GetHostName()
-            : base(Functions.GetHostName, "host_name")
+            : base(FunctionNames.GetHostName, "host_name")
         {
         }
     }
 
+    [Serializable]
     class GetAppName : SqlFunction
     {
         public GetAppName()
-            : base(Functions.GetAppName, "app_name")
+            : base(FunctionNames.GetAppName, "app_name")
         {
         }
     }
 
+    [Serializable]
     class GetDatabaseName : SqlFunction
     {
         public GetDatabaseName()
-            : base(Functions.GetDatabaseName, "db_name")
+            : base(FunctionNames.GetDatabaseName, "db_name")
         {
         }
     }
+
+    [Serializable]
     class GetUtcDate : SqlFunction
     {
         public GetUtcDate()
-            : base(Functions.GetUtcDate, "getutcdate")
+            : base(FunctionNames.GetUtcDate, "getutcdate")
         {
 
         }

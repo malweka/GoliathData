@@ -1,15 +1,22 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Xml;
+
 namespace Goliath.Data.Mapping
 {
+    using Diagnostics;
+
     /// <summary>
     /// Mapping Extensions methods
     /// </summary>
     public static class MappingExtensions
     {
+        static ILogger logger;
+        static MappingExtensions()
+        {
+            logger = Logger.GetLogger(typeof(MappingExtensions));
+        }
+
+        //static bool ComplexTypeContainsProperty(string propertyName, 
         /// <summary>
         /// Determines whether this instance can print the specified property.
         /// </summary>
@@ -42,12 +49,26 @@ namespace Goliath.Data.Mapping
                 else if (baseModel is EntityMap)
                 {
                     var ent = baseModel as EntityMap;
+
+                    if (ent.IsSubClass)
+                    {
+                        var supEnt = ent.Parent.GetEntityMap(ent.Extends);
+                        return CanPrint(property, supEnt);
+                    }
+                    else if ((ent.BaseModel != null) && (ent.BaseModel is ComplexType))
+                    {
+                        var supComplex = ent.BaseModel as ComplexType;
+                        if (supComplex.Properties.Contains(property.Name))
+                            return false;
+                    }
+
                     if (ent.Properties.Contains(property.Name))
                         return false;
                 }
             }
             catch (Exception ex)
             {
+                logger.Log(LogLevel.Debug, string.Format("CanPrint:{0}.{1}\n\n{2}", entity.Name, property.PropertyName, ex.ToString()));
             }
             return true;
         }
@@ -66,7 +87,7 @@ namespace Goliath.Data.Mapping
 
                 return true;
             }
-               return false;
+            return false;
         }
 
         internal static bool HasReachedEndOfElement(this XmlReader reader, string elementName)
@@ -89,7 +110,7 @@ namespace Goliath.Data.Mapping
         {
             if (val.Length > limit)
             {
-                string result = string.Format("{0}{1}", val.Substring(0, (limit - 9)), Guid.NewGuid().ToString().Replace("-",string.Empty).Substring(0, 8));
+                string result = string.Format("{0}{1}", val.Substring(0, (limit - 9)), Guid.NewGuid().ToString().Replace("-", string.Empty).Substring(0, 8));
                 return result;
             }
             else

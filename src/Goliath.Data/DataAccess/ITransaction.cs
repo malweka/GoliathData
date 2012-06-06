@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace Goliath.Data
 {
@@ -25,11 +22,11 @@ namespace Goliath.Data
         /// <value><c>true</c> if [was rolled back]; otherwise, <c>false</c>.</value>
         bool WasRolledBack { get; }
         /// <summary>
-        /// Begins this instance.
+        /// begin transaction with default isolation level
         /// </summary>
         void Begin();
         /// <summary>
-        /// Begins the specified isolated level.
+        /// Begins the transaction.
         /// </summary>
         /// <param name="isolatedLevel">The isolated level.</param>
         void Begin(System.Data.IsolationLevel isolatedLevel);
@@ -41,5 +38,10 @@ namespace Goliath.Data
         /// Rollbacks this instance.
         /// </summary>
         void Rollback();
+        /// <summary>
+        /// Enlists the specified command.
+        /// </summary>
+        /// <param name="command">The command.</param>
+        void Enlist(System.Data.IDbCommand command);
     }
 }

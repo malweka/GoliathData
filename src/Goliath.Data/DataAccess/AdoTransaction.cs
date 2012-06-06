@@ -1,12 +1,12 @@
-﻿
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Data;
+using System.Data.Common;
+
 namespace Goliath.Data.DataAccess
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
-    using System.Data;
-    using System.Data.Common;
     using Diagnostics;
 
     [Serializable]
@@ -26,6 +26,7 @@ namespace Goliath.Data.DataAccess
         {
             if (session == null)
                 throw new ArgumentNullException("session");
+
             this.session = session;
         }
 
@@ -37,23 +38,30 @@ namespace Goliath.Data.DataAccess
 
         public bool WasRolledBack { get; private set; }
 
+        /// <summary>
+        /// begin transaction with isolation level READ COMMiTTED
+        /// </summary>
         public void Begin()
         {
-            Begin(IsolationLevel.Unspecified);
+            Begin(IsolationLevel.ReadCommitted);
         }
 
+        /// <summary>
+        /// Begins the specified isolated level.
+        /// </summary>
+        /// <param name="isolatedLevel">The isolated level.</param>
         public void Begin(System.Data.IsolationLevel isolatedLevel)
         {
             try
             {
                 if (isolatedLevel == IsolationLevel.Unspecified)
-                    transaction = session.Connection.BeginTransaction();
+                    transaction = session.ConnectionManager.CurrentConnection.BeginTransaction();
                 else
-                    transaction = session.Connection.BeginTransaction(isolatedLevel);
+                    transaction = session.ConnectionManager.CurrentConnection.BeginTransaction(isolatedLevel);
             }
             catch (Exception ex)
             {
-                logger.Log(session.Id, "could not begin session", ex);
+                logger.LogException(session.Id, "could not begin session", ex);
                 throw new DataAccessException("could not begin session", ex);
             }
 
@@ -75,7 +83,7 @@ namespace Goliath.Data.DataAccess
             }
             catch (Exception ex)
             {
-                logger.Log(session.Id, "Commit failed", ex);
+                logger.LogException(session.Id, "Commit failed", ex);
                 throw new DataAccessException("Commit failed", ex);
             }
 
@@ -96,9 +104,19 @@ namespace Goliath.Data.DataAccess
             }
             catch (Exception ex)
             {
-                logger.Log(session.Id, "Rollback failed", ex);
+                logger.LogException(session.Id, "Rollback failed", ex);
                 throw new DataAccessException("Rollback failed", ex);
             }
+        }
+
+        public void Enlist(IDbCommand command)
+        {
+            if (!IsStarted)
+            {
+                throw new DataAccessException("Transaction not started");
+            }
+
+            command.Transaction = transaction;
         }
 
         #endregion
@@ -107,7 +125,10 @@ namespace Goliath.Data.DataAccess
 
         public void Dispose()
         {
-
+            if (transaction != null)
+            {
+                transaction.Dispose();
+            }
         }
 
         #endregion

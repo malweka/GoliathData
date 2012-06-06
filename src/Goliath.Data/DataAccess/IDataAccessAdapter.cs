@@ -11,7 +11,7 @@ namespace Goliath.Data
     /// 
     /// </summary>
     /// <typeparam name="TEntity">The type of the entity.</typeparam>
-    public interface IDataAccessAdapter<TEntity>
+    public interface IDataAccessAdapter<TEntity> : IDataAccessAdapter, IDisposable
     {
 
         #region Updates
@@ -23,13 +23,14 @@ namespace Goliath.Data
         /// <returns></returns>
         int Update(TEntity entity);
 
-        /// <summary>
-        /// Updates the specified entity.
-        /// </summary>
-        /// <param name="entity">The entity.</param>
-        /// <param name="filters">The filters.</param>
-        /// <returns></returns>
-        int Update(TEntity entity, QueryParam[] filters);
+        ///// <summary>
+        ///// Updates the specified entity.
+        ///// </summary>
+        ///// <param name="entity">The entity.</param>
+        ///// <param name="filters">The filters.</param>
+        ///// <returns></returns>
+        //int Update(TEntity entity, QueryParam[] filters);
+
         /// <summary>
         /// Updates the batch.
         /// </summary>
@@ -52,38 +53,45 @@ namespace Goliath.Data
         /// Inserts the specified entity.
         /// </summary>
         /// <param name="entity">The entity.</param>
+        /// <param name="recursive">if set to <c>true</c> [recursive].</param>
         /// <returns></returns>
-        int Insert(TEntity entity);
+        int Insert(TEntity entity, bool recursive = false);
 
         #endregion
 
         #region Queries
 
-        IList<TEntity> FindAll(string sqlQuery);
+        /// <summary>
+        /// Finds all.
+        /// </summary>
+        /// <param name="sqlQuery">The SQL query.</param>
+        /// <param name="parameters">The parameters.</param>
+        /// <returns></returns>
+        IList<TEntity> FindAll(string sqlQuery, params QueryParam[] parameters);
 
         /// <summary>
         /// Finds all.
         /// </summary>
         /// <param name="filters">The filters.</param>
         /// <returns></returns>
-        IList<TEntity> FindAll(params QueryParam[] filters);
+        IList<TEntity> FindAll(params PropertyQueryParam[] filters);
 
         /// <summary>
         /// Finds all.
         /// </summary>
-        /// <param name="pageIndex">Index of the page.</param>
-        /// <param name="pageSize">Size of the page.</param>
+        /// <param name="limit">The limit.</param>
+        /// <param name="offset">The offset.</param>
         /// <param name="totalRecords">The total records.</param>
         /// <param name="filters">The filters.</param>
         /// <returns></returns>
-        IList<TEntity> FindAll(int pageIndex, int pageSize, out int totalRecords, params QueryParam[] filters);
+        IList<TEntity> FindAll(int limit, int offset, out long totalRecords, params PropertyQueryParam[] filters);
         
         /// <summary>
         /// Finds the one.
         /// </summary>
         /// <param name="filter">The filter.</param>
         /// <returns></returns>
-        TEntity FindOne(QueryParam filter, params QueryParam[] filters);
+        TEntity FindOne(PropertyQueryParam filter, params PropertyQueryParam[] filters);
 
         #endregion
 

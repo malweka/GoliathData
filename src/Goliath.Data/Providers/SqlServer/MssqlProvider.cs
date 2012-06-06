@@ -1,17 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace Goliath.Data.Providers.SqlServer
 {
+    [Serializable]
     public class MssqlProvider : IDbProvider
     {
         #region IDbProvider Members
 
         public string Name
         {
-            get { return Constants.ProviderName; }
+            get { return RdbmsBackend.SupportedSystemNames.Mssql2008R2; }
         }
 
         public IDbConnector GetDatabaseConnector(string connectionString)

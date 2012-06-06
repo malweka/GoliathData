@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Goliath.Data.Utils;
+﻿using System.Collections.Generic;
 
 namespace Goliath.Data.Mapping
 {
+    using Utils;
+
     class RelationshipProcessor : IPostGenerationProcessor
     {
         public virtual void Process(IDictionary<string, EntityMap> entityList)
@@ -37,27 +35,32 @@ namespace Goliath.Data.Mapping
                                 {
                                     IsComplexType = true,
                                     LazyLoad = true,
-                                    ReferenceColumn = aRel.ReferenceColumn ?? string.Empty,
+                                    ColumnName = aRel.ReferenceColumn ?? string.Empty,
+                                    ReferenceColumn = bRel.ReferenceColumn ?? string.Empty,
+                                    ReferenceProperty = bRel.ReferenceProperty ?? string.Empty,
                                     CollectionType = Mapping.CollectionType.List,
                                     MapTableName = ent.TableName,
                                     MapColumn = aRel.ColumnName ?? string.Empty,
+                                    MapReferenceColumn = bRel.ColumnName ?? string.Empty,
                                     PropertyName = string.Format("{0}On{1}_{2}", bEnt.Name.Pluralize(), ent.Name, aRel.ColumnName),
                                     ReferenceEntityName = bEnt.FullName,
-                                    //ComplexTypeName = "IList",
                                     ReferenceTable = bEnt.TableName,
                                     RelationType = RelationshipType.ManyToMany,
+                                    Inverse = true,
                                 });
 
                                 bEnt.Relations.Add(new Relation()
                                 {
                                     IsComplexType = true,
-                                    ReferenceColumn = bRel.ReferenceColumn ?? string.Empty,
+                                    ColumnName = bRel.ReferenceColumn ?? string.Empty,
+                                    ReferenceColumn = aRel.ReferenceColumn ?? string.Empty,
+                                    ReferenceProperty = aRel.ReferenceProperty ?? string.Empty,
                                     MapTableName = ent.TableName,
                                     MapColumn = bRel.ColumnName ?? string.Empty,
+                                    MapReferenceColumn = aRel.ColumnName ?? string.Empty,
                                     CollectionType = Mapping.CollectionType.List,
                                     LazyLoad = true,
                                     PropertyName = string.Format("{0}On{1}_{2}", aEnt.Name.Pluralize(), ent.Name, bRel.ColumnName),
-                                    //ComplexTypeName = "IList",
                                     ReferenceEntityName = aEnt.FullName,
                                     ReferenceTable = aEnt.TableName,
                                     RelationType = RelationshipType.ManyToMany,
@@ -67,6 +70,17 @@ namespace Goliath.Data.Mapping
                     }
                     else
                     {
+                        if ((ent.PrimaryKey != null) && (ent.PrimaryKey.Keys.Count == 1))
+                        {
+                            var key = ent.PrimaryKey.Keys[0];
+                            if ((key != null) && (key.Key is Relation))
+                            {
+                                var pk = (Relation)key.Key;
+                                ent.Extends = pk.ReferenceEntityName;
+                                //ent.IsSubClass = true;
+                            }
+                        }
+
                         for (int i = 0; i < ent.Relations.Count; i++)
                         {
                             var reference = ent.Relations[i];
@@ -78,26 +92,19 @@ namespace Goliath.Data.Mapping
                             EntityMap other;
                             if (entityList.TryGetValue(reference.ReferenceTable, out other))
                             {
-                                if (reference.IsPrimaryKey)
+                                other.Relations.Add(new Relation()
                                 {
-                                    //we have a one to one.
-                                    ent.Extends = other.FullName;
-                                }
-                                else
-                                {
-                                    other.Relations.Add(new Relation()
-                                    {
-                                        IsComplexType = true,
-                                        LazyLoad = true,
-                                        ColumnName = reference.ColumnName,
-                                        PropertyName = string.Format("{0}On{1}", ent.Name.Pluralize(), reference.ColumnName),
-                                        //ComplexTypeName = "IList",
-                                        ReferenceTable = ent.TableName,
-                                        RelationType = RelationshipType.OneToMany,
-                                        ReferenceEntityName = ent.FullName,
-                                        CollectionType = CollectionType.List, 
-                                    });
-                                }
+                                    IsComplexType = true,
+                                    LazyLoad = true,
+                                    ColumnName = reference.ReferenceColumn,
+                                    ReferenceColumn = reference.ColumnName,
+                                    ReferenceProperty = reference.PropertyName,
+                                    PropertyName = string.Format("{0}On{1}", ent.Name.Pluralize(), reference.ColumnName),
+                                    ReferenceTable = ent.TableName,
+                                    RelationType = RelationshipType.OneToMany,
+                                    ReferenceEntityName = ent.FullName,
+                                    CollectionType = CollectionType.List,
+                                });
                             }
                         }
                     }
