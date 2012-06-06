@@ -55,6 +55,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\AssemblyInfo.Shared.cs">
+      <Link>Properties\AssemblyInfo.Shared.cs</Link>
+    </Compile>
     <Compile Include="AdoTransactionTests.cs" />
     <Compile Include="AssemblySetupTestFixture.cs" />
     <Compile Include="BaseEntity.cs" />
@@ -82,6 +85,7 @@
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
+    <Content Include="TestFiles\MapConfigTests\Test_statement_invalid_missing_name.xml" />
     <Content Include="TestFiles\MapConfigTests\Test_statement_valid.xml" />
     <Content Include="TestFiles\MapConfigTests\Test_statement_invalid_statement_operationType.xml" />
     <Content Include="TestFiles\MapConfigTests\Test_statement_invalid_param_missing_prop.xml" />
@@ -90,6 +94,7 @@
     </Content>
     <Content Include="TestFiles\MapConfigTests\Test002.data.xml" />
     <Content Include="TestFiles\MapConfigTests\Test001.data.xml" />
+    <Content Include="TestFiles\MapConfigTests\Test_valid_statements.xml" />
     <None Include="Entities\AutoIncrement\GoData.Map.xml" />
     <Content Include="Scripts\Sqlite\AutoIncrement\00_zoos.sql" />
     <Content Include="Scripts\Sqlite\AutoIncrement\01_animals.sql" />

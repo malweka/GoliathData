@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using MbUnit.Framework;
+using System.Collections.Generic;
 
 namespace Goliath.Data.Tests
 {
@@ -64,6 +65,23 @@ namespace Goliath.Data.Tests
             var statement = parser.Parse(new SqliteSqlMapper(), zooEntMap, template);
 
             Assert.Fail("Should have thrown, column WaterPressure doesn't exist");
+        }
+
+        [Test]
+        public void Parse_with_several_input_parameters()
+        {
+            string template = "select @{col:a.Id}, @{sel:a.Name}, @{sel:a.City}, @{sel:a.AcceptNewAnimals} from  @{a.TableName} where @{prop:a.Id} = @{prop:b.Id}";
+            string verify = "select Id, Name as zoo_Name, City as zoo_City, AcceptNewAnimals as zoo_AcceptNewAnimals from  zoos where $a_Id = $b_Id";
+            string testMapfile = Path.Combine(SessionHelper.BaseDirectory, "TestFiles", "MapConfigTests", "TestFullMap.xml");
+            MapConfig config = new MapConfig();
+            config.Load(testMapfile);
+
+            StatementMapParser parser = new StatementMapParser();
+            Dictionary<string, StatemenInputParam> inputParams = new Dictionary<string, StatemenInputParam> { { "a", new StatemenInputParam() { Name = "a", Type = "WebZoo.Data.Zoo" } }, { "b", new StatemenInputParam() { Name = "b", Type = "WebZoo.Data.Animal" } } };
+
+            var statement = parser.Parse(new SqliteSqlMapper(), config, inputParams, template);
+            Assert.AreEqual(verify, statement.Body);
+
         }
     }
 }

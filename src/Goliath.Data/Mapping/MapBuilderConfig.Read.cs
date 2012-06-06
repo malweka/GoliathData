@@ -156,6 +156,204 @@ namespace Goliath.Data.Mapping
                 }
             }
 
+            void Read_StatementsElement(XmlReader reader, MapConfig config, EntityMap entMap)
+            {
+                bool hasReachedEndGracefully = false;
+                bool dependsOnEntity = false;
+                if (entMap != null)
+                {
+                    dependsOnEntity = true;
+                }
+                while (reader.Read())
+                {
+                    StatementMap statement = null;
+                    string elementName = reader.Name;
+
+                    if (reader.CanReadElement("query") || reader.CanReadElement("insert") || reader.CanReadElement("statement") || reader.CanReadElement("update") || reader.CanReadElement("delete"))
+                    {
+                        statement = Read_StatementElement(reader, config, elementName);
+
+                        if (string.IsNullOrEmpty(statement.Name))
+                        {
+                            if (dependsOnEntity)
+                                statement.Name = string.Format("{0}_{1}", entMap.FullName, statement.OperationType);
+                            else
+                                throw new MappingSerializationException(typeof(StatementMap), "A statement in goliath.data/statements does not have name defined. A name cannot be infered.");
+
+                        }
+
+                        if (dependsOnEntity)
+                        {
+                            statement.DependsOnEntity = entMap.FullName;
+
+                            if (string.IsNullOrEmpty(statement.ResultMap))
+                            {
+                                switch (statement.OperationType)
+                                {
+                                    case MappedStatementType.Update:
+                                    case MappedStatementType.ExecuteNonQuery:
+                                    case MappedStatementType.Insert:
+                                        statement.ResultMap = typeof(Int32).ToString();
+                                        break;
+                                    case MappedStatementType.Query:
+                                        statement.ResultMap = entMap.FullName;
+                                        break;
+                                    case MappedStatementType.Undefined:
+                                        break;
+                                    default:
+                                        break;
+                                }
+                            }
+
+                            if (string.IsNullOrEmpty(statement.InputParameterType) && ((statement.OperationType == MappedStatementType.Insert) || (statement.OperationType == MappedStatementType.Update)))
+                            {
+                                statement.InputParameterType = entMap.FullName;
+                            }
+                        }
+
+                        if (string.IsNullOrWhiteSpace(statement.CanRunOn))
+                        {
+                            //if can run on is empty we expect the platform to be on the main file.
+                            if (string.IsNullOrWhiteSpace(config.Settings.Platform))
+                                throw new MappingSerializationException(typeof(StatementMap), string.Format("Statement {0} missing canRunOn. Please specify which platform to run or specify one config rdbms.", statement.Name));
+
+                            statement.CanRunOn = config.Settings.Platform;
+                        }
+
+                        reader.MoveToElement();
+
+                        if (!reader.IsEmptyElement)
+                        {
+                            while (reader.Read())
+                            {
+                                if (reader.HasReachedEndOfElement(elementName))
+                                    break;
+
+                                if ((reader.NodeType == XmlNodeType.Text) || (reader.NodeType == XmlNodeType.CDATA))
+                                {
+                                    statement.Body = reader.Value;
+                                }
+
+                                else if (reader.CanReadElement("dbParameters"))
+                                {
+                                    while (reader.Read())
+                                    {
+                                        if (reader.HasReachedEndOfElement("dbParameters"))
+                                            break;
+
+                                        if (reader.CanReadElement("param"))
+                                        {
+                                            Read_StatementParams(reader, statement);
+                                        }
+                                    }
+                                }
+                                else if (reader.CanReadElement("inputParameters"))
+                                {
+                                    while (reader.Read())
+                                    {
+                                        if (reader.HasReachedEndOfElement("inputParameters"))
+                                            break;
+
+                                        if (reader.CanReadElement("input"))
+                                        {
+                                            Read_StatementInputParam(reader, statement);
+                                        }
+                                    }
+                                }
+                                else if (reader.CanReadElement("body"))
+                                {
+                                    while (reader.Read())
+                                    {
+                                        if (reader.HasReachedEndOfElement("body"))
+                                            break;
+
+                                        if ((reader.NodeType == XmlNodeType.Text) || (reader.NodeType == XmlNodeType.CDATA))
+                                        {
+                                            statement.Body = reader.Value;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        if (statement.OperationType == MappedStatementType.Undefined)
+                            throw new MappingSerializationException(typeof(StatementMap), string.Format("Statement {0} must have have an operationType", statement.Name));
+
+                        config.UnprocessedStatements.Add(statement);
+
+                    }
+
+                    else if (reader.HasReachedEndOfElement("statements"))
+                    {
+                        hasReachedEndGracefully = true;
+                        break;
+                    }
+                }
+
+                if (!hasReachedEndGracefully)
+                    throw new MappingSerializationException(typeof(StatementMap), "missing a </statements> end tag");
+            }
+
+            void Read_StatementInputParam(XmlReader reader, StatementMap statement)
+            {
+                string name = string.Empty;
+                string type = string.Empty;
+
+                while (reader.MoveToNextAttribute())
+                {
+                    string currentAttribute = reader.Name;
+                    switch (currentAttribute)
+                    {
+                        case "name":
+                            name = reader.Value;
+                            break;
+                        case "type":
+                            type = reader.Value;
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                if (string.IsNullOrWhiteSpace(name) || string.IsNullOrWhiteSpace(type))
+                {
+                    throw new MappingSerializationException(typeof(StatementMap), string.Format("statement {0} - all parameters must have name and type attributes. {1} {2}", statement.Name, name, type));
+                }
+
+                statement.InputParametersMap.Add(name, type);
+                reader.MoveToElement();
+            }
+
+            void Read_StatementParams(XmlReader reader, StatementMap statement)
+            {
+                string name = string.Empty;
+                string property = string.Empty;
+
+                while (reader.MoveToNextAttribute())
+                {
+                    string currentAttribute = reader.Name;
+                    switch (currentAttribute)
+                    {
+                        case "name":
+                            name = reader.Value;
+                            break;
+                        case "property":
+                            property = reader.Value;
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                if (string.IsNullOrWhiteSpace(name) || string.IsNullOrWhiteSpace(property))
+                {
+                    throw new MappingSerializationException(typeof(StatementMap), string.Format("statement {0} - all parameters must have name and value attributes. {1} {2}", statement.Name, name, property));
+                }
+
+                statement.DBParametersMap.Add(name, property);
+                reader.MoveToElement();
+            }
+
             #endregion
 
             #region <property>
@@ -385,7 +583,7 @@ namespace Goliath.Data.Mapping
 
                         else if (reader.CanReadElement("statements"))
                         {
-                            ElementEntityReadStatements(reader, config, entMap);
+                            Read_StatementsElement(reader, config, entMap);
                         }
                     }
 
@@ -509,133 +707,6 @@ namespace Goliath.Data.Mapping
                     throw new MappingSerializationException(typeof(PropertyCollection), "missing a </relations> end tag");
             }
 
-            void ElementEntityReadStatements(XmlReader reader, MapConfig config, EntityMap entMap)
-            {
-                bool hasReachedEndGracefully = false;
-                while (reader.Read())
-                {
-                    StatementMap statement = null;
-                    string elementName = reader.Name;
-                    if (reader.CanReadElement("query") || reader.CanReadElement("insert") || reader.CanReadElement("statement") || reader.CanReadElement("update") || reader.CanReadElement("delete"))
-                    {
-                        statement = Read_StatementElement(reader, config, elementName);
-
-                        if (string.IsNullOrEmpty(statement.Name))
-                        {
-                            statement.Name = string.Format("{0}_{1}", entMap.FullName, statement.OperationType);
-                        }
-
-                        statement.DependsOnEntity = entMap.FullName;
-
-                        if (string.IsNullOrEmpty(statement.ResultMap))
-                        {
-                            switch (statement.OperationType)
-                            {
-                                case MappedStatementType.Update:
-                                case MappedStatementType.ExecuteNonQuery:
-                                case MappedStatementType.Insert:
-                                    statement.ResultMap = typeof(Int32).ToString();
-                                    break;
-                                case MappedStatementType.Query:
-                                    statement.ResultMap = entMap.FullName;
-                                    break;
-                                case MappedStatementType.Undefined:
-                                    break;
-                                default:
-                                    break;
-                            }
-                        }
-
-                        if (string.IsNullOrEmpty(statement.InputParameterType) && ((statement.OperationType == MappedStatementType.Insert) || (statement.OperationType == MappedStatementType.Update)))
-                        {
-                            statement.InputParameterType = entMap.FullName;
-                        }
-
-                        if (string.IsNullOrWhiteSpace(statement.CanRunOn))
-                        {
-                            //if can run on is empty we expect the platform to be on the main file.
-                            if (string.IsNullOrWhiteSpace(config.Settings.Platform))
-                                throw new MappingSerializationException(typeof(StatementMap), string.Format("Statement {0} missing canRunOn. Please specify which platform to run or specify one config rdbms.", statement.Name));
-
-                            statement.CanRunOn = config.Settings.Platform;
-                        }
-
-                        reader.MoveToElement();
-                        if (!reader.IsEmptyElement)
-                        {
-                            while (reader.Read())
-                            {
-                                if (reader.HasReachedEndOfElement(elementName))
-                                    break;
-
-                                if ((reader.NodeType == XmlNodeType.Text) || (reader.NodeType == XmlNodeType.CDATA))
-                                {
-                                    statement.Body = reader.Value;
-                                }
-
-                                else if (reader.CanReadElement("parameters"))
-                                {
-                                    while (reader.Read())
-                                    {
-                                        if (reader.HasReachedEndOfElement("parameters"))
-                                            break;
-
-                                        if (reader.CanReadElement("param"))
-                                        {
-                                            Read_StatementParams(reader, statement);
-                                        }
-                                    }
-                                }
-                            }
-                        }
-
-                        if (statement.OperationType == MappedStatementType.Undefined)
-                            throw new MappingSerializationException(typeof(StatementMap), string.Format("Statement {0} must have have an operationType", statement.Name));
-
-                        config.UnprocessedStatements.Add(statement);
-
-                    }
-
-                    else if (reader.HasReachedEndOfElement("statements"))
-                    {
-                        hasReachedEndGracefully = true;
-                        break;
-                    }
-                }
-
-                if (!hasReachedEndGracefully)
-                    throw new MappingSerializationException(typeof(StatementMap), "missing a </statements> end tag");
-            }
-
-            void Read_StatementParams(XmlReader reader, StatementMap statement)
-            {
-                string name = string.Empty;
-                string property = string.Empty;
-
-                while (reader.MoveToNextAttribute())
-                {
-                    string currentAttribute = reader.Name;
-                    switch (currentAttribute)
-                    {
-                        case "name":
-                            name = reader.Value;
-                            break;
-                        case "property":
-                            property = reader.Value;
-                            break;
-                        default:
-                            break;
-                    }
-                }
-
-                if (string.IsNullOrWhiteSpace(name) || string.IsNullOrWhiteSpace(property))
-                {
-                    throw new MappingSerializationException(typeof(StatementMap), string.Format("statement {0} - all parameters must have name and value attributes. {1} {2}", statement.Name, name, property));
-                }
-
-                statement.ParametersMap.Add(name, property);
-                reader.MoveToElement();
-            }
 
             Relation Read_List(XmlReader reader, MapConfig config, CollectionType listType)
             {
@@ -817,6 +888,10 @@ namespace Goliath.Data.Mapping
                             case "project.properties":
                                 if (reader.CanReadElement("project.properties"))
                                     Read_Project_PropertiesElement(reader, config);
+                                break;
+                            case "statements":
+                                if (reader.CanReadElement("statements"))
+                                    Read_StatementsElement(reader, config, null);
                                 break;
                             default:
                                 break;

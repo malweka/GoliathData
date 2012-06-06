@@ -27,8 +27,8 @@ namespace WebZoo.Data
             //string sqlServerWorkingDirectory = Path.Combine(currentDir, "Generated", "Mssql2008");
             //string sqliteWorkingDirectory = Path.Combine(currentDir, "Generated", "Sqlite");
             //string templatePath = currentDir;
-
-            string tmytest = @"INSERT INTO @{TableName}(@{col:Name},@{col:City},@{col:AcceptNewAnimals}) VALUES(@{prop:Name},@{prop:City},@{prop:AcceptNewAnimals})";
+            string template = "select @{col:a.Id}, @{sel:a.Name}, @{sel:a.City}, @{sel:a.AcceptNewAnimals} from  @{a.TableName} where @{prop:a.Id} = @{prop:b.Id}";
+            string template2 = @"INSERT INTO @{TableName}(@{sel:Name},@{col:City},@{col:AcceptNewAnimals}) VALUES(@{prop:Name},@{prop:City},@{prop:AcceptNewAnimals})";
             
             
             Console.WriteLine("Start run");
@@ -46,7 +46,11 @@ namespace WebZoo.Data
 
  
             StatementMapParser parser = new StatementMapParser();
-            var compiled = parser.Parse(new SqliteSqlMapper(), zooEntMap, tmytest);
+            var compiled = parser.Parse(new SqliteSqlMapper(), zooEntMap, template2);
+
+            Dictionary<string, StatemenInputParam> inputParams = new Dictionary<string, StatemenInputParam> { { "a", new StatemenInputParam() { Name = "a", Type = "WebZoo.Data.Zoo" } }, { "b", new StatemenInputParam() { Name = "b", Type = "WebZoo.Data.Animal" } } };
+            compiled = parser.Parse(new SqliteSqlMapper(), mapConfig, inputParams, template);
+
 
             zoorunner = new WebZooRunner(SupportedRdbms.Sqlite3, new CodeGenerator(), AppDomain.CurrentDomain.BaseDirectory, true);
             mapConfig.Settings.ConnectionString = zoorunner.Settings.ConnectionString;

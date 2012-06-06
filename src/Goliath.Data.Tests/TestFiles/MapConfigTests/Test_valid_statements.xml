@@ -16,20 +16,6 @@
         <list name="AnimalsOnZooId" column="Id" scale="0" type="" lazy="True" relation="OneToMany" referenceProperty="Zoo" refEntity="WebZoo.Data.Animal" />
         <list name="EmployeesOnAssignedToZooId" column="Id" scale="0" type="" lazy="True" relation="OneToMany" referenceProperty="AssignedToZoo" refEntity="WebZoo.Data.Employee" />
       </properties>
-      <statements>
-        <query><![CDATA[select * from test where t.col = 1;]]></query>
-        <statement name="testingo" operationType="ExecuteScalar" dbName="testingo_sp" />
-        <update name="updateTest" dbName="updateTest_SP"></update>
-        <insert name="testInsert">INSERT INTO @{TableName}(@{col:Name},@{col:City},@{col:AcceptNewAnimals}) VALUES(@{prop:Name},@{prop:City},@{prop:AcceptNewAnimals})</insert>
-        <insert>INSERT INTO @{TableName}(@{col:Name},@{col:City},@{col:AcceptNewAnimals}) VALUES(@{prop:Name},@{prop:City},@{prop:AcceptNewAnimals})</insert>
-        <update name="updateTest2" dbName="updateTest_SP2">
-          <dbParameters>
-            <param name="name1" property="prop1"/>
-            <param name="name2" property="prop2"/>
-            <param name="name3" property="prop3"/>
-          </dbParameters>
-        </update>
-      </statements>
     </entity>
     <entity name="Animal" extends="WebZoo.Data.BaseEntityInt" assembly="WebZoo.Data" entityNamespace="WebZoo.Data" table="animals" schema="dbo" alias="anim">
       <primaryKey>
@@ -85,4 +71,13 @@
       </properties>
     </type>
   </complexTypes>
+  <statements>
+    <update name="nonDescript_fakeName" dbName="updateTest_SP">
+      <inputParameters>
+        <input name="jailer" type="fake.type"/>
+        <input name="in3" type="fake.type2"/>
+      </inputParameters>
+      <body>Mr Jailer</body>
+    </update>
+  </statements>
 </goliath.data>

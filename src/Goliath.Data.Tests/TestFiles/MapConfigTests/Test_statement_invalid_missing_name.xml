@@ -14,16 +14,11 @@
         <property name="City" column="City" clrType="System.String" sqlType="nvarchar" length="50" dbType="String" />
         <property name="AcceptNewAnimals" column="AcceptNewAnimals" clrType="System.Boolean" sqlType="bit" default="0" nullable="False" dbType="Boolean" />
       </properties>
-      <statements>
-        <update name="updateTest2" dbName="updateTest_SP2">
-          <dbParameters>
-            <param name="name1" property="prop1"/>
-            <param name="name2" property=""/>
-          </dbParameters>
-        </update>
-      </statements>
     </entity>
   </entities>
+  <statements>
+    <query><![CDATA[select * from test where t.col = 1;]]></query>
+  </statements>
   <complexTypes>
     <type fullname="WebZoo.Data.BaseEntityInt" enum="False">
       <properties>
