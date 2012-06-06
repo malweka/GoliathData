@@ -1,14 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace Goliath.Data.DataAccess
 {
-    class TypeConverter : ITypeConverter
+    using Mapping;
+
+    /// <summary>
+    /// 
+    /// </summary>
+    [Serializable]
+    public class TypeConverterStore : ITypeConverterStore
     {
         Dictionary<Type, Func<Object, Object>> converters = new Dictionary<Type, Func<Object, Object>>();
-        public TypeConverter()
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TypeConverterStore"/> class.
+        /// </summary>
+        public TypeConverterStore()
         {
             Load();
         }
@@ -24,7 +32,7 @@ namespace Goliath.Data.DataAccess
             AddConverter(typeof(int), ReadInt32);
             //Int64
             AddConverter(typeof(Nullable<long>), ReadNullableInt64);
-            AddConverter(typeof(int), ReadInt64);
+            AddConverter(typeof(long), ReadInt64);
             //Datetime
             AddConverter(typeof(Nullable<DateTime>), ReadNullableDateTime);
             AddConverter(typeof(DateTime), ReadDateTime);
@@ -68,22 +76,23 @@ namespace Goliath.Data.DataAccess
         }
 
         /// <summary>
-        /// Gets the converter.
+        /// Gets the converter factory method for the specified type.
         /// </summary>
-        /// <param name="from">From.</param>
+        /// <param name="typeToConverTo">The type to conver to.</param>
         /// <returns></returns>
-        public Func<Object, Object> GetConverter(Type from)
+        /// <exception cref="Goliath.Data.DataAccessException"></exception>
+        public Func<Object, Object> GetConverterFactoryMethod(Type typeToConverTo)
         {
-            if (from == null)
-                throw new ArgumentNullException("from");
+            if (typeToConverTo == null)
+                throw new ArgumentNullException("typeToConverTo");
 
             Func<Object, Object> converter;
-            if (converters.TryGetValue(from, out converter))
+            if (converters.TryGetValue(typeToConverTo, out converter))
             {
                 return converter;
             }
             else
-                throw new DataAccessException("No converter for type {0} was found", from);
+                throw new DataAccessException("No converter for type {0} was found", typeToConverTo);
         }
 
         /// <summary>
@@ -93,6 +102,17 @@ namespace Goliath.Data.DataAccess
         /// <param name="value">The value.</param>
         /// <returns></returns>
         public object ConvertToEnum(Type enumType, object value)
+        {
+            return ConvertValueToEnum(enumType, value);
+        }
+
+        /// <summary>
+        /// Converts the value to enum.
+        /// </summary>
+        /// <param name="enumType">Type of the enum.</param>
+        /// <param name="value">The value.</param>
+        /// <returns></returns>
+        public static object ConvertValueToEnum(Type enumType, object value)
         {
             if (enumType == null)
                 throw new ArgumentNullException("enumType");
@@ -361,5 +381,46 @@ namespace Goliath.Data.DataAccess
         }
 
         #endregion
+    }
+
+    internal static class TypeConversionExtensions
+    {
+        /// <summary>
+        /// Determines whether this instance [can generate key] the specified pk.
+        /// </summary>
+        /// <param name="pk">The pk.</param>
+        /// <param name="pInfo">The p info.</param>
+        /// <param name="entity">The entity.</param>
+        /// <param name="typeConverterStore">The type converter store.</param>
+        /// <returns>
+        /// 	<c>true</c> if this instance [can generate key] the specified pk; otherwise, <c>false</c>.
+        /// </returns>
+        public static bool CanGenerateKey(this PrimaryKeyProperty pk, PropInfo pInfo, object entity, ITypeConverterStore typeConverterStore)
+        {
+            if (pk.KeyGenerator == null)
+                return false;
+
+            //now let's  check the value
+            var idValue = pInfo.Getter.Invoke(entity);
+            
+            if (idValue == null)
+                return true;
+
+            var converter = typeConverterStore.GetConverterFactoryMethod(idValue.GetType());
+
+            try
+            {
+                object unsavedVal = converter.Invoke(pk.UnsavedValue);
+                if (idValue.Equals(unsavedVal))
+                    return true;
+
+                return false;
+            }
+            catch (Exception ex)
+            {
+                throw new MappingException(string.Format("Could not convert '{0}' to {1} for property {2}", pk.UnsavedValue, idValue.GetType().FullName, pk.Key.PropertyName), ex);
+            }
+
+        }
     }
 }

@@ -1,20 +1,21 @@
-﻿namespace Goliath.Data.DataAccess
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Linq.Expressions;
-    using System.Text;
-    using System.Data;
-    using Diagnostics;
-    using Sql;
+﻿using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq.Expressions;
 
+namespace Goliath.Data.DataAccess
+{
     class QueryImpl<T> : IQuery<T>
     {
-        IDataAccessAdaterFactory dbAccessFactory;
+        IDataAccessAdapterFactory dbAccessFactory;
         IDbConnection connection;
 
-        public QueryImpl(IDbConnection connection, IDataAccessAdaterFactory dbAccessFactory)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="QueryImpl&lt;T&gt;"/> class.
+        /// </summary>
+        /// <param name="connection">The connection.</param>
+        /// <param name="dbAccessFactory">The db access factory.</param>
+        public QueryImpl(IDbConnection connection, IDataAccessAdapterFactory dbAccessFactory)
         {
             this.dbAccessFactory = dbAccessFactory;
             this.connection = connection;
@@ -22,6 +23,10 @@
 
         #region IQuery<T> Members
 
+        /// <summary>
+        /// Lists this instance.
+        /// </summary>
+        /// <returns></returns>
         public IList<T> List()
         {
             throw new NotImplementedException();
@@ -32,19 +37,24 @@
             throw new NotImplementedException();
         }
 
-        public IQuery<T> Where(Expression<Func<bool>> expression, Expression<Func<bool>>[] andList)
+        public IQuery<T> Where(Expression<Func<T, bool>> expression)
         {
-            throw new NotImplementedException();
+            return this;
+        }
+
+        public ISearchable<T> Where(string propertyName)
+        {
+            return null;
         }
 
         public IQuery<T> Orderby<TProperty>(Expression<Func<TProperty>> property, params Expression<Func<TProperty>>[] andProps)
         {
-            throw new NotImplementedException();
+            return this;
         }
 
         public IQuery<T> GroupBy<TProperty>(Expression<Func<TProperty>> property, params Expression<Func<TProperty>>[] andProps)
         {
-            throw new NotImplementedException();
+            return this;
         }
 
         #endregion

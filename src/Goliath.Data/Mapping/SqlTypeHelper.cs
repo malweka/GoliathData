@@ -1,13 +1,21 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Data;
 
 namespace Goliath.Data
 {
+    /// <summary>
+    /// 
+    /// </summary>
    public static class SqlTypeHelper
    {
+       /// <summary>
+       /// Gets the type of the SQL.
+       /// </summary>
+       /// <param name="type">The type.</param>
+       /// <param name="length">The length.</param>
+       /// <param name="isBlob">if set to <c>true</c> [is BLOB].</param>
+       /// <param name="isUnicode">if set to <c>true</c> [is unicode].</param>
+       /// <returns></returns>
       public static string GetSqlType(Type type, int length, bool isBlob, bool isUnicode)
       {
          if (type == typeof(bool))
@@ -182,6 +190,11 @@ namespace Goliath.Data
          return clrType;
       }
 
+      /// <summary>
+      /// Gets the type of the SQL.
+      /// </summary>
+      /// <param name="type">The type.</param>
+      /// <returns></returns>
       public static DbType GetSqlType(Type type)
       {
          return GetSqlType(type, false);

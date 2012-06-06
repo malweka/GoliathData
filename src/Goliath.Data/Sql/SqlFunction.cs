@@ -65,11 +65,11 @@ namespace Goliath.Data.Sql
             StringBuilder parameters = new StringBuilder();
             if ((args != null) && (args.Length > 0))
             {
-                int l = args.Length;                
-                for(int i=0;i<l;i++)
+                int l = args.Length;
+                for (int i = 0; i < l; i++)
                 {
                     parameters.Append(args[i].Value.ToString());
-                    if(i != (l-1))
+                    if (i != (l - 1))
                     {
                         parameters.Append(",");
                     }
@@ -83,16 +83,67 @@ namespace Goliath.Data.Sql
     }
 
     /// <summary>
+    /// 
+    /// </summary>
+    public class CountFunction : SqlFunction
+    {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CountFunction"/> class.
+        /// </summary>
+        public CountFunction() : base(FunctionNames.Count, "COUNT") { }
+
+        public override string ToSqlStatement(params QueryParam[] args)
+        {
+            if ((args != null) && (args.Length > 0))
+                return string.Format("{0}({1})", Declaration, args[1].Name);
+            else
+                return string.Format("{0}({1})", Declaration, "1");
+        }
+    }
+
+    /// <summary>
     /// enumeration of sql function names
     /// </summary>
-    public static class Functions
+    public static class FunctionNames
     {
+        /// <summary>
+        /// 
+        /// </summary>
         public const string NewGuid = "NewGuid";
+        /// <summary>
+        /// 
+        /// </summary>
         public const string GetDate = "GetDate";
+        /// <summary>
+        /// 
+        /// </summary>
         public const string GetUtcDate = "GetUtcDate";
+        /// <summary>
+        /// 
+        /// </summary>
         public const string GetUserName = "GetUserName";
+        /// <summary>
+        /// 
+        /// </summary>
         public const string GetDatabaseName = "GetDatabaseName";
+        /// <summary>
+        /// 
+        /// </summary>
         public const string GetHostName = "GetHostName";
+        /// <summary>
+        /// 
+        /// </summary>
         public const string GetAppName = "GetAppName";
+        /// <summary>
+        /// 
+        /// </summary>
+        public const string Count = "Count";
+    }
+
+    public struct PagingInfo
+    {
+        public int Total { get; set; }
+        public int Limit { get; set; }
+        public int Offset { get; set; }
     }
 }

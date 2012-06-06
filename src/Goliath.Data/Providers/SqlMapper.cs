@@ -11,15 +11,22 @@ namespace Goliath.Data.Providers
     /// <summary>
     /// 
     /// </summary>
+    [Serializable]
     public abstract class SqlMapper
     {
 
         Dictionary<string, DbTypeInfo> typeMap = new Dictionary<string, DbTypeInfo>();
         //Dictionary<SqlStatement, string> statements = new Dictionary<SqlStatement, string>(Utils.EnumComparer<SqlStatement>.Instance);
-        Dictionary<string, ISqlFunction> functionMap = new Dictionary<string, ISqlFunction>();
-        Dictionary<string, string> translationTypeMap;// = new Dictionary<string, string>();
+        protected Dictionary<string, ISqlFunction> functionMap = new Dictionary<string, ISqlFunction>();
+        protected Dictionary<string, string> translationTypeMap;// = new Dictionary<string, string>();
         List<string> reservedWords = new List<string>();
-       
+
+        /// <summary>
+        /// Gets the name of the database provider.
+        /// </summary>
+        /// <value>
+        /// The name of the database provider.
+        /// </value>
         public string DatabaseProviderName { get; private set; }
 
         object lockTypeMap = new object();
@@ -29,6 +36,10 @@ namespace Goliath.Data.Providers
 
        // public bool SupportsIdentityColumn { get; set; }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SqlMapper"/> class.
+        /// </summary>
+        /// <param name="dbProviderName">Name of the db provider.</param>
         protected SqlMapper(string dbProviderName)
         {
             SupportIdentityColumns = true;
@@ -54,24 +65,44 @@ namespace Goliath.Data.Providers
 
             DatabaseProviderName = dbProviderName;
         }
-        
 
+
+        /// <summary>
+        /// Called when [register types].
+        /// </summary>
         protected virtual void OnRegisterTypes()
         {            
         }
 
+        /// <summary>
+        /// Called when [register translation types].
+        /// </summary>
         protected virtual void OnRegisterTranslationTypes()
         {            
         }
 
+        /// <summary>
+        /// Called when [register functions].
+        /// </summary>
         protected virtual void OnRegisterFunctions()
-        { }
+        {
+            RegisterFunctions(new CountFunction());
+        }
 
+        /// <summary>
+        /// Creates the name of the parameter.
+        /// </summary>
+        /// <param name="variableName">Name of the variable.</param>
+        /// <returns></returns>
         public virtual string CreateParameterName(string variableName)
         {
             return string.Format("@{0}", variableName);
         }
 
+        /// <summary>
+        /// Registers the reserved words.
+        /// </summary>
+        /// <param name="wordList">The word list.</param>
         public virtual void RegisterReservedWords(IEnumerable<string> wordList)
         {
             foreach (string word in wordList)
@@ -90,6 +121,26 @@ namespace Goliath.Data.Providers
             return SqlTypeHelper.GetClrType(dbType, isNullable);
         }
 
+        void LoadSqlStringType()
+        {
+            if (!canTranslate)
+            {
+                translationTypeMap = new Dictionary<string, string>();
+                canTranslate = true;
+
+                RegisterTranslateType("integer", "integer");
+                RegisterTranslateType("int", "integer");
+                RegisterTranslateType("char", "char");
+                RegisterTranslateType("nvarchar", "nvarchar");
+                RegisterTranslateType("nchar", "nchar");
+                RegisterTranslateType("varchar", "varchar");
+                RegisterTranslateType("text", "text");
+                RegisterTranslateType("numeric", "numeric");
+                RegisterTranslateType("date", "date");
+                OnRegisterTranslationTypes();
+            }
+        }
+
         /// <summary>
         /// Translates the type of the SQL.
         /// </summary>
@@ -100,37 +151,64 @@ namespace Goliath.Data.Providers
             if (fromType == null)
                 throw new ArgumentNullException("fromType");
 
-            if (!canTranslate)
-            {
-                translationTypeMap = new Dictionary<string, string>();
-                canTranslate = true;
-
-                RegisterTranslateType("integer", "integer");
-                RegisterTranslateType("char", "char");
-                RegisterTranslateType("nvarchar", "nvarchar");
-                RegisterTranslateType("nchar", "nchar");
-                RegisterTranslateType("varchar", "varchar");
-                RegisterTranslateType("text", "text");
-                RegisterTranslateType("numeric", "numeric");
-                RegisterTranslateType("date", "date");
-                OnRegisterTranslationTypes(); 
-            }
+            LoadSqlStringType();
+            
 
             return OnTranslateToSqlTypeString(fromType);
         }
 
         /// <summary>
+        /// Prints the SQL type string.
+        /// </summary>
+        /// <param name="fromType">From type.</param>
+        /// <returns></returns>
+        public virtual string PrintSqlTypeString(Property fromType)
+        {
+            if (fromType == null)
+                throw new ArgumentNullException("fromType");
+
+            LoadSqlStringType();
+
+            StringBuilder sqlSb = new StringBuilder();
+            
+            string to = null;
+            string fType = fromType.SqlType.ToLower();
+            if (!string.IsNullOrWhiteSpace(fType))
+            {
+                translationTypeMap.TryGetValue(fType, out to);
+                if ((fromType.Length > 0) && !fType.Equals("text") && !fType.Equals("ntext") && !fType.Equals("image"))
+                {
+                    if (!string.IsNullOrWhiteSpace(to) && !to.ToUpper().Equals("NTEXT"))
+                    {
+                        to = string.Format("{0}({1})", to, fromType.Length);
+                    }
+                }
+            }
+
+            var sType = to ?? fromType.SqlType;
+            sqlSb.AppendFormat(" {0}", sType);
+
+            return sqlSb.ToString();
+
+        }
+
+        /// <summary>
         /// Gets the function.
         /// </summary>
-        /// <param name="declaration">The declaration.</param>
-        /// <returns></returns>
-        public ISqlFunction GetFunction(string declaration)
+        /// <param name="functionName">Name of the function. Check <see cref="Goliath.Data.Sql.FunctionNames"/> class for list of default functions names</param>
+        /// <returns>returns <see cref="Goliath.Data.Sql.ISqlFunction"/> or null if not found</returns>
+        public ISqlFunction GetFunction(string functionName)
         {
             ISqlFunction func;
-            functionMap.TryGetValue(declaration, out func);
+            functionMap.TryGetValue(functionName, out func);
             return func;
         }
 
+        /// <summary>
+        /// Called when [translate to SQL type string].
+        /// </summary>
+        /// <param name="fromType">From type.</param>
+        /// <returns></returns>
         protected virtual string OnTranslateToSqlTypeString(Property fromType)
         {
             string to = null;
@@ -138,6 +216,10 @@ namespace Goliath.Data.Providers
             if (!string.IsNullOrWhiteSpace(fType))
             {
                 translationTypeMap.TryGetValue(fType, out to);
+
+                if (to == null)
+                    to = fType;
+
                 if ((fromType.Length > 0) && !fType.Equals("text") && !fType.Equals("ntext") && !fType.Equals("image"))
                 {
                     if (!string.IsNullOrWhiteSpace(to) && to.ToUpper().Equals("BLOB"))
@@ -153,6 +235,10 @@ namespace Goliath.Data.Providers
 
         #region Sql Types
 
+        /// <summary>
+        /// Registers the functions.
+        /// </summary>
+        /// <param name="sqlFunction">The SQL function.</param>
         protected void RegisterFunctions(ISqlFunction sqlFunction)
         {
             if (sqlFunction == null)
@@ -189,7 +275,7 @@ namespace Goliath.Data.Providers
                     translationTypeMap.Remove(fromType);
                 }
 
-                translationTypeMap.Add(fromType, toType.ToUpper());
+                translationTypeMap.Add(fromType, toType);
             }
         }
 
@@ -256,6 +342,11 @@ namespace Goliath.Data.Providers
         }
 
         //TODO: create rule class for type that translate to something based on on precision and scale
+        /// <summary>
+        /// SQLs the type of the string to db.
+        /// </summary>
+        /// <param name="sqlType">Type of the SQL.</param>
+        /// <returns></returns>
         public virtual DbType SqlStringToDbType(string sqlType)
         {
             DbTypeInfo dbInfo;
@@ -268,20 +359,52 @@ namespace Goliath.Data.Providers
             throw new Exception(string.Format("could not find {0}. This type was not be registered", sqlType));
         }
 
+        /// <summary>
+        /// Primary key 
+        /// </summary>
+        /// <returns></returns>
         public virtual string PrimarykeySql()
         {
             return "primary key";
         }
 
+        /// <summary>
+        /// Foreigns the key reference SQL.
+        /// </summary>
+        /// <param name="reference">The reference.</param>
+        /// <returns></returns>
         public virtual string ForeignKeyReferenceSql(Relation reference)
         {
             return string.Format("references {0} ({1}) ", reference.ReferenceTable, reference.ReferenceColumn);
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether [support identity columns].
+        /// </summary>
+        /// <value>
+        /// 	<c>true</c> if [support identity columns]; otherwise, <c>false</c>.
+        /// </value>
         public bool SupportIdentityColumns { get; set; }
 
+        /// <summary>
+        /// Identities the SQL.
+        /// </summary>
+        /// <param name="increment">The increment.</param>
+        /// <param name="seed">The seed.</param>
+        /// <returns></returns>
         public abstract string IdentitySql(int increment, int seed);
 
+        /// <summary>
+        /// Selects the last insert row id SQL.
+        /// </summary>
+        /// <returns></returns>
+        public abstract string SelectLastInsertRowIdSql();
+
+        /// <summary>
+        /// Gets the column create SQL.
+        /// </summary>
+        /// <param name="column">The column.</param>
+        /// <returns></returns>
         public virtual string GetColumnCreateSql(Property column)
         {
             StringBuilder builder = new StringBuilder(column.ColumnName);
@@ -311,11 +434,21 @@ namespace Goliath.Data.Providers
 
         #endregion
 
+        /// <summary>
+        /// Escapes the specified value.
+        /// </summary>
+        /// <param name="value">The value.</param>
+        /// <returns></returns>
         public virtual string Escape(string value)
         {
             return string.Format("[{0}]", value);
         }
 
+        /// <summary>
+        /// Escapes if reserve word.
+        /// </summary>
+        /// <param name="value">The value.</param>
+        /// <returns></returns>
         public string EscapeIfReserveWord(string value)
         {
             if (reservedWords.Contains(value.ToUpper()))
@@ -324,6 +457,17 @@ namespace Goliath.Data.Providers
             }
             else
                 return value;
+        }
+
+        /// <summary>
+        /// Queries the with paging.
+        /// </summary>
+        /// <param name="queryBody">The query body.</param>
+        /// <param name="pagingInfo">The paging info.</param>
+        /// <returns></returns>
+        public virtual string QueryWithPaging(SqlQueryBody queryBody, PagingInfo pagingInfo)
+        {
+            return string.Format("{0} LIMIT {1} OFFSET {2}", queryBody.ToString(), pagingInfo.Limit, pagingInfo.Offset);
         }
     }
 }

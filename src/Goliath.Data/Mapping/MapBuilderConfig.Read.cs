@@ -1,12 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.IO;
 using System.Xml;
-using System.Xml.Schema;
-using System.Xml.Linq;
-using System.Runtime.Serialization;
+using System.Linq;
 
 namespace Goliath.Data.Mapping
 {
@@ -109,12 +104,273 @@ namespace Goliath.Data.Mapping
                     rel = new Relation(prop);
             }
 
-            Property Read_PropertyElement(XmlReader reader, MapConfig config, string entityName, bool forceReturnRel = false)
+            #region <statement>
+
+            StatementMap Read_StatementElement(XmlReader reader, MapConfig config, string elementName)
             {
-                if (reader.CanReadElement(entityName))
+                if (reader.CanReadElement(elementName))
+                {
+                    StatementMap statement = new StatementMap();
+
+                    while (reader.MoveToNextAttribute())
+                    {
+                        string currentAttribute = reader.Name;
+                        switch (currentAttribute)
+                        {
+                            case "name":
+                                statement.Name = reader.Value;
+                                break;
+                            case "dbName":
+                                statement.DbName = reader.Value;
+                                break;
+                            case "canRunOn":
+                                statement.CanRunOn = reader.Value;
+                                break;
+                            case "resultMap":
+                                statement.ResultMap = reader.Value;
+                                break;
+                            case "resultIsCollection":
+                                statement.ResultIsCollection = ReadBool(reader.Value);
+                                break;
+                            case "inputParamType":
+                                statement.InputParameterType = reader.Value;
+                                break;
+                            case "operationType":
+                                statement.OperationType = ReadEnumType<MappedStatementType>(reader.Value);
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+
+                    if ((statement.OperationType == MappedStatementType.Undefined) && !elementName.ToUpper().Equals("STATEMENT"))
+                    {
+                        statement.OperationType = ReadEnumType<MappedStatementType>(elementName);
+                    }
+
+                    return statement;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+
+            void Read_StatementsElement(XmlReader reader, MapConfig config, EntityMap entMap)
+            {
+                bool hasReachedEndGracefully = false;
+                bool dependsOnEntity = false;
+                if (entMap != null)
+                {
+                    dependsOnEntity = true;
+                }
+                while (reader.Read())
+                {
+                    StatementMap statement = null;
+                    string elementName = reader.Name;
+
+                    if (reader.CanReadElement("query") || reader.CanReadElement("insert") || reader.CanReadElement("statement") || reader.CanReadElement("update") || reader.CanReadElement("delete"))
+                    {
+                        statement = Read_StatementElement(reader, config, elementName);
+
+                        if (string.IsNullOrEmpty(statement.Name))
+                        {
+                            if (dependsOnEntity)
+                                statement.Name = string.Format("{0}_{1}", entMap.FullName, statement.OperationType);
+                            else
+                                throw new MappingSerializationException(typeof(StatementMap), "A statement in goliath.data/statements does not have name defined. A name cannot be infered.");
+
+                        }
+
+                        if (dependsOnEntity)
+                        {
+                            statement.DependsOnEntity = entMap.FullName;
+
+                            if (string.IsNullOrEmpty(statement.ResultMap))
+                            {
+                                switch (statement.OperationType)
+                                {
+                                    case MappedStatementType.Update:
+                                    case MappedStatementType.ExecuteNonQuery:
+                                    case MappedStatementType.Insert:
+                                        statement.ResultMap = typeof(Int32).ToString();
+                                        break;
+                                    case MappedStatementType.Query:
+                                        statement.ResultMap = entMap.FullName;
+                                        break;
+                                    case MappedStatementType.Undefined:
+                                        break;
+                                    default:
+                                        break;
+                                }
+                            }
+
+                            if (string.IsNullOrEmpty(statement.InputParameterType) && ((statement.OperationType == MappedStatementType.Insert) || (statement.OperationType == MappedStatementType.Update)))
+                            {
+                                statement.InputParameterType = entMap.FullName;
+                            }
+                        }
+
+                        if (string.IsNullOrWhiteSpace(statement.CanRunOn))
+                        {
+                            //if can run on is empty we expect the platform to be on the main file.
+                            if (string.IsNullOrWhiteSpace(config.Settings.Platform))
+                                throw new MappingSerializationException(typeof(StatementMap), string.Format("Statement {0} missing canRunOn. Please specify which platform to run or specify one config rdbms.", statement.Name));
+
+                            statement.CanRunOn = config.Settings.Platform;
+                        }
+
+                        reader.MoveToElement();
+
+                        if (!reader.IsEmptyElement)
+                        {
+                            while (reader.Read())
+                            {
+                                if (reader.HasReachedEndOfElement(elementName))
+                                    break;
+
+                                if ((reader.NodeType == XmlNodeType.Text) || (reader.NodeType == XmlNodeType.CDATA))
+                                {
+                                    statement.Body = reader.Value;
+                                }
+
+                                else if (reader.CanReadElement("dbParameters"))
+                                {
+                                    while (reader.Read())
+                                    {
+                                        if (reader.HasReachedEndOfElement("dbParameters"))
+                                            break;
+
+                                        if (reader.CanReadElement("param"))
+                                        {
+                                            Read_StatementParams(reader, statement);
+                                        }
+                                    }
+                                }
+                                else if (reader.CanReadElement("inputParameters"))
+                                {
+                                    while (reader.Read())
+                                    {
+                                        if (reader.HasReachedEndOfElement("inputParameters"))
+                                            break;
+
+                                        if (reader.CanReadElement("input"))
+                                        {
+                                            Read_StatementInputParam(reader, statement);
+                                        }
+                                    }
+                                }
+                                else if (reader.CanReadElement("body"))
+                                {
+                                    while (reader.Read())
+                                    {
+                                        if (reader.HasReachedEndOfElement("body"))
+                                            break;
+
+                                        if ((reader.NodeType == XmlNodeType.Text) || (reader.NodeType == XmlNodeType.CDATA))
+                                        {
+                                            statement.Body = reader.Value;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        if (statement.OperationType == MappedStatementType.Undefined)
+                            throw new MappingSerializationException(typeof(StatementMap), string.Format("Statement {0} must have have an operationType", statement.Name));
+
+                        config.UnprocessedStatements.Add(statement);
+
+                    }
+
+                    else if (reader.HasReachedEndOfElement("statements"))
+                    {
+                        hasReachedEndGracefully = true;
+                        break;
+                    }
+                }
+
+                if (!hasReachedEndGracefully)
+                    throw new MappingSerializationException(typeof(StatementMap), "missing a </statements> end tag");
+            }
+
+            void Read_StatementInputParam(XmlReader reader, StatementMap statement)
+            {
+                string name = string.Empty;
+                string type = string.Empty;
+
+                while (reader.MoveToNextAttribute())
+                {
+                    string currentAttribute = reader.Name;
+                    switch (currentAttribute)
+                    {
+                        case "name":
+                            name = reader.Value;
+                            break;
+                        case "type":
+                            type = reader.Value;
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                if (string.IsNullOrWhiteSpace(name) || string.IsNullOrWhiteSpace(type))
+                {
+                    throw new MappingSerializationException(typeof(StatementMap), string.Format("statement {0} - all parameters must have name and type attributes. {1} {2}", statement.Name, name, type));
+                }
+
+                statement.InputParametersMap.Add(name, type);
+                reader.MoveToElement();
+            }
+
+            void Read_StatementParams(XmlReader reader, StatementMap statement)
+            {
+                string name = string.Empty;
+                string property = string.Empty;
+
+                while (reader.MoveToNextAttribute())
+                {
+                    string currentAttribute = reader.Name;
+                    switch (currentAttribute)
+                    {
+                        case "name":
+                            name = reader.Value;
+                            break;
+                        case "property":
+                            property = reader.Value;
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                if (string.IsNullOrWhiteSpace(name) || string.IsNullOrWhiteSpace(property))
+                {
+                    throw new MappingSerializationException(typeof(StatementMap), string.Format("statement {0} - all parameters must have name and value attributes. {1} {2}", statement.Name, name, property));
+                }
+
+                statement.DBParametersMap.Add(name, property);
+                reader.MoveToElement();
+            }
+
+            #endregion
+
+            #region <property>
+
+            Property Read_PropertyElement(XmlReader reader, MapConfig config, string elementName, bool forceReturnRel = false)
+            {
+                return Read_PropertyElement(reader, config, elementName, null, forceReturnRel);
+            }
+
+            Property Read_PropertyElement(XmlReader reader, MapConfig config, string elementName, PrimaryKeyProperty pk, bool forceReturnRel = false)
+            {
+                if (reader.CanReadElement(elementName))
                 {
                     Property property = new Property();
                     Relation rel = null;
+                    string keyGen = null;
+                    string unsavedValue = null;
 
                     while (reader.MoveToNextAttribute())
                     {
@@ -150,6 +406,7 @@ namespace Goliath.Data.Mapping
                                 break;
                             case "type":
                                 property.ComplexTypeName = reader.Value;
+                                property.IsComplexType = true;
                                 break;
                             case "lazy":
                                 property.LazyLoad = ReadBool(reader.Value);
@@ -191,10 +448,10 @@ namespace Goliath.Data.Mapping
                                 InitializeRelObject(ref rel, property);
                                 rel.ReferenceColumn = reader.Value;
                                 break;
-                            //case "keyFieldName":
-                            //    InitializeRelObject(ref rel, property);
-                            //    rel.KeyFieldName = reader.Value;
-                            //    break;
+                            case "referenceProperty":
+                                InitializeRelObject(ref rel, property);
+                                rel.ReferenceProperty = reader.Value;
+                                break;
                             case "refConstraint":
                                 InitializeRelObject(ref rel, property);
                                 rel.ReferenceConstraintName = reader.Value;
@@ -207,17 +464,39 @@ namespace Goliath.Data.Mapping
                                 InitializeRelObject(ref rel, property);
                                 rel.Exclude = ReadBool(reader.Value);
                                 break;
+                            case "inverse":
+                                InitializeRelObject(ref rel, property);
+                                rel.Inverse = ReadBool(reader.Value);
+                                break;
                             case "mapColumn":
                                 InitializeRelObject(ref rel, property);
                                 rel.MapColumn = reader.Value;
+                                break;
+                            case "mapReferenceColumn":
+                                InitializeRelObject(ref rel, property);
+                                rel.MapReferenceColumn = reader.Value;
                                 break;
                             case "mapTable":
                                 InitializeRelObject(ref rel, property);
                                 rel.MapTableName = reader.Value;
                                 break;
+                            //primary key attributes
+                            case "unsaved_value":
+                                unsavedValue = reader.Value;
+                                break;
+                            case "key_generator":
+                                keyGen = reader.Value;
+                                break;
                             default:
                                 break;
                         }
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(elementName) && elementName.Equals("key", StringComparison.OrdinalIgnoreCase)
+                        && pk != null)
+                    {
+                        pk.KeyGenerationStrategy = keyGen;
+                        pk.UnsavedValue = unsavedValue;
                     }
 
                     if (rel != null)
@@ -233,6 +512,248 @@ namespace Goliath.Data.Mapping
                 }
                 return null;
             }
+
+            #endregion
+
+            #region <entity>
+
+            EntityMap Read_EntityElement(XmlReader reader, MapConfig config)
+            {
+                EntityMap entMap = new EntityMap();
+                if (reader.CanReadElement("entity"))
+                {
+                    while (reader.MoveToNextAttribute())
+                    {
+                        string currentAttribute = reader.Name;
+                        switch (currentAttribute)
+                        {
+                            case "name":
+                                entMap.Name = reader.Value;
+                                break;
+                            case "extends":
+                                entMap.Extends = reader.Value;
+                                break;
+                            case "assembly":
+                                entMap.AssemblyName = reader.Value;
+                                break;
+                            case "entityNamespace":
+                                entMap.Namespace = reader.Value;
+                                break;
+                            case "table":
+                                entMap.TableName = reader.Value;
+                                break;
+                            case "schema":
+                                entMap.SchemaName = reader.Value;
+                                break;
+                            case "alias":
+                                entMap.TableAlias = reader.Value;
+                                break;
+                            case "linkTable":
+                                bool isLinkTable;
+                                if (bool.TryParse(reader.Value, out isLinkTable))
+                                    entMap.IsLinkTable = isLinkTable;
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+
+                    while (reader.Read())
+                    {
+                        if (reader.HasReachedEndOfElement("entity"))
+                            return entMap;
+
+                        //element primary key
+                        else if (reader.CanReadElement("primaryKey"))
+                        {
+                            ElementEntityPrimaryKey(reader, config, entMap);
+                        }
+
+                        //element properties
+                        else if (reader.CanReadElement("properties"))
+                        {
+                            ElementEntityProperties(reader, config, entMap);
+                        }
+
+                        //element relations
+                        else if (reader.CanReadElement("relations"))
+                        {
+                            ElementEntityReadRelations(reader, config, entMap);
+                        }
+
+                        else if (reader.CanReadElement("statements"))
+                        {
+                            Read_StatementsElement(reader, config, entMap);
+                        }
+                    }
+
+                    throw new MappingSerializationException(typeof(EntityMap), "missing a </entity> end tag");
+                }
+                return null;
+            }
+
+            void ElementEntityPrimaryKey(XmlReader reader, MapConfig config, EntityMap entMap)
+            {
+                bool hasReachedEndGracefully = false;
+                List<PrimaryKeyProperty> keys = new List<PrimaryKeyProperty>();
+                while (reader.Read())
+                {
+                    if (reader.CanReadElement("key"))
+                    {
+                        PrimaryKeyProperty pk = new PrimaryKeyProperty();
+                        var prop = Read_PropertyElement(reader, config, "key", pk);
+                        if (prop != null)
+                        {
+                            pk.Key = prop;
+                            IKeyGenerator idGenerator;
+                            if (!string.IsNullOrWhiteSpace(pk.KeyGenerationStrategy) && config.PrimaryKeyGeneratorStore.TryGetValue(pk.KeyGenerationStrategy, out idGenerator))
+                            {
+                                pk.KeyGenerator = idGenerator;
+                            }
+                            keys.Add(pk);
+                        }
+
+                    }
+                    else if (reader.HasReachedEndOfElement("primaryKey"))
+                    {
+                        hasReachedEndGracefully = true;
+                        break;
+                    }
+                }
+
+                if (!hasReachedEndGracefully)
+                    throw new MappingSerializationException(typeof(PrimaryKey), "missing a </primaryKey> end tag");
+
+                entMap.AddKeyRange(keys);
+            }
+
+            void ElementEntityProperties(XmlReader reader, MapConfig config, EntityMap entMap)
+            {
+                bool hasReachedEndGracefully = false;
+                while (reader.Read())
+                {
+                    if (reader.CanReadElement("property"))
+                    {
+                        var prop = Read_PropertyElement(reader, config, "property");
+                        if (prop != null)
+                            entMap.Add(prop);
+
+                    }
+                    else if (reader.CanReadElement("reference"))
+                    {
+                        var prop = Read_PropertyElement(reader, config, "reference", true) as Relation;
+                        if (prop != null)
+                            entMap.Add(prop);
+
+                    }
+                    else if (reader.CanReadElement("list"))
+                    {
+                        var prop = Read_List(reader, config, CollectionType.List);
+                        if (prop != null)
+                        {
+                            entMap.Add(prop);
+                        }
+
+                    }
+                    else if (reader.CanReadElement("map"))
+                    {
+                        var prop = Read_List(reader, config, CollectionType.Map);
+                        if (prop != null)
+                        {
+                            entMap.Add(prop);
+                        }
+
+                    }
+                    else if (reader.CanReadElement("set"))
+                    {
+                        var prop = Read_List(reader, config, CollectionType.Set);
+                        if (prop != null)
+                        {
+                            entMap.Add(prop);
+                        }
+
+                    }
+                    else if (reader.HasReachedEndOfElement("properties"))
+                    {
+                        hasReachedEndGracefully = true;
+                        break;
+                    }
+                }
+
+                if (!hasReachedEndGracefully)
+                    throw new MappingSerializationException(typeof(PropertyCollection), "missing a </properties> end tag");
+            }
+
+            void ElementEntityReadRelations(XmlReader reader, MapConfig config, EntityMap entMap)
+            {
+                bool hasReachedEndGracefully = false;
+                while (reader.Read())
+                {
+                    if (reader.CanReadElement("property"))
+                    {
+                        var prop = Read_PropertyElement(reader, config, "property", true) as Relation;
+                        if (prop != null)
+                            entMap.Add(prop);
+
+                    }
+                    else if (reader.HasReachedEndOfElement("relations"))
+                    {
+                        hasReachedEndGracefully = true;
+                        break;
+                    }
+                }
+
+                if (!hasReachedEndGracefully)
+                    throw new MappingSerializationException(typeof(PropertyCollection), "missing a </relations> end tag");
+            }
+
+
+            Relation Read_List(XmlReader reader, MapConfig config, CollectionType listType)
+            {
+                Relation rel = null;
+                string elementName = null;
+                switch (listType)
+                {
+                    case CollectionType.List:
+                        elementName = "list";
+                        break;
+                    case CollectionType.Map:
+                        elementName = "map";
+                        break;
+                    case CollectionType.Set:
+                        elementName = "set";
+                        break;
+                    default:
+                        return null;
+                }
+
+                rel = Read_PropertyElement(reader, config, elementName, true) as Relation;
+                rel.CollectionType = listType;
+                return rel;
+            }
+
+            void Read_EntitiesElements(XmlReader reader, MapConfig config)
+            {
+                while (reader.Read())
+                {
+                    if (reader.CanReadElement("entity"))
+                    {
+                        var ent = Read_EntityElement(reader, config);
+                        if (ent != null)
+                        {
+                            ent.Parent = config;
+                            config.EntityConfigs.Add(ent);
+                        }
+                    }
+                    else if (reader.HasReachedEndOfElement("entities"))
+                        return;
+                }
+                throw new MappingSerializationException(typeof(EntityCollection), "missing a </entities> end tag");
+            }
+
+            #endregion
+
+            #region <complexType>
 
             ComplexType Read_ComplexTypeElement(XmlReader reader, MapConfig config)
             {
@@ -289,206 +810,6 @@ namespace Goliath.Data.Mapping
                 return null;
             }
 
-            EntityMap Read_EntityElement(XmlReader reader, MapConfig config)
-            {
-                EntityMap entMap = new EntityMap();
-                if (reader.CanReadElement("entity"))
-                {
-                    while (reader.MoveToNextAttribute())
-                    {
-                        string currentAttribute = reader.Name;
-                        switch (currentAttribute)
-                        {
-                            case "name":
-                                entMap.Name = reader.Value;
-                                break;
-                            case "extends":
-                                entMap.Extends = reader.Value;
-                                break;
-                            case "assembly":
-                                entMap.AssemblyName = reader.Value;
-                                break;
-                            case "entityNamespace":
-                                entMap.Namespace = reader.Value;
-                                break;
-                            case "table":
-                                entMap.TableName = reader.Value;
-                                break;
-                            case "schema":
-                                entMap.SchemaName = reader.Value;
-                                break;
-                            case "tableAbbr":
-                                entMap.TableAbbreviation = reader.Value;
-                                break;
-                            case "linkTable":
-                                bool isLinkTable;
-                                if (bool.TryParse(reader.Value, out isLinkTable))
-                                    entMap.IsLinkTable = isLinkTable;
-                                break;
-                            default:
-                                break;
-                        }
-                    }
-
-                    while (reader.Read())
-                    {
-                        if (reader.HasReachedEndOfElement("entity"))
-                            return entMap;
-
-                        else if (reader.CanReadElement("primaryKey"))
-                        {
-                            bool hasReachedEndGracefully = false;
-                            List<Property> keys = new List<Property>();
-                            while (reader.Read())
-                            {
-                                if (reader.CanReadElement("key"))
-                                {
-                                    var prop = Read_PropertyElement(reader, config, "key");
-                                    if (prop != null)
-                                        keys.Add(prop);
-
-                                }
-                                else if (reader.HasReachedEndOfElement("primaryKey"))
-                                {
-                                    hasReachedEndGracefully = true;
-                                    break;
-                                }
-                            }
-
-                            if (!hasReachedEndGracefully)
-                                throw new MappingSerializationException(typeof(PrimaryKey), "missing a </primaryKey> end tag");
-                            entMap.AddColumnRange(keys);
-                        }
-
-                        else if (reader.CanReadElement("properties"))
-                        {
-                            bool hasReachedEndGracefully = false;
-                            while (reader.Read())
-                            {
-                                if (reader.CanReadElement("property"))
-                                {
-                                    var prop = Read_PropertyElement(reader, config, "property");
-                                    if (prop != null)
-                                        entMap.Add(prop);
-
-                                }
-                                else if (reader.CanReadElement("reference"))
-                                {
-                                    var prop = Read_PropertyElement(reader, config, "reference", true) as Relation;
-                                    if (prop != null)
-                                        entMap.Add(prop);
-
-                                }
-                                else if (reader.CanReadElement("list"))
-                                {
-                                    var prop = Read_List(reader, config, CollectionType.List);
-                                    if (prop != null)
-                                    {
-                                        entMap.Add(prop);
-                                    }
-
-                                }
-                                else if (reader.CanReadElement("map"))
-                                {
-                                    var prop = Read_List(reader, config, CollectionType.Map);
-                                    if (prop != null)
-                                    {
-                                        entMap.Add(prop);
-                                    }
-
-                                }
-                                else if (reader.CanReadElement("set"))
-                                {
-                                    var prop = Read_List(reader, config, CollectionType.Set);
-                                    if (prop != null)
-                                    {
-                                        entMap.Add(prop);
-                                    }
-
-                                }
-                                else if (reader.HasReachedEndOfElement("properties"))
-                                {
-                                    hasReachedEndGracefully = true;
-                                    break;
-                                }
-                            }
-
-                            if (!hasReachedEndGracefully)
-                                throw new MappingSerializationException(typeof(PropertyCollection), "missing a </properties> end tag");
-                        }
-
-                        else if (reader.CanReadElement("relations"))
-                        {
-                            bool hasReachedEndGracefully = false;
-                            while (reader.Read())
-                            {
-                                if (reader.CanReadElement("property"))
-                                {
-                                    var prop = Read_PropertyElement(reader, config, "property", true) as Relation;
-                                    if (prop != null)
-                                        entMap.Add(prop);
-
-                                }
-                                else if (reader.HasReachedEndOfElement("relations"))
-                                {
-                                    hasReachedEndGracefully = true;
-                                    break;
-                                }
-                            }
-
-                            if (!hasReachedEndGracefully)
-                                throw new MappingSerializationException(typeof(PropertyCollection), "missing a </relations> end tag");
-                        }
-                    }
-
-                    throw new MappingSerializationException(typeof(EntityMap), "missing a </entity> end tag");
-                }
-                return null;
-            }
-
-            Relation Read_List(XmlReader reader, MapConfig config, CollectionType listType)
-            {
-                Relation rel = null;
-                string elementName = null;
-                switch (listType)
-                {
-                    case CollectionType.List:
-                        elementName = "list";
-                        break;
-                    case CollectionType.Map:
-                        elementName = "map";
-                        break;
-                    case CollectionType.Set:
-                        elementName = "set";
-                        break;
-                    default:
-                        return null;
-                }
-
-                rel = Read_PropertyElement(reader, config, elementName, true) as Relation;
-                rel.CollectionType = listType;
-                return rel;
-            }
-
-            void Read_EntitiesElements(XmlReader reader, MapConfig config)
-            {
-                while (reader.Read())
-                {
-                    if (reader.CanReadElement("entity"))
-                    {
-                        var ent = Read_EntityElement(reader, config);
-                        if (ent != null)
-                        {
-                            ent.Parent = config;
-                            config.EntityConfigs.Add(ent);
-                        }
-                    }
-                    else if (reader.HasReachedEndOfElement("entities"))
-                        return;
-                }
-                throw new MappingSerializationException(typeof(EntityCollection), "missing a </entities> end tag");
-            }
-
             void Read_ComplexTypesElement(XmlReader reader, MapConfig config)
             {
                 while (reader.Read())
@@ -503,6 +824,43 @@ namespace Goliath.Data.Mapping
                         return;
                 }
                 throw new MappingSerializationException(typeof(ComplexTypeCollection), "missing a </complexTypes> end tag");
+            }
+
+            #endregion
+
+            void Read_Project_PropertiesElement(XmlReader reader, MapConfig config)
+            {
+                //bool hasReachedEndGracefully = false;
+                while (reader.Read())
+                {
+                    if (reader.CanReadElement("property"))
+                    {
+                        string propName = null;
+                        string propValue = null;
+                        while (reader.MoveToNextAttribute())
+                        {
+                            var currAttribute = reader.Name;
+
+                            switch (currAttribute)
+                            {
+                                case "name":
+                                    propName = reader.Value;
+                                    break;
+                                case "value":
+                                    propValue = reader.Value;
+                                    break;
+                                default:
+                                    break;
+                            }
+
+                        }
+
+                        if (!string.IsNullOrWhiteSpace(propName))
+                            config.Settings.SetPropety(propName, propValue);
+                    }
+                    else if (reader.HasReachedEndOfElement("project.properties"))
+                        return;
+                }
             }
 
             void Read_GoDataElements(XmlReader reader, MapConfig config)
@@ -527,6 +885,14 @@ namespace Goliath.Data.Mapping
                                 if (reader.CanReadElement("complexTypes"))
                                     Read_ComplexTypesElement(reader, config);
                                 break;
+                            case "project.properties":
+                                if (reader.CanReadElement("project.properties"))
+                                    Read_Project_PropertiesElement(reader, config);
+                                break;
+                            case "statements":
+                                if (reader.CanReadElement("statements"))
+                                    Read_StatementsElement(reader, config, null);
+                                break;
                             default:
                                 break;
                         }
@@ -549,9 +915,11 @@ namespace Goliath.Data.Mapping
                                 config.Settings.BaseModel = reader.Value;
                                 break;
                             case "generatedBy":
-                                config.GeneratedBy = reader.Value;
-                                //reader.ReadEndElement();
+                                config.Settings.GeneratedBy = reader.Value;
                                 break;
+                            //case "rdbms":
+                            //    ReadRdbms(reader, config);
+                            //    break;
                             default:
                                 break;
                         }
@@ -569,9 +937,21 @@ namespace Goliath.Data.Mapping
             {
                 if (reader.Name.Equals("goliath.data"))
                 {
-                    reader.MoveToFirstAttribute();
-                    if (reader.Name.Equals("version"))
-                        config.Settings.Version = reader.Value;
+                    while (reader.MoveToNextAttribute())
+                    {
+                        switch (reader.Name)
+                        {
+                            case "version":
+                                config.Settings.Version = reader.Value;
+                                break;
+                            case "rdbms":
+                                config.Settings.Platform = reader.Value;
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+
 
                     Read_GoDataElements(reader, config);
                 }

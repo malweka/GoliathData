@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using Goliath.Data.Transformers;
-using Goliath.Data.Providers;
 
 namespace Goliath.Data.Mapping
 {
+    using Providers;
+    using Transformers;
+
+    /// <summary>
+    /// 
+    /// </summary>
     public class DataModelGenerator
     {
         ISchemaDescriptor schemaDescriptor;
@@ -42,7 +45,8 @@ namespace Goliath.Data.Mapping
 
             MapConfig builder = new MapConfig();
             builder.Settings = settings;
-            builder.GeneratedBy = schemaDescriptor.DatabaseProviderName;
+            builder.Settings.GeneratedBy = schemaDescriptor.ToString();
+            builder.Settings.Platform = schemaDescriptor.DatabaseProviderName;
             builder.EntityConfigs.AddRange(tables.Values);
 
             ComplexType baseModel = null;

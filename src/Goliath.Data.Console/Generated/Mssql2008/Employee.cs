@@ -33,10 +33,16 @@ namespace WebZoo.Data.SqlServer
 		public virtual IList<WebZoo.Data.SqlServer.Animal> AnimalsOnAnimalsHandler_EmployeeId { get; set; }
 
 		#endregion
+	}
 
-		#region metadata
+	#region metadata
 
-		public struct PropertyNames
+	public static partial class PropertyNames
+	{
+		/// <summary>
+		/// Properties names for <see cref="WebZoo.Data.SqlServer.Employee"/>
+		/// </summary>
+		public static class Employee
 		{
 			public const string Id = "Id";
 			public const string FirstName = "FirstName";
@@ -49,8 +55,8 @@ namespace WebZoo.Data.SqlServer
 			public const string AssignedToZoo = "AssignedToZoo";
 			public const string AnimalsOnAnimalsHandler_EmployeeId = "AnimalsOnAnimalsHandler_EmployeeId";
 		}
-
-		#endregion
 	}
+
+	#endregion
 }
 

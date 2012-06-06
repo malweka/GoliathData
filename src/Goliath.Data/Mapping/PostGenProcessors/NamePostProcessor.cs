@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using Goliath.Data.Transformers;
 
 namespace Goliath.Data.Mapping
 {
+    using Transformers;
+
     class NamePostProcessor : IPostGenerationProcessor
     {
         NameTransformerFactory transfactory;
@@ -35,15 +35,18 @@ namespace Goliath.Data.Mapping
         {
             var tableNamer = transfactory.GetTransformer<EntityMap>();
             var relNamer = transfactory.GetTransformer<Relation>();
+            var propNamer = transfactory.GetTransformer<Property>();
 
             foreach (var table in entities.Values)
             {
                 table.Name = tableNamer.Transform(table, table.Name);
-                table.TableAbbreviation = tableAbbreviator.Abbreviate(table.Name);
+                table.TableAlias = tableAbbreviator.Abbreviate(table.Name);
+                var propertyListClone = table.ToArray();
 
-                for(int i=0; i<table.Count; i++)//foreach (var prop in table)
+                foreach (var prop in propertyListClone)
                 {
-                    var prop = table[i];
+                    //var prop = table[i];
+
                     if (prop is Relation)
                     {
                         var rel = (Relation)prop;
@@ -70,8 +73,35 @@ namespace Goliath.Data.Mapping
                         }
                         else
                             rel.PropertyName = name;
+
+                        if (!string.IsNullOrWhiteSpace(rel.ReferenceProperty))
+                        {
+                            rel.ReferenceProperty = propNamer.Transform(rel, rel.ReferenceProperty);
+                        }
+                    }
+                    else
+                    {
+                        prop.PropertyName = propNamer.Transform(prop, prop.ColumnName);
                     }
                 }
+
+                if (!table.IsLinkTable && table.PrimaryKey != null)
+                {
+                    foreach (var pk in table.PrimaryKey.Keys)
+                    {
+                        if(pk.Key.DbType == System.Data.DbType.Guid)
+                        {
+                            pk.KeyGenerationStrategy = Generators.GuidCombGenerator.GeneratorName;
+                            pk.UnsavedValue = Guid.Empty.ToString();
+                        }
+                        else if (pk.Key.IsIdentity)
+                        {
+                            pk.KeyGenerationStrategy = Goliath.Data.Generators.AutoIncrementGenerator.GeneratorName;
+                            pk.UnsavedValue = "-1";
+                        }
+                    }
+                }
+
             }
         }
 

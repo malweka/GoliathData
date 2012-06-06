@@ -5,7 +5,7 @@ using System.Data.Common;
 namespace Goliath.Data
 {
     /// <summary>
-    /// 
+    /// DbConnector interface. Create Connection to database
     /// </summary>
     public interface IDbConnector
     {
@@ -14,6 +14,7 @@ namespace Goliath.Data
         /// </summary>
         /// <returns></returns>
         DbConnection CreateNewConnection();
+
         /// <summary>
         /// Gets the name of the database provider.
         /// </summary>
@@ -38,6 +39,13 @@ namespace Goliath.Data
         /// </value>
         int? CommandTimeout { get; set; }
 
+        /// <summary>
+        /// Gets a value indicating whether [allow multiple connections].
+        /// </summary>
+        /// <value>
+        /// 	<c>true</c> if [allow multiple connections]; otherwise, <c>false</c>.
+        /// </value>
+        bool AllowMultipleConnections { get; }
 
         /// <summary>
         /// Creates the parameter.

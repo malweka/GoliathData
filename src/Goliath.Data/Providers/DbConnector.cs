@@ -1,13 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Data.Common;
+﻿using System.Data.Common;
 
 namespace Goliath.Data.Providers
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public abstract class DbConnector : IDbConnector
     {
+        #region Properties
+
         /// <summary>
         /// Gets or sets the command timeout.
         /// </summary>
@@ -33,6 +34,18 @@ namespace Goliath.Data.Providers
         public string DatabaseProviderName { get; protected set; }
 
         /// <summary>
+        /// Gets or sets a value indicating whether [allow multiple connections].
+        /// </summary>
+        /// <value>
+        /// 	<c>true</c> if [allow multiple connections]; otherwise, <c>false</c>.
+        /// </value>
+        public virtual bool AllowMultipleConnections { get; protected set; }
+
+        #endregion
+
+        #region Abstract Methods
+
+        /// <summary>
         /// Creates the new connection.
         /// </summary>
         /// <returns></returns>
@@ -54,18 +67,9 @@ namespace Goliath.Data.Providers
         /// <returns></returns>
         public abstract DbParameter CreateParameter(string parameterName, object value);
 
-        ///// <summary>
-        ///// Creates the parameter.
-        ///// </summary>
-        ///// <param name="queryParam">The query param.</param>
-        ///// <returns></returns>
-        //public virtual DbParameter CreateParameter(QueryParam queryParam)
-        //{
-        //    if (queryParam == null)
-        //        throw new ArgumentNullException("queryParam");
+        #endregion
 
-        //    return CreateParameter(queryParam.Name, queryParam.Value);
-        //}
+        #region .ctors
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DbConnector"/> class.
@@ -76,6 +80,16 @@ namespace Goliath.Data.Providers
         {
             ConnectionString = connectionString;
             DatabaseProviderName = databaseProviderName;
+            AllowMultipleConnections = true;
         }
+
+        #endregion
+
+        #region Methods
+
+
+
+        #endregion
+
     }
 }

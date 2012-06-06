@@ -51,6 +51,29 @@ namespace Goliath.Data
             }
         }
 
+        public static long? GetValueAsLong(this DbDataReader reader, string columnName)
+        {
+            if (string.IsNullOrEmpty(columnName))
+                throw new ArgumentNullException("columnName");
+
+            if (reader == null)
+                throw new ArgumentNullException("reader");
+
+            var data = reader[columnName];
+            if (data == DBNull.Value)
+                return null;
+            else
+            {
+                if (data is long)
+                    return (long)data;
+                else
+                {
+                    var val = Convert.ToInt64(data.ToString());
+                    return val;
+                }
+            }
+        }
+
         public static object GetValueAsObject(this DbDataReader reader, string columnName)
         {
             if (string.IsNullOrEmpty(columnName))

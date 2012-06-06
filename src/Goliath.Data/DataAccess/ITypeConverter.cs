@@ -1,14 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace Goliath.Data.DataAccess
 {
     /// <summary>
     /// 
     /// </summary>
-    public interface ITypeConverter
+    public interface ITypeConverterStore
     {
         /// <summary>
         /// Adds the converter.
@@ -17,11 +14,12 @@ namespace Goliath.Data.DataAccess
         /// <param name="convertMethod">The convert method.</param>
         void AddConverter(Type toType, Func<Object, Object> convertMethod);
         /// <summary>
-        /// Gets the converter.
+        /// Gets the converter factory method for the specified type.
         /// </summary>
-        /// <param name="from">From.</param>
+        /// <param name="typeToConverTo">The type to conver to.</param>
+        /// <exception cref="Goliath.Data.DataAccessException"></exception>
         /// <returns></returns>
-        Func<Object, Object> GetConverter(Type from);
+        Func<Object, Object> GetConverterFactoryMethod(Type typeToConverTo);
         /// <summary>
         /// Converts to enum.
         /// </summary>

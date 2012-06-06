@@ -7,8 +7,16 @@ using Goliath.Data.Mapping;
 
 namespace Goliath.Data.Transformers
 {
+    using Diagnostics;
+
     class OneToManyRelationNameTransformer : INameTransformer<Relation>
     {
+        static ILogger logger;
+        static OneToManyRelationNameTransformer()
+        {
+            logger = Logger.GetLogger(typeof(OneToManyRelationNameTransformer));
+        }
+
         #region INameTransformer<Relation> Members
 
         public string Transform(Relation mapModel, string original)
@@ -20,34 +28,36 @@ namespace Goliath.Data.Transformers
                 throw new ArgumentNullException("original");
 
             if (mapModel.RelationType != RelationshipType.ManyToOne)
-                return original;
+                return original.Pascalize();
 
             try
             {
                 string prefix = "Id";
-                if (prefix.Equals(original, StringComparison.InvariantCultureIgnoreCase))
+                if (prefix.Equals(original, StringComparison.OrdinalIgnoreCase))
                 {
                     //mapModel.KeyFieldName = original;
                     //mapModel.PropertyName = original;
-                    return original;
+                    return original.Pascalize();
                 }
 
-                if (original.EndsWith(prefix, StringComparison.InvariantCultureIgnoreCase))
+                if (original.EndsWith(prefix, StringComparison.InvariantCultureIgnoreCase) && !mapModel.IsPrimaryKey)
                 {
-                    string name = original.Substring(0, original.IndexOf("Id", StringComparison.InvariantCultureIgnoreCase));
+                    string name = original.Substring(0, original.IndexOf("Id", StringComparison.OrdinalIgnoreCase));
                     //mapModel.PropertyName = name;
                     //mapModel.KeyFieldName = original;
-                    return name;
+                    return name.Pascalize();
                 }
                 else
                 {
                     //mapModel.KeyFieldName = mapModel.PropertyName + "_Key";
-                    return original;
+                    return original.Pascalize();
                 }
+
+                //return original.Pascalize();
             }
             catch (Exception ex)
             {
-                //TODO: log error
+                logger.LogException(string.Format("Transform: {0} -> {1}", original, mapModel.Name), ex);
                 return original;
             }
         }

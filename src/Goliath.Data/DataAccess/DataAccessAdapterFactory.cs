@@ -1,39 +1,52 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Data;
-using Goliath.Data.Diagnostics;
-using Goliath.Data.Mapping;
 using System.Collections.Concurrent;
 
 namespace Goliath.Data.DataAccess
 {
-    class DataAccessAdapterFactory : IDataAccessAdaterFactory
-    {
-        IDbAccess db;
-        IDbConnector dbConnector;
+    using Diagnostics;
+    using Mapping;
 
-        static ConcurrentDictionary<Type, Delegate> factoryList = new ConcurrentDictionary<Type, Delegate>();
-        static object lockFactoryList = new object();
+    [Serializable]
+    class DataAccessAdapterFactory : IDataAccessAdapterFactory
+    {
+        //IDbAccess db;
+        //IDbConnector dbConnector;
+
+        //static ConcurrentDictionary<Type, Delegate> factoryList = new ConcurrentDictionary<Type, Delegate>();
+        //static object lockFactoryList = new object();
+
+        ConcurrentDictionary<Type, Delegate> factoryList = new ConcurrentDictionary<Type, Delegate>();
         static ILogger logger;
+        IEntitySerializer serializerFactory;
+        bool isReady;
+        MapConfig map;
 
         static DataAccessAdapterFactory()
         {
-            logger = Logger.GetLogger(typeof(DataAccessAdapterFactory));
+            logger = Logger.GetLogger(typeof(DataAccessAdapterFactory));           
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DataAccessAdapterFactory"/> class.
         /// </summary>
-        /// <param name="dataAccess">The data access.</param>
-        public DataAccessAdapterFactory(IDbAccess dataAccess, IDbConnector dbConnector)
+        public DataAccessAdapterFactory(MapConfig map, IEntitySerializer serializerFactory)
         {
-            db = dataAccess;
-            this.dbConnector = dbConnector;
+            //db = dataAccess;
+            //this.dbConnector = dbConnector;
+            this.map = map;
+            SetSerializerFactory(serializerFactory);
         }
 
-        public void RegisterAdapter<TEntity>(Func<IDbAccess, IDbConnector, IDataAccessAdapter<TEntity>> factoryMethod) where TEntity : class
+        void SetSerializerFactory(IEntitySerializer serializerFactory)
+        {
+            if (serializerFactory == null)
+                throw new ArgumentNullException("serializerFactory");
+
+            this.serializerFactory = serializerFactory;
+            isReady = true;
+        }
+
+        public void RegisterAdapter<TEntity>(Func<IEntitySerializer, ISession, IDataAccessAdapter<TEntity>> factoryMethod) where TEntity : class
         {
             var t = typeof(TEntity);
             factoryList.TryAdd(t, factoryMethod);
@@ -41,19 +54,19 @@ namespace Goliath.Data.DataAccess
 
         #region IDataAccessAdaterFactory Members
 
-        public IDataAccessAdapter<TEntity> Get<TEntity>()
+        public IDataAccessAdapter<TEntity> Create<TEntity>(IDbAccess dataAccess, ISession session)
         {
             try
             {
                 Delegate dlgMethod;
                 IDataAccessAdapter<TEntity> adapter = null;
                 Type type = typeof(TEntity);
-                Func<IDbAccess, IDbConnector, IDataAccessAdapter<TEntity>> factoryMethod = null;
+                Func<IEntitySerializer, ISession, IDataAccessAdapter<TEntity>> factoryMethod = null;
 
                 if (factoryList.TryGetValue(type, out dlgMethod))
                 {
-                    if (dlgMethod is Func<IDbAccess, IDbConnector, IDataAccessAdapter<TEntity>>)
-                        factoryMethod = (Func<IDbAccess, IDbConnector, IDataAccessAdapter<TEntity>>)dlgMethod;
+                    if (dlgMethod is Func<IEntitySerializer, ISession, IDataAccessAdapter<TEntity>>)
+                        factoryMethod = (Func<IEntitySerializer, ISession, IDataAccessAdapter<TEntity>>)dlgMethod;
                     else
                         throw new GoliathDataException("unknown factory method");
                 }
@@ -63,37 +76,39 @@ namespace Goliath.Data.DataAccess
                     factoryList.TryAdd(type, factoryMethod);
                 }
 
+                if (!isReady)
+                    throw new DataAccessException("DataAccessAdapter not ready. EntitySerializer was not set.", new InvalidOperationException("serializerFactory is null and not set."));
 
-                adapter = factoryMethod.Invoke(db,dbConnector);
+                adapter = factoryMethod.Invoke(serializerFactory, session);
                 return adapter;
 
             }
             catch (GoliathDataException ex)
             {
+                Console.WriteLine(ex.ToString());
                 //logger.Log(string.Format("Error while trying to invoke DataAccessAdapter factory method for {0}", typeof(TEntity)), ex);
                 throw;
             }
             catch (Exception ex)
             {
                 string errorMessage = string.Format("Error while trying to invoke DataAccessAdapter factory method for {0}", typeof(TEntity));
-                logger.Log(errorMessage, ex);
+                //logger.LogException(errorMessage, ex);
                 throw new GoliathDataException(errorMessage, ex); ;
             }
         }
 
         #endregion
 
-        internal Func<IDbAccess, IDbConnector, IDataAccessAdapter<TEntity>> CreateAdapter<TEntity>()
+        internal Func<IEntitySerializer, ISession, IDataAccessAdapter<TEntity>> CreateAdapter<TEntity>()
         {
             Type type = typeof(TEntity);
-            var map = Config.ConfigManager.CurrentSettings.Map;
 
             if (map != null)
             {
                 EntityMap ent;
                 if (map.EntityConfigs.TryGetValue(type.FullName, out ent))
                 {
-                    Func<IDbAccess, IDbConnector, IDataAccessAdapter<TEntity>> myfunc = (dbAccess, dbConnector) => { return new DataAccessAdapter<TEntity>(dbConnector, dbAccess); };
+                    Func<IEntitySerializer, ISession, IDataAccessAdapter<TEntity>> myfunc = (sfactory, sess) => { return new DataAccessAdapter<TEntity>(sfactory, sess); };
                     return myfunc;
                 }
 
@@ -102,5 +117,23 @@ namespace Goliath.Data.DataAccess
 
             throw new GoliathDataException("Not entities map defined");
         }
+
+        #region IDisposable Members
+
+        public void Dispose()
+        {
+            MapConfig mapRef = this.map;
+            map = null;
+
+            IEntitySerializer serialRef = serializerFactory;
+            serializerFactory = null;
+
+            if (factoryList != null && factoryList.Count > 0)
+            {
+                factoryList.Clear();
+            }
+        }
+
+        #endregion
     }
 }

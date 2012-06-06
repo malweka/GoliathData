@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 
 namespace Goliath.Data.Providers
 {
@@ -43,7 +40,7 @@ namespace Goliath.Data.Providers
         /// Gets the stored procs.
         /// </summary>
         /// <returns></returns>
-        public abstract IDictionary<string, Mapping.StoredProcedure> GetStoredProcs();
+        public abstract IDictionary<string, Mapping.StatementMap> GetStoredProcs();
 
         /// <summary>
         /// Gets or sets the project settings.
