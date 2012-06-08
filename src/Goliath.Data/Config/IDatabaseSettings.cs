@@ -14,6 +14,9 @@ namespace Goliath.Data
     /// </summary>
     public interface IDatabaseSettings
     {
+        /// <summary>
+        /// Gets the map.
+        /// </summary>
         MapConfig Map { get; }
         /// <summary>
         /// Gets the SQL mapper.
@@ -37,6 +40,10 @@ namespace Goliath.Data
         /// <value>The converter store.</value>
         ITypeConverterStore ConverterStore { get; }
 
+        /// <summary>
+        /// Creates the accessor.
+        /// </summary>
+        /// <returns></returns>
         DbAccess CreateAccessor();
     }
 }

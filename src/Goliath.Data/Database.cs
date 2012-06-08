@@ -53,6 +53,7 @@ namespace Goliath.Data
         /// Configures the specified map.
         /// </summary>
         /// <param name="map">The map.</param>
+        /// <param name="sessionStore">The session store.</param>
         /// <returns></returns>
         public IConfigurationManager Configure(MapConfig map, ISessionStore sessionStore = null)
         {

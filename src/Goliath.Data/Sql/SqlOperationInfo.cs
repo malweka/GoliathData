@@ -33,6 +33,9 @@ namespace Goliath.Data.Sql
         public ICollection<QueryParam> Parameters { get; set; }
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
     [System.Diagnostics.DebuggerDisplay("Priority = {Priority}, Operation = {Operation.SqlText}")]
     [Serializable]
     public struct KeyGenOperationInfo
@@ -45,6 +48,12 @@ namespace Goliath.Data.Sql
         /// </value>
         public Type PropertyType { get; set; }
 
+        /// <summary>
+        /// Gets or sets the entity.
+        /// </summary>
+        /// <value>
+        /// The entity.
+        /// </value>
         public object Entity { get; set; }
 
         /// <summary>
@@ -71,6 +80,9 @@ namespace Goliath.Data.Sql
         public SqlOperationInfo Operation { get; set; }
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
     [System.Diagnostics.DebuggerDisplay("Priority = {Priority}, Operations = {Operations.Count}, SubOperations = {SubOperations.Count}")]
     [Serializable]
     public class BatchSqlOperation : IDisposable
@@ -116,6 +128,9 @@ namespace Goliath.Data.Sql
 
         #region IDisposable Members
 
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
         public void Dispose()
         {
             if (Operations != null)

@@ -31,7 +31,6 @@ namespace Goliath.Data
         /// Wheres the specified expression.
         /// </summary>
         /// <param name="expression">The expression.</param>
-        /// <param name="andList">The and list.</param>
         /// <returns></returns>
         IQuery<T> Where(Expression<Func<T, bool>> expression);
 
@@ -61,6 +60,10 @@ namespace Goliath.Data
         IQuery<T> GroupBy<TProperty>(Expression<Func<TProperty>> property, params Expression<Func<TProperty>>[] andProps);
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public interface ISearchable<T>
     {
         /// <summary>
@@ -119,6 +122,10 @@ namespace Goliath.Data
         IListable<T> List();
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public interface IListable<T> : IList<T>
     {
         /// <summary>

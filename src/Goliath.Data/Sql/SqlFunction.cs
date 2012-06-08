@@ -92,6 +92,11 @@ namespace Goliath.Data.Sql
         /// </summary>
         public CountFunction() : base(FunctionNames.Count, "COUNT") { }
 
+        /// <summary>
+        /// Toes the SQL statement.
+        /// </summary>
+        /// <param name="args">The args.</param>
+        /// <returns></returns>
         public override string ToSqlStatement(params QueryParam[] args)
         {
             if ((args != null) && (args.Length > 0))
@@ -140,10 +145,31 @@ namespace Goliath.Data.Sql
         public const string Count = "Count";
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
     public struct PagingInfo
     {
+        /// <summary>
+        /// Gets or sets the total.
+        /// </summary>
+        /// <value>
+        /// The total.
+        /// </value>
         public int Total { get; set; }
+        /// <summary>
+        /// Gets or sets the limit.
+        /// </summary>
+        /// <value>
+        /// The limit.
+        /// </value>
         public int Limit { get; set; }
+        /// <summary>
+        /// Gets or sets the offset.
+        /// </summary>
+        /// <value>
+        /// The offset.
+        /// </value>
         public int Offset { get; set; }
     }
 }

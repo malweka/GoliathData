@@ -83,7 +83,7 @@ namespace Goliath.Data.Config
         /// <summary>
         /// Overrides the data access adapter factory.
         /// </summary>
-        /// <param name="dataAccessAdapter">The data access adapter.</param>
+        /// <param name="factoryMethod">The factory method.</param>
         /// <returns></returns>
         public IConfigurationManager OverrideDataAccessAdapterFactory(Func<MapConfig,IEntitySerializer,IDataAccessAdapterFactory> factoryMethod)
         {

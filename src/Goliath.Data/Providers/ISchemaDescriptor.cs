@@ -10,6 +10,12 @@ namespace Goliath.Data.Providers
     /// </summary>
     public interface ISchemaDescriptor : IDisposable
     {
+        /// <summary>
+        /// Gets the name of the database provider.
+        /// </summary>
+        /// <value>
+        /// The name of the database provider.
+        /// </value>
         string DatabaseProviderName { get; }
         /// <summary>
         /// Gets the tables.

@@ -59,6 +59,9 @@ namespace Goliath.Data.Entity
     public class ChangeSet
     {
         Dictionary<string, ChangeItem> changeList = new Dictionary<string, ChangeItem>();
+        /// <summary>
+        /// Gets the version.
+        /// </summary>
         public long Version { get; private set; }
         object stateObject = new object();
         List<string> changes = new List<string>();

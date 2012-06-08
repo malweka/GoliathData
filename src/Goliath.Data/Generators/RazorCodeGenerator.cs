@@ -6,6 +6,9 @@ namespace Goliath.Data.Generators
 {
     using Utils;
 
+    /// <summary>
+    /// 
+    /// </summary>
    public class RazorCodeGenerator : ICodeGenerator
    {
       #region ICodeGenerator Members
@@ -24,6 +27,13 @@ namespace Goliath.Data.Generators
       }
 
 
+      /// <summary>
+      /// Generates the specified template text.
+      /// </summary>
+      /// <typeparam name="TModel">The type of the model.</typeparam>
+      /// <param name="templateText">The template text.</param>
+      /// <param name="outputStream">The output stream.</param>
+      /// <param name="mapfile">The mapfile.</param>
       public void Generate<TModel>(string templateText, Stream outputStream, TModel mapfile)
       {
           string result = Razor.Parse(templateText, mapfile);

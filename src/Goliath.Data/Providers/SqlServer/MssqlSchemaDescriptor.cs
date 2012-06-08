@@ -7,6 +7,9 @@ namespace Goliath.Data.Providers.SqlServer
     using Diagnostics;
     using Mapping;
 
+    /// <summary>
+    /// 
+    /// </summary>
     [Serializable]
     public class MssqlSchemaDescriptor : SchemaDescriptor
     {
@@ -79,6 +82,13 @@ WHERE FK.TABLE_NAME = @tableName";
             logger = Logger.GetLogger(typeof(MssqlSchemaDescriptor));
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MssqlSchemaDescriptor"/> class.
+        /// </summary>
+        /// <param name="db">The db.</param>
+        /// <param name="dbConnector">The db connector.</param>
+        /// <param name="mapper">The mapper.</param>
+        /// <param name="settings">The settings.</param>
         public MssqlSchemaDescriptor(IDbAccess db, IDbConnector dbConnector, SqlMapper mapper, ProjectSettings settings)
             : base(RdbmsBackend.SupportedSystemNames.Mssql2008R2)
         {
@@ -88,6 +98,10 @@ WHERE FK.TABLE_NAME = @tableName";
             ProjectSettings = settings;
         }
 
+        /// <summary>
+        /// Gets the tables.
+        /// </summary>
+        /// <returns></returns>
         public override IDictionary<string, EntityMap> GetTables()
         {
             Dictionary<string, EntityMap> tables = new Dictionary<string, EntityMap>();
@@ -131,6 +145,11 @@ WHERE FK.TABLE_NAME = @tableName";
             return tables;
         }
 
+        /// <summary>
+        /// Processes the columns.
+        /// </summary>
+        /// <param name="table">The table.</param>
+        /// <returns></returns>
         protected virtual Dictionary<string, Property> ProcessColumns(EntityMap table)
         {
             Dictionary<string, Property> columnList = new Dictionary<string, Property>();
@@ -187,11 +206,21 @@ WHERE FK.TABLE_NAME = @tableName";
             return columnList;
         }
 
+        /// <summary>
+        /// Called when [table add property].
+        /// </summary>
+        /// <param name="table">The table.</param>
+        /// <param name="property">The property.</param>
         protected virtual void OnTableAddProperty(EntityMap table, Property property)
         {
             //should be overriden by sub class
         }
 
+        /// <summary>
+        /// Processes the constraints.
+        /// </summary>
+        /// <param name="table">The table.</param>
+        /// <param name="columnList">The column list.</param>
         protected virtual void ProcessConstraints(EntityMap table, Dictionary<string, Property> columnList)
         {
             List<string> constraints = new List<string>();
@@ -244,6 +273,11 @@ WHERE FK.TABLE_NAME = @tableName";
             }
         }
 
+        /// <summary>
+        /// Processes the references.
+        /// </summary>
+        /// <param name="table">The table.</param>
+        /// <param name="columns">The columns.</param>
         protected virtual void ProcessReferences(EntityMap table, Dictionary<string, Property> columns)
         {
             using (var reader = db.ExecuteReader(Connection, SELECT_REFERENCES, new QueryParam("tableName", table.TableName)))
@@ -301,6 +335,11 @@ WHERE FK.TABLE_NAME = @tableName";
             }
         }
 
+        /// <summary>
+        /// Processes the default value.
+        /// </summary>
+        /// <param name="defaultValue">The default value.</param>
+        /// <returns></returns>
         protected virtual string ProcessDefaultValue(string defaultValue)
         {
             if (!string.IsNullOrWhiteSpace(defaultValue))
@@ -339,11 +378,19 @@ WHERE FK.TABLE_NAME = @tableName";
             return defaultValue;
         }
 
+        /// <summary>
+        /// Gets the views.
+        /// </summary>
+        /// <returns></returns>
         public override IDictionary<string, View> GetViews()
         {
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// Gets the stored procs.
+        /// </summary>
+        /// <returns></returns>
         public override IDictionary<string, StatementMap> GetStoredProcs()
         {
             throw new NotImplementedException();
@@ -351,6 +398,9 @@ WHERE FK.TABLE_NAME = @tableName";
 
         #region IDisposable Members
 
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
         public override void Dispose()
         {
             if (connection != null)

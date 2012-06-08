@@ -2,6 +2,9 @@
 
 namespace Goliath.Data
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public interface ITransaction : IDisposable
     {
         /// <summary>

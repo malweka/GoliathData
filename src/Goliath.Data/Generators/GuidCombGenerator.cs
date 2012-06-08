@@ -13,14 +13,19 @@ namespace Goliath.Data.Generators
     /// </summary>
     public class GuidCombGenerator : IKeyGenerator<Guid>
     {
+        /// <summary>
+        /// 
+        /// </summary>
         public const string GeneratorName = "Guid_Comb";
         #region IKeyGenerator<Guid> Members
 
         /// <summary>
         /// Generates the specified entity map.
         /// </summary>
+        /// <param name="sqlMapper">The SQL mapper.</param>
         /// <param name="entityMap">The entity map.</param>
         /// <param name="propertyName">Name of the property.</param>
+        /// <param name="priority">The priority.</param>
         /// <returns></returns>
         public Guid Generate(SqlMapper sqlMapper, EntityMap entityMap, string propertyName, out Sql.SqlOperationPriority priority)
         {
@@ -54,13 +59,21 @@ namespace Goliath.Data.Generators
             get { return GeneratorName; }
         }
 
+        /// <summary>
+        /// Gets a value indicating whether this instance is database generated.
+        /// </summary>
+        /// <value>
+        /// 	<c>true</c> if this instance is database generated; otherwise, <c>false</c>.
+        /// </value>
         public bool IsDatabaseGenerated { get { return false; } }
 
         /// <summary>
         /// Generates the key.
         /// </summary>
+        /// <param name="sqlMapper">The SQL mapper.</param>
         /// <param name="entityMap">The entity map.</param>
         /// <param name="propertyName">Name of the property.</param>
+        /// <param name="priority">The priority.</param>
         /// <returns></returns>
         object IKeyGenerator.GenerateKey(SqlMapper sqlMapper, EntityMap entityMap, string propertyName, out Sql.SqlOperationPriority priority)
         {
@@ -70,7 +83,7 @@ namespace Goliath.Data.Generators
         #endregion
 
         /// <summary>
-        /// Creates a new sequential guid (aka comb) <see cref="http://www.informit.com/articles/article.aspx?p=25862&seqNum=7"/>.
+        /// Creates a new sequential guid (aka comb) see &lt;a href=&quot;http://www.informit.com/articles/article.aspx?p=25862&amp;seqNum=7&quot;&gt;http://www.informit.com/articles/article.aspx?p=25862&amp;seqNum=7&lt;/a&gt;/>.
         /// </summary>
         /// <remarks>A comb provides the benefits of a standard Guid w/o the database performance problems.</remarks>
         /// <returns>A new sequential guid (comb).</returns>

@@ -11,7 +11,10 @@ namespace Goliath.Data.Mapping
     /// </summary>
     public class StatementStore : IEnumerable<StatementMap>
     {
-        
+
+        /// <summary>
+        /// Gets the platform.
+        /// </summary>
         public RdbmsBackend Platform { get; private set; }
 
         internal Dictionary<string, StatementMap> InnerProcedureList { get; private set; }

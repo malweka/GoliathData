@@ -3,6 +3,9 @@ using System.Data.Common;
 
 namespace Goliath.Data.DataAccess
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public static class DataAccessHelper
     {
         

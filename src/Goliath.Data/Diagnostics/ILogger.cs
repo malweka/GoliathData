@@ -27,7 +27,6 @@ namespace Goliath.Data.Diagnostics
         /// Logs the specified log type.
         /// </summary>
         /// <param name="sessionId">The session id.</param>
-        /// <param name="message">The message.</param>
         /// <param name="LogLevel">Type of the log.</param>
         /// <param name="message">The message.</param>
         void Log(string sessionId, LogLevel LogLevel, string message);
@@ -43,6 +42,7 @@ namespace Goliath.Data.Diagnostics
         /// <summary>
         /// Logs the specified exception.
         /// </summary>
+        /// <param name="message">The message.</param>
         /// <param name="exception">The exception.</param>
         void LogException(string message, Exception exception);
     }

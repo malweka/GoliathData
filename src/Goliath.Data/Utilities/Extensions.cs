@@ -6,6 +6,9 @@ using System.IO;
 
 namespace Goliath.Data.Utils
 {
+    /// <summary>
+    /// 
+    /// </summary>
    public static class IOHelpers
    {
       /// <summary>

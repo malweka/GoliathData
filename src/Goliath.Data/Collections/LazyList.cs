@@ -33,6 +33,7 @@ namespace Goliath.Data.Collections
         /// <param name="query">The query.</param>
         /// <param name="entityMap">The entity map.</param>
         /// <param name="factory">The factory.</param>
+        /// <param name="settings">The settings.</param>
         public LazyList(SqlOperationInfo query, EntityMap entityMap, IEntitySerializer factory, IDatabaseSettings settings)
         {
             this.query = query;

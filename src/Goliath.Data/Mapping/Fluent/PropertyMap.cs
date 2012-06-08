@@ -1,36 +1,64 @@
 using System;
 
 namespace Goliath.Data.Mapping.Fluent
-{	
-	public class PropertyMap:IMap<PropertyMap>
-	{
-		Property property;
-		//..WithClrtType
-		public PropertyMap ColumnName (string name)
-		{
-			return null ;
-		}
+{
+    /// <summary>
+    /// 
+    /// </summary>
+    public class PropertyMap : IMap<PropertyMap>
+    {
+        Property property;
+        //..WithClrtType
+        /// <summary>
+        /// Columns the name.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <returns></returns>
+        public PropertyMap ColumnName(string name)
+        {
+            return null;
+        }
 
-		public PropertyMap Nullable (bool isNullable)
-		{
-			return null ;
-		}
+        /// <summary>
+        /// Nullables the specified is nullable.
+        /// </summary>
+        /// <param name="isNullable">if set to <c>true</c> [is nullable].</param>
+        /// <returns></returns>
+        public PropertyMap Nullable(bool isNullable)
+        {
+            return null;
+        }
 
-		public PropertyMap WithConstrain (string constraint)
-		{
-			return null ;
-		}
+        /// <summary>
+        /// Withes the constrain.
+        /// </summary>
+        /// <param name="constraint">The constraint.</param>
+        /// <returns></returns>
+        public PropertyMap WithConstrain(string constraint)
+        {
+            return null;
+        }
 
-		public PropertyMap WithSqlType (System.Data .SqlDbType dbType)
-		{
-			return null ;
-		}
+        /// <summary>
+        /// Withes the type of the SQL.
+        /// </summary>
+        /// <param name="dbType">Type of the db.</param>
+        /// <returns></returns>
+        public PropertyMap WithSqlType(System.Data.SqlDbType dbType)
+        {
+            return null;
+        }
 
-		public PropertyMap WithDbType (string dbType)
-		{
-			return null ;
-		}
-	}
-   
+        /// <summary>
+        /// Withes the type of the db.
+        /// </summary>
+        /// <param name="dbType">Type of the db.</param>
+        /// <returns></returns>
+        public PropertyMap WithDbType(string dbType)
+        {
+            return null;
+        }
+    }
+
 }
-  
+

@@ -10,6 +10,11 @@ namespace Goliath.Data.Transformers
     /// </summary>
    public interface ITableNameAbbreviator
    {
+       /// <summary>
+       /// Abbreviates the specified original.
+       /// </summary>
+       /// <param name="original">The original.</param>
+       /// <returns></returns>
       string Abbreviate(string original);
    }
 
@@ -21,6 +26,11 @@ namespace Goliath.Data.Transformers
      // readonly List<string> abbreviations = new List<string>();
       readonly Dictionary<string, int> abbreviations = new Dictionary<string, int>();
 
+      /// <summary>
+      /// Abbreviates the specified original.
+      /// </summary>
+      /// <param name="original">The original.</param>
+      /// <returns></returns>
       public string Abbreviate(string original)
       {
          if (!string.IsNullOrWhiteSpace(original) && (original.Length > 4))

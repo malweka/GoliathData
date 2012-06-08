@@ -20,6 +20,8 @@ namespace Goliath.Data.Mapping
         /// Initializes a new instance of the <see cref="DataModelGenerator"/> class.
         /// </summary>
         /// <param name="schemaDescriptor">The schema descriptor.</param>
+        /// <param name="transformerFactory">The transformer factory.</param>
+        /// <param name="tableAbbreviator">The table abbreviator.</param>
         public DataModelGenerator(ISchemaDescriptor schemaDescriptor, NameTransformerFactory transformerFactory, ITableNameAbbreviator tableAbbreviator)
         {
             this.schemaDescriptor = schemaDescriptor;
@@ -31,6 +33,7 @@ namespace Goliath.Data.Mapping
         /// Builds the map.
         /// </summary>
         /// <param name="settings">The settings.</param>
+        /// <param name="additionalTypes">The additional types.</param>
         /// <returns></returns>
         public MapConfig GenerateMap(ProjectSettings settings, params ComplexType[] additionalTypes)
         {

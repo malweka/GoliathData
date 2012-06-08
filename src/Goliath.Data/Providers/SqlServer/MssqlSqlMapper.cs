@@ -5,6 +5,9 @@ using System.Text;
 namespace Goliath.Data.Providers.SqlServer
 {
 
+    /// <summary>
+    /// 
+    /// </summary>
     [Serializable]
     public class Mssq2008SqlMapper : SqlMapper
     {
@@ -17,6 +20,9 @@ namespace Goliath.Data.Providers.SqlServer
 
         }
 
+        /// <summary>
+        /// Called when [register types].
+        /// </summary>
         protected override void OnRegisterTypes()
         {
             base.OnRegisterTypes();
@@ -37,6 +43,9 @@ namespace Goliath.Data.Providers.SqlServer
             RegisterType(DbType.Currency, "money");
         }
 
+        /// <summary>
+        /// Called when [register functions].
+        /// </summary>
         protected override void OnRegisterFunctions()
         {
             base.OnRegisterFunctions();
@@ -50,6 +59,12 @@ namespace Goliath.Data.Providers.SqlServer
             RegisterFunctions(new GetDatabaseName());
         }
 
+        /// <summary>
+        /// Queries the with paging.
+        /// </summary>
+        /// <param name="queryBody">The query body.</param>
+        /// <param name="pagingInfo">The paging info.</param>
+        /// <returns></returns>
         public override string QueryWithPaging(Sql.SqlQueryBody queryBody, Sql.PagingInfo pagingInfo)
         {
             StringBuilder sb = new StringBuilder("SELECT * \nFROM SELECT ROW_NUMBER() OVER");
@@ -97,6 +112,11 @@ namespace Goliath.Data.Providers.SqlServer
             return "SELECT SCOPE_IDENTITY()";
         }
 
+        /// <summary>
+        /// Called when [translate to SQL type string].
+        /// </summary>
+        /// <param name="fromType">From type.</param>
+        /// <returns></returns>
         protected override string OnTranslateToSqlTypeString(Goliath.Data.Mapping.Property fromType)
         {
 

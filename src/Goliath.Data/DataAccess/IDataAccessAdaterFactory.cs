@@ -14,7 +14,7 @@ namespace Goliath.Data
         /// </summary>
         /// <typeparam name="TEntity">The type of the entity.</typeparam>
         /// <param name="dataAccess">The data access.</param>
-        /// <param name="connection">The connection.</param>
+        /// <param name="session">The session.</param>
         /// <returns></returns>
         IDataAccessAdapter<TEntity> Create<TEntity>(IDbAccess dataAccess, ISession session);
         /// <summary>

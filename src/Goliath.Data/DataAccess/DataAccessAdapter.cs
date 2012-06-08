@@ -46,9 +46,9 @@ namespace Goliath.Data
         /// <summary>
         /// Initializes a new instance of the <see cref="DataAccessAdapter&lt;TEntity&gt;"/> class.
         /// </summary>
+        /// <param name="entityMap">The entity map.</param>
         /// <param name="serializer">The serializer.</param>
-        /// <param name="dataAccess">The data access.</param>
-        /// <param name="dbConnection">The db connection.</param>
+        /// <param name="session">The session.</param>
         public DataAccessAdapter(EntityMap entityMap, IEntitySerializer serializer, ISession session)
         {
             if (session == null)
@@ -204,6 +204,7 @@ namespace Goliath.Data
         /// Inserts the specified entity.
         /// </summary>
         /// <param name="entity">The entity.</param>
+        /// <param name="recursive">if set to <c>true</c> [recursive].</param>
         /// <returns></returns>
         public int Insert(TEntity entity, bool recursive = false)
         {
@@ -376,6 +377,7 @@ namespace Goliath.Data
         /// Finds all.
         /// </summary>
         /// <param name="sqlQuery">The SQL query.</param>
+        /// <param name="parameters">The parameters.</param>
         /// <returns></returns>
         public IList<TEntity> FindAll(string sqlQuery, params QueryParam[] parameters)
         {

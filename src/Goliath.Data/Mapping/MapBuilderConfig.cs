@@ -233,6 +233,7 @@ namespace Goliath.Data.Mapping
         /// Deserialize file and create a map model.
         /// </summary>
         /// <param name="filename">The filename.</param>
+        /// <param name="settings">The settings.</param>
         /// <returns></returns>
         public static MapConfig Create(string filename, ProjectSettings settings)
         {
@@ -245,6 +246,11 @@ namespace Goliath.Data.Mapping
             }
         }
 
+        /// <summary>
+        /// Creates the specified XML stream.
+        /// </summary>
+        /// <param name="xmlStream">The XML stream.</param>
+        /// <returns></returns>
         public static MapConfig Create(Stream xmlStream)
         {
             return Create(xmlStream, null);
@@ -253,6 +259,7 @@ namespace Goliath.Data.Mapping
         /// Deserialize file and create a map model.
         /// </summary>
         /// <param name="xmlStream">The XML stream.</param>
+        /// <param name="settings">The settings.</param>
         /// <returns></returns>
         public static MapConfig Create(Stream xmlStream, ProjectSettings settings)
         {

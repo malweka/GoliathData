@@ -7,6 +7,11 @@ using System.Runtime.Serialization;
 
 namespace Goliath.Data
 {
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <typeparam name="S"></typeparam>
+    /// <typeparam name="T"></typeparam>
     [Serializable]
     [CollectionDataContract]
     public abstract class KeyedCollectionBase<S, T> : KeyedCollection<S, T>
