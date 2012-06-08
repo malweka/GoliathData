@@ -4,6 +4,9 @@ using System.Data.SqlClient;
 
 namespace Goliath.Data.Providers.SqlServer
 {
+    /// <summary>
+    /// 
+    /// </summary>
     [Serializable]
     public class MssqlDbConnector : DbConnector
     {

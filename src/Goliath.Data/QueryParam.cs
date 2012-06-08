@@ -70,14 +70,12 @@ namespace Goliath.Data
         /// Initializes a new instance of the <see cref="PropertyQueryParam"/> class.
         /// </summary>
         /// <param name="propertyName">Name of the property.</param>
-        /// <param name="parameterName">Name of the parameter.</param>
         public PropertyQueryParam(string propertyName) : this(propertyName, null) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PropertyQueryParam"/> class.
         /// </summary>
         /// <param name="propertyName">Name of the property.</param>
-        /// <param name="parameterName">Name of the parameter.</param>
         /// <param name="value">The value.</param>
         public PropertyQueryParam(string propertyName, object value)
             : base(propertyName, value)

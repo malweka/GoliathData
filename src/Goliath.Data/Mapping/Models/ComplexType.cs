@@ -17,10 +17,6 @@ namespace Goliath.Data.Mapping
         [DataMember]
         public string FullName { get; set; }
 
-        /// <summary>
-        /// Gets the name.
-        /// </summary>
-        /// <value>The name.</value>
         string IMapModel.Name { get { return FullName; } }
 
         /// <summary>
@@ -30,10 +26,6 @@ namespace Goliath.Data.Mapping
         [DataMember]
         public bool IsEnum { get; set; }
 
-        /// <summary>
-        /// Gets the name of the db.
-        /// </summary>
-        /// <value>The name of the db.</value>
         string IMapModel.DbName { get { return FullName; } }
 
         /// <summary>
@@ -43,6 +35,10 @@ namespace Goliath.Data.Mapping
         [DataMember]
         public PropertyCollection Properties { get; set; }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ComplexType"/> class.
+        /// </summary>
+        /// <param name="fullName">The full name.</param>
         public ComplexType(string fullName)
         {
             FullName = fullName;

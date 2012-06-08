@@ -11,6 +11,12 @@ namespace Goliath.Data.Transformers
     /// <typeparam name="TFor">The type of for.</typeparam>
     public interface INameTransformer<TFor> where TFor : class, Mapping.IMapModel
     {
+        /// <summary>
+        /// Transforms the specified map model.
+        /// </summary>
+        /// <param name="mapModel">The map model.</param>
+        /// <param name="original">The original.</param>
+        /// <returns></returns>
         string Transform(TFor mapModel, string original);
     }
 }

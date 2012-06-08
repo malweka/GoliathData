@@ -36,7 +36,7 @@ namespace Goliath.Data
         /// <summary>
         /// Initializes a new instance of the <see cref="DbAccess"/> class.
         /// </summary>
-        /// <param name="dbProviderName">Name of the db provider.</param>
+        /// <param name="dbConnector">The db connector.</param>
         public DbAccess(IDbConnector dbConnector)
         {
             this.dbConnector = dbConnector;
@@ -104,8 +104,10 @@ namespace Goliath.Data
         /// Executes the non query.
         /// </summary>
         /// <param name="conn">The conn.</param>
+        /// <param name="transaction">The transaction.</param>
         /// <param name="sql">The SQL.</param>
         /// <param name="parameters">The parameters.</param>
+        /// <returns></returns>
         public int ExecuteNonQuery(DbConnection conn, ITransaction transaction, string sql, params QueryParam[] parameters)
         {
             using (DbCommand cmd = conn.CreateCommand())
@@ -148,6 +150,7 @@ namespace Goliath.Data
         /// Executes the scalar.
         /// </summary>
         /// <param name="conn">The conn.</param>
+        /// <param name="transaction">The transaction.</param>
         /// <param name="sql">The SQL.</param>
         /// <param name="parameters">The parameters.</param>
         /// <returns></returns>
@@ -194,6 +197,7 @@ namespace Goliath.Data
         /// Executes the reader.
         /// </summary>
         /// <param name="conn">The conn.</param>
+        /// <param name="transaction">The transaction.</param>
         /// <param name="sql">The SQL.</param>
         /// <param name="parameters">The parameters.</param>
         /// <returns></returns>

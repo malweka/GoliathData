@@ -6,6 +6,9 @@ using Goliath.Data.Mapping;
 
 namespace Goliath.Data.Sql
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public interface ISqlWorker
     {
         /// <summary>
@@ -14,6 +17,7 @@ namespace Goliath.Data.Sql
         /// <typeparam name="TEntity">The type of the entity.</typeparam>
         /// <param name="entityMap">The entity map.</param>
         /// <param name="entity">The entity.</param>
+        /// <param name="recursive">if set to <c>true</c> [recursive].</param>
         /// <returns></returns>
         BatchSqlOperation BuildInsertSql<TEntity>(EntityMap entityMap, TEntity entity, bool recursive);
 

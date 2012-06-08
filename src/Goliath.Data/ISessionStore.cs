@@ -13,6 +13,7 @@ namespace Goliath.Data
         /// <summary>
         /// stores the current session.
         /// </summary>
+        /// <param name="sessionName">Name of the session.</param>
         /// <param name="session">The session.</param>
         void Store(string sessionName, ISession session);
 

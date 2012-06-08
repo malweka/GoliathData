@@ -49,16 +49,14 @@ namespace Goliath.Data.DataAccess
         /// <summary>
         /// Initializes a new instance of the <see cref="EntitySerializer"/> class.
         /// </summary>
-        /// <param name="sqlMapper">The SQL mapper.</param>
-        /// <param name="map">The map.</param>
+        /// <param name="settings">The settings.</param>
         public EntitySerializer(IDatabaseSettings settings) : this(settings, null) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="EntitySerializer"/> class.
         /// </summary>
-        /// <param name="sqlMapper">The SQL mapper.</param>
+        /// <param name="settings">The settings.</param>
         /// <param name="typeConverterStore">The type converter.</param>
-        /// <param name="map">The map.</param>
         public EntitySerializer(IDatabaseSettings settings, ITypeConverterStore typeConverterStore)
         {
             if (settings == null)

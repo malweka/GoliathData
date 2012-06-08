@@ -97,6 +97,9 @@ namespace Goliath.Data.Mapping
 
         internal Dictionary<string, string> Properties { get { return properties; } }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ProjectSettings"/> class.
+        /// </summary>
         public ProjectSettings()
         {
             //SetPropety(ProjectSettings.PropertyNames.SaveAllDateUTC, true);
@@ -106,9 +109,8 @@ namespace Goliath.Data.Mapping
         /// <summary>
         /// Tries the get property.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
         /// <param name="propertyName">Name of the property.</param>
-        /// <param name="prop">The prop.</param>
+        /// <param name="value">The value.</param>
         /// <returns></returns>
         public bool TryGetProperty(string propertyName, out string value)
         {

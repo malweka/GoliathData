@@ -18,8 +18,10 @@ namespace Goliath.Data.Utils
         /// <summary>
         /// Parses the specified text.
         /// </summary>
+        /// <param name="mapper">The mapper.</param>
         /// <param name="entMap">The ent map.</param>
         /// <param name="text">The text.</param>
+        /// <returns></returns>
         public CompiledStatement Parse(SqlMapper mapper, EntityMap entMap, string text)
         {
             text = ParseColumnTag(entMap, text);

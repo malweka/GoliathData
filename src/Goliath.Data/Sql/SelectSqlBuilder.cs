@@ -94,7 +94,7 @@ namespace Goliath.Data.Sql
         /// <summary>
         /// Adds the join.
         /// </summary>
-        /// <param name="joinType">Type of the join.</param>
+        /// <param name="join">The join.</param>
         /// <returns></returns>
         public SelectSqlBuilder AddJoin(SqlJoin join)
         {

@@ -51,6 +51,7 @@ namespace Goliath.Data.Diagnostics
         /// <summary>
         /// Logs the specified log type.
         /// </summary>
+        /// <param name="sessionId">The session id.</param>
         /// <param name="LogLevel">Type of the log.</param>
         /// <param name="message">The message.</param>
         public abstract void Log(string sessionId, LogLevel LogLevel, string message);
@@ -58,6 +59,8 @@ namespace Goliath.Data.Diagnostics
         /// <summary>
         /// Logs the specified exception.
         /// </summary>
+        /// <param name="sessionId">The session id.</param>
+        /// <param name="message">The message.</param>
         /// <param name="exception">The exception.</param>
         public abstract void LogException(string sessionId, string message, Exception exception);
 
@@ -74,6 +77,7 @@ namespace Goliath.Data.Diagnostics
         /// <summary>
         /// Logs the specified exception.
         /// </summary>
+        /// <param name="message">The message.</param>
         /// <param name="exception">The exception.</param>
         public virtual void LogException(string message, Exception exception)
         {

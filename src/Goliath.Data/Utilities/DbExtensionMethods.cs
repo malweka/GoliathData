@@ -7,6 +7,9 @@ using System.Data.Common;
 
 namespace Goliath.Data
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public static class DbExtensionMethods
     {
         /// <summary>
@@ -29,6 +32,12 @@ namespace Goliath.Data
                 return reader[columnName].ToString();
         }
 
+        /// <summary>
+        /// Gets the value as int.
+        /// </summary>
+        /// <param name="reader">The reader.</param>
+        /// <param name="columnName">Name of the column.</param>
+        /// <returns></returns>
         public static int? GetValueAsInt(this DbDataReader reader, string columnName)
         {
             if (string.IsNullOrEmpty(columnName))
@@ -51,6 +60,12 @@ namespace Goliath.Data
             }
         }
 
+        /// <summary>
+        /// Gets the value as long.
+        /// </summary>
+        /// <param name="reader">The reader.</param>
+        /// <param name="columnName">Name of the column.</param>
+        /// <returns></returns>
         public static long? GetValueAsLong(this DbDataReader reader, string columnName)
         {
             if (string.IsNullOrEmpty(columnName))
@@ -74,6 +89,12 @@ namespace Goliath.Data
             }
         }
 
+        /// <summary>
+        /// Gets the value as object.
+        /// </summary>
+        /// <param name="reader">The reader.</param>
+        /// <param name="columnName">Name of the column.</param>
+        /// <returns></returns>
         public static object GetValueAsObject(this DbDataReader reader, string columnName)
         {
             if (string.IsNullOrEmpty(columnName))

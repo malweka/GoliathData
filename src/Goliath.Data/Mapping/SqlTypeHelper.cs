@@ -89,6 +89,7 @@ namespace Goliath.Data
       /// Gets the type of the CLR.
       /// </summary>
       /// <param name="sqlType">Type of the SQL.</param>
+      /// <param name="isNullable">if set to <c>true</c> [is nullable].</param>
       /// <returns></returns>
       public static Type GetClrType(DbType sqlType, bool isNullable)
       {
@@ -204,7 +205,6 @@ namespace Goliath.Data
       /// Gets the type of the SQL.
       /// </summary>
       /// <param name="type">The type.</param>
-      /// <param name="isBlob">if set to <c>true</c> [is BLOB].</param>
       /// <param name="isUnicode">if set to <c>true</c> [is unicode].</param>
       /// <returns></returns>
       public static DbType GetSqlType(Type type, bool isUnicode)

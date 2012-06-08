@@ -17,7 +17,13 @@ namespace Goliath.Data.Providers
 
         Dictionary<string, DbTypeInfo> typeMap = new Dictionary<string, DbTypeInfo>();
         //Dictionary<SqlStatement, string> statements = new Dictionary<SqlStatement, string>(Utils.EnumComparer<SqlStatement>.Instance);
+        /// <summary>
+        /// 
+        /// </summary>
         protected Dictionary<string, ISqlFunction> functionMap = new Dictionary<string, ISqlFunction>();
+        /// <summary>
+        /// 
+        /// </summary>
         protected Dictionary<string, string> translationTypeMap;// = new Dictionary<string, string>();
         List<string> reservedWords = new List<string>();
 
@@ -115,6 +121,7 @@ namespace Goliath.Data.Providers
         /// Gets the type of the CLR.
         /// </summary>
         /// <param name="dbType">Type of the db.</param>
+        /// <param name="isNullable">if set to <c>true</c> [is nullable].</param>
         /// <returns></returns>
         public virtual Type GetClrType(DbType dbType, bool isNullable)
         {

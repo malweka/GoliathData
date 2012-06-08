@@ -9039,6 +9039,10 @@ namespace Fasterflect
         /// <summary>
         /// Gets a generic method.  See the overload with same arguments exception for <param name="genericTypes"/>.
         /// </summary>
+        /// <param name="type">The type.</param>
+        /// <param name="genericTypes">The generic types.</param>
+        /// <param name="name">The name.</param>
+        /// <returns></returns>
         /// <seealso cref="Method(Type,string)"/>
         public static MethodInfo Method(this Type type, Type[] genericTypes, string name)
         {

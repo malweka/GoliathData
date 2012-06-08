@@ -2,6 +2,10 @@
 
 namespace Goliath.Data
 {
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public interface IDataHydrator<T>
     {
         /// <summary>

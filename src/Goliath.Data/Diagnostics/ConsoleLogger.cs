@@ -5,6 +5,9 @@ using System.Text;
 
 namespace Goliath.Data.Diagnostics
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class ConsoleLogger : Logger
     {
         /// <summary>
@@ -26,6 +29,7 @@ namespace Goliath.Data.Diagnostics
         /// <summary>
         /// Logs the specified log type.
         /// </summary>
+        /// <param name="sessionId"></param>
         /// <param name="LogLevel">Type of the log.</param>
         /// <param name="message">The message.</param>
         public override void Log(string sessionId, LogLevel LogLevel, string message)
@@ -66,6 +70,8 @@ namespace Goliath.Data.Diagnostics
         /// <summary>
         /// Logs the specified exception.
         /// </summary>
+        /// <param name="sessionId"></param>
+        /// <param name="message"></param>
         /// <param name="exception">The exception.</param>
         public override void LogException(string sessionId, string message, Exception exception)
         {
