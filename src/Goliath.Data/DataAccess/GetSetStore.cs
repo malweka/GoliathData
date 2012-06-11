@@ -2,7 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Reflection;
-using Fasterflect;
+using Goliath.Fasterflect;
 
 namespace Goliath.Data.DataAccess
 {
