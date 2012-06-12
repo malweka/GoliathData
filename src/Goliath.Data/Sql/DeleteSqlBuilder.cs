@@ -63,7 +63,7 @@ namespace Goliath.Data.Sql
             {
                 sb.AppendFormat("{0} ", w.ToString());
             }
-            return sb.ToString();
+            return sb.ToString().Trim();
         }
     }
 }

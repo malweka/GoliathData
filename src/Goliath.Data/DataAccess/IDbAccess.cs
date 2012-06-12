@@ -10,30 +10,8 @@ namespace Goliath.Data
     /// <summary>
     /// 
     /// </summary>
-    public interface IDbAccess //: IDisposable
+    public interface IDbAccess
     {
-        ///// <summary>
-        ///// Creates the parameter.
-        ///// </summary>
-        ///// <param name="queryParam">The query param.</param>
-        ///// <returns></returns>
-        //DbParameter CreateParameter(QueryParam queryParam);
-
-        ///// <summary>
-        ///// Creates the parameter.
-        ///// </summary>
-        ///// <param name="i">The i.</param>
-        ///// <param name="value">The value.</param>
-        ///// <returns></returns>
-        //DbParameter CreateParameter(int i, object value);
-
-        ///// <summary>
-        ///// Creates the parameters.
-        ///// </summary>
-        ///// <param name="queryParams">The query params.</param>
-        ///// <returns></returns>
-        //ICollection<DbParameter> CreateParameters(IEnumerable<QueryParam> queryParams);
-
         #region Data access
 
         /// <summary>

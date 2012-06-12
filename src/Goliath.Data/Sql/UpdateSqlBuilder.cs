@@ -115,15 +115,7 @@ namespace Goliath.Data.Sql
                         var relInstance = pInfo.Getter(entity);
                         if (relInstance != null)
                         {
-                            EntityGetSetInfo relGetSet;
-
-                            if (!getSetStore.TryGetValue(pInfo.PropertType, out relGetSet))
-                            {
-                                relGetSet = new EntityGetSetInfo(pInfo.PropertType);
-                                relGetSet.Load(entityMap);
-                                getSetStore.Add(pInfo.PropertType, relGetSet);
-                            }
-
+                            EntityGetSetInfo relGetSet = getSetStore.GetReflectionInfoAddIfMissing(pInfo.PropertType, entityMap);
                             PropInfo referenceProp;
                             if (relGetSet.Properties.TryGetValue(rel.ReferenceProperty, out referenceProp))
                             {

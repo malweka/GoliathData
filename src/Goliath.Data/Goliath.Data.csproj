@@ -57,11 +57,6 @@
       <HintPath>..\..\Dependencies\Razor\System.Web.Razor.dll</HintPath>
     </Reference>
   </ItemGroup>
-  <ItemGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <Reference Include="Fasterflect">
-      <HintPath>Libs\Fasterflect\Bin\Fasterflect.dll</HintPath>
-    </Reference>
-  </ItemGroup>
   <ItemGroup>
     <Compile Include="..\AssemblyInfo.Shared.cs">
       <Link>Properties\AssemblyInfo.Shared.cs</Link>
@@ -200,67 +195,13 @@
     <Compile Include="Utilities\EnumComparer.cs" />
     <Compile Include="Utilities\Extensions.cs" />
     <Compile Include="Libs\Inflector.cs" />
+	<Compile Include="Libs\Fasterflect.cs" />
     <Compile Include="Utilities\StringHelpers.cs" />
     <Compile Include="Mapping\Fluent\FluentMap.cs" />
     <Compile Include="Mapping\Fluent\PropertyMap.cs" />
     <Compile Include="Mapping\Fluent\ReferenceMap.cs" />
     <Compile Include="Mapping\Fluent\ListMap.cs" />
     <Compile Include="Mapping\Fluent\PrimaryKeyMap.cs" />
-  </ItemGroup>
-  <ItemGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <Compile Include="Libs\Fasterflect\Caching_CacheStrategy.cs" />
-    <Compile Include="Libs\Fasterflect\Caching_Cache.cs" />
-    <Compile Include="Libs\Fasterflect\Common_FormatOptions.cs" />
-    <Compile Include="Libs\Fasterflect\DynamicReflection_DynamicWrapper.cs" />
-    <Compile Include="Libs\Fasterflect\DynamicReflection_DynamicBuilder.cs" />
-    <Compile Include="Libs\Fasterflect\Emitter_MapCallInfo.cs" />
-    <Compile Include="Libs\Fasterflect\Extensions_Core_AssemblyExtensions.cs" />
-    <Compile Include="Libs\Fasterflect\Extensions_Core_TypeExtensions.cs" />
-    <Compile Include="Libs\Fasterflect\Extensions_Core_ParameterInfoExtensions.cs" />
-    <Compile Include="Libs\Fasterflect\Common_MemberFilter.cs" />
-    <Compile Include="Libs\Fasterflect\Emitter_MapEmitter.cs" />
-    <Compile Include="Libs\Fasterflect\Emitter_EmitHelper.cs" />
-    <Compile Include="Libs\Fasterflect\Extensions_Core_ConstructorInfoExtensions.cs" />
-    <Compile Include="Libs\Fasterflect\Extensions_Core_ValueTypeExtensions.cs" />
-    <Compile Include="Libs\Fasterflect\Extensions_Services_CloneExtensions.cs" />
-    <Compile Include="Libs\Fasterflect\Common_Constants.cs" />
-    <Compile Include="Libs\Fasterflect\Extensions_Core_ConstructorExtensions.cs" />
-    <Compile Include="Libs\Fasterflect\Extensions_Core_AttributeExtensions.cs" />
-    <Compile Include="Libs\Fasterflect\Extensions_Core_ArrayExtensions.cs" />
-    <Compile Include="Libs\Fasterflect\Emitter_LookupUtils.cs" />
-    <Compile Include="Libs\Fasterflect\Common_Flags.cs" />
-    <Compile Include="Libs\Fasterflect\Extensions_Core_FieldInfoExtensions.cs" />
-    <Compile Include="Libs\Fasterflect\Extensions_Core_MemberInfoExtensions.cs" />
-    <Compile Include="Libs\Fasterflect\Extensions_Services_EventExtensions.cs" />
-    <Compile Include="Libs\Fasterflect\Extensions_Services_TryCallMethodExtensions.cs" />
-    <Compile Include="Libs\Fasterflect\Extensions_Services_TryCreateInstanceExtensions.cs" />
-    <Compile Include="Libs\Fasterflect\Extensions_Services_MapExtensions.cs" />
-    <Compile Include="Libs\Fasterflect\Extensions_Services_TryInvokeWithValuesExtensions.cs" />
-    <Compile Include="Libs\Fasterflect\Extensions_Services_XmlTransformerExtensions.cs" />
-    <Compile Include="Libs\Fasterflect\Extensions_Services_Probing_TypeConverter.cs" />
-    <Compile Include="Libs\Fasterflect\Extensions_Core_PropertyInfoExtensions.cs" />
-    <Compile Include="Libs\Fasterflect\Extensions_Core_MemberExtensions.cs" />
-    <Compile Include="Libs\Fasterflect\Extensions_Core_PropertyExtensions.cs" />
-    <Compile Include="Libs\Fasterflect\Extensions_Core_FieldExtensions.cs" />
-    <Compile Include="Libs\Fasterflect\Extensions_Core_MethodExtensions.cs" />
-    <Compile Include="Libs\Fasterflect\Common_Delegates.cs" />
-    <Compile Include="Libs\Fasterflect\Emitter_ArrayGetEmitter.cs" />
-    <Compile Include="Libs\Fasterflect\Emitter_ArraySetEmitter.cs" />
-    <Compile Include="Libs\Fasterflect\Emitter_BaseEmitter.cs" />
-    <Compile Include="Libs\Fasterflect\Emitter_CallInfo.cs" />
-    <Compile Include="Libs\Fasterflect\Emitter_CtorInvocationEmitter.cs" />
-    <Compile Include="Libs\Fasterflect\Emitter_InvocationEmitter.cs" />
-    <Compile Include="Libs\Fasterflect\Emitter_MethodInvocationEmitter.cs" />
-    <Compile Include="Libs\Fasterflect\Emitter_MemberGetEmitter.cs" />
-    <Compile Include="Libs\Fasterflect\Emitter_MemberSetEmitter.cs" />
-    <Compile Include="Libs\Fasterflect\Extensions_Services_Probing_ConstructorMap.cs" />
-    <Compile Include="Libs\Fasterflect\Extensions_Services_Probing_MapFactory.cs" />
-    <Compile Include="Libs\Fasterflect\Extensions_Services_Probing_SourceInfo.cs" />
-    <Compile Include="Libs\Fasterflect\Extensions_Services_Probing_MethodMap.cs" />
-    <Compile Include="Libs\Fasterflect\Common_Utils.cs" />
-    <Compile Include="Libs\Fasterflect\Extensions_Services_Probing_MethodDispatcher.cs" />
-    <Compile Include="Libs\Fasterflect\Emitter_ValueTypeHolder.cs" />
-    <Compile Include="Libs\Fasterflect\Extensions_Core_MethodInfoExtensions.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

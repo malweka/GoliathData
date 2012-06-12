@@ -2,7 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Reflection;
-using Goliath.Fasterflect;
+using Fasterflect;
 
 namespace Goliath.Data.DataAccess
 {
@@ -37,6 +37,26 @@ namespace Goliath.Data.DataAccess
         public bool TryGetValue(Type key, out EntityGetSetInfo getSetterInfo)
         {
             return store.TryGetValue(key, out getSetterInfo);
+        }
+
+        /// <summary>
+        /// Gets the reflection info add if missing.
+        /// </summary>
+        /// <param name="key">The key.</param>
+        /// <param name="entMap">The ent map.</param>
+        /// <returns></returns>
+        public EntityGetSetInfo GetReflectionInfoAddIfMissing(Type key, EntityMap entMap)
+        {
+            EntityGetSetInfo getSetInfo;
+
+            if (!store.TryGetValue(key, out getSetInfo))
+            {
+                getSetInfo = new EntityGetSetInfo(key);
+                getSetInfo.Load(entMap);
+                store.TryAdd(key, getSetInfo);
+            }
+
+            return getSetInfo;
         }
 
         public EntityGetSetInfo Add(Type key, EntityMap entityMap)

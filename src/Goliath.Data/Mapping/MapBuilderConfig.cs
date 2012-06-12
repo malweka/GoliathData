@@ -210,9 +210,9 @@ namespace Goliath.Data.Mapping
             MappedStatements.SetPlatform(platform);
             Settings.Platform = platform;
 
-            foreach (var proc in unprocessedStatements)
+            foreach (var statement in unprocessedStatements)
             {
-                MappedStatements.Add(proc);
+                MappedStatements.Add(statement);
             }
 
             unprocessedStatements.Clear();

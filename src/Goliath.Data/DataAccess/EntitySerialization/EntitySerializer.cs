@@ -124,15 +124,7 @@ namespace Goliath.Data.DataAccess
             if (dataReader.HasRows)
             {
                 Dictionary<string, int> columns = GetColumnNames(dataReader, entityMap.TableAlias);
-                EntityGetSetInfo getSetInfo;
-
-                if (!getSetStore.TryGetValue(typeOfInstance, out getSetInfo))
-                {
-                    getSetInfo = new EntityGetSetInfo(typeOfInstance);
-                    getSetInfo.Load(entityMap);
-                    getSetStore.Add(typeOfInstance, getSetInfo);
-                }
-
+                EntityGetSetInfo getSetInfo = getSetStore.GetReflectionInfoAddIfMissing(typeOfInstance, entityMap);
                 dataReader.Read();
                 SerializeSingle(instanceToHydrate, typeOfInstance, entityMap, getSetInfo, columns, dataReader);
             }
@@ -146,18 +138,9 @@ namespace Goliath.Data.DataAccess
         /// <param name="propertyValue">The property value.</param>
         public void SetPropertyValue(object entity, string propertyName, object propertyValue)
         {
-            EntityGetSetInfo getSetInfo;
             Type typeOfInstance = entity.GetType();
-            if (!getSetStore.TryGetValue(typeOfInstance, out getSetInfo))
-            {
-               //var map = Config.ConfigManager.CurrentSettings.Map;
-                var entityMap = Map.GetEntityMap(typeOfInstance.FullName);
-
-                getSetInfo = new EntityGetSetInfo(typeOfInstance);
-                getSetInfo.Load(entityMap);
-                getSetStore.Add(typeOfInstance, getSetInfo);
-            }
-
+            var entityMap = Map.GetEntityMap(typeOfInstance.FullName);
+            EntityGetSetInfo getSetInfo = getSetStore.GetReflectionInfoAddIfMissing(typeOfInstance, entityMap);
             PropInfo pInfo;
             if (getSetInfo.Properties.TryGetValue(propertyName, out pInfo))
             {
@@ -258,14 +241,7 @@ namespace Goliath.Data.DataAccess
                 Type type = typeof(TEntity);
                 Dictionary<string, int> columns = GetColumnNames(dbReader, entMap.TableAlias);
 
-                EntityGetSetInfo getSetInfo;
-
-                if (!getSetStore.TryGetValue(type, out getSetInfo))
-                {
-                    getSetInfo = new EntityGetSetInfo(type);
-                    getSetInfo.Load(entMap);
-                    getSetStore.Add(type, getSetInfo);
-                }
+                EntityGetSetInfo getSetInfo = getSetStore.GetReflectionInfoAddIfMissing(type, entMap);
 
                 while (dbReader.Read())
                 {

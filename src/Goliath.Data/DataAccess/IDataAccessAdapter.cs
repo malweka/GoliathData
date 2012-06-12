@@ -34,23 +34,9 @@ namespace Goliath.Data
         ///// <returns></returns>
         //int Update(TEntity entity, QueryParam[] filters);
 
-        /// <summary>
-        /// Updates the batch.
-        /// </summary>
-        /// <param name="entityList">The entity list.</param>
-        /// <returns></returns>
-        int UpdateBatch(IEnumerable<TEntity> entityList);
-
         #endregion
 
         #region Inserts
-
-        /// <summary>
-        /// Inserts the batch.
-        /// </summary>
-        /// <param name="batch">The batch.</param>
-        /// <returns></returns>
-        int InsertBatch(IEnumerable<TEntity> batch);
 
         /// <summary>
         /// Inserts the specified entity.
@@ -107,6 +93,15 @@ namespace Goliath.Data
         /// <param name="entity">The entity.</param>
         /// <returns></returns>
         int Delete(TEntity entity);
+
+        /// <summary>
+        /// Deletes the specified entity.
+        /// </summary>
+        /// <param name="entity">The entity.</param>
+        /// <param name="cascade">if set to <c>true</c> [cascade].</param>
+        /// <returns></returns>
+        int Delete(TEntity entity, bool cascade);
+
         /// <summary>
         /// Deletes the specified filters.
         /// </summary>

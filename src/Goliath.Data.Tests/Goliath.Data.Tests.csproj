@@ -48,6 +48,7 @@
     <Compile Include="MapConfigTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SqlProcedureCollectionTests.cs" />
+    <Compile Include="SqlWorkerTests.cs" />
     <Compile Include="StatementMapParserTests.cs" />
     <Compile Include="UserProvidedConnectionProviderTests.cs" />
   </ItemGroup>
