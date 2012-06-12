@@ -28,15 +28,8 @@ namespace Goliath.Data.DataAccess
             {
                 var relEntMap = entityMap.Parent.GetEntityMap(rel.ReferenceEntityName);
                 var relColumns = EntitySerializer.GetColumnNames(dbReader, relEntMap.TableAlias);
-                EntityGetSetInfo relGetSetInfo;
                 Type relType = pInfo.PropertType;
-                if (!getSetStore.TryGetValue(relType, out relGetSetInfo))
-                {
-                    relGetSetInfo = new EntityGetSetInfo(relType);
-                    relGetSetInfo.Load(relEntMap);
-                    getSetStore.Add(relType, relGetSetInfo);
-                }
-
+                EntityGetSetInfo relGetSetInfo = getSetStore.GetReflectionInfoAddIfMissing(relType, relEntMap);
                 object relIstance = Activator.CreateInstance(relType);
                 serializer.SerializeSingle(relIstance, relType, relEntMap, relGetSetInfo, relColumns, dbReader);
                 pInfo.Setter(instanceEntity, relIstance);

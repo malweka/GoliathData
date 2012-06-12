@@ -72,42 +72,49 @@ namespace Goliath.Data
         /// <param name="obj">The obj.</param>
         /// <returns></returns>
         ISearchable<T> EqualTo(object obj);
+
         /// <summary>
         /// Greaters the than.
         /// </summary>
         /// <param name="obj">The obj.</param>
         /// <returns></returns>
         ISearchable<T> GreaterThan(object obj);
+
         /// <summary>
         /// Greaters the or equal to.
         /// </summary>
         /// <param name="obj">The obj.</param>
         /// <returns></returns>
         ISearchable<T> GreaterOrEqualTo(object obj);
+
         /// <summary>
         /// Lowers the than.
         /// </summary>
         /// <param name="obj">The obj.</param>
         /// <returns></returns>
         ISearchable<T> LowerThan(object obj);
+
         /// <summary>
         /// Lowers the or equal to.
         /// </summary>
         /// <param name="obj">The obj.</param>
         /// <returns></returns>
         ISearchable<T> LowerOrEqualTo(object obj);
+
         /// <summary>
         /// Likes the specified param.
         /// </summary>
         /// <param name="param">The param.</param>
         /// <returns></returns>
         ISearchable<T> Like(string param);
+
         /// <summary>
         /// Ands the specified property name.
         /// </summary>
         /// <param name="propertyName">Name of the property.</param>
         /// <returns></returns>
         ISearchable<T> And(string propertyName);
+
         /// <summary>
         /// Ors the specified property name.
         /// </summary>

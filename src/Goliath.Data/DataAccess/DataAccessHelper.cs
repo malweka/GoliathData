@@ -43,7 +43,6 @@ namespace Goliath.Data.DataAccess
                 throw new DataAccessException(string.Format("Could not convert field value {0} to type of {1}",
                     columnName, enumType), ex);
             }
-            //return default(TEnum);
         }
     }
 }

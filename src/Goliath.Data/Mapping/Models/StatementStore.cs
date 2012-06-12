@@ -65,6 +65,7 @@ namespace Goliath.Data.Mapping
             else
             {
                 string[] supportedDbs = item.CanRunOn.Split(new string[] { ", ", ";", " " }, StringSplitOptions.RemoveEmptyEntries);
+
                 foreach (var rdbms in supportedDbs)
                 {
                     if (Platform.Id.Equals(rdbms) || Platform.CompatibilityGroup.Contains(rdbms))

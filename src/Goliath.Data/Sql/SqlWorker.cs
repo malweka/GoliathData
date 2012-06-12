@@ -152,17 +152,11 @@ namespace Goliath.Data.Sql
         {
             EntityMap baseEntMap = null;
             Dictionary<string, KeyGenOperationInfo> keygenerationOperations = new Dictionary<string, KeyGenOperationInfo>();
-            bool isSubclass = entityMap.IsSubClass;
-            EntityGetSetInfo entGetSets;
+            bool isSubclass = entityMap.IsSubClass;            
             InsertSqlBuilder baseInsertSqlBuilder = null;
             BatchSqlOperation operation = null;
 
-            if (!getSetStore.TryGetValue(entityType, out entGetSets))
-            {
-                entGetSets = new EntityGetSetInfo(entityType);
-                entGetSets.Load(entityMap);
-                getSetStore.Add(entityType, entGetSets);
-            }
+            EntityGetSetInfo entGetSets = getSetStore.GetReflectionInfoAddIfMissing(entityType, entityMap);
 
             if (isSubclass)
             {
@@ -274,11 +268,9 @@ namespace Goliath.Data.Sql
                                         var paramName2 = InsertSqlBuilder.BuildParameterNameWithLevel(rel.MapReferenceColumn, relMap.TableAlias, recursionLevel);
                                         manyToManyOp.SqlText = string.Format("INSERT INTO {0} ({1}, {2}) VALUES({3},{4})", rel.MapTableName, rel.MapColumn, rel.MapReferenceColumn, sqlMapper.CreateParameterName(paramName1), sqlMapper.CreateParameterName(paramName2));
                                         var param1Prop = entGetSets.Properties[mapRel.PropertyName];
-                                        EntityGetSetInfo mappedGetSet;
-                                        if (!getSetStore.TryGetValue(reltype, out mappedGetSet))
-                                        {
-                                            mappedGetSet = getSetStore.Add(reltype, relMap);
-                                        }
+
+                                        EntityGetSetInfo mappedGetSet = getSetStore.GetReflectionInfoAddIfMissing(reltype, relMap);
+
                                         var param2Prop = mappedGetSet.Properties[rel.ReferenceProperty];
                                         manyToManyOp.Parameters = new ParamHolder[] { new ParamHolder(paramName1, param1Prop.Getter, entity) { IsNullable = rel.IsNullable }, 
                                             new ParamHolder(paramName2, param2Prop.Getter, mappedObject) { IsNullable = mapRel.IsNullable } };
@@ -331,21 +323,12 @@ namespace Goliath.Data.Sql
            int rootRecursionLevel = 0
         )
         {
-            EntityMap baseEntMap = null;
-            EntityGetSetInfo entGetSets;
+            EntityMap baseEntMap = null;           
             UpdateSqlBuilder baseUpdateBuilder = null;
             BatchSqlOperation operation = null;
             bool isSubclass = entityMap.IsSubClass;
 
-            
-
-            if (!getSetStore.TryGetValue(entityType, out entGetSets))
-            {
-                entGetSets = new EntityGetSetInfo(entityType);
-                entGetSets.Load(entityMap);
-                getSetStore.Add(entityType, entGetSets);
-            }
-
+            EntityGetSetInfo entGetSets = getSetStore.GetReflectionInfoAddIfMissing(entityType, entityMap);
 
             if (isSubclass)
             {
@@ -409,19 +392,9 @@ namespace Goliath.Data.Sql
         )
         {
             EntityMap baseEntMap = null;
-            EntityGetSetInfo entGetSets;
+            EntityGetSetInfo entGetSets = getSetStore.GetReflectionInfoAddIfMissing(entityType, entityMap);
  
             bool isSubclass = entityMap.IsSubClass;
-
-
-
-            if (!getSetStore.TryGetValue(entityType, out entGetSets))
-            {
-                entGetSets = new EntityGetSetInfo(entityType);
-                entGetSets.Load(entityMap);
-                getSetStore.Add(entityType, entGetSets);
-            }
-
 
             var wheres = UpdateSqlBuilder.BuildWhereStatementFromPrimaryKey(entityMap, sqlMapper, 0);
             DeleteSqlBuilder entDeleteSqlBuilder = new DeleteSqlBuilder(sqlMapper, entityMap);

@@ -53,6 +53,7 @@ namespace Goliath.Data
         {
             if (session == null)
                 throw new ArgumentNullException("session");
+
             this.serializer = serializer;
             this.session = session;
 
@@ -63,15 +64,6 @@ namespace Goliath.Data
                 var map = session.SessionFactory.DbSettings.Map;
                 entityMap = map.GetEntityMap(entityType.FullName);
             }
-
-            //if (entityMap.Parent != null)
-            //{
-            //    string save_utc_prop;
-            //    if (entityMap.Parent.Settings.TryGetProperty(ProjectSettings.PropertyNames.SaveAllDateUTC, out save_utc_prop))
-            //    {
-            //        bool.TryParse(save_utc_prop, out saveDataInUtcFormat);
-            //    }
-            //}
 
             this.entityMap = entityMap;
         }
@@ -171,34 +163,9 @@ namespace Goliath.Data
             }
         }
 
-        //public int Update(TEntity entity, QueryParam[] filters)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        /// <summary>
-        /// Updates the batch.
-        /// </summary>
-        /// <param name="entityList">The entity list.</param>
-        /// <returns></returns>
-        public int UpdateBatch(IEnumerable<TEntity> entityList)
-        {
-            throw new NotImplementedException();
-        }
-
         #endregion
 
         #region Inserts
-
-        /// <summary>
-        /// Inserts the batch.
-        /// </summary>
-        /// <param name="batch">The batch.</param>
-        /// <returns></returns>
-        public int InsertBatch(IEnumerable<TEntity> batch)
-        {
-            throw new NotImplementedException();
-        }
 
         /// <summary>
         /// Inserts the specified entity.
@@ -511,6 +478,17 @@ namespace Goliath.Data
         /// <param name="entity">The entity.</param>
         /// <returns></returns>
         public int Delete(TEntity entity)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Deletes the specified entity.
+        /// </summary>
+        /// <param name="entity">The entity.</param>
+        /// <param name="cascade">if set to <c>true</c> [cascade].</param>
+        /// <returns></returns>
+        public int Delete(TEntity entity, bool cascade)
         {
             throw new NotImplementedException();
         }

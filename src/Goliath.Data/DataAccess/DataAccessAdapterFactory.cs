@@ -31,8 +31,6 @@ namespace Goliath.Data.DataAccess
         /// </summary>
         public DataAccessAdapterFactory(MapConfig map, IEntitySerializer serializerFactory)
         {
-            //db = dataAccess;
-            //this.dbConnector = dbConnector;
             this.map = map;
             SetSerializerFactory(serializerFactory);
         }
@@ -68,7 +66,7 @@ namespace Goliath.Data.DataAccess
                     if (dlgMethod is Func<IEntitySerializer, ISession, IDataAccessAdapter<TEntity>>)
                         factoryMethod = (Func<IEntitySerializer, ISession, IDataAccessAdapter<TEntity>>)dlgMethod;
                     else
-                        throw new GoliathDataException("unknown factory method");
+                        throw new GoliathDataException("Unknown factory method");
                 }
                 else
                 {
@@ -86,13 +84,11 @@ namespace Goliath.Data.DataAccess
             catch (GoliathDataException ex)
             {
                 Console.WriteLine(ex.ToString());
-                //logger.Log(string.Format("Error while trying to invoke DataAccessAdapter factory method for {0}", typeof(TEntity)), ex);
                 throw;
             }
             catch (Exception ex)
             {
                 string errorMessage = string.Format("Error while trying to invoke DataAccessAdapter factory method for {0}", typeof(TEntity));
-                //logger.LogException(errorMessage, ex);
                 throw new GoliathDataException(errorMessage, ex); ;
             }
         }

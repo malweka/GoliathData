@@ -56,15 +56,7 @@ namespace Goliath.Data.Sql
         public Dictionary<string, ParamHolder> BuildQueryParams(object entity, GetSetStore getSetStore, int level, int rootLevel)
         {
             Type entityType = entity.GetType();
-            EntityGetSetInfo getSetInfo;
-
-            if (!getSetStore.TryGetValue(entityType, out getSetInfo))
-            {
-                getSetInfo = new EntityGetSetInfo(entityType);
-                getSetInfo.Load(entMap);
-                getSetStore.Add(entityType, getSetInfo);
-            }
-
+            EntityGetSetInfo getSetInfo = getSetStore.GetReflectionInfoAddIfMissing(entityType, entMap);
             return BuildInsertQueryParams(entity, getSetInfo, entMap, getSetStore, level, rootLevel);
         }
 
@@ -87,15 +79,7 @@ namespace Goliath.Data.Sql
                         var relInstance = pInfo.Getter(entity);
                         if (relInstance != null)
                         {
-                            EntityGetSetInfo relGetSet;
-
-                            if (!getSetStore.TryGetValue(pInfo.PropertType, out relGetSet))
-                            {
-                                relGetSet = new EntityGetSetInfo(pInfo.PropertType);
-                                relGetSet.Load(entityMap);
-                                getSetStore.Add(pInfo.PropertType, relGetSet);
-                            }
-
+                            EntityGetSetInfo relGetSet = getSetStore.GetReflectionInfoAddIfMissing(pInfo.PropertType, entityMap);
                             PropInfo referenceProp;
                             if (relGetSet.Properties.TryGetValue(rel.ReferenceProperty, out referenceProp))
                             {
@@ -103,11 +87,7 @@ namespace Goliath.Data.Sql
                                 string paramName = paramName = BuildParameterNameWithLevel(rel.ReferenceColumn, relEntMap.TableAlias, rootLevel);
 
                                 ParamHolder param = new ParamHolder(paramName, referenceProp.Getter, relInstance) { IsNullable = prop.IsNullable };
-                                //val = referenceProp.Getter(relInstance);
 
-                                //if ((val == null) && !prop.IsNullable)
-                                //    throw new DataAccessException("{0}.{1} is cannot be null.", entityMap.Name, prop.PropertyName);
-                                //param.Value = val;
                                 if (!parameters.ContainsKey(prop.ColumnName))
                                 {
                                     parameters.Add(prop.ColumnName, param);

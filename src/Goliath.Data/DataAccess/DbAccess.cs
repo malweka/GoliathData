@@ -5,6 +5,7 @@ using System.Data.Common;
 namespace Goliath.Data
 {
     using Diagnostics;
+
     /// <summary>
     /// 
     /// </summary>
@@ -41,47 +42,6 @@ namespace Goliath.Data
         {
             this.dbConnector = dbConnector;
         }
-
-        #endregion
-
-        #region Connection and parameter methods
-
-        //public DbParameter CreateParameter(int i, object value)
-        //{
-        //    return dbConnector.CreateParameter(i.ToString(), value);
-        //}
-
-        //public DbParameter CreateParameter(QueryParam queryParam)
-        //{
-        //    if (queryParam == null)
-        //        throw new ArgumentNullException("queryParam");
-        //    try
-        //    {
-        //        object val = queryParam.Value;
-        //        return dbConnector.CreateParameter(queryParam.Name, val);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        throw new GoliathDataException(string.Format("Error while trying to create parameter {0}", queryParam.Name), ex);
-        //    }
-        //}
-
-        ///// <summary>
-        ///// Creates the parameters.
-        ///// </summary>
-        ///// <param name="queryParams">The query params.</param>
-        ///// <returns></returns>
-        //public ICollection<DbParameter> CreateParameters(IEnumerable<QueryParam> queryParams)
-        //{
-        //    if(queryParams == null)
-        //        throw new ArgumentNullException("queryParams");
-        //    List<DbParameter> parameters = new List<DbParameter>();
-        //    foreach (var qp in queryParams)
-        //        parameters.Add(CreateParameter(qp));
-
-        //    return parameters;
-        //}
-
 
         #endregion
 

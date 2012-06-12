@@ -7,8 +7,6 @@ namespace Goliath.Data.DataAccess
     [Serializable]
     class SessionFactory : ISessionFactory
     {
-        //IDbAccess dbAccess;
-        //IDbConnector dbConnector;
         Func<MapConfig, IEntitySerializer, IDataAccessAdapterFactory> adapterFactoryFactoryMethod;
         IDataAccessAdapterFactory adapterFactory;
         IEntitySerializer serializer;
@@ -73,9 +71,12 @@ namespace Goliath.Data.DataAccess
 
         #region IDisposable Members
 
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
         public void Dispose()
         {
-            throw new NotImplementedException();
+
         }
 
         #endregion

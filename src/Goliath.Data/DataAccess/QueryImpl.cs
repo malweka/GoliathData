@@ -8,6 +8,7 @@ namespace Goliath.Data.DataAccess
     class QueryImpl<T> : IQuery<T>
     {
         IDataAccessAdapterFactory dbAccessFactory;
+
         IDbConnection connection;
 
         /// <summary>

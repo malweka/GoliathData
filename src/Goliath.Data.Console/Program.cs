@@ -140,8 +140,6 @@ namespace WebZoo.Data
             ProjectSettings settings = new ProjectSettings();
 
             settings.ConnectionString = "Data Source=localhost;Initial Catalog=DbZoo;Integrated Security=True";
-            //settings.TablePrefixes = "Go";
-            //settings.ConnectionString = "Data Source=localhost;Initial Catalog=GoliathDbGenerated;Integrated Security=True";
             settings.Namespace = "WebZoo.Data.SqlServer";
             settings.Version = "1.0";
             settings.AssemblyName = "WebZoo.Data";
