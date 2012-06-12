@@ -102,13 +102,6 @@ namespace Goliath.Data
         /// <returns></returns>
         int Delete(TEntity entity, bool cascade);
 
-        /// <summary>
-        /// Deletes the specified filters.
-        /// </summary>
-        /// <param name="filters">The filters.</param>
-        /// <returns></returns>
-        int Delete(QueryParam[] filters);
-
         #endregion
     }
 }

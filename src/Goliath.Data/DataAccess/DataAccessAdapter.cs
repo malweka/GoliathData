@@ -28,6 +28,8 @@ namespace Goliath.Data
         static ILogger logger;
         EntityMap entityMap;
 
+        #region ctors
+
         static DataAccessAdapter()
         {
             logger = Logger.GetLogger(typeof(DataAccessAdapter<>));
@@ -76,7 +78,7 @@ namespace Goliath.Data
                 dbConnection.Open();
         }
 
-        #region IDataAccessAdapter<TEntity> Members
+        #endregion
 
         #region Updates
 
@@ -131,7 +133,7 @@ namespace Goliath.Data
             }
             catch (Exception ex)
             {
-                throw new GoliathDataException(string.Format("Exception while inserting: {0}", sql), ex);
+                throw new GoliathDataException(string.Format("Exception while updating: {0}", sql), ex);
             }
             finally
             {
@@ -143,12 +145,12 @@ namespace Goliath.Data
 
         void BuildUpdateOperations(BatchSqlOperation batchOp, Dictionary<string, QueryParam> parameters, List<SqlOperationInfo> operations)
         {
-            List<SqlOperationInfo> inserts = new List<SqlOperationInfo>();
+            List<SqlOperationInfo> updates = new List<SqlOperationInfo>();
 
 
             for (int i = 0; i < batchOp.Operations.Count; i++)
             {
-                inserts.Add(batchOp.Operations[i]);
+                updates.Add(batchOp.Operations[i]);
                 foreach (var paramet in batchOp.Operations[i].Parameters)
                 {
                     if (!parameters.ContainsKey(paramet.Name))
@@ -156,7 +158,7 @@ namespace Goliath.Data
                 }
             }
 
-            operations.AddRange(inserts);
+            operations.AddRange(updates);
             for (int i = 0; i < batchOp.SubOperations.Count; i++)
             {
                 BuildUpdateOperations(batchOp.SubOperations[i], parameters, operations);
@@ -184,7 +186,6 @@ namespace Goliath.Data
 
             if ((session.CurrentTransaction == null) || !session.CurrentTransaction.IsStarted)
             {
-
                 session.BeginTransaction();
                 ownTransaction = true;
             }
@@ -205,8 +206,8 @@ namespace Goliath.Data
                 sqlInserts.Append(inserts[i].SqlText);
                 sqlInserts.Append(";\n");
             }
+
             string sql = sqlInserts.ToString();
-            //logger.Log(LogLevel.Debug, sql);
             try
             {
                 result = session.DataAccess.ExecuteNonQuery(dbConn, session.CurrentTransaction, sql, paramList);
@@ -215,7 +216,7 @@ namespace Goliath.Data
             }
             catch (GoliathDataException ex)
             {
-                Console.WriteLine("goliath exception: {0}", ex.Message);
+                Console.WriteLine("Goliath exception: {0}", ex.Message);
                 throw;
             }
             catch (Exception ex)
@@ -472,6 +473,8 @@ namespace Goliath.Data
 
         #endregion
 
+        #region Deletes
+
         /// <summary>
         /// Deletes the specified entity.
         /// </summary>
@@ -479,7 +482,7 @@ namespace Goliath.Data
         /// <returns></returns>
         public int Delete(TEntity entity)
         {
-            throw new NotImplementedException();
+            return Delete(entity, false);
         }
 
         /// <summary>
@@ -490,17 +493,80 @@ namespace Goliath.Data
         /// <returns></returns>
         public int Delete(TEntity entity, bool cascade)
         {
-            throw new NotImplementedException();
+            var sqlWorker = serializer.CreateSqlWorker();
+            bool ownTransaction = false;
+            int result = 0;
+
+            var dbConn = session.ConnectionManager.OpenConnection();
+
+            if ((session.CurrentTransaction == null) || !session.CurrentTransaction.IsStarted)
+            {
+                session.BeginTransaction();
+                ownTransaction = true;
+            }
+
+            Dictionary<string, QueryParam> neededParams = new Dictionary<string, QueryParam>();
+            List<SqlOperationInfo> operations = new List<SqlOperationInfo>();
+
+            using (var batchOp = sqlWorker.BuildDeleteSql<TEntity>(entityMap, entity, cascade))
+            {
+                BuildDeleteOperations(batchOp, neededParams, operations);
+            }
+
+            var paramList = neededParams.Values.ToArray();
+            StringBuilder sqlDeletes = new StringBuilder();
+
+            for (int i = 0; i < operations.Count; i++)
+            {
+                sqlDeletes.Append(operations[i].SqlText);
+                sqlDeletes.Append(";\n");
+            }
+
+            string sql = sqlDeletes.ToString();
+
+            try
+            {
+                result = session.DataAccess.ExecuteNonQuery(dbConn, session.CurrentTransaction, sql, paramList);
+                if (ownTransaction)
+                    session.CommitTransaction();
+            }
+            catch (GoliathDataException ex)
+            {
+                Console.WriteLine("goliath exception: {0}", ex.Message);
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new GoliathDataException(string.Format("Exception while deleting: {0}", sql), ex);
+            }
+            finally
+            {
+                neededParams.Clear();
+            }
+
+            return result;
         }
 
-        /// <summary>
-        /// Deletes the specified filters.
-        /// </summary>
-        /// <param name="filters">The filters.</param>
-        /// <returns></returns>
-        public int Delete(QueryParam[] filters)
+        void BuildDeleteOperations(BatchSqlOperation batchOp, Dictionary<string, QueryParam> parameters, List<SqlOperationInfo> operations)
         {
-            throw new NotImplementedException();
+            List<SqlOperationInfo> deletes = new List<SqlOperationInfo>();
+
+            for (int i = 0; i < batchOp.Operations.Count; i++)
+            {
+                deletes.Add(batchOp.Operations[i]);
+                foreach (var paramet in batchOp.Operations[i].Parameters)
+                {
+                    if (!parameters.ContainsKey(paramet.Name))
+                        parameters.Add(paramet.Name, paramet);
+                }
+            }
+
+            operations.AddRange(deletes);
+
+            for (int i = 0; i < batchOp.SubOperations.Count; i++)
+            {
+                BuildDeleteOperations(batchOp.SubOperations[i], parameters, operations);
+            }
         }
 
         #endregion

@@ -56,6 +56,7 @@ namespace Goliath.Data.Sql
                         PostOperator = filters[i].PostOperator,
                         RightOperand = new StringOperand(sqlMapper.CreateParameterName(ParameterNameBuilderHelper.ColumnQueryName(prop.ColumnName, entityMap.TableAlias)))
                     };
+
                     queryBuilder.Where(w);
                 }
             }
