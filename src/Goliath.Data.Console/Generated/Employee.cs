@@ -30,7 +30,8 @@ namespace WebZoo.Data
 		#region relations
 
 		public virtual WebZoo.Data.Zoo AssignedToZoo { get; set; }		
-		public virtual IList<WebZoo.Data.Animal> AnimalsOnAnimalsHandler_EmployeeId { get; set; }
+		IList<WebZoo.Data.Animal> animalsOnAnimalsHandler_EmployeeId = new List<WebZoo.Data.Animal>();
+		public virtual IList<WebZoo.Data.Animal> AnimalsOnAnimalsHandler_EmployeeId { get{ return animalsOnAnimalsHandler_EmployeeId; } set{ animalsOnAnimalsHandler_EmployeeId = value; } }
 
 		#endregion
 		

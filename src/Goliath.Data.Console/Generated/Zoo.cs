@@ -25,8 +25,10 @@ namespace WebZoo.Data
 
 		#region relations
 
-		public virtual IList<WebZoo.Data.Animal> AnimalsOnZooId { get; set; }
-		public virtual IList<WebZoo.Data.Employee> EmployeesOnAssignedToZooId { get; set; }
+		IList<WebZoo.Data.Animal> animalsOnZooId = new List<WebZoo.Data.Animal>();
+		public virtual IList<WebZoo.Data.Animal> AnimalsOnZooId { get{ return animalsOnZooId; } set{ animalsOnZooId = value; } }
+		IList<WebZoo.Data.Employee> employeesOnAssignedToZooId = new List<WebZoo.Data.Employee>();
+		public virtual IList<WebZoo.Data.Employee> EmployeesOnAssignedToZooId { get{ return employeesOnAssignedToZooId; } set{ employeesOnAssignedToZooId = value; } }
 
 		#endregion
 		

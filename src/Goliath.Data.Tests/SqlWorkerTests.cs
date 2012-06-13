@@ -9,6 +9,77 @@ namespace Goliath.Data.Tests
     public class SqlWorkerTests
     {
         [Test]
+        public void BuildUpdateSql_with_cascade_false_no_manyToMany_relation_should_be_update()
+        {
+            var session = SessionHelper.Factory.OpenSession();
+            var sqlWorker = session.SessionFactory.DataSerializer.CreateSqlWorker();
+            var entMap = SessionHelper.Factory.DbSettings.Map.GetEntityMap(typeof(Animal).FullName);
+
+            Employee emp = new Employee()
+            {
+                FirstName = "Joe",
+                LastName = "employee",
+                HiredOn = DateTime.Now,
+                EmailAddress = "joeemp@mail.com"
+                ,
+                Id = 2,
+                Telephone = "4555555999",
+                Title = "Zookeeper"
+            };
+
+            Animal zeb = new Animal() { Age = 5, Id = 25, Location = "45V", Name = "Zebra", ReceivedOn = DateTime.Now, ZooId = 3 };
+
+            emp.AnimalsOnAnimalsHandler_EmployeeId.Add(zeb);
+            zeb.EmployeesOnAnimalsHandler_AnimalId.Add(emp);
+
+            var batchOps = sqlWorker.BuildUpdateSql<Animal>(entMap, zeb, false);
+            string commtxt = batchOps.Operations[0].SqlText;
+            Console.WriteLine(commtxt);
+
+            Assert.AreEqual(1, batchOps.Operations.Count);
+            Assert.AreEqual(0, batchOps.SubOperations.Count);
+
+            Assert.AreEqual("UPDATE animals SET Name = $anim_Name_0, Age = $anim_Age_0, Location = $anim_Location_0, ReceivedOn = $anim_ReceivedOn_0, ZooId = $anim_ZooId_0\nWHERE animals.Id = $anim_Id_0", commtxt.Trim());
+
+        }
+
+        [Test]
+        public void BuildUpdateSql_with__manyToMany_relation_should_be_update()
+        {
+            var session = SessionHelper.Factory.OpenSession();
+            var sqlWorker = session.SessionFactory.DataSerializer.CreateSqlWorker();
+            var entMap = SessionHelper.Factory.DbSettings.Map.GetEntityMap(typeof(Animal).FullName);
+
+            Employee emp = new Employee()
+            {
+                FirstName = "Joe",
+                LastName = "employee",
+                HiredOn = DateTime.Now,
+                EmailAddress = "joeemp@mail.com"
+                ,
+                Id = 2,
+                Telephone = "4555555999",
+                Title = "Zookeeper"
+            };
+
+            Animal zeb = new Animal() { Age = 5, Id = 25, Location = "45V", Name = "Zebra", ReceivedOn = DateTime.Now, ZooId = 3 };
+
+            emp.AnimalsOnAnimalsHandler_EmployeeId.Add(zeb);
+            zeb.EmployeesOnAnimalsHandler_AnimalId.Add(emp);
+
+            var batchOps = sqlWorker.BuildUpdateSql<Animal>(entMap, zeb, true);
+            string commtxt = batchOps.Operations[0].SqlText;
+            Console.WriteLine(commtxt);
+
+            Assert.AreEqual(1, batchOps.Operations.Count);
+            Assert.AreEqual(1, batchOps.SubOperations.Count);
+
+            Assert.AreEqual("UPDATE animals SET Name = $anim_Name_0, Age = $anim_Age_0, Location = $anim_Location_0, ReceivedOn = $anim_ReceivedOn_0, ZooId = $anim_ZooId_0\nWHERE animals.Id = $anim_Id_0", commtxt.Trim());
+
+        }
+
+
+        [Test]
         public void BuildDeleteSql_do_not_cascade_only_one_entity_should_be_deleted()
         {
             var session = SessionHelper.Factory.OpenSession();
