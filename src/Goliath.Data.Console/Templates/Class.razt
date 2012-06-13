@@ -71,7 +71,9 @@ namespace @Model.Namespace
 				}
 				else
 				{
-		@:public virtual IList<@other.FullName> @p.PropertyName { get; set; }
+					string relListName = Goliath.Data.Utils.Inflector.Uncapitalize(p.PropertyName);
+		@:IList<@other.FullName> @(relListName) = new List<@other.FullName>();
+		@:public virtual IList<@other.FullName> @p.PropertyName { get{ return @(relListName); } set{ @(relListName) = value; } }
 				}
 			}
 		}

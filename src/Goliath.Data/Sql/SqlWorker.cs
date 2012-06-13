@@ -367,6 +367,14 @@ namespace Goliath.Data.Sql
             operationInfo.Parameters = parameters;
             operation.Operations.Add(operationInfo);
 
+            if (recursive)
+            {
+                foreach (var rel in entityMap.Relations)
+                {
+
+                }
+            }
+
         }
 
         /// <summary>

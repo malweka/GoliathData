@@ -26,7 +26,7 @@ namespace Goliath.Data.Tests
             string autoIncrementFileName = "ZooDb_auto_increment.db";
             //string guidFileName = string.Format("ZooDb_guid.{0}.db",  DateTime.Now.Ticks);
 
-            string mappingFolder = Path.Combine(pdir, "src", "Goliath.Data.Tests", "Entities", "AutoIncrement");
+            string mappingFolder = Path.Combine(pdir, "src", "Goliath.Data.Tests", "Entities", "WebZoo");
             string scriptFolder = Path.Combine(pdir, "src", "Goliath.Data.Tests", "Scripts", "Sqlite", "AutoIncrement");
             string dbfile = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, autoIncrementFileName);
             string cs = string.Format("Data Source={0}; Version=3", dbfile);
