@@ -12,13 +12,8 @@ namespace Goliath.Data.DataAccess
     class SerializeManyToOne : RelationSerializer
     {
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="SerializeManyToOne"/> class.
-        /// </summary>
-        /// <param name="sqlMapper">The SQL mapper.</param>
-        /// <param name="getSetStore">The get set store.</param>
-        public SerializeManyToOne(SqlMapper sqlMapper, GetSetStore getSetStore)
-            : base(sqlMapper, getSetStore)
+        public SerializeManyToOne(SqlDialect sqlDialect, GetSetStore getSetStore)
+            : base(sqlDialect, getSetStore)
         {
         }
 
@@ -47,9 +42,9 @@ namespace Goliath.Data.DataAccess
                     {
                         QueryParam qp = new QueryParam(ParameterNameBuilderHelper.ColumnQueryName(relEntMap.TableAlias, rel.ReferenceColumn)) { Value = val };
 
-                        SelectSqlBuilder sqlBuilder = new SelectSqlBuilder(sqlMapper, relEntMap)
+                        SelectSqlBuilder sqlBuilder = new SelectSqlBuilder(sqlDialect, relEntMap)
                            .Where(new WhereStatement(ParameterNameBuilderHelper.ColumnWithTableAlias(relEntMap.TableAlias, rel.ReferenceColumn))
-                                    .Equals(sqlMapper.CreateParameterName(qp.Name)));
+                                    .Equals(sqlDialect.CreateParameterName(qp.Name)));
 
                         SqlOperationInfo qInfo = new SqlOperationInfo() { CommandType = SqlStatementType.Select };
                         qInfo.SqlText = sqlBuilder.ToSqlString();

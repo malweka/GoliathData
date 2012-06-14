@@ -239,13 +239,13 @@ namespace Goliath.Data.Mapping
         /// <summary>
         /// Returns a <see cref="System.String"/> that represents this instance.
         /// </summary>
-        /// <param name="sqlMapper">The SQL mapper.</param>
+        /// <param name="sqlDialect">The SQL dialect.</param>
         /// <returns>
         /// A <see cref="System.String"/> that represents this instance.
         /// </returns>
-        public virtual string ToString(Providers.SqlMapper sqlMapper)
+        public virtual string ToString(Providers.SqlDialect sqlDialect)
         {
-            var txt = sqlMapper.TranslateToSqlStringType(this);
+            var txt = sqlDialect.TranslateToSqlStringType(this);
             return txt;
         }
 

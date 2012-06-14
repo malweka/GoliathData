@@ -74,6 +74,8 @@ namespace Goliath.Data.Tests
             Assert.AreEqual(1, batchOps.Operations.Count);
             Assert.AreEqual(1, batchOps.SubOperations.Count);
 
+            Console.WriteLine(batchOps.SubOperations[0].Operations[0].SqlText);
+
             Assert.AreEqual("UPDATE animals SET Name = $anim_Name_0, Age = $anim_Age_0, Location = $anim_Location_0, ReceivedOn = $anim_ReceivedOn_0, ZooId = $anim_ZooId_0\nWHERE animals.Id = $anim_Id_0", commtxt.Trim());
 
         }

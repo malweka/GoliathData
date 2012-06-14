@@ -36,10 +36,10 @@ namespace Goliath.Data.CodeGen
         {
             if ((rdbms == SupportedRdbms.Mssql2005) || (rdbms == SupportedRdbms.Mssql2008))
             {
-                SqlMapper mapper = new Mssq2008SqlMapper();
+                SqlDialect dialect = new Mssq2008Dialect();
                 IDbConnector dbConnector = new MssqlDbConnector(settings.ConnectionString);
                 IDbAccess db = new DbAccess(dbConnector);
-                using (ISchemaDescriptor schemaDescriptor = new MssqlSchemaDescriptor(db, dbConnector, mapper, settings))
+                using (ISchemaDescriptor schemaDescriptor = new MssqlSchemaDescriptor(db, dbConnector, dialect, settings))
                 {
                     return Build(workingFolder, settings, baseModel, schemaDescriptor);
                 }
@@ -47,11 +47,11 @@ namespace Goliath.Data.CodeGen
             }
             else if (rdbms == SupportedRdbms.Sqlite3)
             {
-                SqlMapper mapper = new SqliteSqlMapper();
+                SqlDialect sqlDialect = new SqliteDialect();
                 IDbConnector dbConnector = new SqliteDbConnector(settings.ConnectionString);
                 IDbAccess db = new DbAccess(dbConnector);
 
-                using (ISchemaDescriptor schema = new SqliteSchemaDescriptor(db, dbConnector, mapper, settings))
+                using (ISchemaDescriptor schema = new SqliteSchemaDescriptor(db, dbConnector, sqlDialect, settings))
                 {
                     return Build(workingFolder, settings, baseModel, schema);
                 }

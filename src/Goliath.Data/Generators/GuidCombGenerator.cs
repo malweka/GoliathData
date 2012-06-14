@@ -19,15 +19,16 @@ namespace Goliath.Data.Generators
         public const string GeneratorName = "Guid_Comb";
         #region IKeyGenerator<Guid> Members
 
+
         /// <summary>
-        /// Generates the specified entity map.
+        /// Generates the specified SQL dialect.
         /// </summary>
-        /// <param name="sqlMapper">The SQL mapper.</param>
+        /// <param name="sqlDialect">The SQL dialect.</param>
         /// <param name="entityMap">The entity map.</param>
         /// <param name="propertyName">Name of the property.</param>
         /// <param name="priority">The priority.</param>
         /// <returns></returns>
-        public Guid Generate(SqlMapper sqlMapper, EntityMap entityMap, string propertyName, out Sql.SqlOperationPriority priority)
+        public Guid Generate(SqlDialect sqlDialect, EntityMap entityMap, string propertyName, out Sql.SqlOperationPriority priority)
         {
             priority = Sql.SqlOperationPriority.Low;
             return NewGuidComb();
@@ -70,14 +71,14 @@ namespace Goliath.Data.Generators
         /// <summary>
         /// Generates the key.
         /// </summary>
-        /// <param name="sqlMapper">The SQL mapper.</param>
+        /// <param name="sqlDialect">The SQL dialect.</param>
         /// <param name="entityMap">The entity map.</param>
         /// <param name="propertyName">Name of the property.</param>
         /// <param name="priority">The priority.</param>
         /// <returns></returns>
-        object IKeyGenerator.GenerateKey(SqlMapper sqlMapper, EntityMap entityMap, string propertyName, out Sql.SqlOperationPriority priority)
+        object IKeyGenerator.GenerateKey(SqlDialect sqlDialect, EntityMap entityMap, string propertyName, out Sql.SqlOperationPriority priority)
         {
-            return Generate(sqlMapper, entityMap, propertyName, out priority);
+            return Generate(sqlDialect, entityMap, propertyName, out priority);
         }
 
         #endregion

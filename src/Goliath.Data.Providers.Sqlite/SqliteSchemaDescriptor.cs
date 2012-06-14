@@ -13,7 +13,7 @@ namespace Goliath.Data.Providers.Sqlite
     public class SqliteSchemaDescriptor : SchemaDescriptor
     {
         IDbAccess db;
-        SqlMapper mapper;
+        SqlDialect dialect;
         IDbConnector dbConnector;
 
         const string SELECT_TABLE_FROM_SCHEMA = @"select * from sqlite_master where type = 'table' and tbl_name not like 'sqlite_%'";
@@ -37,12 +37,12 @@ namespace Goliath.Data.Providers.Sqlite
         }
 
 
-        public SqliteSchemaDescriptor(IDbAccess db, IDbConnector dbConnector, SqlMapper mapper, ProjectSettings settings)
+        public SqliteSchemaDescriptor(IDbAccess db, IDbConnector dbConnector, SqlDialect dialect, ProjectSettings settings)
             : base(RdbmsBackend.SupportedSystemNames.Sqlite3)
         {
             this.db = db;
             this.dbConnector = dbConnector;
-            this.mapper = mapper;
+            this.dialect = dialect;
             ProjectSettings = settings;
         }
 
@@ -123,10 +123,10 @@ namespace Goliath.Data.Providers.Sqlite
                     if (length.HasValue)
                     {
                         //col = new Property(table, colName, mapper.SqlStringToDbType(dataType), length.Value);
-                        col = new Property(colName, colName, mapper.SqlStringToDbType(dataType)) { Length = length.Value };
+                        col = new Property(colName, colName, dialect.SqlStringToDbType(dataType)) { Length = length.Value };
                     }
                     else
-                        col = new Property(colName, colName, mapper.SqlStringToDbType(dataType));
+                        col = new Property(colName, colName, dialect.SqlStringToDbType(dataType));
 
                     col.SqlType = dataType;
 
@@ -144,7 +144,7 @@ namespace Goliath.Data.Providers.Sqlite
 
                     col.IsNullable = isNullable;
                     col.DefaultValue = reader.GetValueAsString("dflt_value");
-                    col.ClrType = mapper.GetClrType(col.DbType, isNullable);
+                    col.ClrType = dialect.GetClrType(col.DbType, isNullable);
 
                     columnList.Add(colName, col);
 

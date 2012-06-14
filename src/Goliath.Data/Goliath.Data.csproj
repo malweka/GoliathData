@@ -61,7 +61,9 @@
     <Compile Include="..\AssemblyInfo.Shared.cs">
       <Link>Properties\AssemblyInfo.Shared.cs</Link>
     </Compile>
+    <Compile Include="Collections\TrackableList.cs" />
     <Compile Include="CompiledStatement.cs" />
+    <Compile Include="DataAccess\EntitySerialization\IEntityFactory.cs" />
     <Compile Include="DynamicProxy\ILazyObject.cs" />
     <Compile Include="Entity\ChangeSet.cs" />
     <Compile Include="Collections\ILazyList.cs" />
@@ -110,6 +112,7 @@
     <Compile Include="Generators\GuidCombGenerator.cs" />
     <Compile Include="GoliathDataException.cs" />
     <Compile Include="ISessionStore.cs" />
+    <Compile Include="Collections\ITrackableCollection.cs" />
     <Compile Include="KeyedCollectionBase.cs" />
     <Compile Include="Collections\LazyList.cs" />
     <Compile Include="Generators\IKeyGenerator.cs" />
@@ -156,7 +159,7 @@
     <Compile Include="Providers\SqlServer\MssqlProvider.cs" />
     <Compile Include="Providers\SqlServer\MssqlSchemaDescriptor.cs" />
     <Compile Include="Providers\SqlServer\MssqlDataAccess.cs" />
-    <Compile Include="Providers\SqlServer\MssqlSqlMapper.cs" />
+    <Compile Include="Providers\SqlServer\MssqlDialect.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Mapping\SqlTypeHelper.cs" />
     <Compile Include="SqliteBackend.cs" />
@@ -166,7 +169,7 @@
     <Compile Include="Sql\ISqlWorker.cs" />
     <Compile Include="Sql\SqlOperationInfo.cs" />
     <Compile Include="QueryParam.cs" />
-    <Compile Include="Providers\SqlMapper.cs" />
+    <Compile Include="Providers\SqlDialect.cs" />
     <Compile Include="Sql\Enums.cs" />
     <Compile Include="Sql\GroupBy.cs" />
     <Compile Include="Sql\InsertSqlBuilder.cs" />
@@ -195,7 +198,7 @@
     <Compile Include="Utilities\EnumComparer.cs" />
     <Compile Include="Utilities\Extensions.cs" />
     <Compile Include="Libs\Inflector.cs" />
-	<Compile Include="Libs\Fasterflect.cs" />
+    <Compile Include="Libs\Fasterflect.cs" />
     <Compile Include="Utilities\StringHelpers.cs" />
     <Compile Include="Mapping\Fluent\FluentMap.cs" />
     <Compile Include="Mapping\Fluent\PropertyMap.cs" />

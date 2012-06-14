@@ -13,10 +13,10 @@ namespace Goliath.Data.Sql
         public static string SelectCount(this SelectSqlBuilder selectBuilder)
         {
             var queryBody = selectBuilder.Build();
-            var countFunction = selectBuilder.SqlMapper.GetFunction(FunctionNames.Count);
+            var countFunction = selectBuilder.SqlDialect.GetFunction(FunctionNames.Count);
             if(countFunction == null)
                 throw new GoliathDataException(string.Format("Count function is either not registerd for provider {0} or is not supported",
-                    selectBuilder.SqlMapper.DatabaseProviderName));
+                    selectBuilder.SqlDialect.DatabaseProviderName));
 
             StringBuilder sb = new StringBuilder(string.Format("SELECT {0} AS Total", countFunction.ToSqlStatement()));
             sb.AppendFormat("\nFROM {0}", queryBody.From);

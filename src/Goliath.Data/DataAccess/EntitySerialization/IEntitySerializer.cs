@@ -12,9 +12,10 @@ namespace Goliath.Data.DataAccess
     public interface IEntitySerializer
     {
         /// <summary>
-        /// Gets the SQL mapper.gem
+        /// Gets the SQL dialect.
         /// </summary>
-        Providers.SqlMapper SqlMapper { get; }
+        /// <value>The SQL dialect.</value>
+        Providers.SqlDialect SqlDialect { get; }
 
         /// <summary>
         /// Hydrates the specified instance to hydrate.
@@ -55,6 +56,7 @@ namespace Goliath.Data.DataAccess
         /// <param name="dataReader">The data reader.</param>
         /// <returns></returns>
         T ReadFieldData<T>(string fieldName, DbDataReader dataReader);
+
         /// <summary>
         /// Reads the field data.
         /// </summary>
@@ -63,6 +65,7 @@ namespace Goliath.Data.DataAccess
         /// <param name="dataReader">The data reader.</param>
         /// <returns></returns>
         T ReadFieldData<T>(int ordinal, DbDataReader dataReader);
+
         /// <summary>
         /// Reads the field data.
         /// </summary>
@@ -71,6 +74,7 @@ namespace Goliath.Data.DataAccess
         /// <param name="dataReader">The data reader.</param>
         /// <returns></returns>
         object ReadFieldData(Type expectedType, string fieldName, DbDataReader dataReader);
+
         /// <summary>
         /// Reads the field data.
         /// </summary>
@@ -79,6 +83,7 @@ namespace Goliath.Data.DataAccess
         /// <param name="dataReader">The data reader.</param>
         /// <returns></returns>
         object ReadFieldData(Type expectedType, int ordinal, DbDataReader dataReader);
+
         /// <summary>
         /// Reads the field data.
         /// </summary>

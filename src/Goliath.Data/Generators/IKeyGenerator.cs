@@ -20,15 +20,16 @@ namespace Goliath.Data.Mapping
         /// </summary>
         /// <value>The name.</value>
         string Name { get; }
+
         /// <summary>
         /// Generates the key.
         /// </summary>
-        /// <param name="sqlMapper">The SQL mapper.</param>
+        /// <param name="sqlDialect">The SQL dialect.</param>
         /// <param name="entityMap">The entity map.</param>
         /// <param name="propertyName">Name of the property.</param>
         /// <param name="priority">The priority.</param>
         /// <returns></returns>
-        Object GenerateKey(SqlMapper sqlMapper, EntityMap entityMap, string propertyName, out Sql.SqlOperationPriority priority);
+        Object GenerateKey(SqlDialect sqlDialect, EntityMap entityMap, string propertyName, out Sql.SqlOperationPriority priority);
         /// <summary>
         /// Gets a value indicating whether this instance is database generated.
         /// </summary>
@@ -45,14 +46,14 @@ namespace Goliath.Data.Mapping
     public interface IKeyGenerator<T> : IKeyGenerator
     {
         /// <summary>
-        /// Generates this instance.
+        /// Generates the specified SQL dialect.
         /// </summary>
-        /// <param name="sqlMapper">The SQL mapper.</param>
+        /// <param name="sqlDialect">The SQL dialect.</param>
         /// <param name="entityMap">The entity map.</param>
         /// <param name="propertyName">Name of the property.</param>
         /// <param name="priority">The priority.</param>
         /// <returns></returns>
-        T Generate(SqlMapper sqlMapper, EntityMap entityMap, string propertyName, out Sql.SqlOperationPriority priority);
+        T Generate(SqlDialect sqlDialect, EntityMap entityMap, string propertyName, out Sql.SqlOperationPriority priority);
     }
 
     /// <summary>

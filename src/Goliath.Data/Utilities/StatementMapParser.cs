@@ -18,14 +18,14 @@ namespace Goliath.Data.Utils
         /// <summary>
         /// Parses the specified text.
         /// </summary>
-        /// <param name="mapper">The mapper.</param>
+        /// <param name="dialect">The mapper.</param>
         /// <param name="entMap">The ent map.</param>
         /// <param name="text">The text.</param>
         /// <returns></returns>
-        public CompiledStatement Parse(SqlMapper mapper, EntityMap entMap, string text)
+        public CompiledStatement Parse(SqlDialect dialect, EntityMap entMap, string text)
         {
             text = ParseColumnTag(entMap, text);
-            var statement = ParseObjectPropertyTag(mapper, entMap, text);
+            var statement = ParseObjectPropertyTag(dialect, entMap, text);
             statement.Body =  ParseEntityMapAllowedProperties(entMap, statement.Body);
             return statement;
         }
@@ -33,15 +33,15 @@ namespace Goliath.Data.Utils
         /// <summary>
         /// Parses the specified text.
         /// </summary>
-        /// <param name="mapper">The mapper.</param>
+        /// <param name="dialect">The mapper.</param>
         /// <param name="config">The config.</param>
         /// <param name="inputParams">The input params.</param>
         /// <param name="text">The text.</param>
         /// <returns></returns>
-        public CompiledStatement Parse(SqlMapper mapper, MapConfig config, IDictionary<string, StatemenInputParam> inputParams, string text)
+        public CompiledStatement Parse(SqlDialect dialect, MapConfig config, IDictionary<string, StatemenInputParam> inputParams, string text)
         {
             text = ParseColumnTag(config, inputParams, text);
-            var statement = ParseObjectPropertyTag(mapper, config, inputParams, text);
+            var statement = ParseObjectPropertyTag(dialect, config, inputParams, text);
             statement.Body = ParseEntityMapAllowedProperties(config, inputParams, statement.Body);
             return statement;
         }
@@ -219,7 +219,7 @@ namespace Goliath.Data.Utils
             public string PropName;
         }
 
-        CompiledStatement ParseObjectPropertyTag(SqlMapper mapper, EntityMap entMap, string text)
+        CompiledStatement ParseObjectPropertyTag(SqlDialect dialect, EntityMap entMap, string text)
         {
             CompiledStatement statement = new CompiledStatement();
             var values = ExtractTags("prop", text);
@@ -227,7 +227,7 @@ namespace Goliath.Data.Utils
             foreach (var m in values)
             {
                 statement.ParamPropertyMap.Add(m.Key, new StatemenInputParam() { Name = m.Key, Type = entMap.FullName, Value = m.Value });
-                text = text.Replace(m.Key, mapper.CreateParameterName(m.Value.Replace('.', '_')));
+                text = text.Replace(m.Key, dialect.CreateParameterName(m.Value.Replace('.', '_')));
 
             }
 
@@ -235,7 +235,7 @@ namespace Goliath.Data.Utils
             return statement;
         }
 
-        CompiledStatement ParseObjectPropertyTag(SqlMapper mapper, MapConfig config, IDictionary<string, StatemenInputParam> inputParams, string text)
+        CompiledStatement ParseObjectPropertyTag(SqlDialect dialect, MapConfig config, IDictionary<string, StatemenInputParam> inputParams, string text)
         {
             CompiledStatement statement = new CompiledStatement();
             var values = ExtractTags("prop", text);
@@ -256,7 +256,7 @@ namespace Goliath.Data.Utils
                     }
 
                     statement.ParamPropertyMap.Add(m.Key, inputVariable);
-                    text = text.Replace(m.Key, mapper.CreateParameterName(m.Value.Replace('.', '_')));
+                    text = text.Replace(m.Key, dialect.CreateParameterName(m.Value.Replace('.', '_')));
                 }
             }
 

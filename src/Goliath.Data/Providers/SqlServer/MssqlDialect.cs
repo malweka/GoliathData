@@ -9,12 +9,12 @@ namespace Goliath.Data.Providers.SqlServer
     /// 
     /// </summary>
     [Serializable]
-    public class Mssq2008SqlMapper : SqlMapper
+    public class Mssq2008Dialect : SqlDialect
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="Mssq2008SqlMapper"/> class.
+        /// Initializes a new instance of the <see cref="Mssq2008Dialect"/> class.
         /// </summary>
-        public Mssq2008SqlMapper()
+        public Mssq2008Dialect()
             : base(RdbmsBackend.SupportedSystemNames.Mssql2008R2)
         {
 

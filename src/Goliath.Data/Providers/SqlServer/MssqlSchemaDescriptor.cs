@@ -15,7 +15,7 @@ namespace Goliath.Data.Providers.SqlServer
     {
         static ILogger logger;
         IDbAccess db;
-        SqlMapper mapper;
+        SqlDialect dialect;
         IDbConnector dbConnector;
         const string SELECT_TABLE_FROM_SCHEMA = "SELECT TABLE_NAME, TABLE_SCHEMA FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE'";
         const string SELECT_COLUMNS = "SELECT *, COLUMNPROPERTY(OBJECT_ID(TABLE_SCHEMA + '.' + TABLE_NAME), COLUMN_NAME, 'IsIdentity') AS IsIdentity, IDENT_SEED(TABLE_NAME) AS IdentitySeed, IDENT_INCR(TABLE_NAME) AS IdentityIncrement FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = @tableName ORDER BY ORDINAL_POSITION";
@@ -81,20 +81,20 @@ WHERE FK.TABLE_NAME = @tableName";
         {
             logger = Logger.GetLogger(typeof(MssqlSchemaDescriptor));
         }
-
+        
         /// <summary>
         /// Initializes a new instance of the <see cref="MssqlSchemaDescriptor"/> class.
         /// </summary>
         /// <param name="db">The db.</param>
         /// <param name="dbConnector">The db connector.</param>
-        /// <param name="mapper">The mapper.</param>
+        /// <param name="dialect">The dialect.</param>
         /// <param name="settings">The settings.</param>
-        public MssqlSchemaDescriptor(IDbAccess db, IDbConnector dbConnector, SqlMapper mapper, ProjectSettings settings)
+        public MssqlSchemaDescriptor(IDbAccess db, IDbConnector dbConnector, SqlDialect dialect, ProjectSettings settings)
             : base(RdbmsBackend.SupportedSystemNames.Mssql2008R2)
         {
             this.db = db;
             this.dbConnector = dbConnector;
-            this.mapper = mapper;
+            this.dialect = dialect;
             ProjectSettings = settings;
         }
 
@@ -170,10 +170,10 @@ WHERE FK.TABLE_NAME = @tableName";
                         //col = new Property(table, colName, mapper.SqlStringToDbType(dataType), length.Value);
                         if (length < 0)
                             length = 2000;
-                        col = new Property(colName, colName, mapper.SqlStringToDbType(dataType)) { Length = length.Value };
+                        col = new Property(colName, colName, dialect.SqlStringToDbType(dataType)) { Length = length.Value };
                     }
                     else
-                        col = new Property(colName, colName, mapper.SqlStringToDbType(dataType));
+                        col = new Property(colName, colName, dialect.SqlStringToDbType(dataType));
 
                     if (precision.HasValue)
                         col.Precision = precision.Value;
@@ -197,7 +197,7 @@ WHERE FK.TABLE_NAME = @tableName";
 
                     col.IsNullable = isNullable;
                     col.DefaultValue = ProcessDefaultValue(reader.GetValueAsString("COLUMN_DEFAULT"));
-                    col.ClrType = mapper.GetClrType(col.DbType, isNullable);
+                    col.ClrType = dialect.GetClrType(col.DbType, isNullable);
                     OnTableAddProperty(table, col);
                     columnList.Add(colName, col);
 

@@ -26,10 +26,11 @@ namespace Goliath.Data.Providers
         /// <returns></returns>
         IDbConnector GetDatabaseConnector(string connectionString);
 
+
         /// <summary>
-        /// Gets the SQL mapper.
+        /// Gets the SQL dialect.
         /// </summary>
-        /// <returns></returns>
-        SqlMapper SqlMapper{get;}
+        /// <value>The SQL dialect.</value>
+        SqlDialect SqlDialect { get; }
     }
 }

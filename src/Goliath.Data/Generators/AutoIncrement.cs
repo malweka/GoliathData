@@ -23,10 +23,10 @@ namespace Goliath.Data.Generators
             get { return GeneratorName; }
         }
 
-        public object GenerateKey(SqlMapper sqlMapper, EntityMap entityMap, string propertyName, out Sql.SqlOperationPriority priority)
+        public object GenerateKey(SqlDialect sqlDialect, EntityMap entityMap, string propertyName, out Sql.SqlOperationPriority priority)
         {
             priority = Sql.SqlOperationPriority.High;
-            return sqlMapper.SelectLastInsertRowIdSql();
+            return sqlDialect.SelectLastInsertRowIdSql();
         }
 
         public bool IsDatabaseGenerated

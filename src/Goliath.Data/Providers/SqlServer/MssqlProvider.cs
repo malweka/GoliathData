@@ -35,9 +35,9 @@ namespace Goliath.Data.Providers.SqlServer
         /// Gets the SQL mapper.
         /// </summary>
         /// <returns></returns>
-        public SqlMapper SqlMapper
+        public SqlDialect SqlDialect
         {
-            get { return new Mssq2008SqlMapper(); }
+            get { return new Mssq2008Dialect(); }
         }
 
         #endregion

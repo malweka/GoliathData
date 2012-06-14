@@ -10,12 +10,12 @@ namespace Goliath.Data.Providers.Sqlite
     /// 
     /// </summary>
     [Serializable]
-    public class SqliteSqlMapper : SqlMapper
+    public class SqliteDialect : SqlDialect
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="SqliteSqlMapper"/> class.
+        /// Initializes a new instance of the <see cref="SqliteDialect"/> class.
         /// </summary>
-        public SqliteSqlMapper()
+        public SqliteDialect()
             : base(RdbmsBackend.SupportedSystemNames.Sqlite3)
         {
 
