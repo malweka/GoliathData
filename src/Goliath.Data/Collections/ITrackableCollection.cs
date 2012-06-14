@@ -2,13 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Collections;
 
 namespace Goliath.Data.Collections
 {
     /// <summary>
     /// 
     /// </summary>
-    public interface ITrackableCollection<T> : ICollection<T>
+    public interface ITrackableCollection<T> : ITrackableCollection, ICollection<T>
     {
         /// <summary>
         /// Starts the tracking.
@@ -39,5 +40,11 @@ namespace Goliath.Data.Collections
         /// </summary>
         /// <value>The inserted items.</value>
         ICollection<T> InsertedItems { get; }
+    }
+
+    public interface ITrackableCollection: System.Collections.IEnumerable
+    {
+        IEnumerable DeletedItems { get; }
+        IEnumerable InsertedItems { get; }
     }
 }

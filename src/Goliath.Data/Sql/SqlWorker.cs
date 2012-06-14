@@ -10,6 +10,7 @@ namespace Goliath.Data.Sql
     using Providers;
     using Diagnostics;
     using Mapping;
+    using Collections;
 
     /// <summary>
     /// 
@@ -374,18 +375,37 @@ namespace Goliath.Data.Sql
                     if (rel.RelationType == RelationshipType.ManyToMany) //&& rel.Inverse)
                     {
                         PropInfo pInfo;
+                        
                         if (entGetSets.Properties.TryGetValue(rel.PropertyName, out pInfo))
                         {
                             var colGetter = pInfo.Getter(entity);
                             if ((colGetter != null) && (colGetter is System.Collections.IEnumerable))
                             {
+                                //Console.WriteLine("generic type def: {0}", colGetter.GetType().GetGenericTypeDefinition());
+                                //var xto = pInfo.PropertType == typeof(ITrackableCollection<>);
+                                var genArgType = pInfo.PropertType.GetGenericArguments().FirstOrDefault();
+
+                                if (genArgType == null)
+                                    continue;
+
+                                
+                                if (colGetter is ITrackableCollection)
+                                {
+                                    var trackableCol = (ITrackableCollection)colGetter;
+
+                                    var addedInserts = trackableCol.InsertedItems;
+                                    foreach (var xk in addedInserts)
+                                        Console.WriteLine(" found: {0}", xk);
+
+                                }
+
                                 var list = (System.Collections.IEnumerable)colGetter;
                                 foreach (var mappedObject in list)
                                 {
                                     if (mappedObject == null)
                                         continue;
 
-                                    var reltype = mappedObject.GetType();
+                                    var reltype = genArgType; // mappedObject.GetType();
                                     var relMap = entityMap.Parent.GetEntityMap(reltype.FullName);
                                     //build insert statement
                                     SqlOperationInfo manyToManyOp = new SqlOperationInfo();
