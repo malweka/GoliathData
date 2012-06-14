@@ -395,7 +395,7 @@ namespace Goliath.Data.Sql
 
                                     var addedInserts = trackableCol.InsertedItems;
                                     foreach (var xk in addedInserts)
-                                        Console.WriteLine(" found: {0}", xk);
+                                        Console.WriteLine(" found: {0}", xk
 
                                 }
 
