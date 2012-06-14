@@ -11,8 +11,8 @@ namespace Goliath.Data.Sql
     class InsertSqlBuilder : SqlBuilder
     {
         //Consolidate with parameter building 
-        public InsertSqlBuilder(SqlMapper sqlMapper, EntityMap entMap, int level, int rootLevel)
-            : base(sqlMapper, entMap)
+        public InsertSqlBuilder(SqlDialect dialect, EntityMap entMap, int level, int rootLevel)
+            : base(dialect, entMap)
         {
             foreach (var prop in entMap)
             {
@@ -48,7 +48,7 @@ namespace Goliath.Data.Sql
                         else
                             continue;
                     }
-                    Columns.Add(prop.ColumnName, sqlMapper.CreateParameterName(paramName));
+                    Columns.Add(prop.ColumnName, dialect.CreateParameterName(paramName));
                 }
             }
         }

@@ -9,13 +9,13 @@ namespace Goliath.Data.Sql
 
     abstract class SqlBuilder
     {
-        protected SqlMapper sqlMapper;
+        protected SqlDialect sqlDialect;
         protected EntityMap entMap;
         protected List<WhereStatement> wheres = new List<WhereStatement>();
 
-        public SqlMapper SqlMapper
+        public SqlDialect SqlDialect
         {
-            get { return sqlMapper; }
+            get { return sqlDialect; }
         }
 
         readonly Dictionary<string, string> columns = new Dictionary<string, string>();
@@ -27,17 +27,17 @@ namespace Goliath.Data.Sql
         /// <summary>
         /// Initializes a new instance of the <see cref="SqlBuilder"/> class.
         /// </summary>
-        /// <param name="sqlMapper">The SQL mapper.</param>
+        /// <param name="dialect">The SQL mapper.</param>
         /// <param name="entMap">The ent map.</param>
-        protected SqlBuilder(SqlMapper sqlMapper, EntityMap entMap)
+        protected SqlBuilder(SqlDialect dialect, EntityMap entMap)
         {
-            if (sqlMapper == null)
+            if (dialect == null)
                 throw new ArgumentNullException("sqlMapper");
 
             if (entMap == null)
                 throw new ArgumentNullException("entMap");
 
-            this.sqlMapper = sqlMapper;
+            this.sqlDialect = dialect;
             this.entMap = entMap;
         }
 
@@ -47,7 +47,7 @@ namespace Goliath.Data.Sql
             return string.Format("{0}_{1}", ParameterNameBuilderHelper.ColumnQueryName(columnName, tableAlias), level);
         }
 
-        public static WhereStatement[] BuildWhereStatementFromPrimaryKey(EntityMap entMap, SqlMapper sqlMapper, int level)
+        public static WhereStatement[] BuildWhereStatementFromPrimaryKey(EntityMap entMap, SqlDialect dialect, int level)
         {
             if (entMap == null)
                 throw new ArgumentNullException("entMap");
@@ -61,7 +61,7 @@ namespace Goliath.Data.Sql
                     var paramName = BuildParameterNameWithLevel(colname, entMap.TableAlias, level);
 
                     var whs = new WhereStatement(ParameterNameBuilderHelper.ColumnWithTableAlias(entMap.TableName, colname))
-                                    .Equals(sqlMapper.CreateParameterName(paramName));
+                                    .Equals(dialect.CreateParameterName(paramName));
 
 
                     wheres.Add(whs);

@@ -37,9 +37,9 @@ namespace Goliath.Data.Providers.Sqlite
         /// </summary>
         /// <value></value>
         /// <returns></returns>
-        public SqlMapper SqlMapper
+        public SqlDialect SqlDialect
         {
-            get { return new SqliteSqlMapper(); }
+            get { return new SqliteDialect(); }
         }
 
         #endregion

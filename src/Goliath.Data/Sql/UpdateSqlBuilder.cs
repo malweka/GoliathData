@@ -14,15 +14,15 @@ namespace Goliath.Data.Sql
         int level;
         int rootLevel;
 
-        public UpdateSqlBuilder(SqlMapper sqlMapper, EntityMap entMap)
-            : this(sqlMapper, entMap, 0, 0)
+        public UpdateSqlBuilder(SqlDialect dialect, EntityMap entMap)
+            : this(dialect, entMap, 0, 0)
         {
 
         }
 
 
-        public UpdateSqlBuilder(SqlMapper sqlMapper, EntityMap entMap, int level, int rootLevel)
-            : base(sqlMapper, entMap)
+        public UpdateSqlBuilder(SqlDialect dialect, EntityMap entMap, int level, int rootLevel)
+            : base(dialect, entMap)
         {
             this.level = level;
             this.rootLevel = rootLevel;
@@ -45,7 +45,7 @@ namespace Goliath.Data.Sql
 
                 if (!Columns.ContainsKey(prop.ColumnName))
                 {
-                    Columns.Add(prop.ColumnName, sqlMapper.CreateParameterName(paramName));
+                    Columns.Add(prop.ColumnName, dialect.CreateParameterName(paramName));
                 }
 
             }

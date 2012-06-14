@@ -46,10 +46,10 @@ namespace WebZoo.Data
 
  
             StatementMapParser parser = new StatementMapParser();
-            var compiled = parser.Parse(new SqliteSqlMapper(), zooEntMap, template2);
+            var compiled = parser.Parse(new SqliteDialect(), zooEntMap, template2);
 
             Dictionary<string, StatemenInputParam> inputParams = new Dictionary<string, StatemenInputParam> { { "a", new StatemenInputParam() { Name = "a", Type = "WebZoo.Data.Zoo" } }, { "b", new StatemenInputParam() { Name = "b", Type = "WebZoo.Data.Animal" } } };
-            compiled = parser.Parse(new SqliteSqlMapper(), mapConfig, inputParams, template);
+            compiled = parser.Parse(new SqliteDialect(), mapConfig, inputParams, template);
 
 
             zoorunner = new WebZooRunner(SupportedRdbms.Sqlite3, new CodeGenerator(), AppDomain.CurrentDomain.BaseDirectory, true);
@@ -113,7 +113,7 @@ namespace WebZoo.Data
             settings.AssemblyName = "WebZoo.Data";
             settings.BaseModel = "WebZoo.Data.BaseEntity";
 
-            SqlMapper mapper = new SqliteSqlMapper();
+            SqlDialect mapper = new SqliteDialect();
             IDbConnector dbConnector = new SqliteDbConnector(settings.ConnectionString);
             IDbAccess db = new DbAccess(dbConnector);
 
@@ -147,7 +147,7 @@ namespace WebZoo.Data
             IDbConnector dbConnector = new MssqlDbConnector(settings.ConnectionString);
             IDbAccess db = new DbAccess(dbConnector);
 
-            SqlMapper mapper = new Mssq2008SqlMapper();
+            SqlDialect mapper = new Mssq2008Dialect();
 
             using (ISchemaDescriptor schemaDescriptor = new MssqlSchemaDescriptor(db, dbConnector, mapper, settings))
             {
@@ -190,6 +190,8 @@ namespace WebZoo.Data
             var zoodapter = sess.CreateDataAccessAdapter<Zoo>();
             var animalapter = sess.CreateDataAccessAdapter<Animal>();
 
+            var entFactory = sessionFactory.DataSerializer as Goliath.Data.DataAccess.IEntityFactory;
+            var zobo = entFactory.CreateInstance<Zoo>();
             
             Zoo zooM = new Zoo() { Name = "Kitona", City = "Kitona", AcceptNewAnimals = true };
             var an1 = new Animal()
@@ -292,7 +294,7 @@ namespace WebZoo.Data
                 //                from zoos zoo";
 
                 //                string sqlQuery = @"select ani1.ZooId as ani1_ZooId, ani1.Id as ani1_Id, ani1.Name as ani1_Name, ani1.Age as ani1_Age, ani1.Location as ani1_Location, ani1.ReceivedOn as ani1_ReceivedOn  from animals ani1";
-                SqliteSqlMapper mapper = new SqliteSqlMapper();
+                SqliteDialect mapper = new SqliteDialect();
 
                 var animalEntMap = map.EntityConfigs.Where(c => string.Equals(c.Name, "Animal", StringComparison.Ordinal))
                     .FirstOrDefault();

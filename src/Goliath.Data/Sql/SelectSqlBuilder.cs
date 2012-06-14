@@ -25,10 +25,10 @@ namespace Goliath.Data.Sql
         /// <summary>
         /// Initializes a new instance of the <see cref="SelectSqlBuilder"/> class.
         /// </summary>
-        /// <param name="sqlMapper">The SQL mapper.</param>
+        /// <param name="dialect">The SQL mapper.</param>
         /// <param name="entMap">The ent map.</param>
-        public SelectSqlBuilder(SqlMapper sqlMapper, EntityMap entMap)
-            : base(sqlMapper, entMap)
+        public SelectSqlBuilder(SqlDialect dialect, EntityMap entMap)
+            : base(dialect, entMap)
         {
             if (entMap is UnMappedTableMap)
             {
@@ -157,7 +157,7 @@ namespace Goliath.Data.Sql
             var queryBody = Build();
             if (paging != null)
             {
-                return queryBody.ToString(sqlMapper, paging.Value);
+                return queryBody.ToString(sqlDialect, paging.Value);
             }
 
             return queryBody.ToString();
@@ -169,7 +169,7 @@ namespace Goliath.Data.Sql
             if (entMap is UnMappedTableMap)
                 return;
 
-            SelectSqlBuilder selBuilder = new SelectSqlBuilder(sqlMapper, entMap);
+            SelectSqlBuilder selBuilder = new SelectSqlBuilder(sqlDialect, entMap);
             foreach (var kp in selBuilder.Columns)
             {
                 if (!cols.ContainsKey(kp.Key))

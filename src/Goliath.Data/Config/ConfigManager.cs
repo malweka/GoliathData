@@ -188,9 +188,9 @@ namespace Goliath.Data.Config
             }
         }
 
-        public SqlMapper SqlMapper
+        public SqlDialect SqlDialect
         {
-            get { return DbProvider.SqlMapper; }
+            get { return DbProvider.SqlDialect; }
         }
 
         public IDbConnector Connector

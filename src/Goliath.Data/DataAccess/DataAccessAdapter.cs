@@ -118,7 +118,6 @@ namespace Goliath.Data
             }
 
             string sql = sqlUpdates.ToString();
-            //logger.Log(LogLevel.Debug, sql);
 
             try
             {
@@ -376,7 +375,7 @@ namespace Goliath.Data
         /// <returns></returns>
         public IList<TEntity> FindAll(params PropertyQueryParam[] filters)
         {
-            SelectSqlBuilder queryBuilder = SqlWorker.BuildSelectSql(entityMap, serializer.SqlMapper, session.DataAccess, filters);
+            SelectSqlBuilder queryBuilder = SqlWorker.BuildSelectSql(entityMap, serializer.SqlDialect, session.DataAccess, filters);
             DbDataReader dataReader;
 
             var query = queryBuilder.ToSqlString();
@@ -416,7 +415,7 @@ namespace Goliath.Data
             if (offset < 0)
                 throw new ArgumentException(" cannot have a pageSize of less than or equal to 0");
 
-            SelectSqlBuilder queryBuilder = SqlWorker.BuildSelectSql(entityMap, serializer.SqlMapper, session.DataAccess, filters);
+            SelectSqlBuilder queryBuilder = SqlWorker.BuildSelectSql(entityMap, serializer.SqlDialect, session.DataAccess, filters);
             string selectCount = queryBuilder.SelectCount();
 
             totalRecords = 0;

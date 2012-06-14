@@ -11,7 +11,7 @@ namespace Goliath.Data.Sql
 
     class DeleteSqlBuilder : SqlBuilder
     {
-        public DeleteSqlBuilder(SqlMapper sqlMapper, EntityMap entMap) : base(sqlMapper, entMap) { }
+        public DeleteSqlBuilder(SqlDialect dialect, EntityMap entMap) : base(dialect, entMap) { }
 
         public DeleteSqlBuilder Where(params WhereStatement[] whereCollection)
         {

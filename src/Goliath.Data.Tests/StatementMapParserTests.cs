@@ -26,7 +26,7 @@ namespace Goliath.Data.Tests
                     .FirstOrDefault();
 
             StatementMapParser parser = new StatementMapParser();
-            var statement = parser.Parse(new SqliteSqlMapper(), zooEntMap, template);
+            var statement = parser.Parse(new SqliteDialect(), zooEntMap, template);
 
             Assert.AreEqual(compiled, statement.Body);
             Assert.AreEqual(3, statement.ParamPropertyMap.Count);
@@ -45,7 +45,7 @@ namespace Goliath.Data.Tests
                     .FirstOrDefault();
 
             StatementMapParser parser = new StatementMapParser();
-            var statement = parser.Parse(new SqliteSqlMapper(), zooEntMap, template);
+            var statement = parser.Parse(new SqliteDialect(), zooEntMap, template);
 
             Assert.Fail("Should have thrown, AssemblyName property is not supported ");
         }
@@ -62,7 +62,7 @@ namespace Goliath.Data.Tests
                     .FirstOrDefault();
 
             StatementMapParser parser = new StatementMapParser();
-            var statement = parser.Parse(new SqliteSqlMapper(), zooEntMap, template);
+            var statement = parser.Parse(new SqliteDialect(), zooEntMap, template);
 
             Assert.Fail("Should have thrown, column WaterPressure doesn't exist");
         }
@@ -79,7 +79,7 @@ namespace Goliath.Data.Tests
             StatementMapParser parser = new StatementMapParser();
             Dictionary<string, StatemenInputParam> inputParams = new Dictionary<string, StatemenInputParam> { { "a", new StatemenInputParam() { Name = "a", Type = "WebZoo.Data.Zoo" } }, { "b", new StatemenInputParam() { Name = "b", Type = "WebZoo.Data.Animal" } } };
 
-            var statement = parser.Parse(new SqliteSqlMapper(), config, inputParams, template);
+            var statement = parser.Parse(new SqliteDialect(), config, inputParams, template);
             Assert.AreEqual(verify, statement.Body);
 
         }

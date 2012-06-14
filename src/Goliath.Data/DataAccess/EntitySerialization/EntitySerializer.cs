@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data.Common;
+using System.Linq;
 
 namespace Goliath.Data.DataAccess
 {
@@ -15,7 +16,7 @@ namespace Goliath.Data.DataAccess
     /// 
     /// </summary>
     [Serializable]
-    class EntitySerializer : IEntitySerializer
+    class EntitySerializer : IEntitySerializer, IEntityFactory
     {
 
         static ConcurrentDictionary<Type, Delegate> factoryList = new ConcurrentDictionary<Type, Delegate>();
@@ -30,13 +31,10 @@ namespace Goliath.Data.DataAccess
             get { return settings.Map; }
         }
 
-        /// <summary>
-        /// Gets the SQL mapper.
-        /// </summary>
-        /// <value></value>
-        public SqlMapper SqlMapper
+
+        public SqlDialect SqlDialect
         {
-            get { return settings.SqlMapper; }
+            get { return settings.SqlDialect; }
         }
 
         //DbAccess dbAccess;
@@ -67,6 +65,48 @@ namespace Goliath.Data.DataAccess
 
             this.settings = settings;
             this.TypeConverterStore = typeConverterStore;
+        }
+
+        public T CreateInstance<T>()
+        {
+            Type type = typeof(T);
+            EntityMap entityMap = Map.GetEntityMap(type.FullName);
+            return CreateInstance<T>(entityMap);
+        }
+
+        /// <summary>
+        /// Creates the instance.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="entityMap"></param>
+        /// <returns></returns>
+        public T CreateInstance<T>(EntityMap entityMap)
+        {
+            if (entityMap == null)
+                throw new ArgumentNullException("entityMap");
+
+            Type type = typeof(T);
+            var instance = Activator.CreateInstance(type);
+
+            EntityGetSetInfo getSetInfo = getSetStore.GetReflectionInfoAddIfMissing(type, entityMap);
+
+            //load collections
+            foreach (var rel in entityMap.Relations)
+            {
+                if ((rel.RelationType == RelationshipType.ManyToMany) || (rel.RelationType == RelationshipType.OneToMany))
+                {
+                    PropInfo pInfo;
+                    if (getSetInfo.Properties.TryGetValue(rel.PropertyName, out pInfo))
+                    {
+                        Type refEntityType = pInfo.PropertType.GetGenericArguments().FirstOrDefault();
+                        var collectionType = typeof(Collections.TrackableList<>).MakeGenericType(new Type[] { refEntityType });
+                        var lazyCol = Activator.CreateInstance(collectionType);
+                        pInfo.Setter(instance, lazyCol);
+                    }
+                }
+            }
+
+            return (T)instance;
         }
 
         #region IEntitySerializerFactory Members
@@ -154,7 +194,7 @@ namespace Goliath.Data.DataAccess
         /// <returns></returns>
         public ISqlWorker CreateSqlWorker()
         {
-            return new SqlWorker(SqlMapper, getSetStore, settings.ConverterStore);
+            return new SqlWorker(SqlDialect, getSetStore, settings.ConverterStore);
         }
 
         /// <summary>
@@ -303,15 +343,15 @@ namespace Goliath.Data.DataAccess
                         switch (rel.RelationType)
                         {
                             case RelationshipType.ManyToOne:
-                                SerializeManyToOne manyToOneHelper = new SerializeManyToOne(SqlMapper, getSetStore);
+                                SerializeManyToOne manyToOneHelper = new SerializeManyToOne(SqlDialect, getSetStore);
                                 manyToOneHelper.Serialize(settings, this, rel, instanceEntity, keyVal.Value, entityMap, getSetInfo, columns, dbReader);
                                 break;
                             case RelationshipType.OneToMany:
-                                SerializeOneToMany oneToManyHelper = new SerializeOneToMany(SqlMapper, getSetStore);
+                                SerializeOneToMany oneToManyHelper = new SerializeOneToMany(SqlDialect, getSetStore);
                                 oneToManyHelper.Serialize(settings, this, rel, instanceEntity, keyVal.Value, entityMap, getSetInfo, columns, dbReader);
                                 break;
                             case RelationshipType.ManyToMany:
-                                SerializeManyToMany manyToMany = new SerializeManyToMany(SqlMapper, getSetStore);
+                                SerializeManyToMany manyToMany = new SerializeManyToMany(SqlDialect, getSetStore);
                                 manyToMany.Serialize(settings, this, rel, instanceEntity, keyVal.Value, entityMap, getSetInfo, columns, dbReader);
                                 break;
                             default:

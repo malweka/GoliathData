@@ -12,7 +12,7 @@ namespace Goliath.Data.Providers
     /// 
     /// </summary>
     [Serializable]
-    public abstract class SqlMapper
+    public abstract class SqlDialect
     {
 
         Dictionary<string, DbTypeInfo> typeMap = new Dictionary<string, DbTypeInfo>();
@@ -43,10 +43,10 @@ namespace Goliath.Data.Providers
        // public bool SupportsIdentityColumn { get; set; }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="SqlMapper"/> class.
+        /// Initializes a new instance of the <see cref="SqlDialect"/> class.
         /// </summary>
         /// <param name="dbProviderName">Name of the db provider.</param>
-        protected SqlMapper(string dbProviderName)
+        protected SqlDialect(string dbProviderName)
         {
             SupportIdentityColumns = true;
             RegisterType(DbType.Boolean, "bit");

@@ -20,10 +20,10 @@ namespace Goliath.Data
         MapConfig Map { get; }
 
         /// <summary>
-        /// Gets the SQL mapper.
+        /// Gets the SQL dialect.
         /// </summary>
-        /// <value>The SQL mapper.</value>
-        SqlMapper SqlMapper { get; }
+        /// <value>The SQL dialect.</value>
+        SqlDialect SqlDialect { get; }
 
         /// <summary>
         /// Gets the connector.

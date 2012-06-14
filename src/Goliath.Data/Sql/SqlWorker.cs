@@ -16,7 +16,7 @@ namespace Goliath.Data.Sql
     /// </summary>
     public sealed class SqlWorker : ISqlWorker
     {
-        SqlMapper sqlMapper;
+        SqlDialect dialect;
         GetSetStore getSetStore;
         static ILogger logger;
         ITypeConverterStore typeConverterStore;
@@ -26,21 +26,21 @@ namespace Goliath.Data.Sql
             logger = Logger.GetLogger(typeof(SqlWorker));
         }
 
-        internal SqlWorker(SqlMapper sqlMapper, GetSetStore getSetStore, ITypeConverterStore typeConverterStore)
+        internal SqlWorker(SqlDialect dialect, GetSetStore getSetStore, ITypeConverterStore typeConverterStore)
         {
-            if (sqlMapper == null)
+            if (dialect == null)
                 throw new ArgumentNullException("sqlMapper");
             if (getSetStore == null)
                 throw new ArgumentNullException("getSetStore");
 
-            this.sqlMapper = sqlMapper;
+            this.dialect = dialect;
             this.getSetStore = getSetStore;
             this.typeConverterStore = typeConverterStore;
         }
 
-        internal static SelectSqlBuilder BuildSelectSql(EntityMap entityMap, SqlMapper sqlMapper, IDbAccess dataAccess, PropertyQueryParam[] filters)
+        internal static SelectSqlBuilder BuildSelectSql(EntityMap entityMap, SqlDialect dialect, IDbAccess dataAccess, PropertyQueryParam[] filters)
         {
-            SelectSqlBuilder queryBuilder = new SelectSqlBuilder(sqlMapper, entityMap);
+            SelectSqlBuilder queryBuilder = new SelectSqlBuilder(dialect, entityMap);
             if ((filters != null) && (filters.Length > 0))
             {
                 for (int i = 0; i < filters.Length; i++)
@@ -54,7 +54,7 @@ namespace Goliath.Data.Sql
                     {
                         Operator = filters[i].ComparisonOperator,
                         PostOperator = filters[i].PostOperator,
-                        RightOperand = new StringOperand(sqlMapper.CreateParameterName(ParameterNameBuilderHelper.ColumnQueryName(prop.ColumnName, entityMap.TableAlias)))
+                        RightOperand = new StringOperand(dialect.CreateParameterName(ParameterNameBuilderHelper.ColumnQueryName(prop.ColumnName, entityMap.TableAlias)))
                     };
 
                     queryBuilder.Where(w);
@@ -86,14 +86,14 @@ namespace Goliath.Data.Sql
                         if (getSetInfo.Properties.TryGetValue(pk.Key.PropertyName, out pInfo) && pk.CanGenerateKey(pInfo, entity, typeConverterStore))
                         {
                             SqlOperationPriority priority;
-                            var id = pk.KeyGenerator.GenerateKey(sqlMapper, entityMap, pk.Key.PropertyName, out priority);
+                            var id = pk.KeyGenerator.GenerateKey(dialect, entityMap, pk.Key.PropertyName, out priority);
                             pInfo.Setter(entity, id);
                         }
                     }
                     else
                     {
                         SqlOperationPriority priority;
-                        string genText = pk.KeyGenerator.GenerateKey(sqlMapper, entityMap, pk.Key.PropertyName, out priority).ToString();
+                        string genText = pk.KeyGenerator.GenerateKey(dialect, entityMap, pk.Key.PropertyName, out priority).ToString();
                         SqlOperationInfo genOper = new SqlOperationInfo() { CommandType = SqlStatementType.Select, Parameters = new QueryParam[] { }, SqlText = genText };
                         var genParamName = ParameterNameBuilderHelper.ColumnQueryName(pk.Key.ColumnName, entityMap.TableAlias);
 
@@ -163,7 +163,7 @@ namespace Goliath.Data.Sql
             {
                 //get base class first
                 baseEntMap = entityMap.Parent.GetEntityMap(entityMap.Extends);
-                baseInsertSqlBuilder = new InsertSqlBuilder(sqlMapper, baseEntMap, recursionLevel, rootRecursionLevel);
+                baseInsertSqlBuilder = new InsertSqlBuilder(dialect, baseEntMap, recursionLevel, rootRecursionLevel);
                 keygenerationOperations = GeneratePksForInsert(entity, baseEntMap, entGetSets);
 
                 var baseParamDictionary = InsertSqlBuilder.BuildInsertQueryParams(entity, entGetSets, baseEntMap, getSetStore, recursionLevel, rootRecursionLevel);
@@ -185,7 +185,7 @@ namespace Goliath.Data.Sql
                 operation.Priority = SqlOperationPriority.Medium;
             }
 
-            InsertSqlBuilder entInsertSqlBuilder = new InsertSqlBuilder(sqlMapper, entityMap, recursionLevel, rootRecursionLevel);
+            InsertSqlBuilder entInsertSqlBuilder = new InsertSqlBuilder(dialect, entityMap, recursionLevel, rootRecursionLevel);
 
             var paramDictionary = InsertSqlBuilder.BuildInsertQueryParams(entity, entGetSets, entityMap, getSetStore, recursionLevel, rootRecursionLevel);
             SqlOperationInfo operationInfo = new SqlOperationInfo() { CommandType = SqlStatementType.Insert };
@@ -267,7 +267,7 @@ namespace Goliath.Data.Sql
                                     {
                                         var paramName1 = InsertSqlBuilder.BuildParameterNameWithLevel(rel.MapColumn, entityMap.TableAlias, recursionLevel);
                                         var paramName2 = InsertSqlBuilder.BuildParameterNameWithLevel(rel.MapReferenceColumn, relMap.TableAlias, recursionLevel);
-                                        manyToManyOp.SqlText = string.Format("INSERT INTO {0} ({1}, {2}) VALUES({3},{4})", rel.MapTableName, rel.MapColumn, rel.MapReferenceColumn, sqlMapper.CreateParameterName(paramName1), sqlMapper.CreateParameterName(paramName2));
+                                        manyToManyOp.SqlText = string.Format("INSERT INTO {0} ({1}, {2}) VALUES({3},{4})", rel.MapTableName, rel.MapColumn, rel.MapReferenceColumn, dialect.CreateParameterName(paramName1), dialect.CreateParameterName(paramName2));
                                         var param1Prop = entGetSets.Properties[mapRel.PropertyName];
 
                                         EntityGetSetInfo mappedGetSet = getSetStore.GetReflectionInfoAddIfMissing(reltype, relMap);
@@ -334,12 +334,12 @@ namespace Goliath.Data.Sql
             if (isSubclass)
             {
                 baseEntMap = entityMap.Parent.GetEntityMap(entityMap.Extends);
-                baseUpdateBuilder = new UpdateSqlBuilder(sqlMapper, baseEntMap, recursionLevel, rootRecursionLevel);
+                baseUpdateBuilder = new UpdateSqlBuilder(dialect, baseEntMap, recursionLevel, rootRecursionLevel);
 
                 var baseParamDictionary = UpdateSqlBuilder.BuildUpdateQueryParams(entity, entGetSets, baseEntMap, getSetStore, recursionLevel, rootRecursionLevel);
                 SqlOperationInfo baseSqlOp = new SqlOperationInfo() { CommandType = SqlStatementType.Update };
 
-                var whereCollection = UpdateSqlBuilder.BuildWhereStatementFromPrimaryKey(baseEntMap, sqlMapper, recursionLevel);
+                var whereCollection = UpdateSqlBuilder.BuildWhereStatementFromPrimaryKey(baseEntMap, dialect, recursionLevel);
                 baseSqlOp.SqlText = baseUpdateBuilder.Where(whereCollection).ToSqlString();
                 List<QueryParam> baseParameters = new List<QueryParam>();
                 baseParameters.AddRange(baseParamDictionary.Values);
@@ -356,8 +356,8 @@ namespace Goliath.Data.Sql
                 operation.Priority = SqlOperationPriority.Medium;
             }
 
-            var wheres = UpdateSqlBuilder.BuildWhereStatementFromPrimaryKey(entityMap, sqlMapper, recursionLevel);
-            UpdateSqlBuilder entUpdateSqlBuilder = new UpdateSqlBuilder(sqlMapper, entityMap, recursionLevel, rootRecursionLevel);
+            var wheres = UpdateSqlBuilder.BuildWhereStatementFromPrimaryKey(entityMap, dialect, recursionLevel);
+            UpdateSqlBuilder entUpdateSqlBuilder = new UpdateSqlBuilder(dialect, entityMap, recursionLevel, rootRecursionLevel);
             var paramDictionary = UpdateSqlBuilder.BuildUpdateQueryParams(entity, entGetSets, entityMap, getSetStore, recursionLevel, rootRecursionLevel);
             SqlOperationInfo operationInfo = new SqlOperationInfo { CommandType = SqlStatementType.Update };
             operationInfo.SqlText = entUpdateSqlBuilder.Where(wheres).ToSqlString();
@@ -369,9 +369,49 @@ namespace Goliath.Data.Sql
 
             if (recursive)
             {
-                foreach (var rel in entityMap.Relations)
+                foreach (var rel in entityMap.Relations) 
                 {
+                    if (rel.RelationType == RelationshipType.ManyToMany) //&& rel.Inverse)
+                    {
+                        PropInfo pInfo;
+                        if (entGetSets.Properties.TryGetValue(rel.PropertyName, out pInfo))
+                        {
+                            var colGetter = pInfo.Getter(entity);
+                            if ((colGetter != null) && (colGetter is System.Collections.IEnumerable))
+                            {
+                                var list = (System.Collections.IEnumerable)colGetter;
+                                foreach (var mappedObject in list)
+                                {
+                                    if (mappedObject == null)
+                                        continue;
 
+                                    var reltype = mappedObject.GetType();
+                                    var relMap = entityMap.Parent.GetEntityMap(reltype.FullName);
+                                    //build insert statement
+                                    SqlOperationInfo manyToManyOp = new SqlOperationInfo();
+                                    Property mapRel = relMap.GetProperty(rel.ReferenceProperty);
+
+                                    if (mapRel != null)
+                                    {
+                                        var paramName1 = InsertSqlBuilder.BuildParameterNameWithLevel(rel.MapColumn, entityMap.TableAlias, recursionLevel);
+                                        var paramName2 = InsertSqlBuilder.BuildParameterNameWithLevel(rel.MapReferenceColumn, relMap.TableAlias, recursionLevel);
+                                        manyToManyOp.SqlText = string.Format("INSERT INTO {0} ({1}, {2}) VALUES({3},{4})", rel.MapTableName, rel.MapColumn, rel.MapReferenceColumn, dialect.CreateParameterName(paramName1), dialect.CreateParameterName(paramName2));
+                                        var param1Prop = entGetSets.Properties[mapRel.PropertyName];
+
+                                        EntityGetSetInfo mappedGetSet = getSetStore.GetReflectionInfoAddIfMissing(reltype, relMap);
+
+                                        var param2Prop = mappedGetSet.Properties[rel.ReferenceProperty];
+                                        manyToManyOp.Parameters = new ParamHolder[] { new ParamHolder(paramName1, param1Prop.Getter, entity) { IsNullable = rel.IsNullable }, 
+                                            new ParamHolder(paramName2, param2Prop.Getter, mappedObject) { IsNullable = mapRel.IsNullable } };
+
+                                        var manyToManySubOp = new BatchSqlOperation() { Priority = SqlOperationPriority.Low, KeyGenerationOperations = new Dictionary<string, KeyGenOperationInfo>() };
+                                        manyToManySubOp.Operations.Add(manyToManyOp);
+                                        operation.SubOperations.Add(manyToManySubOp);
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
 
@@ -405,8 +445,8 @@ namespace Goliath.Data.Sql
  
             bool isSubclass = entityMap.IsSubClass;
 
-            var wheres = UpdateSqlBuilder.BuildWhereStatementFromPrimaryKey(entityMap, sqlMapper, 0);
-            DeleteSqlBuilder entDeleteSqlBuilder = new DeleteSqlBuilder(sqlMapper, entityMap);
+            var wheres = UpdateSqlBuilder.BuildWhereStatementFromPrimaryKey(entityMap, dialect, 0);
+            DeleteSqlBuilder entDeleteSqlBuilder = new DeleteSqlBuilder(dialect, entityMap);
             var paramDictionary = DeleteSqlBuilder.BuildDeleteQueryParams(entity, entGetSets, entityMap, getSetStore);
             SqlOperationInfo operationInfo = new SqlOperationInfo { CommandType = SqlStatementType.Delete };
             operationInfo.SqlText = entDeleteSqlBuilder.Where(wheres).ToSqlString();
@@ -420,12 +460,12 @@ namespace Goliath.Data.Sql
             if (isSubclass)
             {
                 baseEntMap = entityMap.Parent.GetEntityMap(entityMap.Extends);
-                var baseDeleteBuilder = new DeleteSqlBuilder(sqlMapper, baseEntMap);
+                var baseDeleteBuilder = new DeleteSqlBuilder(dialect, baseEntMap);
 
                 var baseParamDictionary = DeleteSqlBuilder.BuildDeleteQueryParams(entity, entGetSets, baseEntMap, getSetStore);
                 SqlOperationInfo baseSqlOp = new SqlOperationInfo() { CommandType = SqlStatementType.Delete };
 
-                var whereCollection = UpdateSqlBuilder.BuildWhereStatementFromPrimaryKey(baseEntMap, sqlMapper, 0);
+                var whereCollection = UpdateSqlBuilder.BuildWhereStatementFromPrimaryKey(baseEntMap, dialect, 0);
                 baseSqlOp.SqlText = baseDeleteBuilder.Where(whereCollection).ToSqlString();
                 List<QueryParam> baseParameters = new List<QueryParam>();
                 baseParameters.AddRange(baseParamDictionary.Values);

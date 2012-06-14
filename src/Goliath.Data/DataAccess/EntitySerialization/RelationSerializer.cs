@@ -8,12 +8,12 @@ namespace Goliath.Data.DataAccess
 
     abstract class RelationSerializer
     {
-        protected SqlMapper sqlMapper;
+        protected SqlDialect sqlDialect;
         protected GetSetStore getSetStore;
 
-        protected RelationSerializer(SqlMapper sqlMapper, GetSetStore getSetStore)
+        protected RelationSerializer(SqlDialect sqlDialect, GetSetStore getSetStore)
         {
-            this.sqlMapper = sqlMapper;
+            this.sqlDialect = sqlDialect;
             this.getSetStore = getSetStore;
         }
 

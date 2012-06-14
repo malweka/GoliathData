@@ -11,8 +11,8 @@ namespace Goliath.Data.DataAccess
 
     class SerializeManyToMany : RelationSerializer
     {
-        public SerializeManyToMany(SqlMapper sqlMapper, GetSetStore getSetStore)
-            : base(sqlMapper, getSetStore)
+        public SerializeManyToMany(SqlDialect sqlDialect, GetSetStore getSetStore)
+            : base(sqlDialect, getSetStore)
         {
         }
 
@@ -46,11 +46,11 @@ namespace Goliath.Data.DataAccess
 
                         QueryParam qp = new QueryParam(ParameterNameBuilderHelper.ColumnQueryName(rel.MapColumn, mapTableMap.TableAlias)) { Value = val };
 
-                        SelectSqlBuilder sqlBuilder = new SelectSqlBuilder(sqlMapper, mapTableMap)
+                        SelectSqlBuilder sqlBuilder = new SelectSqlBuilder(sqlDialect, mapTableMap)
                             .AddJoin(new SqlJoin(mapTableMap, JoinType.Inner).OnTable(relEntMap).OnLeftColumn(leftColumn1).OnRightColumn(rel.ReferenceColumn))
                             .AddJoin(new SqlJoin(mapTableMap, JoinType.Inner).OnTable(currEntMap).OnLeftColumn(leftcolumn2).OnRightColumn(rel.ColumnName))
                             .Where(new WhereStatement(ParameterNameBuilderHelper.ColumnWithTableAlias(mapTableMap.TableAlias, rel.MapColumn))
-                            .Equals(sqlMapper.CreateParameterName(qp.Name)));
+                            .Equals(sqlDialect.CreateParameterName(qp.Name)));
 
                         SqlOperationInfo qInfo = new SqlOperationInfo() { CommandType = SqlStatementType.Select };
 

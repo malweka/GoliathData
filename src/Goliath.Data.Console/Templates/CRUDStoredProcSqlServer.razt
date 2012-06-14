@@ -6,7 +6,7 @@
 ***************************************************/
 @{
 	ILogger logger = Logger.GetLogger(this.GetType());
-	var sqlMapper = new Mssq2008SqlMapper();
+	var sqlMapper = new Mssq2008Dialect();
 	string _extends = string.Empty;
 	List<Property> cols = new List<Property>();
 	if(!string.IsNullOrWhiteSpace(Model.Extends))

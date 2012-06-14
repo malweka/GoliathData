@@ -53,14 +53,14 @@ namespace Goliath.Data.Sql
         /// <summary>
         /// Returns a <see cref="System.String"/> that represents this instance.
         /// </summary>
-        /// <param name="mapper">The mapper.</param>
+        /// <param name="dialect">The dialect.</param>
         /// <param name="paging">The paging.</param>
         /// <returns>
         /// A <see cref="System.String"/> that represents this instance.
         /// </returns>
-        public string ToString(SqlMapper mapper, PagingInfo paging)
+        public string ToString(SqlDialect dialect, PagingInfo paging)
         {
-            return mapper.QueryWithPaging(this, paging);
+            return dialect.QueryWithPaging(this, paging);
         }
 
         /// <summary>

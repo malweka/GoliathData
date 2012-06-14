@@ -57,7 +57,7 @@
     <Compile Include="SqliteDataAccess.cs" />
     <Compile Include="SqliteProvider.cs" />
     <Compile Include="SqliteSchemaDescriptor.cs" />
-    <Compile Include="SqliteSqlMapper.cs" />
+    <Compile Include="SqliteDialect.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Goliath.Data\Goliath.Data.csproj">
