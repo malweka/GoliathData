@@ -263,5 +263,19 @@ namespace Goliath.Data.Collections
         }
 
         #endregion
+
+        #region ITrackableCollection Members
+
+        System.Collections.IEnumerable ITrackableCollection.DeletedItems
+        {
+            get { return DeletedItems; }
+        }
+
+        System.Collections.IEnumerable ITrackableCollection.InsertedItems
+        {
+            get { return InsertedItems; }
+        }
+
+        #endregion
     }
 }

@@ -10,6 +10,7 @@ namespace Goliath.Data.DataAccess
     using Mapping;
     using Providers;
     using Sql;
+    using Collections;
 
     //TODO make this internal class
     /// <summary>
@@ -99,7 +100,7 @@ namespace Goliath.Data.DataAccess
                     if (getSetInfo.Properties.TryGetValue(rel.PropertyName, out pInfo))
                     {
                         Type refEntityType = pInfo.PropertType.GetGenericArguments().FirstOrDefault();
-                        var collectionType = typeof(Collections.TrackableList<>).MakeGenericType(new Type[] { refEntityType });
+                        var collectionType = typeof(TrackableList<>).MakeGenericType(new Type[] { refEntityType });
                         var lazyCol = Activator.CreateInstance(collectionType);
                         pInfo.Setter(instance, lazyCol);
                     }
