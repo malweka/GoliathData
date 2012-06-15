@@ -64,6 +64,7 @@
     <Compile Include="Collections\TrackableList.cs" />
     <Compile Include="CompiledStatement.cs" />
     <Compile Include="DataAccess\EntitySerialization\IEntityFactory.cs" />
+    <Compile Include="DataAccess\ISqlInterface.cs" />
     <Compile Include="DynamicProxy\ILazyObject.cs" />
     <Compile Include="Entity\ChangeSet.cs" />
     <Compile Include="Collections\ILazyList.cs" />

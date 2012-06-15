@@ -104,7 +104,7 @@ namespace Goliath.Data
             Dictionary<string, QueryParam> neededParams = new Dictionary<string, QueryParam>();
             List<SqlOperationInfo> operations = new List<SqlOperationInfo>();
 
-            using (var batchOp = sqlWorker.BuildUpdateSql<TEntity>(entityMap, entity, false))
+            using (var batchOp = sqlWorker.BuildUpdateSql<TEntity>(entityMap, entity, true))
             {
                 BuildUpdateOperations(batchOp, neededParams, operations);
             }
