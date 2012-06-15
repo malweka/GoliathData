@@ -42,9 +42,18 @@ namespace Goliath.Data.Collections
         ICollection<T> InsertedItems { get; }
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
     public interface ITrackableCollection: System.Collections.IEnumerable
     {
+        /// <summary>
+        /// Gets the deleted items.
+        /// </summary>
         IEnumerable DeletedItems { get; }
+        /// <summary>
+        /// Gets the inserted items.
+        /// </summary>
         IEnumerable InsertedItems { get; }
     }
 }

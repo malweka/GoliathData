@@ -11,7 +11,7 @@ using Goliath.Data.Providers.SqlServer;
 using Goliath.Data.Sql;
 using Goliath.Data.Transformers;
 using Goliath.Data.Utils;
-
+using System.Linq.Expressions;
 //using WebZoo.Data.SqlServer;
 using Goliath.Data.CodeGen;
 
@@ -29,7 +29,11 @@ namespace WebZoo.Data
             //string templatePath = currentDir;
             string template = "select @{col:a.Id}, @{sel:a.Name}, @{sel:a.City}, @{sel:a.AcceptNewAnimals} from  @{a.TableName} where @{prop:a.Id} = @{prop:b.Id}";
             string template2 = @"INSERT INTO @{TableName}(@{sel:Name},@{col:City},@{col:AcceptNewAnimals}) VALUES(@{prop:Name},@{prop:City},@{prop:AcceptNewAnimals})";
-            
+
+            ISqlInterface si = null;
+            si.From<Animal>().Where(c => c.Name).EqualTo(3).And(c => c.Id).GreaterOrEqualTo(5)
+                .OrderBy(c => c.Name).Asc()
+                .OrderBy(c => c.ReceivedOn).Desc().FetchAll();
             
             Console.WriteLine("Start run");
             //Console.WriteLine(Guid.NewGuid().ToString("N"));
@@ -192,6 +196,8 @@ namespace WebZoo.Data
 
             var entFactory = sessionFactory.DataSerializer as Goliath.Data.DataAccess.IEntityFactory;
             var zobo = entFactory.CreateInstance<Zoo>();
+
+            
             
             Zoo zooM = new Zoo() { Name = "Kitona", City = "Kitona", AcceptNewAnimals = true };
             var an1 = new Animal()
