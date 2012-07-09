@@ -168,6 +168,11 @@
     <Compile Include="Rdbms.cs" />
     <Compile Include="Sql\DeleteSqlBuilder.cs" />
     <Compile Include="Sql\ISqlWorker.cs" />
+    <Compile Include="Sql\Fluent\JoinBuilder.cs" />
+    <Compile Include="Sql\Fluent\QueryBuilder.cs" />
+    <Compile Include="Sql\Fluent\SqlBuilderInterfaces.cs" />
+    <Compile Include="Sql\Fluent\SqlBuilderInterfaces.Generics.cs" />
+    <Compile Include="Sql\Fluent\QueryBuilder.JoinBuilder.cs" />
     <Compile Include="Sql\SqlOperationInfo.cs" />
     <Compile Include="QueryParam.cs" />
     <Compile Include="Providers\SqlDialect.cs" />
