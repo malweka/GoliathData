@@ -77,13 +77,13 @@ namespace Goliath.Data.Sql
 
         public WhereStatement LessThan(string parameterizedValue)
         {
-            SetOperand(parameterizedValue, ComparisonOperator.LessThan);
+            SetOperand(parameterizedValue, ComparisonOperator.LowerThan);
             return this;
         }
 
         public WhereStatement LessOrEquals(string parameterizedValue)
         {
-            SetOperand(parameterizedValue, ComparisonOperator.LessOrEquals);
+            SetOperand(parameterizedValue, ComparisonOperator.LowerOrEquals);
             return this;
         }
 
@@ -118,9 +118,9 @@ namespace Goliath.Data.Sql
                     return ">";
                 case ComparisonOperator.In:
                     return "in({0})";
-                case ComparisonOperator.LessOrEquals:
+                case ComparisonOperator.LowerOrEquals:
                     return "<=";
-                case ComparisonOperator.LessThan:
+                case ComparisonOperator.LowerThan:
                     return "<";
                 case ComparisonOperator.Like:
                     return "LIKE";

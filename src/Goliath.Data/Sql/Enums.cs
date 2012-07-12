@@ -60,11 +60,11 @@ namespace Goliath.Data.Sql
         /// <summary>
         /// 
         /// </summary>
-        LessThan,
+        LowerThan,
         /// <summary>
         /// 
         /// </summary>
-        LessOrEquals,
+        LowerOrEquals,
         //And = 400,
         //Or = 401,
         /// <summary>

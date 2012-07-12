@@ -75,10 +75,7 @@ namespace Goliath.Data.Sql
         //}
 
 
-        public IFilterClause Where(string propertyName)
-        {
-            throw new NotImplementedException();
-        }
+
 
         #endregion
 

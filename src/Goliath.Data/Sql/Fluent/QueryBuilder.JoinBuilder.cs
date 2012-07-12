@@ -35,15 +35,6 @@ namespace Goliath.Data.Sql
         }
 
 
-        #region IJoinQueryBuilder Members
-
-        public IWhereOnRelation ForJoin(string alias)
-        {
-            throw new NotImplementedException();
-        }
-
-        #endregion
-
         #region IJoinable Members
 
         IJoinOperation IJoinable.On(string propertyName)
