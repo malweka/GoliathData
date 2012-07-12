@@ -7,7 +7,7 @@ namespace Goliath.Data.Sql
 {
     using Mapping;
 
-    class JoinBuilder : IJoinQueryBuilder, IJoinable, IJoinOperation
+    class JoinBuilder : IQueryBuilder, IJoinable, IJoinOperation
     {
         QueryBuilder builder;
 
@@ -29,14 +29,7 @@ namespace Goliath.Data.Sql
             this.builder = builder;
         }
 
-        #region IJoinQueryBuilder Members
 
-        public IWhereOnRelation ForJoin(string alias)
-        {
-            return builder.ForJoin(alias);
-        }
-
-        #endregion
 
         #region IQueryBuilder Members
 
@@ -60,6 +53,10 @@ namespace Goliath.Data.Sql
             return builder.Where(propertyName);
         }
 
+        public IFilterClause Where(string tableAlias, string propertyName)
+        {
+            return builder.Where(tableAlias, propertyName);
+        }
         #endregion
 
         #region IQueryFetchable Members
@@ -102,7 +99,7 @@ namespace Goliath.Data.Sql
 
         #region IJoinOperation Members
 
-        public IJoinQueryBuilder EqualTo(string propertyName)
+        public IQueryBuilder EqualTo(string propertyName)
         {
             JoinRightColumn = propertyName;
             return this;

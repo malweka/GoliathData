@@ -167,6 +167,8 @@
     <Compile Include="SqlServerRdbmsBackend.cs" />
     <Compile Include="Rdbms.cs" />
     <Compile Include="Sql\DeleteSqlBuilder.cs" />
+    <Compile Include="Sql\Fluent\QueryBuilder.FilterBuilder.cs" />
+    <Compile Include="Sql\Fluent\SortBuilder.cs" />
     <Compile Include="Sql\ISqlWorker.cs" />
     <Compile Include="Sql\Fluent\JoinBuilder.cs" />
     <Compile Include="Sql\Fluent\QueryBuilder.cs" />
@@ -191,6 +193,7 @@
     <Compile Include="Sql\SqlStatement.cs" />
     <Compile Include="Sql\SqlWorker.cs" />
     <Compile Include="Sql\UpdateSqlBuilder.cs" />
+    <Compile Include="Sql\Fluent\WhereClauseBuilder.cs" />
     <Compile Include="Sql\WhereStatement.cs" />
     <Compile Include="Utilities\StatementMapParser.cs" />
     <Compile Include="ThreadStaticSessionStore.cs" />

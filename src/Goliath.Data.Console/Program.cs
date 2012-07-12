@@ -41,7 +41,7 @@ namespace WebZoo.Data
                 .ForJoin<Zoo>().Where(c => c.Id).EqualTo(2)
                 .ForJoin<Employee>().And(e => e.Id).EqualTo(20);
                
-            //si.SelectAll().From("users").InnerJoin("department", "dep").On("DeptID").
+           // si.SelectAll().From("users").InnerJoin("department", "dep").On("DeptID").EqualTo("u.deptId").
                
             
             Console.WriteLine("Start run");
