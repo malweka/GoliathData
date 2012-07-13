@@ -22,6 +22,7 @@ namespace Goliath.Data.Sql
         bool isRightOperandSet;
 
         public string TableAlias { get; set; }
+        public string RightColumnTableAlias { get; set; }
 
         public WhereClauseBuilder(QueryBuilder builder, string leftColumn)
         {
@@ -51,6 +52,8 @@ namespace Goliath.Data.Sql
             {
                 RightColumn = rightColumn;
                 BinaryOperation = binOp;
+                if (!string.IsNullOrWhiteSpace(tableAlias))
+                    RightColumnTableAlias = tableAlias;
                 isRightOperandSet = true;
             }
         }
