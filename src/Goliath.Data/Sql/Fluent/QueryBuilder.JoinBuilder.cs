@@ -27,8 +27,8 @@ namespace Goliath.Data.Sql
             joins.Add(alias, join);
             return join;
         }
-        
-        IJoinable BuildJoin(string joinTableName, string jointTableAlias, JoinType type)
+
+        JoinBuilder BuildJoin(string joinTableName, string jointTableAlias, JoinType type)
         {
             JoinBuilder join = new JoinBuilder(this, this.tableName, joinTableName, jointTableAlias) { Type = type };
             return join;

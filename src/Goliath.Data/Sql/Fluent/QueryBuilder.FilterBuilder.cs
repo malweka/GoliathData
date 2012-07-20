@@ -68,6 +68,7 @@ namespace Goliath.Data.Sql
             whereBuilder.PreOperator = preOperator;
             whereBuilder.TableAlias = tableAlias;
             whereClauses.Add(whereBuilder);
+
             return whereBuilder;
         }
 
