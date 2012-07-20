@@ -12,7 +12,7 @@ namespace Goliath.Data.Sql
     partial class QueryBuilder : IQueryBuilder, ITableNameBuilder
     {
         List<string> columnNames = new List<string>();
-        Dictionary<string, IJoinable> joins = new Dictionary<string, IJoinable>();
+        Dictionary<string, JoinBuilder> joins = new Dictionary<string, JoinBuilder>();
         EntityMap Table { get; set; }
         MapConfig mapping;
 
@@ -74,9 +74,6 @@ namespace Goliath.Data.Sql
         //    throw new NotImplementedException();
         //}
 
-
-
-
         #endregion
 
         #region IQueryFetchable Members
@@ -108,5 +105,50 @@ namespace Goliath.Data.Sql
         }
 
         #endregion
+
+        internal string BuildSql()
+        {
+            string sql = null;
+            StringBuilder sqlBuilder = new StringBuilder("SELECT ");
+
+            if (string.IsNullOrEmpty(alias))
+                alias = tableName;
+
+            if (columnNames.Count < 1)
+                sqlBuilder.Append("* ");
+            else
+                sqlBuilder.Append(string.Join(",", columnNames));
+
+            sqlBuilder.AppendFormat(" FROM {0} {1} ", tableName, alias);
+
+            if (joins.Count > 0)
+            {
+                string jtype = "JOIN";
+
+                foreach (var join in joins.Values)
+                {
+                   switch(join.Type)
+                   {
+                       case JoinType.Inner:
+                           jtype = "INNER JOIN";
+                           break;
+                       case JoinType.Left:
+                           jtype = "LEFT JOIN";
+                           break;
+                       case JoinType.Right:
+                           jtype = "RIGHT JOIN";
+                           break;
+                       case JoinType.Full:
+                           jtype = "FULL JOIN";
+                           break;
+                   }
+
+                   sqlBuilder.AppendFormat("{0} {1} {2} ON ", jtype, join.JoinTableName, join.JoinTableAlias);
+                   sqlBuilder.AppendFormat("{0}.{1} = {2}.{3} ", alias, join.JoinRightColumn, join.JoinTableAlias, join.JoinLeftColumn);
+                }                
+            }
+
+            return sql;
+        }
     }
 }
