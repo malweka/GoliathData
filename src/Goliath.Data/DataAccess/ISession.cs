@@ -6,7 +6,7 @@ namespace Goliath.Data
     /// <summary>
     /// 
     /// </summary>
-    public interface ISession
+    public interface ISession : ISqlInterface
     {
         #region Properties 
 
@@ -51,12 +51,6 @@ namespace Goliath.Data
 
         #region Data Access
 
-        /// <summary>
-        /// create a query object 
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
-        IQuery<T> Query<T>();
 
         /// <summary>
         /// Creates the data access adapter.

@@ -34,17 +34,17 @@ namespace Goliath.Data.Sql
 
         public IFilterClause Or(string columnName)
         {
-            return BuildWhereClause(SqlOperator.AND, columnName);   
+            return BuildWhereClause(SqlOperator.OR, columnName);   
         }
 
         public IFilterClause Or(string tableAlias, string columnName)
         {
-            return BuildWhereClause(SqlOperator.AND, tableAlias, columnName);
+            return BuildWhereClause(SqlOperator.OR, tableAlias, columnName);
         }
 
         public ISorterClause OrderBy(string columnName)
         {
-            return BuildSortClause(string.Empty, columnName);
+            return BuildSortClause(alias, columnName);
         }
 
         public ISorterClause OrderBy(string tableAlias, string columnName)
@@ -56,7 +56,7 @@ namespace Goliath.Data.Sql
 
         WhereClauseBuilder BuildWhereClause(SqlOperator preOperator, string columnName)
         {
-            return BuildWhereClause(preOperator, string.Empty, columnName);
+            return BuildWhereClause(preOperator, alias, columnName);
         }
 
         WhereClauseBuilder BuildWhereClause(SqlOperator preOperator, string tableAlias, string columnName)

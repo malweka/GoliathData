@@ -12,7 +12,14 @@ namespace Goliath.Data.Sql
     partial class QueryBuilder : IQueryBuilder, ITableNameBuilder
     {
         List<string> columnNames = new List<string>();
+        List<QueryParam> parameters = new List<QueryParam>();
         Dictionary<string, JoinBuilder> joins = new Dictionary<string, JoinBuilder>();
+
+        public List<QueryParam> Parameters
+        {
+            get { return parameters; }
+        }
+
         EntityMap Table { get; set; }
         MapConfig mapping;
 
@@ -106,9 +113,15 @@ namespace Goliath.Data.Sql
 
         #endregion
 
+        void AddToParameterList(QueryParam param)
+        {
+            if (param != null)
+            {
+                Parameters.Add(param);
+            }
+        }
         internal string BuildSql()
         {
-            string sql = null;
             StringBuilder sqlBuilder = new StringBuilder("SELECT ");
 
             if (string.IsNullOrEmpty(alias))
@@ -117,7 +130,7 @@ namespace Goliath.Data.Sql
             if (columnNames.Count < 1)
                 sqlBuilder.Append("* ");
             else
-                sqlBuilder.Append(string.Join(",", columnNames));
+                sqlBuilder.Append(string.Join(", ", columnNames));
 
             sqlBuilder.AppendFormat(" FROM {0} {1} ", tableName, alias);
 
@@ -148,7 +161,30 @@ namespace Goliath.Data.Sql
                 }                
             }
 
-            return sql;
+            if (whereClauses.Count > 0)
+            {
+                var firstWhere = whereClauses[0];
+                var sql = firstWhere.BuildSqlString(dialect, 0);
+                AddToParameterList(sql.Item2);
+                sqlBuilder.AppendFormat("WHERE {0} ", sql.Item1);
+
+                if (whereClauses.Count > 1)
+                {
+                    for (int i = 1; i < whereClauses.Count; i++)
+                    {
+                        var where = whereClauses[i].BuildSqlString(dialect, i);
+                        AddToParameterList(where.Item2);
+
+                        string prep = "AND";
+                        if (whereClauses[i].PreOperator != SqlOperator.AND)
+                            prep = "OR";
+
+                        sqlBuilder.AppendFormat("{0} {1} ", prep, where.Item1);
+                    }
+                }
+            }
+
+            return sqlBuilder.ToString();
         }
     }
 }

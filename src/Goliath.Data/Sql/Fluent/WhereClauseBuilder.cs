@@ -2,9 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Data.Common;
 
 namespace Goliath.Data.Sql
 {
+    using DataAccess;
+    using Providers;
+
     class WhereClauseBuilder : IFilterClause
     {
         QueryBuilder builder;
@@ -28,7 +32,7 @@ namespace Goliath.Data.Sql
         {
             this.builder = builder;
             LeftColumn = leftColumn;
-            
+
         }
 
         void BuildBinaryOperation(object value, ComparisonOperator binOp)
@@ -58,9 +62,75 @@ namespace Goliath.Data.Sql
             }
         }
 
+        internal Tuple<string, QueryParam> BuildSqlString(SqlDialect dialect, int seed)
+        {
+            QueryParam parameter = null;
+            StringBuilder sql = new StringBuilder();
+            if (!string.IsNullOrWhiteSpace(TableAlias))
+                sql.AppendFormat("{0}.{1} ", TableAlias, LeftColumn);
+            else
+                sql.AppendFormat("{0} ", LeftColumn);
+
+            string op = null;
+
+            switch (BinaryOperation)
+            {
+                case ComparisonOperator.Equal:
+                    op = "=";
+                    break;
+                case ComparisonOperator.GreaterOrEquals:
+                    op = ">=";
+                    break;
+                case ComparisonOperator.GreaterThan:
+                    op = ">";
+                    break;
+                case ComparisonOperator.In:
+                    op = "IN";
+                    break;
+                case ComparisonOperator.IsNotNull:
+                    op = "IS NOT NULL";
+                    break;
+                case ComparisonOperator.IsNull:
+                    op = "IS NULL";
+                    break;
+                case ComparisonOperator.Like:
+                    op = "LIKE";
+                    break;
+                case ComparisonOperator.LowerOrEquals:
+                    op = "<=";
+                    break;
+                case ComparisonOperator.LowerThan:
+                    op = "<";
+                    break;
+                case ComparisonOperator.NotEqual:
+                    op = "<>";
+                    break;
+                case ComparisonOperator.NotLike:
+                    op = "NOT LIKE";
+                    break;
+            }
+
+            sql.AppendFormat("{0} ", op);
+            if (!string.IsNullOrWhiteSpace(RightColumn))
+            {
+                if(!string.IsNullOrWhiteSpace(RightColumnTableAlias))
+                    sql.AppendFormat("{0}.{1} ", RightColumnTableAlias, RightColumn);
+                else
+                    sql.AppendFormat("{0} ", RightColumn);
+            }
+            else if (ParamValue != null)
+            {
+                string paramName = string.Format("qPm{0}", seed);
+                parameter = new QueryParam(paramName) { Value = ParamValue };
+                sql.Append(dialect.CreateParameterName(paramName));
+            }
+
+            return Tuple.Create<string, QueryParam>(sql.ToString(), parameter);
+        }
+
         #region IFilterClause Members
 
-        public IBinaryOperation EqualTo(object value)
+        public IBinaryOperation EqualToValue(object value)
         {
             BuildBinaryOperation(value, ComparisonOperator.Equal);
             return builder;
@@ -78,7 +148,7 @@ namespace Goliath.Data.Sql
             return builder;
         }
 
-        public IBinaryOperation GreaterThan(object value)
+        public IBinaryOperation GreaterThanValue(object value)
         {
             BuildBinaryOperation(value, ComparisonOperator.GreaterThan);
             return builder;
@@ -97,7 +167,7 @@ namespace Goliath.Data.Sql
         }
 
 
-        public IBinaryOperation GreaterOrEqualTo(object value)
+        public IBinaryOperation GreaterOrEqualToValue(object value)
         {
             BuildBinaryOperation(value, ComparisonOperator.GreaterOrEquals);
             return builder;
@@ -115,7 +185,7 @@ namespace Goliath.Data.Sql
             return builder;
         }
 
-        public IBinaryOperation LowerOrEqualTo(object value)
+        public IBinaryOperation LowerOrEqualToValue(object value)
         {
             BuildBinaryOperation(value, ComparisonOperator.LowerOrEquals);
             return builder;
@@ -133,7 +203,7 @@ namespace Goliath.Data.Sql
             return builder;
         }
 
-        public IBinaryOperation LowerThan(object value)
+        public IBinaryOperation LowerThanValue(object value)
         {
             BuildBinaryOperation(value, ComparisonOperator.LowerThan);
             return builder;
@@ -151,7 +221,7 @@ namespace Goliath.Data.Sql
             return builder;
         }
 
-        public IBinaryOperation Like(object value)
+        public IBinaryOperation LikeValue(object value)
         {
             BuildBinaryOperation(value, ComparisonOperator.Like);
             return builder;
@@ -170,5 +240,7 @@ namespace Goliath.Data.Sql
         }
 
         #endregion
+
+
     }
 }
