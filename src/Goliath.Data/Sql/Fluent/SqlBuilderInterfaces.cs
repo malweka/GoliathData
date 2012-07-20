@@ -58,27 +58,27 @@ namespace Goliath.Data.Sql
 
     public interface IFilterClause
     {
-        IBinaryOperation EqualTo(object value);
+        IBinaryOperation EqualToValue(object value);
         IBinaryOperation EqualTo(string propertyName);
         IBinaryOperation EqualTo(string tableAlias, string propertyName);
 
-        IBinaryOperation GreaterThan(object value);
+        IBinaryOperation GreaterThanValue(object value);
         IBinaryOperation GreaterThan(string propertyName);
         IBinaryOperation GreaterThan(string tableAlias, string propertyName);
 
-        IBinaryOperation GreaterOrEqualTo(object value);
+        IBinaryOperation GreaterOrEqualToValue(object value);
         IBinaryOperation GreaterOrEqualTo(string propertyName);
         IBinaryOperation GreaterOrEqualTo(string tableAlias, string propertyName);
 
-        IBinaryOperation LowerOrEqualTo(object obj);
+        IBinaryOperation LowerOrEqualToValue(object value);
         IBinaryOperation LowerOrEqualTo(string propertyName);
         IBinaryOperation LowerOrEqualTo(string tableAlias, string propertyName);
 
-        IBinaryOperation LowerThan(object obj);
+        IBinaryOperation LowerThanValue(object value);
         IBinaryOperation LowerThan(string propertyName);
         IBinaryOperation LowerThan(string tableAlias, string propertyName);
 
-        IBinaryOperation Like(object param);
+        IBinaryOperation LikeValue(object value);
         IBinaryOperation Like(string propertyName);
         IBinaryOperation Like(string tableAlias, string propertyName);
     }

@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Data;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Goliath.Data.DataAccess
 {
     using Diagnostics;
+    using Sql;
 
     [Serializable]
     class Session : ISession
@@ -69,9 +72,33 @@ namespace Goliath.Data.DataAccess
 
         #region Data Access
 
-        public IQuery<T> Query<T>()
+        public IQueryBuilder<T> SelectAll<T>()
         {
             throw new NotImplementedException();
+        }
+
+        public ITableNameBuilder SelectAll()
+        {
+            List<string> columnNames = new List<string>();
+            return new QueryBuilder(SessionFactory.DbSettings.SqlDialect, columnNames, SessionFactory.DbSettings.Map);
+        }
+
+        public IQueryBuilder<T> Select<T>(string propertyName, params string[] propertyNames)
+        {
+            throw new NotImplementedException();
+        }
+
+        public ITableNameBuilder Select(string column, params string[] columns)
+        {
+            List<string> columnNames = new List<string>();
+            columnNames.Add(column);
+            if ((columns != null) && (columns.Length > 0))
+            {
+                columnNames.AddRange(columns);
+            }
+
+            return new QueryBuilder(SessionFactory.DbSettings.SqlDialect, columnNames, SessionFactory.DbSettings.Map);
+
         }
 
         public IDataAccessAdapter<T> CreateDataAccessAdapter<T>()
@@ -134,5 +161,6 @@ namespace Goliath.Data.DataAccess
         }
 
         #endregion
+
     }
 }
