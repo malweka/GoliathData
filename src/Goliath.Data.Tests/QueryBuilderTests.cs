@@ -20,14 +20,6 @@ namespace Goliath.Data.Tests
             session = SessionHelper.Factory.OpenSession();
         }
 
-        QueryBuilder CreateBuilder(params string[] columns)
-        {
-            var dialect = session.SessionFactory.DbSettings.SqlDialect;
-            var mapping = session.SessionFactory.DbSettings.Map;
-
-            return new QueryBuilder(dialect, columns.ToList(), mapping);
-        }
-
         [Test]
         public void BuildSql_build_valid_select_with_joins()
         {
@@ -66,6 +58,28 @@ namespace Goliath.Data.Tests
             Assert.AreEqual(stat, sql.Trim());
             Assert.AreEqual(builder.Parameters[1].Value, 45);
             Assert.AreEqual(builder.Parameters[2].Value, "NoWhere");
+        }
+
+        [Test]
+        public void BuildSql_build_valid_select_with_order_by()
+        {
+            string statement = "SELECT Id, Name, Age FROM tb_fakeTable ftb INNER JOIN tb_join1 j1 ON ftb.jid = j1.jcol1 ORDER BY ftb.Name DESC, ftb.Age ASC, ftb.Id ASC";
+            var query = session
+                .Select("Id", "Name", "Age")
+                .From("tb_fakeTable", "ftb");
+
+            query.InnerJoin("tb_join1", "j1")
+                .On("jcol1").EqualTo("jid")
+                .OrderBy("Name").Desc()
+                .OrderBy("Age").Asc()
+                .OrderBy("Id");
+
+            QueryBuilder builder = query as QueryBuilder;
+            string sql = builder.BuildSql();
+
+            Console.WriteLine(sql);
+
+            Assert.AreEqual(statement, sql.Trim());
         }
 
     }

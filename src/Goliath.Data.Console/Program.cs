@@ -30,16 +30,16 @@ namespace WebZoo.Data
             string template = "select @{col:a.Id}, @{sel:a.Name}, @{sel:a.City}, @{sel:a.AcceptNewAnimals} from  @{a.TableName} where @{prop:a.Id} = @{prop:b.Id}";
             string template2 = @"INSERT INTO @{TableName}(@{sel:Name},@{col:City},@{col:AcceptNewAnimals}) VALUES(@{prop:Name},@{prop:City},@{prop:AcceptNewAnimals})";
 
-            ISqlInterface si = null;
-            si.SelectAll<Animal>().Where(c => c.Name).EqualTo("3").And(c => c.Id).GreaterOrEqualTo(5)
-                .OrderBy(c => c.Name).Asc()
-                .OrderBy(c => c.ReceivedOn).Desc().FetchAll();
+            //ISqlInterface si = null;
+            //si.SelectAll<Animal>().Where(c => c.Name).EqualTo("3").And(c => c.Id).GreaterOrEqualTo(5)
+            //    .OrderBy(c => c.Name).Asc()
+            //    .OrderBy(c => c.ReceivedOn).Desc().FetchAll();
 
-            si.Select<Animal>("Id", "some", "Xoe")
-                .InnerJoin<Zoo>()
-                .On(c => c.Id).EqualTo(c => c.ZooId)
-                .ForJoin<Zoo>().Where(c => c.Id).EqualTo(2)
-                .ForJoin<Employee>().And(e => e.Id).EqualTo(20);
+            //si.Select<Animal>("Id", "some", "Xoe")
+            //    .InnerJoin<Zoo>()
+            //    .On(c => c.Id).EqualTo(c => c.ZooId)
+            //    .ForJoin<Zoo>().Where(c => c.Id).EqualTo(2)
+            //    .ForJoin<Employee>().And(e => e.Id).EqualTo(20);
                
            // si.SelectAll().From("users").InnerJoin("department", "dep").On("DeptID").EqualTo("u.deptId").
                

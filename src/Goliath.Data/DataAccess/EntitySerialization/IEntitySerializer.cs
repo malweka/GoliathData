@@ -31,7 +31,7 @@ namespace Goliath.Data.DataAccess
         /// </summary>
         /// <typeparam name="TEntity">The type of the entity.</typeparam>
         /// <param name="factoryMethod">The factory method.</param>
-        void RegisterDataHydrator<TEntity>(Func<DbDataReader, EntityMap, TEntity> factoryMethod);
+        void RegisterDataHydrator<TEntity>(Func<DbDataReader, IEntityMap, TEntity> factoryMethod);
 
         /// <summary>
         /// Serializes all.
@@ -40,7 +40,7 @@ namespace Goliath.Data.DataAccess
         /// <param name="dataReader">The data reader.</param>
         /// <param name="entityMap">The entity map.</param>
         /// <returns></returns>
-        IList<TEntity> SerializeAll<TEntity>(DbDataReader dataReader, EntityMap entityMap);
+        IList<TEntity> SerializeAll<TEntity>(DbDataReader dataReader, IEntityMap entityMap);
 
         /// <summary>
         /// Creates the SQL worker.

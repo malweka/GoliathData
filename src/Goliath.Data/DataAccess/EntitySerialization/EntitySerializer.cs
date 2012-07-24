@@ -38,8 +38,6 @@ namespace Goliath.Data.DataAccess
             get { return settings.SqlDialect; }
         }
 
-        //DbAccess dbAccess;
-
         static EntitySerializer()
         {
             logger = Logger.GetLogger(typeof(EntitySerializer));
@@ -117,7 +115,7 @@ namespace Goliath.Data.DataAccess
         /// </summary>
         /// <typeparam name="TEntity">The type of the entity.</typeparam>
         /// <param name="factoryMethod">The factory method.</param>
-        public void RegisterDataHydrator<TEntity>(Func<DbDataReader, EntityMap, TEntity> factoryMethod)
+        public void RegisterDataHydrator<TEntity>(Func<DbDataReader, IEntityMap, TEntity> factoryMethod)
         {
             factoryList.TryAdd(typeof(TEntity), factoryMethod);
         }
@@ -129,14 +127,14 @@ namespace Goliath.Data.DataAccess
         /// <param name="dataReader">The data reader.</param>
         /// <param name="entityMap">The entity map.</param>
         /// <returns></returns>
-        public IList<TEntity> SerializeAll<TEntity>(DbDataReader dataReader, EntityMap entityMap)
+        public IList<TEntity> SerializeAll<TEntity>(DbDataReader dataReader, IEntityMap entityMap)
         {
             Delegate dlgMethod;
             Type type = typeof(TEntity);
-            Func<DbDataReader, EntityMap, IList<TEntity>> factoryMethod = null;
+            Func<DbDataReader, IEntityMap, IList<TEntity>> factoryMethod = null;
             if (factoryList.TryGetValue(type, out dlgMethod))
             {
-                factoryMethod = dlgMethod as Func<DbDataReader, EntityMap, IList<TEntity>>;
+                factoryMethod = dlgMethod as Func<DbDataReader, IEntityMap, IList<TEntity>>;
                 if (factoryMethod == null)
                 {
                     throw new GoliathDataException("unknown factory method");
@@ -273,22 +271,52 @@ namespace Goliath.Data.DataAccess
 
         #endregion
 
-        Func<DbDataReader, EntityMap, IList<TEntity>> CreateSerializerMethod<TEntity>(EntityMap entityMap)
+        Func<DbDataReader, IEntityMap, IList<TEntity>> CreateSerializerMethod<TEntity>(IEntityMap mapModel)
         {
-            Func<DbDataReader, EntityMap, IList<TEntity>> func = (dbReader, entMap) =>
+            Func<DbDataReader, IEntityMap, IList<TEntity>> func = (dbReader, model) =>
             {
                 List<TEntity> list = new List<TEntity>();
 
                 Type type = typeof(TEntity);
-                Dictionary<string, int> columns = GetColumnNames(dbReader, entMap.TableAlias);
+                EntityGetSetInfo getSetInfo;
+                Dictionary<string, int> columns = null;
 
-                EntityGetSetInfo getSetInfo = getSetStore.GetReflectionInfoAddIfMissing(type, entMap);
-
-                while (dbReader.Read())
+                if (model is EntityMap)
                 {
-                    var instanceEntity = Activator.CreateInstance(type);
-                    SerializeSingle(instanceEntity, type, entityMap, getSetInfo, columns, dbReader);
-                    list.Add((TEntity)instanceEntity);
+                    EntityMap entityMap = (EntityMap)model;
+                    columns = GetColumnNames(dbReader, model.TableAlias);
+
+                    
+                    if (entityMap is DynamicEntityMap)
+                    {
+                        getSetInfo = new EntityGetSetInfo(type);
+                        getSetInfo.Load(entityMap);
+                    }
+                    else
+                    {
+                        getSetInfo = getSetStore.GetReflectionInfoAddIfMissing(type, entityMap);
+                    }
+
+                    while (dbReader.Read())
+                    {
+                        var instanceEntity = Activator.CreateInstance(type);
+                        SerializeSingle(instanceEntity, type, entityMap, getSetInfo, columns, dbReader);
+                        list.Add((TEntity)instanceEntity);
+                    }  
+                                      
+                }
+                else if (model is ComplexType)
+                {
+                    ComplexType complexType = (ComplexType)model;
+                    columns = GetColumnNames(dbReader, null);
+                    getSetInfo = getSetStore.GetReflectionInfoAddIfMissing(type, complexType);
+
+                    while (dbReader.Read())
+                    {
+                        var instanceEntity = Activator.CreateInstance(type);
+                        SerializeSingle(instanceEntity, type, complexType, getSetInfo, columns, dbReader);
+                        list.Add((TEntity)instanceEntity);
+                    }  
                 }
 
                 return list;
@@ -297,17 +325,26 @@ namespace Goliath.Data.DataAccess
             return func;
         }
 
-        internal static Dictionary<string, int> GetColumnNames(DbDataReader dbReader, string tableAbbreviation)
+        internal static Dictionary<string, int> GetColumnNames(DbDataReader dbReader, string tableAlias)
         {
             Dictionary<string, int> columns = new Dictionary<string, int>();
+
             for (int i = 0; i < dbReader.FieldCount; i++)
             {
                 var fieldName = dbReader.GetName(i);
-                string tabb = string.Format("{0}_", tableAbbreviation);
-                if (fieldName.StartsWith(tabb))
+
+                if (!string.IsNullOrWhiteSpace(tableAlias))
                 {
-                    var colName = ParameterNameBuilderHelper.GetPropNameFromQueryName(fieldName, tableAbbreviation);
-                    columns.Add(colName, i);
+                    string tabb = string.Format("{0}_", tableAlias);
+                    if (fieldName.StartsWith(tabb))
+                    {
+                        var colName = ParameterNameBuilderHelper.GetPropNameFromQueryName(fieldName, tableAlias);
+                        columns.Add(colName, i);
+                    }
+                }
+                else
+                {
+                    columns.Add(fieldName, i);
                 }
             }
             return columns;
@@ -361,6 +398,45 @@ namespace Goliath.Data.DataAccess
 
                     }
                     else if (columns.TryGetValue(prop.ColumnName, out ordinal))
+                    {
+                        var val = dbReader[ordinal];
+                        var fieldType = dbReader.GetFieldType(ordinal);
+                        if (fieldType.Equals(keyVal.Value.PropertType) && (val != DBNull.Value))
+                        {
+                            keyVal.Value.Setter(instanceEntity, val);
+                        }
+                        else if (keyVal.Value.PropertType.IsEnum)
+                        {
+                            var enumVal = TypeConverterStore.ConvertToEnum(keyVal.Value.PropertType, val);
+                            keyVal.Value.Setter(instanceEntity, enumVal);
+                        }
+                        else
+                        {
+                            var converter = TypeConverterStore.GetConverterFactoryMethod(keyVal.Value.PropertType);
+                            keyVal.Value.Setter(instanceEntity, converter.Invoke(val));
+                        }
+                    }
+                }
+            }
+        }
+
+        internal void SerializeSingle(object instanceEntity, Type type, ComplexType complextType, EntityGetSetInfo getSetInfo, Dictionary<string, int> columns, DbDataReader dbReader)
+        {
+            foreach (var keyVal in getSetInfo.Properties)
+            {
+                /* NOTE: Intentionally going only 1 level up the inheritance. something like :
+                 *  SuperSuperClass
+                 *      SuperClass
+                 *          Class
+                 *          
+                 *  SuperSuperClass if is a mapped entity its properties will be ignored. May be implement this later on. 
+                 *  For now too ugly don't want to touch.
+                 */
+                var prop = complextType.GetProperty(keyVal.Key);
+                int ordinal;
+                if (prop != null)
+                {
+                    if (columns.TryGetValue(prop.ColumnName, out ordinal))
                     {
                         var val = dbReader[ordinal];
                         var fieldType = dbReader.GetFieldType(ordinal);

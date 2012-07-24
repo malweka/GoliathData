@@ -10,7 +10,7 @@ namespace Goliath.Data.Mapping
     /// </summary>
     [Serializable]
     [DataContract]
-    public class EntityMap : IMapModel, IEquatable<EntityMap>, IEnumerable<Property>, ICollection<Property>
+    public class EntityMap : IEntityMap, IEquatable<EntityMap>, IEnumerable<Property>, ICollection<Property>
     {
 
         MapConfig parent;
@@ -245,16 +245,6 @@ namespace Goliath.Data.Mapping
         /// <returns></returns>
         public Property GetProperty(string propertyName)
         {
-            //if (Properties.Contains(propertyName))
-            //    return Properties[propertyName];
-            //if (Relations.Contains(propertyName))
-            //    return Relations[propertyName];
-            //if (PrimaryKey != null)
-            //{
-            //    if (PrimaryKey.Keys.Contains(propertyName))
-            //        return PrimaryKey.Keys[propertyName];
-            //}
-
             if (AllProperties.Contains(propertyName))
                 return AllProperties[propertyName];
 

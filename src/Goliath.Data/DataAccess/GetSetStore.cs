@@ -30,7 +30,7 @@ namespace Goliath.Data.DataAccess
         }
 
         public void Add<T>(EntityGetSetInfo getSetterInfo)
-        {          
+        {
             Add(typeof(T), getSetterInfo);
         }
 
@@ -45,7 +45,7 @@ namespace Goliath.Data.DataAccess
         /// <param name="key">The key.</param>
         /// <param name="entMap">The ent map.</param>
         /// <returns></returns>
-        public EntityGetSetInfo GetReflectionInfoAddIfMissing(Type key, EntityMap entMap)
+        public EntityGetSetInfo GetReflectionInfoAddIfMissing(Type key, IEntityMap entMap)
         {
             EntityGetSetInfo getSetInfo;
 
@@ -59,7 +59,7 @@ namespace Goliath.Data.DataAccess
             return getSetInfo;
         }
 
-        public EntityGetSetInfo Add(Type key, EntityMap entityMap)
+        public EntityGetSetInfo Add(Type key, IEntityMap entityMap)
         {
             EntityGetSetInfo info = new EntityGetSetInfo(key);
             info.Load(entityMap);
@@ -79,7 +79,7 @@ namespace Goliath.Data.DataAccess
     }
 
     [Serializable]
-     class EntityGetSetInfo
+    class EntityGetSetInfo
     {
         readonly Dictionary<string, PropInfo> properties;
         //readonly Dictionary<string, MemberGetter> getters;
@@ -89,11 +89,6 @@ namespace Goliath.Data.DataAccess
         {
             get { return properties; }
         }
-
-        //public Dictionary<string, MemberGetter> Getters
-        //{
-        //    get { return getters; }
-        //}
 
         public EntityGetSetInfo(Type entityType)
         {
@@ -107,14 +102,15 @@ namespace Goliath.Data.DataAccess
         }
 
         bool loaded;
-        public void Load(EntityMap map)
+
+        public void Load(IEntityMap map)
         {
             var propertiesInfo = EntityType.GetProperties(BindingFlags.Public | BindingFlags.SetProperty | BindingFlags.Instance);
 
             if (!loaded)
             {
                 EntityMap superEntityMap = null;
-                if (map.IsSubClass)
+                if ((map is EntityMap) && ((EntityMap)map).IsSubClass)
                 {
                     superEntityMap = map.Parent.GetEntityMap(map.Extends);
                 }
@@ -131,7 +127,8 @@ namespace Goliath.Data.DataAccess
                          *  SuperSuperClass if is a mapped entity its properties will be ignored. May be implement this later on. 
                          *  For now too ugly don't want to touch.
                          */
-                        var prop = map[pinfo.Name];
+                        var prop = map.GetProperty(pinfo.Name);
+
                         if ((prop == null) && (superEntityMap != null))
                             prop = superEntityMap[pinfo.Name];
 
@@ -144,11 +141,11 @@ namespace Goliath.Data.DataAccess
                             MemberSetter setter = EntityType.DelegateForSetPropertyValue(prop.PropertyName);
                             MemberGetter getter = EntityType.DelegateForGetPropertyValue(prop.PropertyName);
 
-                            PropInfo propInfo = new PropInfo { Getter = getter, Setter = setter, Name = prop.PropertyName, PropertType = pinfo.PropertyType};
+                            PropInfo propInfo = new PropInfo { Getter = getter, Setter = setter, Name = prop.PropertyName, PropertType = pinfo.PropertyType };
                             Properties.Add(prop.PropertyName, propInfo);
                         }
-                        
-                    }                    
+
+                    }
 
                     loaded = true;
                 }

@@ -62,7 +62,7 @@ namespace Goliath.Data.Sql
             }
         }
 
-        internal Tuple<string, QueryParam> BuildSqlString(SqlDialect dialect, int seed)
+        public Tuple<string, QueryParam> BuildSqlString(SqlDialect dialect, int seed)
         {
             QueryParam parameter = null;
             StringBuilder sql = new StringBuilder();
