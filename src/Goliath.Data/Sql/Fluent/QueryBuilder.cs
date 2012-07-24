@@ -8,12 +8,31 @@ namespace Goliath.Data.Sql
 {
     using Providers;
     using Mapping;
+    using DataAccess;
 
     partial class QueryBuilder : IQueryBuilder, ITableNameBuilder
     {
         List<string> columnNames = new List<string>();
         List<QueryParam> parameters = new List<QueryParam>();
         Dictionary<string, JoinBuilder> joins = new Dictionary<string, JoinBuilder>();
+        SqlSelectColumnFormatter columnFormatter = new SqlSelectColumnFormatter();
+        MapConfig mapping;
+        SqlDialect dialect;
+        string tableName;
+        string alias;
+        int limit;
+        int offset;
+        ISession session;
+
+        public SqlSelectColumnFormatter ColumnFormatter
+        {
+            get { return columnFormatter; }
+            set
+            {
+                if (value != null)
+                    columnFormatter = value;
+            }
+        }
 
         public List<QueryParam> Parameters
         {
@@ -21,27 +40,19 @@ namespace Goliath.Data.Sql
         }
 
         EntityMap Table { get; set; }
-        MapConfig mapping;
 
-        SqlDialect dialect;
-        string tableName;
-        string alias;
-        int limit;
-        int offset;
 
-        public QueryBuilder(SqlDialect dialect, List<string> columnNames, MapConfig mapping)
+        public QueryBuilder(ISession session, List<string> columnNames)
         {
             if (columnNames != null)
                 this.columnNames = columnNames;
 
-            if (dialect == null)
-                throw new ArgumentNullException("dialect");
+            if (session == null)
+                throw new ArgumentNullException("session");
 
-            if (mapping == null)
-                throw new ArgumentNullException("mapping");
-
-            this.dialect = dialect;
-            this.mapping = mapping;
+            this.session = session;
+            dialect = session.SessionFactory.DataSerializer.SqlDialect;
+            this.mapping = session.SessionFactory.DbSettings.Map;
 
         }
 
@@ -58,28 +69,6 @@ namespace Goliath.Data.Sql
             this.alias = alias;
             return this;
         }
-
-        #endregion
-
-        #region IQueryBuilder Members
-
-        //public IJoinQueryBuilder InnerJoinOn(string propertyName)
-        //{
-        //    if (Table == null)
-        //        throw new  GoliathDataException("not join table provided and we do not know what is the mapped table we cannot retrieve all references.");
-
-        //    throw new NotImplementedException();
-        //}
-
-        //public IJoinQueryBuilder LeftJoinOn(string propertyName)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //public IJoinQueryBuilder RightJoinOn(string propertyName)
-        //{
-        //    throw new NotImplementedException();
-        //}
 
         #endregion
 
@@ -101,13 +90,15 @@ namespace Goliath.Data.Sql
 
         #region IFetchable Members
 
-        public ICollection FetchAll()
+        public ICollection<T> FetchAll<T>()
         {
             throw new NotImplementedException();
         }
 
-        public object FetchOne()
+        public T FetchOne<T>()
         {
+            Type instanceType = typeof(T);
+            
             throw new NotImplementedException();
         }
 
@@ -130,7 +121,7 @@ namespace Goliath.Data.Sql
             if (columnNames.Count < 1)
                 sqlBuilder.Append("* ");
             else
-                sqlBuilder.Append(string.Join(", ", columnNames));
+                sqlBuilder.Append(ColumnFormatter.Format(columnNames, alias));
 
             sqlBuilder.AppendFormat(" FROM {0} {1} ", tableName, alias);
 
@@ -140,25 +131,25 @@ namespace Goliath.Data.Sql
 
                 foreach (var join in joins.Values)
                 {
-                   switch(join.Type)
-                   {
-                       case JoinType.Inner:
-                           jtype = "INNER JOIN";
-                           break;
-                       case JoinType.Left:
-                           jtype = "LEFT JOIN";
-                           break;
-                       case JoinType.Right:
-                           jtype = "RIGHT JOIN";
-                           break;
-                       case JoinType.Full:
-                           jtype = "FULL JOIN";
-                           break;
-                   }
+                    switch (join.Type)
+                    {
+                        case JoinType.Inner:
+                            jtype = "INNER JOIN";
+                            break;
+                        case JoinType.Left:
+                            jtype = "LEFT JOIN";
+                            break;
+                        case JoinType.Right:
+                            jtype = "RIGHT JOIN";
+                            break;
+                        case JoinType.Full:
+                            jtype = "FULL JOIN";
+                            break;
+                    }
 
-                   sqlBuilder.AppendFormat("{0} {1} {2} ON ", jtype, join.JoinTableName, join.JoinTableAlias);
-                   sqlBuilder.AppendFormat("{0}.{1} = {2}.{3} ", alias, join.JoinRightColumn, join.JoinTableAlias, join.JoinLeftColumn);
-                }                
+                    sqlBuilder.AppendFormat("{0} {1} {2} ON ", jtype, join.JoinTableName, join.JoinTableAlias);
+                    sqlBuilder.AppendFormat("{0}.{1} = {2}.{3} ", alias, join.JoinRightColumn, join.JoinTableAlias, join.JoinLeftColumn);
+                }
             }
 
             if (whereClauses.Count > 0)
@@ -182,6 +173,12 @@ namespace Goliath.Data.Sql
                         sqlBuilder.AppendFormat("{0} {1} ", prep, where.Item1);
                     }
                 }
+            }
+
+            if (sortClauses.Count > 0)
+            {
+                sqlBuilder.Append("ORDER BY ");
+                sqlBuilder.Append(string.Join(", ", sortClauses));
             }
 
             return sqlBuilder.ToString();

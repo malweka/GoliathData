@@ -60,7 +60,7 @@ namespace Goliath.Data
         public  static string GetPropNameFromQueryName(string queryName, string tableAlias)
         {
             if (string.IsNullOrWhiteSpace(tableAlias))
-                throw new ArgumentNullException("tableAbbreviation");
+                throw new ArgumentNullException("tableAlias");
 
             if (string.IsNullOrWhiteSpace(queryName))
                 throw new ArgumentNullException("queryName");

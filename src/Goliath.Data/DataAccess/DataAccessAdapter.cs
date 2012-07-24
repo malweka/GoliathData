@@ -230,8 +230,6 @@ namespace Goliath.Data
             return result;
         }
 
-       
-
         void BuildOrExecuteInsertBatchOperation(ITransaction transaction, BatchSqlOperation batchOp, Dictionary<string, QueryParam> neededParams, List<SqlOperationInfo> batchOperations)
         {
             if (batchOp == null)
@@ -265,18 +263,6 @@ namespace Goliath.Data
                 }
             }
 
-            ////read if we have post insert get id sql
-            //if (batchOp.KeyGenerationOperations.Count > 0)
-            //{
-            //    foreach (var kop in batchOp.KeyGenerationOperations)
-            //    {
-            //       inserts.Add(kop.Value.Operation.SqlText);
-            //        //ReadGeneratedId(kop, neededParams);
-            //    }
-
-            //    //batchOp.KeyGenerationOperations.Clear();
-            //}
-
             foreach (var param in insertParams)
             {
                 if (!neededParams.ContainsKey(param.Name))
@@ -297,7 +283,6 @@ namespace Goliath.Data
                 {
                     var sql = inserts[i].SqlText;
                     var xt = session.DataAccess.ExecuteNonQuery(session.ConnectionManager.OpenConnection(), transaction, sql, paramList);
-                    //logger.Log(LogLevel.Debug, sql);
                     if (batchOp.KeyGenerationOperations.Count > 0 && i == 0) // read resulting id that were created
                     {
                         //TODO: generated keys from database
@@ -332,8 +317,6 @@ namespace Goliath.Data
                 if (!neededParams.ContainsKey(paramName))
                     neededParams.Add(paramName, new QueryParam(paramName, id));
             }
-
-            //dataReader.Dispose();
         }
 
         #endregion
@@ -348,7 +331,6 @@ namespace Goliath.Data
         /// <returns></returns>
         public IList<TEntity> FindAll(string sqlQuery, params QueryParam[] parameters)
         {
-            //logger.Log(LogLevel.Debug, sqlQuery);
             try
             {
                 DbDataReader dataReader;
@@ -379,7 +361,6 @@ namespace Goliath.Data
             DbDataReader dataReader;
 
             var query = queryBuilder.ToSqlString();
-            //logger.Log(LogLevel.Debug, query);
             try
             {
                 dataReader = session.DataAccess.ExecuteReader(session.ConnectionManager.OpenConnection(), query, filters);
@@ -421,7 +402,6 @@ namespace Goliath.Data
             totalRecords = 0;
             queryBuilder = queryBuilder.WithPaging(limit, offset);
             string query = string.Format("{0};\n{1};", selectCount.Trim(), queryBuilder.ToSqlString().Trim());
-            //logger.Log(LogLevel.Debug, query);
 
             try
             {

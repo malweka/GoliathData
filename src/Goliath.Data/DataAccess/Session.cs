@@ -29,12 +29,6 @@ namespace Goliath.Data.DataAccess
             id = Guid.NewGuid().ToString().Replace("-", string.Empty).ToLower();
             SessionFactory = sessionFactory;
             ConnectionManager = new ConnectionManager(connectionProvider, !sessionFactory.DbSettings.Connector.AllowMultipleConnections);
-            //if (connection != null)
-            //{
-            //    this.connection = connection;
-            //    weOwnConnection = false;
-            //}
-            //this.adapterFactory = adapterFactory;
         }
 
         void DisposeOfConnection(IDbConnection connection)
@@ -80,7 +74,7 @@ namespace Goliath.Data.DataAccess
         public ITableNameBuilder SelectAll()
         {
             List<string> columnNames = new List<string>();
-            return new QueryBuilder(SessionFactory.DbSettings.SqlDialect, columnNames, SessionFactory.DbSettings.Map);
+            return new QueryBuilder(this, columnNames);
         }
 
         public IQueryBuilder<T> Select<T>(string propertyName, params string[] propertyNames)
@@ -97,7 +91,7 @@ namespace Goliath.Data.DataAccess
                 columnNames.AddRange(columns);
             }
 
-            return new QueryBuilder(SessionFactory.DbSettings.SqlDialect, columnNames, SessionFactory.DbSettings.Map);
+            return new QueryBuilder(this, columnNames);
 
         }
 

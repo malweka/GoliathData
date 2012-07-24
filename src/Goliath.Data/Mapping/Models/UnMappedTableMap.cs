@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Goliath.Data.Mapping
 {
-    class UnMappedTableMap : EntityMap
+    public class UnMappedTableMap : EntityMap
     {
         private UnMappedTableMap(string entityName) : base(entityName, entityName) { }
 

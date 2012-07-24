@@ -21,6 +21,26 @@ namespace Goliath.Data.Sql
             ColumnName = columnName;
         }
 
+        public string BuildSqlString()
+        {            
+            string col;
+            if (!string.IsNullOrWhiteSpace(TableAlias))
+                col = string.Format("{0}.{1}", TableAlias, ColumnName);
+            else
+                col = ColumnName;
+
+            string sql = string.Format("{0} {1}", col, SortTypeToText());
+            return sql;
+        }
+
+        string SortTypeToText()
+        {
+            if (SortDirection == SortType.Ascending)
+                return "ASC";
+            else
+                return "DESC";
+        }
+
         #region ISorterClause Members
 
         public IOrderByDirection Desc()
@@ -36,5 +56,10 @@ namespace Goliath.Data.Sql
         }
 
         #endregion
+
+        public override string ToString()
+        {
+            return BuildSqlString();
+        }
     }
 }

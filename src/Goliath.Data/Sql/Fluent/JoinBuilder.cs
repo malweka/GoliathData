@@ -29,8 +29,6 @@ namespace Goliath.Data.Sql
             this.builder = builder;
         }
 
-
-
         #region IQueryBuilder Members
 
         public IJoinable InnerJoin(string tableName, string alias)
@@ -57,6 +55,17 @@ namespace Goliath.Data.Sql
         {
             return builder.Where(tableAlias, propertyName);
         }
+
+        public ISorterClause OrderBy(string columnName)
+        {
+            return builder.OrderBy(columnName);
+        }
+
+        public ISorterClause OrderBy(string tableAlias, string columnName)
+        {
+            return builder.OrderBy(tableAlias, columnName);
+        }
+
         #endregion
 
         #region IQueryFetchable Members
@@ -75,14 +84,14 @@ namespace Goliath.Data.Sql
 
         #region IFetchable Members
 
-        public System.Collections.ICollection FetchAll()
+        public System.Collections.Generic.ICollection<T> FetchAll<T>()
         {
-            return builder.FetchAll();
+            return builder.FetchAll<T>();
         }
 
-        public object FetchOne()
+        public T FetchOne<T>()
         {
-            return builder.FetchOne();
+            return builder.FetchOne<T>();
         }
 
         #endregion

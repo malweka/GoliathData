@@ -53,6 +53,7 @@
     <Compile Include="BaseEntity.cs" />
     <Compile Include="ConnectionProviderTests.cs" />
     <Compile Include="DatabaseInit.cs" />
+    <Compile Include="DynamicEntityMapTests.cs" />
     <Compile Include="EntitySerializerTests.cs" />
     <Compile Include="MapConfigTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -69,6 +70,7 @@
     <Content Include="Scripts\Sqlite\AutoIncrement\02_employees.sql" />
     <Content Include="Scripts\Sqlite\AutoIncrement\03_animals_handlers.sql" />
     <Content Include="Scripts\Sqlite\AutoIncrement\04_monkeys.sql" />
+    <Content Include="Scripts\Sqlite\AutoIncrement\09_insert_data.sql" />
     <Content Include="Scripts\Sqlite\Guid\00_zoos.sql" />
     <Content Include="Scripts\Sqlite\Guid\01_animals.sql" />
     <Content Include="Scripts\Sqlite\Guid\02_employees.sql" />

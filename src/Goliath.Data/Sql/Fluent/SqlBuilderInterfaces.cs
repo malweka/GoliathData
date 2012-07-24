@@ -12,7 +12,7 @@ namespace Goliath.Data.Sql
         IQueryBuilder From(string tableName, string alias);
     }
 
-    public interface IQueryBuilder : IQueryFetchable
+    public interface IQueryBuilder : IQueryFetchable, IOrderByDirection
     {
         //IJoinQueryBuilder InnerJoinOn(string propertyName);
         //IJoinQueryBuilder LeftJoinOn(string propertyName);
@@ -46,14 +46,14 @@ namespace Goliath.Data.Sql
         IQueryBuilder EqualTo(string propertyName);
     }
 
-    public interface IBinaryOperation : IQueryFetchable
+    public interface IBinaryOperation : IQueryFetchable, IOrderByDirection
     {
         IFilterClause And(string propertyName);
         IFilterClause And(string tableAlias, string propertyName);
         IFilterClause Or(string propertyName);
         IFilterClause Or(string tableAlias, string propertyName);
-        ISorterClause OrderBy(string propertyName);
-        ISorterClause OrderBy(string tableAlias, string propertyName);
+        //ISorterClause OrderBy(string propertyName);
+        //ISorterClause OrderBy(string tableAlias, string propertyName);
     }
 
     public interface IFilterClause
@@ -122,7 +122,7 @@ namespace Goliath.Data.Sql
         IOrderByDirection Asc();
     }
 
-    public interface IOrderByDirection : IQueryFetchable
+    public interface IOrderByDirection //: IQueryFetchable
     {
         ISorterClause OrderBy(string propertyName);
         ISorterClause OrderBy(string tableAlias, string propertyName);
@@ -130,8 +130,8 @@ namespace Goliath.Data.Sql
 
     public interface IFetchable
     {
-        ICollection FetchAll();
-        object FetchOne();
+        ICollection<T> FetchAll<T>();
+        T FetchOne<T>();
     }
 
     public interface IQueryFetchable : IFetchable
