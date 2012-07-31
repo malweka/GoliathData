@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Goliath.Data.Sql
+namespace Goliath.Data
 {
     using Providers;
     using Mapping;
@@ -72,15 +72,54 @@ namespace Goliath.Data.Sql
         public override string ToString()
         {
             StringBuilder sb = new StringBuilder("SELECT ");
+
             sb.Append(ColumnEnumeration);
-            sb.AppendFormat("\nFROM {0}", From);
+            sb.AppendFormat(" FROM {0} ", From);
 
             if (!string.IsNullOrWhiteSpace(JoinEnumeration))
-                sb.Append(JoinEnumeration);
+            {
+                sb.AppendFormat("{0} ", JoinEnumeration);
+            }
+
             if (!string.IsNullOrWhiteSpace(WhereExpression))
-                sb.AppendFormat("\nWHERE {0}\n", WhereExpression);
+            {
+                sb.AppendFormat("WHERE {0} ", WhereExpression);
+            }
+
+            if (!string.IsNullOrWhiteSpace(SortExpression))
+            {
+                sb.AppendFormat("ORDER BY {0}", SortExpression);
+            }
 
             return sb.ToString();
         }
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public struct PagingInfo
+    {
+        /// <summary>
+        /// Gets or sets the total.
+        /// </summary>
+        /// <value>
+        /// The total.
+        /// </value>
+        public int Total { get; set; }
+        /// <summary>
+        /// Gets or sets the limit.
+        /// </summary>
+        /// <value>
+        /// The limit.
+        /// </value>
+        public int Limit { get; set; }
+        /// <summary>
+        /// Gets or sets the offset.
+        /// </summary>
+        /// <value>
+        /// The offset.
+        /// </value>
+        public int Offset { get; set; }
     }
 }

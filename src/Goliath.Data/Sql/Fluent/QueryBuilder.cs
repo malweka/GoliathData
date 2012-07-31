@@ -111,20 +111,29 @@ namespace Goliath.Data.Sql
                 Parameters.Add(param);
             }
         }
-        internal string BuildSql()
+
+        public SqlQueryBody BuildSql()
         {
-            StringBuilder sqlBuilder = new StringBuilder("SELECT ");
+            SqlQueryBody queryBody = new SqlQueryBody();
 
             if (string.IsNullOrEmpty(alias))
+            {
                 alias = tableName;
+                queryBody.From = tableName;
+            }
+            else
+            {
+                queryBody.From = string.Format("{0} {1}", tableName, alias);
+            }
 
             if (columnNames.Count < 1)
-                sqlBuilder.Append("* ");
+                queryBody.ColumnEnumeration = "*";
             else
-                sqlBuilder.Append(ColumnFormatter.Format(columnNames, alias));
+                 queryBody.ColumnEnumeration = ColumnFormatter.Format(columnNames, alias);
 
-            sqlBuilder.AppendFormat(" FROM {0} {1} ", tableName, alias);
+          
 
+            StringBuilder joinBuilder = new StringBuilder();
             if (joins.Count > 0)
             {
                 string jtype = "JOIN";
@@ -147,9 +156,11 @@ namespace Goliath.Data.Sql
                             break;
                     }
 
-                    sqlBuilder.AppendFormat("{0} {1} {2} ON ", jtype, join.JoinTableName, join.JoinTableAlias);
-                    sqlBuilder.AppendFormat("{0}.{1} = {2}.{3} ", alias, join.JoinRightColumn, join.JoinTableAlias, join.JoinLeftColumn);
+                    joinBuilder.AppendFormat("{0} {1} {2} ON ", jtype, join.JoinTableName, join.JoinTableAlias);
+                    joinBuilder.AppendFormat("{0}.{1} = {2}.{3} ", alias, join.JoinRightColumn, join.JoinTableAlias, join.JoinLeftColumn);
                 }
+
+                queryBody.JoinEnumeration = joinBuilder.ToString().Trim();
             }
 
             if (whereClauses.Count > 0)
@@ -157,7 +168,8 @@ namespace Goliath.Data.Sql
                 var firstWhere = whereClauses[0];
                 var sql = firstWhere.BuildSqlString(dialect, 0);
                 AddToParameterList(sql.Item2);
-                sqlBuilder.AppendFormat("WHERE {0} ", sql.Item1);
+                StringBuilder wherebuilder = new StringBuilder();
+                wherebuilder.AppendFormat("{0} ", sql.Item1);
 
                 if (whereClauses.Count > 1)
                 {
@@ -170,18 +182,19 @@ namespace Goliath.Data.Sql
                         if (whereClauses[i].PreOperator != SqlOperator.AND)
                             prep = "OR";
 
-                        sqlBuilder.AppendFormat("{0} {1} ", prep, where.Item1);
+                        wherebuilder.AppendFormat("{0} {1} ", prep, where.Item1);
                     }
                 }
+
+                queryBody.WhereExpression = wherebuilder.ToString().Trim();
             }
 
             if (sortClauses.Count > 0)
             {
-                sqlBuilder.Append("ORDER BY ");
-                sqlBuilder.Append(string.Join(", ", sortClauses));
+                queryBody.SortExpression = string.Join(", ", sortClauses);
             }
 
-            return sqlBuilder.ToString();
+            return queryBody;
         }
     }
 }

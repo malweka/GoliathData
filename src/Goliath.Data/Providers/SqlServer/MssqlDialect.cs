@@ -65,7 +65,7 @@ namespace Goliath.Data.Providers.SqlServer
         /// <param name="queryBody">The query body.</param>
         /// <param name="pagingInfo">The paging info.</param>
         /// <returns></returns>
-        public override string QueryWithPaging(Sql.SqlQueryBody queryBody, Sql.PagingInfo pagingInfo)
+        public override string QueryWithPaging(SqlQueryBody queryBody, PagingInfo pagingInfo)
         {
             StringBuilder sb = new StringBuilder("SELECT * \nFROM SELECT ROW_NUMBER() OVER");
             sb.AppendFormat(" (ORDER BY {0}) AS __RowNum, {1}", queryBody.SortExpression, queryBody.ColumnEnumeration);
