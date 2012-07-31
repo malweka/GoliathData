@@ -25,7 +25,7 @@ namespace Goliath.Data.Mapping
         /// Initializes a new instance of the <see cref="DynamicEntityMap"/> class.
         /// </summary>
         /// <param name="type">The type.</param>
-        public DynamicEntityMap(Type type) : this(null, null, type) { }
+        public DynamicEntityMap(Type type) : this(null, type.Name, type) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DynamicEntityMap"/> class.
