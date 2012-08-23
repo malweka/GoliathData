@@ -387,7 +387,7 @@ namespace Goliath.Data.Mapping
                                 property.ConstraintType = ReadEnumType<ConstraintType>(reader.Value);
                                 break;
                             case "clrType":
-                                property.ClrType = ReadClrType(reader.Value);
+                                //property.ClrType = ReadClrType(reader.Value);
                                 break;
                             case "dbType":
                                 property.DbType = ReadEnumType<System.Data.DbType>(reader.Value);

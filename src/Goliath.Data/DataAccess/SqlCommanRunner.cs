@@ -54,15 +54,19 @@ namespace Goliath.Data.DataAccess
 
         internal IList<T> ExecuteReader<T>(IEntityMap entMap, DbConnection dbConn, ISession session, string sql, params QueryParam[] paramArray)
         {
-            var result = session.DataAccess.ExecuteReader(dbConn, session.CurrentTransaction, sql, paramArray);
-            var entities = session.SessionFactory.DataSerializer.SerializeAll<T>(result, entMap);
+            var dataReader = session.DataAccess.ExecuteReader(dbConn, session.CurrentTransaction, sql, paramArray);
+            var entities = session.SessionFactory.DataSerializer.SerializeAll<T>(dataReader, entMap);
+
+            dataReader.Dispose();
             return entities;
         }
 
         internal IList<T> ExecuteReader<T>(IEntityMap entMap, DbConnection dbConn, ISession session, SqlQueryBody sql, int limit, int offset, params QueryParam[] paramArray)
         {
-            var result = session.DataAccess.ExecuteReader(dbConn, session.CurrentTransaction, sql.ToString(session.SessionFactory.DbSettings.SqlDialect, new PagingInfo() { Limit = limit, Offset = offset }), paramArray);
-            var entities = session.SessionFactory.DataSerializer.SerializeAll<T>(result, entMap);
+            var dataReader = session.DataAccess.ExecuteReader(dbConn, session.CurrentTransaction, sql.ToString(session.SessionFactory.DbSettings.SqlDialect, new PagingInfo() { Limit = limit, Offset = offset }), paramArray);
+            var entities = session.SessionFactory.DataSerializer.SerializeAll<T>(dataReader, entMap);
+
+            dataReader.Dispose();
             return entities;
         }
 
@@ -83,6 +87,40 @@ namespace Goliath.Data.DataAccess
                 countSql.AppendFormat(" WHERE {0}", sql.WhereExpression);
 
             return countSql.ToString();
+        }
+
+        internal IList<T> ExecuteReaderPrimitive<T>(DbConnection dbConn, ISession session, SqlQueryBody sql, int limit, int offset, out long total, params QueryParam[] paramArray)
+        {
+            total = 0;
+            var dialect = session.SessionFactory.DbSettings.SqlDialect;
+            var serializer = session.SessionFactory.DataSerializer;
+
+            string countSql = BuildCountSql(session, sql, limit, offset);
+
+            string sqlWithPaging = sql.ToString(dialect, new PagingInfo() { Limit = limit, Offset = offset });
+
+            string sqlToRun = string.Format("{0};\n\r{1};", countSql, sqlWithPaging);
+
+            var dataReader = session.DataAccess.ExecuteReader(dbConn, session.CurrentTransaction, sqlToRun, paramArray);
+            //First resultset contains the count
+            while (dataReader.Read())
+            {
+                total = serializer.ReadFieldData<long>(0, dataReader);
+                //we only expect 1 row of data to be returned, so let's break out of the loop.
+                break;
+            }
+
+            //move to the next result set which contains the entities
+            dataReader.NextResult();
+            List<T> list = new List<T>();
+            while (dataReader.Read())
+            {
+                T val = serializer.ReadFieldData<T>(0, dataReader);
+                list.Add(val);
+            }
+
+            dataReader.Dispose();
+            return list;
         }
 
         internal IList<T> ExecuteReader<T>(IEntityMap entMap, DbConnection dbConn, ISession session, SqlQueryBody sql, int limit, int offset, out long total, params QueryParam[] paramArray)
@@ -109,8 +147,8 @@ namespace Goliath.Data.DataAccess
             //move to the next result set which contains the entities
             dataReader.NextResult();
             var entities = serializer.SerializeAll<T>(dataReader, entMap);
-            dataReader.Dispose();
 
+            dataReader.Dispose();
             return entities;
         }
 
@@ -275,7 +313,62 @@ namespace Goliath.Data.DataAccess
         /// <returns></returns>
         public IList<T> RunList<T>(ISession session, SqlQueryBody sql, int limit, int offset, out long total, params QueryParam[] paramArray)
         {
+            total = 0;
+            Type instanceType = typeof(T);
+            bool ownTransaction = false;
+            var dbConn = session.ConnectionManager.OpenConnection();
+            IList<T> list = new List<T>();
+            var dialect = session.SessionFactory.DbSettings.SqlDialect;
+            var serializer = session.SessionFactory.DataSerializer;
 
+            if ((session.CurrentTransaction == null) || !session.CurrentTransaction.IsStarted)
+            {
+                session.BeginTransaction();
+                ownTransaction = true;
+            }
+
+            try
+            {
+                if (instanceType.IsPrimitive)
+                {
+                    list = ExecuteReaderPrimitive<T>(dbConn, session, sql, limit, offset, out total, paramArray);
+                }
+                else
+                {
+                    MapConfig map = session.SessionFactory.DbSettings.Map;
+                    EntityMap entMap;
+                    ComplexType complexType;
+
+                    if (map.EntityConfigs.TryGetValue(instanceType.FullName, out entMap))
+                    {
+                        list = ExecuteReader<T>(entMap, dbConn, session, sql, limit, offset, out total, paramArray);
+                    }
+                    else if (map.ComplexTypes.TryGetValue(instanceType.FullName, out complexType))
+                    {
+                        list = ExecuteReader<T>(complexType, dbConn, session, sql, limit, offset, out total, paramArray);
+                    }
+                    else
+                    {
+                        //Build a dynamic entity
+                        DynamicEntityMap dynEntMap = new DynamicEntityMap(instanceType);
+                        list = ExecuteReader<T>(dynEntMap, dbConn, session, sql, limit, offset, out total, paramArray);
+                    }
+                }
+
+                if (ownTransaction)
+                    session.CommitTransaction();
+
+                return list;
+            }
+            catch (GoliathDataException ex)
+            {
+                logger.Log(LogLevel.Debug, string.Format("Goliath Exception found {0} ", ex.Message));
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new GoliathDataException(string.Format("Exception while inserting: {0}", sql), ex);
+            }
         }
 
         public IList<T> RunList<T>(ISession session, SqlQueryBody sql, params QueryParam[] paramArray)

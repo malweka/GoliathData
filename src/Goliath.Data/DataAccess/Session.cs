@@ -101,6 +101,24 @@ namespace Goliath.Data.DataAccess
             return adapterFactory.Create<T>(SessionFactory.DbSettings.DbAccess, this);
         }
 
+        public int Update<T>(T entity)
+        {
+            var adapter = CreateDataAccessAdapter<T>();
+            return adapter.Update(entity);
+        }
+
+        public int Insert<T>(T entity, bool recursive = false)
+        {
+            var adapter = CreateDataAccessAdapter<T>();
+            return adapter.Insert(entity, recursive);
+        }
+
+        public int Delete<T>(T entity, bool cascade = false)
+        {
+            var adapter = CreateDataAccessAdapter<T>();
+            return adapter.Delete(entity, cascade);
+        }
+
         public ISessionFactory SessionFactory { get; private set; }
 
         #endregion
@@ -120,7 +138,7 @@ namespace Goliath.Data.DataAccess
             }
             else if (currentTransaction.IsStarted)
             {
-                //TODO: throw exception here
+                //TODO: throw exception here?
             }
 
             currentTransaction.Begin(isolationLevel);
