@@ -17,13 +17,13 @@ namespace WebZoo.Data
 
 		#region properties
 
-		public virtual string FirstName { get; set; }
-		public virtual string LastName { get; set; }
-		public virtual string EmailAddress { get; set; }
-		public virtual string Telephone { get; set; }
-		public virtual string Title { get; set; }
-		public virtual DateTime HiredOn { get; set; }
-		public virtual int? AssignedToZooId { get; set; }
+		public virtual  FirstName { get; set; }
+		public virtual  LastName { get; set; }
+		public virtual  EmailAddress { get; set; }
+		public virtual  Telephone { get; set; }
+		public virtual  Title { get; set; }
+		public virtual  HiredOn { get; set; }
+		public virtual  AssignedToZooId { get; set; }
 
 		#endregion
 

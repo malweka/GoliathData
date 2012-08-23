@@ -50,7 +50,7 @@ namespace WebZoo.Data
             SupportedRdbms rdbms = SupportedRdbms.Mssql2008;
             WebZooRunner zoorunner = new WebZooRunner(rdbms, new CodeGenerator(), AppDomain.CurrentDomain.BaseDirectory, true);
             //mapConfig = zoorunner.CreateMap();
-            //zoorunner.GenerateCode();
+            zoorunner.GenerateCode();
             string mapfile = Path.Combine(zoorunner.WorkingFolder, Goliath.Data.CodeGen.Constants.MapFileName);
             mapConfig = MapConfig.Create(mapfile);
 

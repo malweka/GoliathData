@@ -17,8 +17,8 @@ namespace WebZoo.Data
 
 		#region properties
 
-		public virtual string Family { get; set; }
-		public virtual bool CanDoTricks { get; set; }
+		public virtual  Family { get; set; }
+		public virtual  CanDoTricks { get; set; }
 
 		#endregion
 

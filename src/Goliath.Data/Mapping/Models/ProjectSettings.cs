@@ -27,7 +27,7 @@ namespace Goliath.Data.Mapping
         /// The connection string.
         /// </value>
         [DataMember]
-        public string ConnectionString { get; internal set; }
+        public string ConnectionString { get; set; }
 
         /// <summary>
         /// Gets or sets the namespace.
@@ -75,7 +75,7 @@ namespace Goliath.Data.Mapping
         public string Platform
         {
             get { return platform; }
-            internal set
+            set
             {
                 platform = value;
                 //Procedures.SetPlatform(value);

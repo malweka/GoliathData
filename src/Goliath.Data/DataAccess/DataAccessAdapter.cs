@@ -333,10 +333,8 @@ namespace Goliath.Data
         {
             try
             {
-                DbDataReader dataReader;
-                dataReader = session.DataAccess.ExecuteReader(session.ConnectionManager.OpenConnection(), sqlQuery, parameters);
-                var entities = serializer.SerializeAll<TEntity>(dataReader, entityMap);
-                dataReader.Dispose();
+                SqlCommandRunner runner = new SqlCommandRunner();
+                var entities = runner.RunList<TEntity>(session, sqlQuery, parameters);
                 return entities;
             }
             catch (GoliathDataException ex)
@@ -358,14 +356,12 @@ namespace Goliath.Data
         public IList<TEntity> FindAll(params PropertyQueryParam[] filters)
         {
             SelectSqlBuilder queryBuilder = SqlWorker.BuildSelectSql(entityMap, serializer.SqlDialect, session.DataAccess, filters);
-            DbDataReader dataReader;
 
             var query = queryBuilder.ToSqlString();
             try
             {
-                dataReader = session.DataAccess.ExecuteReader(session.ConnectionManager.OpenConnection(), query, filters);
-                var entities = serializer.SerializeAll<TEntity>(dataReader, entityMap);
-                dataReader.Dispose();
+                SqlCommandRunner runner = new SqlCommandRunner();
+                var entities = runner.RunList<TEntity>(session, query, filters);
                 return entities;
             }
             catch (GoliathDataException ex)
@@ -397,29 +393,12 @@ namespace Goliath.Data
                 throw new ArgumentException(" cannot have a pageSize of less than or equal to 0");
 
             SelectSqlBuilder queryBuilder = SqlWorker.BuildSelectSql(entityMap, serializer.SqlDialect, session.DataAccess, filters);
-            string selectCount = queryBuilder.SelectCount();
-
+            SqlCommandRunner runner = new SqlCommandRunner();
             totalRecords = 0;
-            queryBuilder = queryBuilder.WithPaging(limit, offset);
-            string query = string.Format("{0};\n{1};", selectCount.Trim(), queryBuilder.ToSqlString().Trim());
 
             try
             {
-                DbDataReader dataReader;
-                dataReader = session.DataAccess.ExecuteReader(session.ConnectionManager.OpenConnection(), query, filters);
-
-                //First resultset contains the count
-                while (dataReader.Read())
-                {
-                    totalRecords = serializer.ReadFieldData<long>(0, dataReader);
-                    //we only expect 1 row of data to be returned, so let's break out of the loop.
-                    break;
-                }
-
-                //move to the next result set which contains the entities
-                dataReader.NextResult();
-                var entities = serializer.SerializeAll<TEntity>(dataReader, entityMap);
-                dataReader.Dispose();
+                var entities = runner.RunList<TEntity>(session, queryBuilder.Build(), limit, offset, out totalRecords, filters);
                 return entities;
             }
             catch (GoliathDataException ex)
@@ -445,9 +424,12 @@ namespace Goliath.Data
             parameters.Add(filter);
             parameters.AddRange(filters);
 
-            long total;
-            var all = FindAll(1, 0, out total, parameters.ToArray());
-            return all.FirstOrDefault();
+            var paramArray = parameters.ToArray();
+            SqlCommandRunner runner = new SqlCommandRunner();
+            SelectSqlBuilder queryBuilder = SqlWorker.BuildSelectSql(entityMap, serializer.SqlDialect, session.DataAccess, paramArray);
+
+            var entity = runner.Run<TEntity>(session, queryBuilder.Build(), paramArray);
+            return entity;
         }
 
         #endregion

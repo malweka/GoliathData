@@ -263,13 +263,12 @@ namespace Goliath.Data.Mapping
         /// <returns></returns>
         public static MapConfig Create(Stream xmlStream, ProjectSettings settings)
         {
-            MapConfig config;
-            if (settings == null)
-                config = new MapConfig();
-            else
-                config = new MapConfig(settings);
-
+            MapConfig config = new MapConfig();
             config.Load(xmlStream);
+
+            if (settings != null)
+                config.Settings = settings;
+            
             return config;
         }
     }
