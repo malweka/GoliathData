@@ -125,23 +125,31 @@ namespace Goliath.Data.Mapping
         /// </summary>
         /// <param name="entity">The entity.</param>
         /// <returns></returns>
-        public string GetClrTypeAsString(EntityMap entity)
+        public virtual string GetClrTypeAsString(Goliath.Data.Providers.SqlDialect dialect,  EntityMap entity)
         {
-            if (ClrType == null)
-                return string.Empty;
+            if (IsComplexType && (entity.Parent != null))
+            {
+                var complexT = entity.Parent.ComplexTypes[ComplexTypeName];
+                if (complexT != null)
+                {
+                    return complexT.FullName;
+                }
+            }
             else
             {
-                if (IsComplexType && (entity.Parent != null))
-                {
-                    var complexT = entity.Parent.ComplexTypes[ComplexTypeName];
-                    if (complexT != null)
-                    {
-                        return complexT.FullName;
-                    }
-                }
-
-                return ToPrintString(ClrType);
+                var clrType  = dialect.GetClrType(DbType, IsNullable);
+                return ToPrintString(clrType);
             }
+
+            throw new GoliathDataException(string.Format("Could not find CLR type for {0}.", PropertyName));
+            //if (ClrType == null)
+            //    return string.Empty;
+            //else
+            //{
+                
+
+            //    return ToPrintString(ClrType);
+            //}
         }
 
         /// <summary>

@@ -17,11 +17,11 @@ namespace WebZoo.Data
 
 		#region properties
 
-		public virtual  Name { get; set; }
-		public virtual  Age { get; set; }
-		public virtual  Location { get; set; }
-		public virtual  ReceivedOn { get; set; }
-		public virtual  ZooId { get; set; }
+		public virtual string Name { get; set; }
+		public virtual double Age { get; set; }
+		public virtual string Location { get; set; }
+		public virtual DateTime ReceivedOn { get; set; }
+		public virtual int ZooId { get; set; }
 
 		#endregion
 

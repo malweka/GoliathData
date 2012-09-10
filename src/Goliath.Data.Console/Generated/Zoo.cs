@@ -17,9 +17,9 @@ namespace WebZoo.Data
 
 		#region properties
 
-		public virtual  Name { get; set; }
-		public virtual  City { get; set; }
-		public virtual  AcceptNewAnimals { get; set; }
+		public virtual string Name { get; set; }
+		public virtual string City { get; set; }
+		public virtual bool AcceptNewAnimals { get; set; }
 
 		#endregion
 

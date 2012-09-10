@@ -39,9 +39,6 @@ namespace Goliath.Data.Sql
             get { return parameters; }
         }
 
-        EntityMap Table { get; set; }
-
-
         public QueryBuilder(ISession session, List<string> columnNames)
         {
             if (columnNames != null)

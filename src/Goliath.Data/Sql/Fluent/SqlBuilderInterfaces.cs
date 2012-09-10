@@ -14,10 +14,6 @@ namespace Goliath.Data.Sql
 
     public interface IQueryBuilder : IQueryFetchable, IOrderByDirection
     {
-        //IJoinQueryBuilder InnerJoinOn(string propertyName);
-        //IJoinQueryBuilder LeftJoinOn(string propertyName);
-        //IJoinQueryBuilder RightJoinOn(string propertyName);
-
         IJoinable InnerJoin(string tableName, string alias);
         IJoinable LeftJoin(string tableName, string alias);
         IJoinable RightJoin(string tableName, string alias);
@@ -26,15 +22,6 @@ namespace Goliath.Data.Sql
         IFilterClause Where(string tableAlias, string propertyName);
     }
 
-    //public interface IJoinQueryBuilder : IQueryBuilder
-    //{
-    //    IWhereOnRelation  ForJoin(string alias);
-    //}
-
-    //public interface IWhereOnRelation 
-    //{
-    //    IJoinFilterClause Where(string propertyName);
-    //}
 
     public interface IJoinable
     {
@@ -52,8 +39,6 @@ namespace Goliath.Data.Sql
         IFilterClause And(string tableAlias, string propertyName);
         IFilterClause Or(string propertyName);
         IFilterClause Or(string tableAlias, string propertyName);
-        //ISorterClause OrderBy(string propertyName);
-        //ISorterClause OrderBy(string tableAlias, string propertyName);
     }
 
     public interface IFilterClause
@@ -83,46 +68,13 @@ namespace Goliath.Data.Sql
         IBinaryOperation Like(string tableAlias, string propertyName);
     }
 
-    //public interface IJoinFilterClause
-    //{
-    //    IJoinBinaryOperation EqualTo(object value);
-    //    IJoinBinaryOperation EqualTo(string propertyName);
-
-    //    IJoinBinaryOperation GreaterThan(object value);
-    //    IJoinBinaryOperation GreaterThan(string propertyName);
-
-    //    IJoinBinaryOperation GreaterOrEqualTo(object value);
-    //    IJoinBinaryOperation GreaterOrEqualTo(string propertyName);
-
-    //    IJoinBinaryOperation LowerOrEqualTo(object obj);
-    //    IJoinBinaryOperation LowerOrEqualTo(string propertyName);
-
-    //    IJoinBinaryOperation LowerThan(object obj);
-    //    IJoinBinaryOperation LowerThan(string propertyName);
-
-    //    IJoinBinaryOperation Like(object param);
-    //    IJoinBinaryOperation Like(string propertyName);
-    //}
-
-    //public interface IJoinBinaryOperation : IBinaryOperation
-    //{
-    //    IOnBinaryOperation ForJoin<TTRelation>();
-    //}
-
-    //public interface IOnBinaryOperation
-    //{
-    //    IJoinFilterClause And(string propertyName);
-    //    IJoinFilterClause Or(string propertyName);
-    //    IJoinFilterClause OrderBy(string propertyName);
-    //}
-
     public interface ISorterClause
     {
         IOrderByDirection Desc();
         IOrderByDirection Asc();
     }
 
-    public interface IOrderByDirection //: IQueryFetchable
+    public interface IOrderByDirection
     {
         ISorterClause OrderBy(string propertyName);
         ISorterClause OrderBy(string tableAlias, string propertyName);
