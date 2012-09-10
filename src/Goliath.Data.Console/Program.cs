@@ -30,10 +30,7 @@ namespace WebZoo.Data
             string template = "select @{col:a.Id}, @{sel:a.Name}, @{sel:a.City}, @{sel:a.AcceptNewAnimals} from  @{a.TableName} where @{prop:a.Id} = @{prop:b.Id}";
             string template2 = @"INSERT INTO @{TableName}(@{sel:Name},@{col:City},@{col:AcceptNewAnimals}) VALUES(@{prop:Name},@{prop:City},@{prop:AcceptNewAnimals})";
 
-            //ISqlInterface si = null;
-            //si.SelectAll<Animal>().Where(c => c.Name).EqualTo("3").And(c => c.Id).GreaterOrEqualTo(5)
-            //    .OrderBy(c => c.Name).Asc()
-            //    .OrderBy(c => c.ReceivedOn).Desc().FetchAll();
+            
 
             //si.Select<Animal>("Id", "some", "Xoe")
             //    .InnerJoin<Zoo>()
@@ -50,7 +47,9 @@ namespace WebZoo.Data
             SupportedRdbms rdbms = SupportedRdbms.Mssql2008;
             WebZooRunner zoorunner = new WebZooRunner(rdbms, new CodeGenerator(), AppDomain.CurrentDomain.BaseDirectory, true);
             //mapConfig = zoorunner.CreateMap();
-            zoorunner.GenerateCode();
+            //zoorunner.GenerateCode();
+
+
             string mapfile = Path.Combine(zoorunner.WorkingFolder, Goliath.Data.CodeGen.Constants.MapFileName);
             mapConfig = MapConfig.Create(mapfile);
 
@@ -206,8 +205,14 @@ namespace WebZoo.Data
             var entFactory = sessionFactory.DataSerializer as Goliath.Data.DataAccess.IEntityFactory;
             var zobo = entFactory.CreateInstance<Zoo>();
 
-            
-            
+
+            var qkw = sess.SelectAll<Animal>().Where(c=>c.Name);
+
+            //ISqlInterface si = null;
+            //si.SelectAll<Animal>().Where(c => c.Name).EqualTo("3").And(c => c.Id).GreaterOrEqualTo(5)
+            //    .OrderBy(c => c.Name).Asc()
+            //    .OrderBy(c => c.ReceivedOn).Desc().FetchAll();
+
             Zoo zooM = new Zoo() { Name = "Kitona", City = "Kitona", AcceptNewAnimals = true };
             var an1 = new Animal()
             {
@@ -281,7 +286,7 @@ namespace WebZoo.Data
             zoodapter.Insert(zooM, true);
             try
             {
-               
+
                 //animalapter.Insert(an1);
 
                 //animalapter.Insert(an1, true);
@@ -341,7 +346,7 @@ namespace WebZoo.Data
 
 
                 var leftColumn1 = new Relation() { ColumnName = "EmployeeId", PropertyName = "EmployeeId" };
-                var leftcolumn2 = new Relation() { ColumnName = "AnimalId", PropertyName = "AnimalId"};
+                var leftcolumn2 = new Relation() { ColumnName = "AnimalId", PropertyName = "AnimalId" };
 
                 var mapTableMap = UnMappedTableMap.Create("animals_handlers", leftColumn1, leftcolumn2);
                 mapTableMap.TableAlias = "mX1";
@@ -382,7 +387,7 @@ namespace WebZoo.Data
             }
 
             Console.WriteLine("we have sessions");
-			Console.ReadLine();
+            Console.ReadLine();
         }
     }
 }

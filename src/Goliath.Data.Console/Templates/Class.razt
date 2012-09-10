@@ -1,5 +1,6 @@
 ﻿@using Goliath.Data.Mapping
 @using Goliath.Data.Diagnostics
+@using Goliath.Data.Providers.SqlServer
 ///////////////////////////////////////////////////////////////////
 //	
 //	Auto generated -  Class Template 1.2.0
@@ -10,6 +11,7 @@ using System.Collections.Generic;
 @{
 	//ILogger logger = Logger.GetLogger(this.GetType());
 	string _extends = string.Empty; 
+	var sqlMapper = new Mssq2008Dialect();
 
 	if(!string.IsNullOrWhiteSpace(Model.Extends))
 		_extends = string.Format(": {0}", Model.Extends);
@@ -37,7 +39,7 @@ namespace @Model.Namespace
 					Property p = k;
 					if(!p.CanPrint(Model))
 						continue;
-		@:public virtual @p.GetClrTypeAsString(Model) @p.PropertyName { get; set; }
+		@:public virtual @p.GetClrTypeAsString(sqlMapper, Model) @p.PropertyName { get; set; }
 				}
 			}
 		}
@@ -51,7 +53,7 @@ namespace @Model.Namespace
 			{
 				if(!p.CanPrint(Model))
 					continue;
-		@:public virtual @p.GetClrTypeAsString(Model) @p.PropertyName { get; set; }
+		@:public virtual @p.GetClrTypeAsString(sqlMapper, Model) @p.PropertyName { get; set; }
 			}
 		}
 

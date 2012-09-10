@@ -141,5 +141,10 @@ namespace Goliath.Data.Mapping
         /// <value>The type of the collection.</value>
         [DataMember]
         public CollectionType CollectionType { get; set; }
+
+        public override string GetClrTypeAsString(Providers.SqlDialect dialect, EntityMap entity)
+        {
+            return ReferenceEntityName;
+        }
     }
 }

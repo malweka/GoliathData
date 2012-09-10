@@ -169,6 +169,8 @@
     <Compile Include="SqlServerRdbmsBackend.cs" />
     <Compile Include="Rdbms.cs" />
     <Compile Include="Sql\DeleteSqlBuilder.cs" />
+    <Compile Include="Sql\Fluent\Generic\QueryBuilder.cs" />
+    <Compile Include="Sql\Fluent\Generic\WhereClauseBuilder.cs" />
     <Compile Include="Sql\Fluent\QueryBuilder.FilterBuilder.cs" />
     <Compile Include="Sql\Fluent\SortBuilder.cs" />
     <Compile Include="Sql\Fluent\SqlSelectColumnFormatter.cs" />

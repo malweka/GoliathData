@@ -68,7 +68,8 @@ namespace Goliath.Data.DataAccess
 
         public IQueryBuilder<T> SelectAll<T>()
         {
-            throw new NotImplementedException();
+            QueryBuilder<T> queryBuilder = new QueryBuilder<T>(this);
+            return queryBuilder;
         }
 
         public ITableNameBuilder SelectAll()

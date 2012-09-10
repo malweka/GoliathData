@@ -103,5 +103,21 @@ namespace Goliath.Data.Utils
 
             return memberExpression.Member.Name;
         }
+
+
+        public static string GetMemberName<T,TProperty>(this Expression<Func<T, TProperty>> property)
+        {
+            var lambda = (LambdaExpression)property;
+
+            MemberExpression memberExpression;
+            if (lambda.Body is UnaryExpression)
+            {
+                var unaryExpression = (UnaryExpression)lambda.Body;
+                memberExpression = (MemberExpression)unaryExpression.Operand;
+            }
+            else memberExpression = (MemberExpression)lambda.Body;
+
+            return memberExpression.Member.Name;
+        }
     }
 }
