@@ -24,6 +24,11 @@ namespace Goliath.Data.Sql
         int offset;
         ISession session;
 
+        internal  Dictionary<string, JoinBuilder> Joins
+        {
+            get { return joins; }
+        }
+
         public SqlSelectColumnFormatter ColumnFormatter
         {
             get { return columnFormatter; }

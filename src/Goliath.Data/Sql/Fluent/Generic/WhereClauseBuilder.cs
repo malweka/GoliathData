@@ -23,15 +23,45 @@ namespace Goliath.Data.Sql
             this.queryBuilder = queryBuilder;
         }
 
-        //Property ExtractProperty(Expression<Func<T, TProperty>> prototype)
-        //{
-        //    var propertName = prototype.GetMemberName();
-        //    var prop = queryBuilder.Table[propertName];
-        //    if (prop == null)
-        //        throw new GoliathDataException(string.Format("Could not find property {0}. {0} was not mapped properly.", propertName));
-
-        //    return prop;
-        //}
+        IBinaryOperation<T> BuildBinaryOperation(ComparisonOperator binaryOp, System.Linq.Expressions.Expression<Func<T, TProperty>> property)
+        {
+            switch (binaryOp)
+            {
+                case ComparisonOperator.Equal:
+                    op = "=";
+                    break;
+                case ComparisonOperator.GreaterOrEquals:
+                    op = ">=";
+                    break;
+                case ComparisonOperator.GreaterThan:
+                    op = ">";
+                    break;
+                case ComparisonOperator.In:
+                    op = "IN";
+                    break;
+                case ComparisonOperator.IsNotNull:
+                    op = "IS NOT NULL";
+                    break;
+                case ComparisonOperator.IsNull:
+                    op = "IS NULL";
+                    break;
+                case ComparisonOperator.Like:
+                    op = "LIKE";
+                    break;
+                case ComparisonOperator.LowerOrEquals:
+                    op = "<=";
+                    break;
+                case ComparisonOperator.LowerThan:
+                    op = "<";
+                    break;
+                case ComparisonOperator.NotEqual:
+                    op = "<>";
+                    break;
+                case ComparisonOperator.NotLike:
+                    op = "NOT LIKE";
+                    break;
+            }
+        }
 
         #region IFilterClause<T,TProperty> Members
 
@@ -41,23 +71,38 @@ namespace Goliath.Data.Sql
             return queryBuilder;
         }
 
-        public IBinaryOperation<T> EqualTo(System.Linq.Expressions.Expression<Func<T, TProperty>> prototype)
+        public IBinaryOperation<T> EqualTo(System.Linq.Expressions.Expression<Func<T, TProperty>> property)
         {
-            var prop = queryBuilder.ExtractProperty(prototype);
-            whereClause.EqualTo(queryBuilder.Table.TableAlias, prop.ColumnName);
+            var prop = queryBuilder.ExtractProperty(property);
+            if (prop is Relation)
+            {
+                Relation rel = (Relation)prop;
+                var relEntityMap = queryBuilder.Table.Parent.GetEntityMap(rel.ReferenceEntityName);
+                whereClause.EqualTo(relEntityMap.TableAlias, rel.ColumnName);
+            }
+            else
+                whereClause.EqualTo(queryBuilder.Table.TableAlias, prop.ColumnName);
             return queryBuilder;
         }
 
         public IBinaryOperation<T> GreaterThanValue(TProperty value)
         {
-            //this doesn't build by design so i know where i stopped.
-            whereClause.EqualToValue
-                //handle Relation
+            whereClause.GreaterThanValue(value);
+            return queryBuilder;
         }
 
-        public IBinaryOperation<T> GreaterThan(System.Linq.Expressions.Expression<Func<T, TProperty>> prototype)
+        public IBinaryOperation<T> GreaterThan(System.Linq.Expressions.Expression<Func<T, TProperty>> property)
         {
-            throw new NotImplementedException();
+            var prop = queryBuilder.ExtractProperty(property);
+            if (prop is Relation)
+            {
+                Relation rel = (Relation)prop;
+                var relEntityMap = queryBuilder.Table.Parent.GetEntityMap(rel.ReferenceEntityName);
+                whereClause.GreaterThan(relEntityMap.TableAlias, rel.ColumnName);
+            }
+            else
+                whereClause.GreaterThan(queryBuilder.Table.TableAlias, prop.ColumnName);
+            return queryBuilder;
         }
 
         public IBinaryOperation<T> GreaterOrEqualToValue(TProperty value)
@@ -65,7 +110,7 @@ namespace Goliath.Data.Sql
             throw new NotImplementedException();
         }
 
-        public IBinaryOperation<T> GreaterOrEqualTo(System.Linq.Expressions.Expression<Func<T, TProperty>> prototype)
+        public IBinaryOperation<T> GreaterOrEqualTo(System.Linq.Expressions.Expression<Func<T, TProperty>> property)
         {
             throw new NotImplementedException();
         }
@@ -75,7 +120,7 @@ namespace Goliath.Data.Sql
             throw new NotImplementedException();
         }
 
-        public IBinaryOperation<T> LowerOrEqualTo(System.Linq.Expressions.Expression<Func<T, TProperty>> prototype)
+        public IBinaryOperation<T> LowerOrEqualTo(System.Linq.Expressions.Expression<Func<T, TProperty>> property)
         {
             throw new NotImplementedException();
         }
@@ -85,7 +130,7 @@ namespace Goliath.Data.Sql
             throw new NotImplementedException();
         }
 
-        public IBinaryOperation<T> LowerThan(System.Linq.Expressions.Expression<Func<T, TProperty>> prototype)
+        public IBinaryOperation<T> LowerThan(System.Linq.Expressions.Expression<Func<T, TProperty>> property)
         {
             throw new NotImplementedException();
         }
