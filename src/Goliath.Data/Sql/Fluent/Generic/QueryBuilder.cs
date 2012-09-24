@@ -30,24 +30,52 @@ namespace Goliath.Data.Sql
         }
 
         public EntityMap Table { get; private set; }
+        public EntityMap Extends { get; private set; }
 
-        public Property ExtractProperty<TProperty>(Expression<Func<T, TProperty>> prototype)
+        internal Property ExtractProperty<TProperty>(Expression<Func<T, TProperty>> prototype)
         {
             var propertName = prototype.GetMemberName();
+
             var prop = Table[propertName];
             if (prop == null)
                 throw new GoliathDataException(string.Format("Could not find property {0}. {0} was not mapped properly.", propertName));
+
+            if (prop is Relation)
+            {
+                Relation rel = (Relation)prop;
+                var relEntity = session.SessionFactory.DbSettings.Map.GetEntityMap(rel.ReferenceEntityName);
+                if (!innerBuilder.Joins.ContainsKey(relEntity.TableAlias))
+                    innerBuilder.LeftJoin(relEntity.TableName, relEntity.TableAlias).On(prop.ColumnName).EqualTo(rel.ColumnName);
+            }
 
             return prop;
         }
 
         void Load(List<string> propertyNames)
         {
-            var map = session.SessionFactory.DbSettings.Map.GetEntityMap(typeof(T).FullName);
-            Table = map;
+            string typeFullName = typeof(T).FullName;
+            Table = session.SessionFactory.DbSettings.Map.GetEntityMap(typeFullName);
 
             innerBuilder = new QueryBuilder(session, propertyNames);
-            innerBuilder.From(map.TableName, map.TableAlias);
+            innerBuilder.From(Table.TableName, Table.TableAlias);
+
+            if (Table.IsSubClass)
+            {
+                if (Table.PrimaryKey == null)
+                    throw new GoliathDataException(string.Format("Cannot resolve innheritance between {0} and {1}. Not primary key is defined.", typeFullName, Table.Extends));
+
+                //let's get parent and add joins
+                Extends = session.SessionFactory.DbSettings.Map.GetEntityMap(Table.Extends);
+
+                foreach (var pk in Extends.PrimaryKey.Keys)
+                {
+                    var k = Table.PrimaryKey.Keys[pk.Key.Name];
+                    innerBuilder.InnerJoin(Extends.TableName, Extends.TableAlias).On(k.Key.ColumnName).EqualTo(pk.Key.ColumnName);
+                }
+
+            }
+
+
         }
 
         WhereClauseBuilderWrapper<T, TProperty> BuildWhereClause<TProperty>(SqlOperator preOperator, Expression<Func<T, TProperty>> property)
