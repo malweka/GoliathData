@@ -20,8 +20,8 @@ namespace Goliath.Data.Sql
         SqlDialect dialect;
         string tableName;
         string alias;
-        int limit;
-        int offset;
+        int limit=-1;
+        int offset=-1;
         ISession session;
 
         internal  Dictionary<string, JoinBuilder> Joins
@@ -90,18 +90,40 @@ namespace Goliath.Data.Sql
 
         #endregion
 
+        ICollection<T> RunQueryAndHydrateWithPaging<T>()
+        {
+            if (limit < 1)
+                limit = 0;
+
+            if (offset < 1)
+                offset = 0;
+
+            SqlCommandRunner runner = new SqlCommandRunner();
+            var query = BuildSql();
+            return runner.RunList<T>(session, query, limit, offset, Parameters.ToArray());
+        }
+
+        ICollection<T> RunQueryAndHydrate<T>()
+        {
+            SqlCommandRunner runner = new SqlCommandRunner();
+            var query = BuildSql();
+            return runner.RunList<T>(session, query, Parameters.ToArray());
+        }
         #region IFetchable Members
 
         public ICollection<T> FetchAll<T>()
         {
-            throw new NotImplementedException();
+            if ((limit > 0) || (offset > 0))
+                return RunQueryAndHydrateWithPaging<T>();
+            else
+                return RunQueryAndHydrate<T>();
         }
 
         public T FetchOne<T>()
         {
-            Type instanceType = typeof(T);
-            
-            throw new NotImplementedException();
+            SqlCommandRunner runner = new SqlCommandRunner();
+            var query = BuildSql();
+            return runner.Run<T>(session, query, Parameters.ToArray());
         }
 
         #endregion
@@ -132,8 +154,6 @@ namespace Goliath.Data.Sql
                 queryBody.ColumnEnumeration = "*";
             else
                  queryBody.ColumnEnumeration = ColumnFormatter.Format(columnNames, alias);
-
-          
 
             StringBuilder joinBuilder = new StringBuilder();
             if (joins.Count > 0)

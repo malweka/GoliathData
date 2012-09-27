@@ -206,8 +206,8 @@ namespace WebZoo.Data
             var zobo = entFactory.CreateInstance<Zoo>();
 
 
-            var qkw = sess.SelectAll<Animal>().Where(c=>c.Name);
-
+            var qkw = sess.SelectAll<Animal>().Where(c => c.Name).EqualTo(c => c.Location).And(c => c.Age).GreaterOrEqualToValue(3);
+            //var wlw = sess.SelectAll().From("rando").
             //ISqlInterface si = null;
             //si.SelectAll<Animal>().Where(c => c.Name).EqualTo("3").And(c => c.Id).GreaterOrEqualTo(5)
             //    .OrderBy(c => c.Name).Asc()
