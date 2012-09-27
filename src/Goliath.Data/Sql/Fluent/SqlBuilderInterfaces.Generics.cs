@@ -7,30 +7,15 @@ using System.Linq.Expressions;
 namespace Goliath.Data.Sql
 {
 
-    public interface IQueryBuilder<T> : IQueryFetchable<T>
+    public interface IQueryBuilder<T> : IQueryFetchable<T>, IOrderByDirection<T>
     {
-        //IJoinQueryBuilder<T> InnerJoinOn<TProperty>(Expression<Func<T, TProperty>> property);
-        //IJoinQueryBuilder<T> LeftJoinOn<TProperty>(Expression<Func<T, TProperty>> property);
-        //IJoinQueryBuilder<T> RightJoinOn<TProperty>(Expression<Func<T, TProperty>> property);
-
-        //IJoinable<T, TRelation> InnerJoin<TRelation>();
-        //IJoinable<T, TRelation> LeftJoin<TRelation>();
-        //IJoinable<T, TRelation> RightJoin<TRelation>();
+        IJoinable<T, TRelation> InnerJoin<TRelation>();
+        IJoinable<T, TRelation> LeftJoin<TRelation>();
+        IJoinable<T, TRelation> RightJoin<TRelation>();
 
         IFilterClause<T, TProperty> Where<TProperty>(Expression<Func<T, TProperty>> property);
-        IFilterClause<T, TProperty> And<TProperty>(Expression<Func<T, TProperty>> property);
-        IFilterClause<T, TProperty> Or<TProperty>(Expression<Func<T, TProperty>> property);
     }
 
-    public interface IJoinQueryBuilder<T> //: IQueryBuilder<T>
-    {
-        IWhereOnRelation<T, TRelation> ForJoin<TRelation>();
-    }
-
-    public interface IWhereOnRelation<T, TRelation>
-    {
-        IJoinFilterClause<T, TRelation, TProperty> Where<TProperty>(Expression<Func<TRelation, TProperty>> property);
-    }
 
     public interface IJoinable<T, TRelation>
     {
@@ -39,56 +24,55 @@ namespace Goliath.Data.Sql
 
     public interface IJoinOperation<T>
     {
-        IJoinQueryBuilder<T> EqualTo<TProperty>(Expression<Func<T, TProperty>> property);
+        IQueryBuilder<T> EqualTo<TProperty>(Expression<Func<T, TProperty>> property);
     }
 
-    public interface IBinaryOperation<T> : IQueryFetchable<T>
+    public interface IBinaryOperation<T> : IQueryFetchable<T>, IOrderByDirection<T>
     {
         IFilterClause<T, TProperty> And<TProperty>(Expression<Func<T, TProperty>> property);
         IFilterClause<T, TProperty> Or<TProperty>(Expression<Func<T, TProperty>> property);
-        ISorterClause<T> OrderBy<TProperty>(Expression<Func<T, TProperty>> property);
     }
 
     public interface IFilterClause<T, VType>
     {
         IBinaryOperation<T> EqualToValue(VType value);
-        IBinaryOperation<T> EqualTo(Expression<Func<T, VType>> propertye);
+        IBinaryOperation<T> EqualTo(Expression<Func<T, VType>> property);
 
         IBinaryOperation<T> GreaterThanValue(VType value);
-        IBinaryOperation<T> GreaterThan(Expression<Func<T, VType>> propertye);
+        IBinaryOperation<T> GreaterThan(Expression<Func<T, VType>> property);
 
         IBinaryOperation<T> GreaterOrEqualToValue(VType value);
-        IBinaryOperation<T> GreaterOrEqualTo(Expression<Func<T, VType>> propertye);
+        IBinaryOperation<T> GreaterOrEqualTo(Expression<Func<T, VType>> property);
 
-        IBinaryOperation<T> LowerOrEqualToValue(VType obj);
-        IBinaryOperation<T> LowerOrEqualTo(Expression<Func<T, VType>> propertye);
+        IBinaryOperation<T> LowerOrEqualToValue(VType value);
+        IBinaryOperation<T> LowerOrEqualTo(Expression<Func<T, VType>> property);
 
-        IBinaryOperation<T> LowerThanValue(VType obj);
-        IBinaryOperation<T> LowerThan(Expression<Func<T, VType>> propertye);
+        IBinaryOperation<T> LowerThanValue(VType value);
+        IBinaryOperation<T> LowerThan(Expression<Func<T, VType>> property);
 
-        IBinaryOperation<T> LikeValue(VType param);
-        IBinaryOperation<T> Like(Expression<Func<T, VType>> propertye);
+        IBinaryOperation<T> LikeValue(VType value);
+        IBinaryOperation<T> Like(Expression<Func<T, VType>> property);
     }
 
     public interface IJoinFilterClause<T, TRelation, VType>
     {
         IJoinBinaryOperation<T, TRelation> EqualTo(VType value);
-        IJoinBinaryOperation<T, TRelation> EqualTo(Expression<Func<TRelation, VType>> prototype);
+        IJoinBinaryOperation<T, TRelation> EqualTo(Expression<Func<TRelation, VType>> property);
 
         IJoinBinaryOperation<T, TRelation> GreaterThan(VType value);
-        IJoinBinaryOperation<T, TRelation> GreaterThan(Expression<Func<TRelation, VType>> prototype);
+        IJoinBinaryOperation<T, TRelation> GreaterThan(Expression<Func<TRelation, VType>> property);
 
         IJoinBinaryOperation<T, TRelation> GreaterOrEqualTo(VType value);
-        IJoinBinaryOperation<T, TRelation> GreaterOrEqualTo(Expression<Func<TRelation, VType>> prototype);
+        IJoinBinaryOperation<T, TRelation> GreaterOrEqualTo(Expression<Func<TRelation, VType>> property);
 
-        IJoinBinaryOperation<T, TRelation> LowerOrEqualTo(VType obj);
-        IJoinBinaryOperation<T, TRelation> LowerOrEqualTo(Expression<Func<TRelation, VType>> prototype);
+        IJoinBinaryOperation<T, TRelation> LowerOrEqualTo(VType value);
+        IJoinBinaryOperation<T, TRelation> LowerOrEqualTo(Expression<Func<TRelation, VType>> property);
 
-        IJoinBinaryOperation<T, TRelation> LowerThan(VType obj);
-        IJoinBinaryOperation<T, TRelation> LowerThan(Expression<Func<TRelation, VType>> prototype);
+        IJoinBinaryOperation<T, TRelation> LowerThan(VType value);
+        IJoinBinaryOperation<T, TRelation> LowerThan(Expression<Func<TRelation, VType>> property);
 
-        IJoinBinaryOperation<T, TRelation> Like(VType param);
-        IJoinBinaryOperation<T, TRelation> Like(Expression<Func<TRelation, VType>> prototype);
+        IJoinBinaryOperation<T, TRelation> Like(VType value);
+        IJoinBinaryOperation<T, TRelation> Like(Expression<Func<TRelation, VType>> property);
     }
 
     public interface IJoinBinaryOperation<T, TRelation> : IBinaryOperation<T>

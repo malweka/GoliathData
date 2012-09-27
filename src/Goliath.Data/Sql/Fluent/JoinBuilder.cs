@@ -11,13 +11,13 @@ namespace Goliath.Data.Sql
     {
         QueryBuilder builder;
 
-        public string JoinTableName { get; private set; }
-        public string JoinTableAlias { get; private set; }
+        public string JoinTableName { get; internal set; }
+        public string JoinTableAlias { get; internal set; }
         public JoinType Type { get; set; }
 
-        public string JoinLeftColumn { get; private set; }
-        public string JoinRightColumn { get; private set; }
-        public string TableName { get; private set; }
+        public string JoinLeftColumn { get; internal set; }
+        public string JoinRightColumn { get; internal set; }
+        public string TableName { get; internal set; }
 
         public ComparisonOperator JoinOperator { get; private set; }
 

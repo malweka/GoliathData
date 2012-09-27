@@ -9,10 +9,13 @@ namespace Goliath.Data.Sql
     using Mapping;
     using Utils;
 
-    class QueryBuilder<T> : IQueryBuilder<T>, IBinaryOperation<T>
+    partial class QueryBuilder<T> : IQueryBuilder<T>, IBinaryOperation<T>
     {
         ISession session;
         QueryBuilder innerBuilder;
+        public EntityMap Table { get; private set; }
+        public EntityMap Extends { get; private set; }
+        public QueryBuilder InnerBuilder { get { return innerBuilder; } }
 
         public QueryBuilder(ISession session)
             : this(session, new List<string>() { })
@@ -29,12 +32,14 @@ namespace Goliath.Data.Sql
             Load(propertyNames);
         }
 
-        public EntityMap Table { get; private set; }
-        public EntityMap Extends { get; private set; }
-
-        internal Property ExtractProperty<TProperty>(Expression<Func<T, TProperty>> prototype)
+         MapConfig GetMapConfig()
         {
-            var propertName = prototype.GetMemberName();
+            return session.SessionFactory.DbSettings.Map;
+        }
+        
+        internal Property ExtractProperty<TProperty>(Expression<Func<T, TProperty>> property)
+        {
+            var propertName = property.GetMemberName();
 
             var prop = Table[propertName];
             if (prop == null)
@@ -78,40 +83,43 @@ namespace Goliath.Data.Sql
 
         }
 
-        WhereClauseBuilderWrapper<T, TProperty> BuildWhereClause<TProperty>(SqlOperator preOperator, Expression<Func<T, TProperty>> property)
+        JoinBuilder<T, TRelation> BuildJoinBuilder<TRelation>(JoinType joinType)
         {
-            var prop = ExtractProperty(property);
-            WhereClauseBuilder wcBuilder;
-            if (preOperator == SqlOperator.AND)
-                wcBuilder = innerBuilder.And(Table.TableAlias, prop.ColumnName) as WhereClauseBuilder;
-            else
-                wcBuilder = innerBuilder.Or(Table.TableAlias, prop.ColumnName) as WhereClauseBuilder;
-
-            WhereClauseBuilderWrapper<T, TProperty> whereBuilder = new WhereClauseBuilderWrapper<T, TProperty>(prop, this, wcBuilder);
-
-            return whereBuilder;
-
+            JoinBuilder jbuilder = new JoinBuilder(innerBuilder, Table.TableName, null, null);
+            var map = GetMapConfig();
+            EntityMap joinMap = map.GetEntityMap(typeof(TRelation).FullName);
+            switch(joinType)
+            {
+                case JoinType.Inner:
+                    innerBuilder.InnerJoin(joinMap.TableName, joinMap.TableAlias);
+                    break;
+                case JoinType.Full:
+                    break;
+                case JoinType.Left:
+                    innerBuilder.LeftJoin(joinMap.TableName, joinMap.TableAlias);
+                    break;
+                case JoinType.Right:
+                    innerBuilder.RightJoin(joinMap.TableName, joinMap.TableAlias);
+                    break;
+            }
+            return new JoinBuilder<T, TRelation>(this, jbuilder, joinMap);
         }
 
-
-        #region IQueryBuilder<T> Members
-
-        public IFilterClause<T, TProperty> Where<TProperty>(Expression<Func<T, TProperty>> property)
+        public IJoinable<T, TRelation> InnerJoin<TRelation>()
         {
-            return BuildWhereClause<TProperty>(SqlOperator.AND, property);
+            return BuildJoinBuilder<TRelation>(JoinType.Inner);
         }
 
-        public IFilterClause<T, TProperty> And<TProperty>(Expression<Func<T, TProperty>> property)
+        public IJoinable<T, TRelation> LeftJoin<TRelation>()
         {
-            return BuildWhereClause<TProperty>(SqlOperator.AND, property);
+            return BuildJoinBuilder<TRelation>(JoinType.Left);
         }
 
-        public IFilterClause<T, TProperty> Or<TProperty>(Expression<Func<T, TProperty>> property)
+        public IJoinable<T, TRelation> RightJoin<TRelation>()
         {
-            return BuildWhereClause<TProperty>(SqlOperator.OR, property);
+            return BuildJoinBuilder<TRelation>(JoinType.Right);
         }
 
-        #endregion
 
         #region IQueryFetchable<T> Members
 

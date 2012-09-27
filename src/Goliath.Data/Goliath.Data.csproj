@@ -169,6 +169,7 @@
     <Compile Include="SqlServerRdbmsBackend.cs" />
     <Compile Include="Rdbms.cs" />
     <Compile Include="Sql\DeleteSqlBuilder.cs" />
+    <Compile Include="Sql\Fluent\Generic\JoinBuilder.cs" />
     <Compile Include="Sql\Fluent\Generic\QueryBuilder.cs" />
     <Compile Include="Sql\Fluent\Generic\WhereClauseBuilder.cs" />
     <Compile Include="Sql\Fluent\QueryBuilder.FilterBuilder.cs" />
@@ -220,7 +221,9 @@
     <Compile Include="Mapping\Fluent\ListMap.cs" />
     <Compile Include="Mapping\Fluent\PrimaryKeyMap.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Compile Include="Sql\Fluent\Generic\QueryBuilder.WhereBuilder.cs" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

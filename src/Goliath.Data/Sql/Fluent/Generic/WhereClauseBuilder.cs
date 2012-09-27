@@ -13,7 +13,7 @@ namespace Goliath.Data.Sql
     {
 
         WhereClauseBuilder whereClause;
-        QueryBuilder<T> queryBuilder;
+        QueryBuilder<T> queryBuilder; 
         public Property LeftColumn { get; private set; }
 
         public WhereClauseBuilderWrapper(Property property, QueryBuilder<T> queryBuilder, WhereClauseBuilder whereClause)
@@ -25,124 +25,166 @@ namespace Goliath.Data.Sql
 
         IBinaryOperation<T> BuildBinaryOperation(ComparisonOperator binaryOp, System.Linq.Expressions.Expression<Func<T, TProperty>> property)
         {
+            var prop = queryBuilder.ExtractProperty(property);
+            string columnName = string.Empty;
+            string tableAlias = string.Empty;
+
+            if (prop is Relation)
+            {
+                Relation rel = (Relation)prop;
+                var relEntityMap = queryBuilder.Table.Parent.GetEntityMap(rel.ReferenceEntityName);
+                tableAlias = relEntityMap.TableAlias;
+                columnName = rel.ColumnName;
+            }
+            else
+            {
+                tableAlias = queryBuilder.Table.TableAlias;
+                columnName = prop.ColumnName;
+            }
+
+
             switch (binaryOp)
             {
                 case ComparisonOperator.Equal:
-                    op = "=";
+                    whereClause.EqualTo(tableAlias, columnName);
                     break;
                 case ComparisonOperator.GreaterOrEquals:
-                    op = ">=";
+                    whereClause.GreaterOrEqualTo(tableAlias, columnName);
                     break;
                 case ComparisonOperator.GreaterThan:
-                    op = ">";
+                    whereClause.GreaterThan(tableAlias, columnName);
                     break;
                 case ComparisonOperator.In:
-                    op = "IN";
-                    break;
+                    throw new NotSupportedException("IN is not supported");
+                //break;
                 case ComparisonOperator.IsNotNull:
-                    op = "IS NOT NULL";
-                    break;
+                    throw new NotSupportedException("Is Not Null is not supported");
+                //break;
                 case ComparisonOperator.IsNull:
-                    op = "IS NULL";
-                    break;
+                    throw new NotSupportedException("Is Null is not supported");
+                //break;
                 case ComparisonOperator.Like:
-                    op = "LIKE";
+                    whereClause.Like(tableAlias, columnName);
                     break;
                 case ComparisonOperator.LowerOrEquals:
-                    op = "<=";
+                    whereClause.LowerOrEqualTo(tableAlias, columnName);
                     break;
                 case ComparisonOperator.LowerThan:
-                    op = "<";
+                    whereClause.LowerThan(tableAlias, columnName);
                     break;
                 case ComparisonOperator.NotEqual:
-                    op = "<>";
-                    break;
+                    throw new NotSupportedException("Not Equalis not supported");
+                //break;
                 case ComparisonOperator.NotLike:
-                    op = "NOT LIKE";
-                    break;
+                    throw new NotSupportedException("Not Like is not supported");
+                //break;
             }
+
+            return queryBuilder;
+        }
+
+        IBinaryOperation<T> BuildBinaryOperation(ComparisonOperator binaryOp, TProperty value)
+        {
+            switch (binaryOp)
+            {
+                case ComparisonOperator.Equal:
+                    whereClause.EqualToValue(value);
+                    break;
+                case ComparisonOperator.GreaterOrEquals:
+                    whereClause.GreaterOrEqualToValue(value);
+                    break;
+                case ComparisonOperator.GreaterThan:
+                    whereClause.GreaterThanValue(value);
+                    break;
+                case ComparisonOperator.In:
+                    throw new NotSupportedException("IN is not supported");
+                //break;
+                case ComparisonOperator.IsNotNull:
+                    throw new NotSupportedException("Is Not Null is not supported");
+                //break;
+                case ComparisonOperator.IsNull:
+                    throw new NotSupportedException("Is Null is not supported");
+                //break;
+                case ComparisonOperator.Like:
+                    whereClause.LikeValue(value);
+                    break;
+                case ComparisonOperator.LowerOrEquals:
+                    whereClause.LowerOrEqualToValue(value);
+                    break;
+                case ComparisonOperator.LowerThan:
+                    whereClause.LowerThanValue(value);
+                    break;
+                case ComparisonOperator.NotEqual:
+                    throw new NotSupportedException("Not Equalis not supported");
+                //break;
+                case ComparisonOperator.NotLike:
+                    throw new NotSupportedException("Not Like is not supported");
+                //break;
+            }
+
+            return queryBuilder;
         }
 
         #region IFilterClause<T,TProperty> Members
 
         public IBinaryOperation<T> EqualToValue(TProperty value)
         {
-            whereClause.EqualToValue(value);
-            return queryBuilder;
+            return BuildBinaryOperation(ComparisonOperator.Equal, value);
         }
 
         public IBinaryOperation<T> EqualTo(System.Linq.Expressions.Expression<Func<T, TProperty>> property)
         {
-            var prop = queryBuilder.ExtractProperty(property);
-            if (prop is Relation)
-            {
-                Relation rel = (Relation)prop;
-                var relEntityMap = queryBuilder.Table.Parent.GetEntityMap(rel.ReferenceEntityName);
-                whereClause.EqualTo(relEntityMap.TableAlias, rel.ColumnName);
-            }
-            else
-                whereClause.EqualTo(queryBuilder.Table.TableAlias, prop.ColumnName);
-            return queryBuilder;
+            return BuildBinaryOperation(ComparisonOperator.Equal, property);
         }
 
         public IBinaryOperation<T> GreaterThanValue(TProperty value)
         {
-            whereClause.GreaterThanValue(value);
-            return queryBuilder;
+            return BuildBinaryOperation(ComparisonOperator.GreaterThan, value);
         }
 
         public IBinaryOperation<T> GreaterThan(System.Linq.Expressions.Expression<Func<T, TProperty>> property)
         {
-            var prop = queryBuilder.ExtractProperty(property);
-            if (prop is Relation)
-            {
-                Relation rel = (Relation)prop;
-                var relEntityMap = queryBuilder.Table.Parent.GetEntityMap(rel.ReferenceEntityName);
-                whereClause.GreaterThan(relEntityMap.TableAlias, rel.ColumnName);
-            }
-            else
-                whereClause.GreaterThan(queryBuilder.Table.TableAlias, prop.ColumnName);
-            return queryBuilder;
+            return BuildBinaryOperation(ComparisonOperator.GreaterThan, property);
         }
 
         public IBinaryOperation<T> GreaterOrEqualToValue(TProperty value)
         {
-            throw new NotImplementedException();
+            return BuildBinaryOperation(ComparisonOperator.GreaterOrEquals, value);
         }
 
         public IBinaryOperation<T> GreaterOrEqualTo(System.Linq.Expressions.Expression<Func<T, TProperty>> property)
         {
-            throw new NotImplementedException();
+            return BuildBinaryOperation(ComparisonOperator.GreaterOrEquals, property);
         }
 
-        public IBinaryOperation<T> LowerOrEqualToValue(TProperty obj)
+        public IBinaryOperation<T> LowerOrEqualToValue(TProperty value)
         {
-            throw new NotImplementedException();
+            return BuildBinaryOperation(ComparisonOperator.LowerOrEquals, value);
         }
 
         public IBinaryOperation<T> LowerOrEqualTo(System.Linq.Expressions.Expression<Func<T, TProperty>> property)
         {
-            throw new NotImplementedException();
+            return BuildBinaryOperation(ComparisonOperator.LowerOrEquals, property);
         }
 
-        public IBinaryOperation<T> LowerThanValue(TProperty obj)
+        public IBinaryOperation<T> LowerThanValue(TProperty value)
         {
-            throw new NotImplementedException();
+            return BuildBinaryOperation(ComparisonOperator.LowerThan, value);
         }
 
         public IBinaryOperation<T> LowerThan(System.Linq.Expressions.Expression<Func<T, TProperty>> property)
         {
-            throw new NotImplementedException();
+            return BuildBinaryOperation(ComparisonOperator.LowerThan, property);
         }
 
-        public IBinaryOperation<T> LikeValue(TProperty param)
+        public IBinaryOperation<T> LikeValue(TProperty value)
         {
-            throw new NotImplementedException();
+            return BuildBinaryOperation(ComparisonOperator.Like, value);
         }
 
-        public IBinaryOperation<T> Like(System.Linq.Expressions.Expression<Func<T, TProperty>> propertye)
+        public IBinaryOperation<T> Like(System.Linq.Expressions.Expression<Func<T, TProperty>> property)
         {
-            throw new NotImplementedException();
+            return BuildBinaryOperation(ComparisonOperator.Like, property);
         }
 
         #endregion
