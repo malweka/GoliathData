@@ -109,6 +109,7 @@ namespace Goliath.Data.Sql
             var query = BuildSql();
             return runner.RunList<T>(session, query, Parameters.ToArray());
         }
+
         #region IFetchable Members
 
         public ICollection<T> FetchAll<T>()

@@ -57,6 +57,7 @@
     <Compile Include="EntitySerializerTests.cs" />
     <Compile Include="MapConfigTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="QueryBuilderGenericTests.cs" />
     <Compile Include="QueryBuilderTests.cs" />
     <Compile Include="SqlCommandRunnerTests.cs" />
     <Compile Include="SqlProcedureCollectionTests.cs" />
