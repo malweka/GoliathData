@@ -106,7 +106,7 @@ namespace Goliath.Data.Sql
 
     public interface IQueryFetchable<T> : IFetchable<T>
     {
-        IFetchable<T> Limit(int i);
-        IFetchable<T> Offset(int i);
+        IQueryFetchable<T> Limit(int i);
+        IQueryFetchable<T> Offset(int i);
     }
 }

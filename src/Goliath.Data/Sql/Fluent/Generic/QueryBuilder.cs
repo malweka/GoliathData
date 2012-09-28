@@ -123,14 +123,16 @@ namespace Goliath.Data.Sql
 
         #region IQueryFetchable<T> Members
 
-        public IFetchable<T> Limit(int i)
+        public IQueryFetchable<T> Limit(int i)
         {
-            throw new NotImplementedException();
+            innerBuilder.Limit(1);
+            return this;
         }
 
-        public IFetchable<T> Offset(int i)
+        public IQueryFetchable<T> Offset(int i)
         {
-            throw new NotImplementedException();
+            innerBuilder.Offset(i);
+            return this;
         }
 
         #endregion
@@ -139,12 +141,12 @@ namespace Goliath.Data.Sql
 
         public ICollection<T> FetchAll()
         {
-            throw new NotImplementedException();
+            return innerBuilder.FetchAll<T>();
         }
 
         public T FetchOne()
         {
-            throw new NotImplementedException();
+            return innerBuilder.FetchOne<T>();
         }
 
         #endregion
@@ -154,7 +156,10 @@ namespace Goliath.Data.Sql
 
         public ISorterClause<T> OrderBy<TProperty>(Expression<Func<T, TProperty>> property)
         {
-            throw new NotImplementedException();
+            var prop = ExtractProperty(property);
+
+            var sortBuilder =(SortBuilder)innerBuilder.OrderBy(prop.ColumnName);
+            return new SortBuilder<T>(this, sortBuilder);
         }
 
         #endregion
