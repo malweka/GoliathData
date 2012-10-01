@@ -68,7 +68,7 @@ namespace Goliath.Data.CodeGen
         public WebZooRunner(SupportedRdbms rdbms, IGenerator codeGen, string databaseFolder, bool autoIncrement)
         {
             this.rdbms = rdbms;
-            this.projectFolder = AppDomain.CurrentDomain.BaseDirectory.Substring(0, AppDomain.CurrentDomain.BaseDirectory.IndexOf("bin")); ;
+            this.projectFolder = AppDomain.CurrentDomain.BaseDirectory.Substring(0, AppDomain.CurrentDomain.BaseDirectory.IndexOf("bin"));
             this.codeGen = codeGen;
             this.autoIncrement = autoIncrement;
 			this.databaseFolder = databaseFolder;
