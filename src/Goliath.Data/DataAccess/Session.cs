@@ -124,6 +124,42 @@ namespace Goliath.Data.DataAccess
 
         #endregion
 
+        #region Run command implementation
+
+        SqlCommandRunner commandRunner = new SqlCommandRunner();
+
+        public IList<T> RunList<T>(SqlQueryBody sql, int limit, int offset, params QueryParam[] paramArray)
+        {
+            return commandRunner.RunList<T>(this, sql, limit, offset, paramArray);
+        }
+
+        public IList<T> RunList<T>(SqlQueryBody sql, int limit, int offset, out long total, params QueryParam[] paramArray)
+        {
+            return commandRunner.RunList<T>(this, sql, limit, offset, out total, paramArray);
+        }
+
+        public IList<T> RunList<T>(string sql, params QueryParam[] paramArray)
+        {
+            return commandRunner.RunList<T>(this, sql, paramArray);
+        }
+        public IList<T> RunList<T>(SqlQueryBody sql, params QueryParam[] paramArray)
+        {
+            return commandRunner.RunList<T>(this, sql, paramArray);
+        }
+ 
+        public T Run<T>(ISession session, string sql, params QueryParam[] paramArray)
+        {
+            return commandRunner.Run<T>(this, sql, paramArray);
+        }
+
+        public T Run<T>(ISession session, SqlQueryBody sql, params QueryParam[] paramArray)
+        {
+            return commandRunner.Run<T>(this, sql, paramArray);
+        }
+
+
+        #endregion
+
         #region Transactions
 
         public ITransaction BeginTransaction()

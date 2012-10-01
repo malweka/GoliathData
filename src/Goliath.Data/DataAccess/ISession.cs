@@ -59,10 +59,6 @@ namespace Goliath.Data
         /// <returns></returns>
         IDataAccessAdapter<T> CreateDataAccessAdapter<T>();
 
-        int Update<T>(T entity);
-        int Insert<T>(T entity, bool recursive = false);
-        int Delete<T>(T entity, bool cascade = false);
-
         #endregion
 
         #region Transactions
