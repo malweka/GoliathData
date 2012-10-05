@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-
+using System.IO;
 namespace Goliath.Data
 {
     using Mapping;
@@ -46,7 +46,21 @@ namespace Goliath.Data
             else
                 map = MapConfig.Create(mapFile);
 
-            return Configure(map);
+            return Configure(map, sessionStore);
+        }
+
+        public IConfigurationManager Configure(Stream mapStream, ProjectSettings settings, ISessionStore sessionStore = null)
+        {
+            if (mapStream == null)
+                throw new ArgumentNullException("mapStream");
+
+            MapConfig map;
+            if (settings != null)
+                map = MapConfig.Create(mapStream, settings);
+            else
+                map = MapConfig.Create(mapStream);
+
+            return Configure(map, sessionStore);
         }
 
         /// <summary>
