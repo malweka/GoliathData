@@ -23,6 +23,7 @@ namespace Goliath.Data.Sql
         int limit=-1;
         int offset=-1;
         ISession session;
+        public List<string> ColumNames { get { return columnNames; } }
 
         internal  Dictionary<string, JoinBuilder> Joins
         {
