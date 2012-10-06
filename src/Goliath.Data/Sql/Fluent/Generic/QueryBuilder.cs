@@ -32,11 +32,11 @@ namespace Goliath.Data.Sql
             Load(propertyNames);
         }
 
-         MapConfig GetMapConfig()
+        MapConfig GetMapConfig()
         {
             return session.SessionFactory.DbSettings.Map;
         }
-        
+
         internal Property ExtractProperty<TProperty>(Expression<Func<T, TProperty>> property)
         {
             var propertName = property.GetMemberName();
@@ -48,18 +48,61 @@ namespace Goliath.Data.Sql
             if (prop is Relation)
             {
                 Relation rel = (Relation)prop;
-                var relEntity = session.SessionFactory.DbSettings.Map.GetEntityMap(rel.ReferenceEntityName);
-                if (!innerBuilder.Joins.ContainsKey(relEntity.TableAlias))
-                    innerBuilder.LeftJoin(relEntity.TableName, relEntity.TableAlias).On(prop.ColumnName).EqualTo(rel.ColumnName);
+                if (!rel.LazyLoad)
+                {
+                    var relEntity = session.SessionFactory.DbSettings.Map.GetEntityMap(rel.ReferenceEntityName);
+                    if (!innerBuilder.Joins.ContainsKey(relEntity.TableAlias))
+                        innerBuilder.LeftJoin(relEntity.TableName, relEntity.TableAlias).On(prop.ColumnName).EqualTo(rel.ColumnName);
+                }
             }
 
             return prop;
+        }
+
+        public string BuildColumnSelectString(string columnName, string tableAbbreviation)
+        {
+            return string.Format("{2}.{0} AS {1}", columnName, ParameterNameBuilderHelper.ColumnQueryName(columnName, tableAbbreviation), tableAbbreviation);
+        }
+
+        void LoadColumns(EntityMap entityMap, List<string> propertyNames)
+        {
+            Dictionary<string, string> cols = new Dictionary<string, string>();
+
+            foreach (var prop in entityMap)
+            {
+                if (prop is Relation)
+                {
+                    Relation rel = (Relation)prop;
+                    if (rel.RelationType == RelationshipType.ManyToOne)
+                    {
+                        if (!cols.ContainsKey(rel.ColumnName))
+                            cols.Add(rel.ColumnName, BuildColumnSelectString(rel.ColumnName, entityMap.TableAlias));
+                        if (!rel.LazyLoad)
+                        {
+                            var relEnt = session.SessionFactory.DbSettings.Map.GetEntityMap(rel.ReferenceEntityName);
+                            LoadColumns(relEnt, propertyNames);
+                        }
+                    }
+                }
+                else
+                    cols.Add(prop.ColumnName, BuildColumnSelectString(prop.ColumnName, entityMap.TableAlias));
+            }
+
+            propertyNames.AddRange(cols.Values);
         }
 
         void Load(List<string> propertyNames)
         {
             string typeFullName = typeof(T).FullName;
             Table = session.SessionFactory.DbSettings.Map.GetEntityMap(typeFullName);
+
+            if (propertyNames == null)
+                propertyNames = new List<string>();
+
+            if (propertyNames.Count == 0)
+            {
+                LoadColumns(Table, propertyNames);
+            }
 
             innerBuilder = new QueryBuilder(session, propertyNames);
             innerBuilder.From(Table.TableName, Table.TableAlias);
@@ -88,7 +131,7 @@ namespace Goliath.Data.Sql
             JoinBuilder jbuilder = new JoinBuilder(innerBuilder, Table.TableName, null, null);
             var map = GetMapConfig();
             EntityMap joinMap = map.GetEntityMap(typeof(TRelation).FullName);
-            switch(joinType)
+            switch (joinType)
             {
                 case JoinType.Inner:
                     innerBuilder.InnerJoin(joinMap.TableName, joinMap.TableAlias);
@@ -158,7 +201,7 @@ namespace Goliath.Data.Sql
         {
             var prop = ExtractProperty(property);
 
-            var sortBuilder =(SortBuilder)innerBuilder.OrderBy(prop.ColumnName);
+            var sortBuilder = (SortBuilder)innerBuilder.OrderBy(prop.ColumnName);
             return new SortBuilder<T>(this, sortBuilder);
         }
 
