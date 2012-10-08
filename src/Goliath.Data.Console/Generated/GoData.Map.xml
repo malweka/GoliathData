@@ -72,8 +72,25 @@
     </type>
   </complexTypes>
   <statements>
-    <statement name="countZooStatement" resultMap="int" operationType="ExecuteScalar">
+    <statement name="countZooStatement" canRunOn="Sqlite3, Mssql2008R2" resultMap="int" operationType="ExecuteScalar">
       select count(*) from zoos;
+    </statement>
+    <statement name="insertZoos" canRunOn="Sqlite3, Mssql2008R2"  operationType="ExecuteNonQuery">
+      <inputParameters>
+        <input name="a" type="WebZoo.Data.Zoo"/>
+        <input name="b" type="WebZoo.Data.Zoo"/>
+      </inputParameters>
+      <body>
+        INSERT INTO zoos(name, city, acceptanimals) VALUES(@{prop:a.Name}, @{prop:a.City}, @{prop:a.AcceptAnimals});
+        INSERT INTO zoos(name, city, acceptanimals) VALUES(@{prop:b.Name}, @{prop:b.City}, @{prop:b.AcceptAnimals});
+      </body>
+    </statement>
+    <statement name="querySupergloo" canRunOn="Sqlite3, Mssql2008R2"  operationType="ExecuteNonQuery">
+      <dbParameters>
+        <param name="p1"/>
+        <param name="p2"/>
+      </dbParameters>
+      <body>select  * from zoos where Name = @{param:p1};</body>      
     </statement>
   </statements>
 </goliath.data>

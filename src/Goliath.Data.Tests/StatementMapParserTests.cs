@@ -77,7 +77,7 @@ namespace Goliath.Data.Tests
             config.Load(testMapfile);
 
             StatementMapParser parser = new StatementMapParser();
-            Dictionary<string, StatemenInputParam> inputParams = new Dictionary<string, StatemenInputParam> { { "a", new StatemenInputParam() { Name = "a", Type = "WebZoo.Data.Zoo" } }, { "b", new StatemenInputParam() { Name = "b", Type = "WebZoo.Data.Animal" } } };
+            Dictionary<string, StatementInputParam> inputParams = new Dictionary<string, StatementInputParam> { { "a", new StatementInputParam() { Name = "a", Type = "WebZoo.Data.Zoo" } }, { "b", new StatementInputParam() { Name = "b", Type = "WebZoo.Data.Animal" } } };
 
             var statement = parser.Parse(new SqliteDialect(), config, inputParams, template);
             Assert.AreEqual(verify, statement.Body);

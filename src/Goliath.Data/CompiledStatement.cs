@@ -10,20 +10,21 @@ namespace Goliath.Data
     {
         public string Body { get; set; }
 
-        Dictionary<string, StatemenInputParam> paramPropertyMap = new Dictionary<string, StatemenInputParam>();
+        Dictionary<string, StatementInputParam> paramPropertyMap = new Dictionary<string, StatementInputParam>();
 
-        public Dictionary<string, StatemenInputParam> ParamPropertyMap
+        public Dictionary<string, StatementInputParam> ParamPropertyMap
         {
             get { return paramPropertyMap; }
         }
     }
 
     [System.Diagnostics.DebuggerDisplay("Name={Name}, Type={Type}")]
-    struct StatemenInputParam
+    public class StatementInputParam
     {
-        public string Name;
-        public string Value;
-        public string Type;
-        public bool IsMapped;
+        public string Name{get;set;}
+        public string Value{get;set;}
+        public string Type{get;set;}
+        public bool IsMapped{get;set;}
+        internal Goliath.Data.Mapping.EntityMap Map { get; set; }
     }
 }

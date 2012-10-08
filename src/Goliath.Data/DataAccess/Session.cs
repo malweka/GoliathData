@@ -163,12 +163,12 @@ namespace Goliath.Data.DataAccess
             throw new NotImplementedException();
         }
 
-        //public IList<T> RunEntityStatement<T>(string statementName, params QueryParam[] paramArray)
-        //{
-        //    throw new NotImplementedException();
-        //}
+        public IList<T> RunListMappedStatement<T>(string statementName, params QueryParam[] paramArray)
+        {
+            throw new NotImplementedException();
+        }
 
-        public int RunEntityStatement<T>(T entity, params QueryParam[] paramArray)
+        public int RunNonQueryMappedStatement<T>(T entity, params QueryParam[] paramArray)
         {
             throw new NotImplementedException();
         }

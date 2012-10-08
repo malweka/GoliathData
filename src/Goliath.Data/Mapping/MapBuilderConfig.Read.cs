@@ -345,7 +345,7 @@ namespace Goliath.Data.Mapping
                     }
                 }
 
-                if (string.IsNullOrWhiteSpace(name) || string.IsNullOrWhiteSpace(property))
+                if (string.IsNullOrWhiteSpace(name))
                 {
                     throw new MappingSerializationException(typeof(StatementMap), string.Format("statement {0} - all parameters must have name and value attributes. {1} {2}", statement.Name, name, property));
                 }

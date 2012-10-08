@@ -38,8 +38,25 @@ namespace Goliath.Data.Utils
         /// <param name="inputParams">The input params.</param>
         /// <param name="text">The text.</param>
         /// <returns></returns>
-        public CompiledStatement Parse(SqlDialect dialect, MapConfig config, IDictionary<string, StatemenInputParam> inputParams, string text)
+        public CompiledStatement Parse(SqlDialect dialect, MapConfig config, IDictionary<string, StatementInputParam> inputParams, string text)
         {
+            foreach (var stat in inputParams.Values)
+            {
+                EntityMap entMap;
+                if (!config.EntityConfigs.TryGetValue(stat.Type, out entMap))
+                {
+                    Type type = Type.GetType(stat.Type);
+                    entMap = new DynamicEntityMap(type);
+                }
+                else
+                {
+                    stat.IsMapped = true;
+                    stat.Type = entMap.FullName;
+                }
+
+                stat.Map = entMap;
+            }
+
             text = ParseColumnTag(config, inputParams, text);
             var statement = ParseObjectPropertyTag(dialect, config, inputParams, text);
             statement.Body = ParseEntityMapAllowedProperties(config, inputParams, statement.Body);
@@ -84,7 +101,7 @@ namespace Goliath.Data.Utils
             return text;
         }
 
-        string ParseEntityMapAllowedProperties(MapConfig config, IDictionary<string, StatemenInputParam> inputParams, string text)
+        string ParseEntityMapAllowedProperties(MapConfig config, IDictionary<string, StatementInputParam> inputParams, string text)
         {
             Dictionary<string, string> values = ExtractTags(string.Empty, text);
             
@@ -92,7 +109,7 @@ namespace Goliath.Data.Utils
             {
                 string value = null;
                 var varInfo = ExtractVariables(m.Value);
-                 StatemenInputParam inputVariable = new StatemenInputParam();
+                 StatementInputParam inputVariable = new StatementInputParam();
 
                  if (inputParams.TryGetValue(varInfo.VarName, out inputVariable))
                  {
@@ -137,57 +154,47 @@ namespace Goliath.Data.Utils
             foreach (var m in values)
             {
                 var prop = entMap[m.Value];
-                if (prop == null)
-                {
-                    throw new GoliathDataException(string.Format("Tag {0} does not match any property for entity {1}", m.Key, entMap.FullName));
-                }
-
-                string columnText = string.Empty;
-                if (m.Key.StartsWith(@"@{sel:"))
-                {
-                    columnText = string.Format("{0} as {1}", prop.ColumnName, ParameterNameBuilderHelper.ColumnQueryName(prop.ColumnName, entMap.TableAlias));
-                }
-                else
-                {
-                    columnText = prop.ColumnName;
-                }
-
-                text = text.Replace(m.Key, columnText);
+                text = replaceColumnText(entMap, prop, m.Key, text);
             }
 
             return text;
         }
 
-        string ParseColumnTag(MapConfig config, IDictionary<string, StatemenInputParam> inputParams, string text)
+        string replaceColumnText(EntityMap entMap, Property prop, string key,  string text)
+        {
+            if (prop == null)
+            {
+                throw new GoliathDataException(string.Format("Tag {0} does not match any property for entity {1}", key, entMap.FullName));
+            }
+
+            string columnText = string.Empty;
+            if (entMap is DynamicEntityMap) //(m.Key.StartsWith(@"@{sel:"))
+            {
+                columnText = prop.ColumnName;
+            }
+            else
+            {
+                columnText = string.Format("{0} as {1}", prop.ColumnName, ParameterNameBuilderHelper.ColumnQueryName(prop.ColumnName, entMap.TableAlias));
+
+            }
+
+            return text.Replace(key, columnText); ;
+        }
+
+        string ParseColumnTag(MapConfig config, IDictionary<string, StatementInputParam> inputParams, string text)
         {
             Dictionary<string, string> values = ExtractTags("(col|sel)", 3, text);
+
             foreach (var m in values)
             {
                 var info = ExtractVariables(m.Value);
 
-                StatemenInputParam inputVariable = new StatemenInputParam();
-
+                StatementInputParam inputVariable = new StatementInputParam();
                 if (inputParams.TryGetValue(info.VarName, out inputVariable))
                 {
-                    EntityMap entMap = config.GetEntityMap(inputVariable.Type);
-                    var prop = entMap[info.PropName];
-
-                    if (prop == null)
-                    {
-                        throw new GoliathDataException(string.Format("Tag {0} does not match any property for entity {1}", m.Key, entMap.FullName));
-                    }
-
-                    string columnText = string.Empty;
-                    if (m.Key.StartsWith(@"@{sel:"))
-                    {
-                        columnText = string.Format("{0} as {1}", prop.ColumnName, ParameterNameBuilderHelper.ColumnQueryName(prop.ColumnName, entMap.TableAlias));
-                    }
-                    else
-                    {
-                        columnText = prop.ColumnName;
-                    }
-
-                    text = text.Replace(m.Key, columnText);
+                    
+                    var prop = inputVariable.Map[info.PropName];
+                    text = replaceColumnText(inputVariable.Map, prop, m.Key, text);                   
                 }
                 else
                 {
@@ -226,16 +233,15 @@ namespace Goliath.Data.Utils
 
             foreach (var m in values)
             {
-                statement.ParamPropertyMap.Add(m.Key, new StatemenInputParam() { Name = m.Key, Type = entMap.FullName, Value = m.Value });
+                statement.ParamPropertyMap.Add(m.Key, new StatementInputParam() { Name = m.Key, Type = entMap.FullName, Value = m.Value });
                 text = text.Replace(m.Key, dialect.CreateParameterName(m.Value.Replace('.', '_')));
-
             }
 
             statement.Body = text;
             return statement;
         }
 
-        CompiledStatement ParseObjectPropertyTag(SqlDialect dialect, MapConfig config, IDictionary<string, StatemenInputParam> inputParams, string text)
+        CompiledStatement ParseObjectPropertyTag(SqlDialect dialect, MapConfig config, IDictionary<string, StatementInputParam> inputParams, string text)
         {
             CompiledStatement statement = new CompiledStatement();
             var values = ExtractTags("prop", text);
@@ -244,17 +250,10 @@ namespace Goliath.Data.Utils
             {
                 var info = ExtractVariables(m.Value);
 
-                StatemenInputParam inputVariable = new StatemenInputParam();
+                StatementInputParam inputVariable = new StatementInputParam();
 
                 if (inputParams.TryGetValue(info.VarName, out inputVariable))
                 {
-                    EntityMap entMap;
-                    if (config.EntityConfigs.TryGetValue(inputVariable.Type, out entMap))
-                    {
-                        inputVariable.Type = entMap.FullName;
-                        inputVariable.IsMapped = true;
-                    }
-
                     statement.ParamPropertyMap.Add(m.Key, inputVariable);
                     text = text.Replace(m.Key, dialect.CreateParameterName(m.Value.Replace('.', '_')));
                 }
