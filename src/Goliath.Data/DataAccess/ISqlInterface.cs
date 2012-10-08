@@ -80,8 +80,12 @@ namespace Goliath.Data
         IList<T> RunList<T>(string sql, params QueryParam[] paramArray);
         IList<T> RunList<T>(SqlQueryBody sql, params QueryParam[] paramArray);
 
-        T Run<T>(ISession session, string sql, params QueryParam[] paramArray);
-        T Run<T>(ISession session, SqlQueryBody sql, params QueryParam[] paramArray);
+        T Run<T>(string sql, params QueryParam[] paramArray);
+        T Run<T>(SqlQueryBody sql, params QueryParam[] paramArray);
+
+        T RunMappedStatement<T>(string statementName, params QueryParam[] paramArray);
+        //IList<T> RunEntityStatement<T>(string statementName, params QueryParam[] paramArray);
+        int RunEntityStatement<T>(T entity, params QueryParam[] paramArray);
 
         #endregion
 
