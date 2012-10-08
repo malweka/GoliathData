@@ -85,4 +85,9 @@
       </properties>
     </type>
   </complexTypes>
+  <statements>
+    <statement name="countZooStatement" resultMap="int" operationType="ExecuteScalar">
+      select count(*) from zoos;
+    </statement>
+  </statements>
 </goliath.data>

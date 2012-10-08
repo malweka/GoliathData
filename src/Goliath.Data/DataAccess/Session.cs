@@ -147,16 +147,31 @@ namespace Goliath.Data.DataAccess
             return commandRunner.RunList<T>(this, sql, paramArray);
         }
  
-        public T Run<T>(ISession session, string sql, params QueryParam[] paramArray)
+        public T Run<T>(string sql, params QueryParam[] paramArray)
         {
             return commandRunner.Run<T>(this, sql, paramArray);
         }
 
-        public T Run<T>(ISession session, SqlQueryBody sql, params QueryParam[] paramArray)
+        public T Run<T>(SqlQueryBody sql, params QueryParam[] paramArray)
         {
             return commandRunner.Run<T>(this, sql, paramArray);
         }
 
+
+        public T RunMappedStatement<T>(string statementName, params QueryParam[] paramArray)
+        {
+            throw new NotImplementedException();
+        }
+
+        //public IList<T> RunEntityStatement<T>(string statementName, params QueryParam[] paramArray)
+        //{
+        //    throw new NotImplementedException();
+        //}
+
+        public int RunEntityStatement<T>(T entity, params QueryParam[] paramArray)
+        {
+            throw new NotImplementedException();
+        }
 
         #endregion
 

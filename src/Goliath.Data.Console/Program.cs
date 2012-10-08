@@ -12,7 +12,7 @@ using Goliath.Data.Sql;
 using Goliath.Data.Transformers;
 using Goliath.Data.Utils;
 using System.Linq.Expressions;
-//using WebZoo.Data.SqlServer;
+using Goliath.Data.DataAccess;
 using Goliath.Data.CodeGen;
 
 namespace WebZoo.Data
@@ -20,6 +20,7 @@ namespace WebZoo.Data
     class Program
     {
         const string MapFileName = "GoData.Map.xml";
+
 
         static void Main(string[] args)
         {
@@ -30,7 +31,7 @@ namespace WebZoo.Data
             string template = "select @{col:a.Id}, @{sel:a.Name}, @{sel:a.City}, @{sel:a.AcceptNewAnimals} from  @{a.TableName} where @{prop:a.Id} = @{prop:b.Id}";
             string template2 = @"INSERT INTO @{TableName}(@{sel:Name},@{col:City},@{col:AcceptNewAnimals}) VALUES(@{prop:Name},@{prop:City},@{prop:AcceptNewAnimals})";
 
-            
+           
 
             //si.Select<Animal>("Id", "some", "Xoe")
             //    .InnerJoin<Zoo>()
@@ -198,6 +199,10 @@ namespace WebZoo.Data
                 .Provider(new SqliteProvider()).Init();
 
             var sess = sessionFactory.OpenSession();
+
+            MappedStatementRunner mapStatRunner = new MappedStatementRunner();
+
+            int countZooStatement = mapStatRunner.RunStatement<int>(sess, "countZooStatement");
 
             var zoodapter = sess.CreateDataAccessAdapter<Zoo>();
             var animalapter = sess.CreateDataAccessAdapter<Animal>();
