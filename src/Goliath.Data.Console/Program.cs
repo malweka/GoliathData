@@ -61,7 +61,7 @@ namespace WebZoo.Data
             StatementMapParser parser = new StatementMapParser();
             var compiled = parser.Parse(new SqliteDialect(), zooEntMap, template2);
 
-            Dictionary<string, StatemenInputParam> inputParams = new Dictionary<string, StatemenInputParam> { { "a", new StatemenInputParam() { Name = "a", Type = "WebZoo.Data.Zoo" } }, { "b", new StatemenInputParam() { Name = "b", Type = "WebZoo.Data.Animal" } } };
+            Dictionary<string, StatementInputParam> inputParams = new Dictionary<string, StatementInputParam> { { "a", new StatementInputParam() { Name = "a", Type = "WebZoo.Data.Zoo" } }, { "b", new StatementInputParam() { Name = "b", Type = "WebZoo.Data.Animal" } } };
             compiled = parser.Parse(new SqliteDialect(), mapConfig, inputParams, template);
 
 

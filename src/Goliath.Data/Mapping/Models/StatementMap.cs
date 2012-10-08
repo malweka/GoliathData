@@ -26,6 +26,26 @@ namespace Goliath.Data.Mapping
         /// </value>
         public bool IsReady { get; internal set; }
 
+
+        /// <summary>
+        /// Gets a value indicating whether this instance requires parsing.
+        /// </summary>
+        /// <value>
+        /// 	<c>true</c> if this instance requires parsing; otherwise, <c>false</c>.
+        /// </value>
+        internal bool IsParsingRequired
+        {
+            get
+            {
+                if ((parameters.Count > 0) || (inputParams.Count > 0))
+                {
+                    return true;
+                }
+                else
+                    return false;
+            }
+        }
+
         /// <summary>
         /// Gets the parameters.
         /// </summary>
@@ -108,7 +128,7 @@ namespace Goliath.Data.Mapping
         /// Gets or sets the body.
         /// </summary>
         /// <value>The body.</value>
-        public string Body { get; set; }
+        public string Body { get; internal set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="StatementMap"/> class.
@@ -128,58 +148,5 @@ namespace Goliath.Data.Mapping
             OperationType = operationType;
         }
 
-
-        /// <summary>
-        /// Loads this instance.
-        /// </summary>
-        public virtual void Load()
-        {
-            IsReady = true;
-        }
-
-
-    }
-
-
-
-    /// <summary>
-    /// Dynamic Sql Procedure
-    /// </summary>
-    [Serializable]
-    [DataContract]
-    public class DynamicStatementMap: StatementMap
-    {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="DynamicStatementMap"/> class.
-        /// </summary>
-        internal DynamicStatementMap(){}
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="DynamicStatementMap"/> class.
-        /// </summary>
-        /// <param name="name">The name.</param>
-        /// <param name="dbName">Name of the db.</param>
-        /// <param name="operationType">Type of the operation.</param>
-        public DynamicStatementMap(string name, string dbName, MappedStatementType operationType):base(name, dbName, operationType){}
-
-        /// <summary>
-        /// Loads this instance.
-        /// </summary>
-        public override void Load()
-        {
-            if (!IsReady)
-            {
-                Compile();
-                base.Load();
-            }
-        }
-
-        /// <summary>
-        /// Compiles this instance.
-        /// </summary>
-        public void Compile()
-        {
-
-        }
     }
 }
