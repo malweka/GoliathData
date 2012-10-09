@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using System.Text;
 using System.Xml;
-using System.Collections.Generic;
+
 namespace Goliath.Data.Mapping
 {
     public partial class MapConfig

@@ -1,8 +1,8 @@
 ﻿using System;
+using Goliath.Data.Providers;
 
 namespace Goliath.Data.Mapping
 {
-    using Providers;
     /// <summary>
     /// 
     /// </summary>

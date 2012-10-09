@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using Goliath.Data.Diagnostics;
+using Goliath.Data.Mapping;
 
 namespace Goliath.Data.DataAccess
 {
-    using Diagnostics;
-    using Mapping;
-
     [Serializable]
     class DataAccessAdapterFactory : IDataAccessAdapterFactory
     {

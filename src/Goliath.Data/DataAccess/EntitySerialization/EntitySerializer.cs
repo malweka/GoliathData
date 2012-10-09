@@ -3,19 +3,14 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
+using Goliath.Data.Collections;
+using Goliath.Data.Diagnostics;
+using Goliath.Data.Mapping;
+using Goliath.Data.Providers;
+using Goliath.Data.Sql;
 
 namespace Goliath.Data.DataAccess
 {
-    using Diagnostics;
-    using Mapping;
-    using Providers;
-    using Sql;
-    using Collections;
-
-    //TODO make this internal class
-    /// <summary>
-    /// 
-    /// </summary>
     [Serializable]
     class EntitySerializer : IEntitySerializer, IEntityFactory
     {

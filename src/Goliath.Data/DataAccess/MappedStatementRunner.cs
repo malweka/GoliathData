@@ -13,10 +13,6 @@ namespace Goliath.Data.DataAccess
     /// </summary>
     public class MappedStatementRunner
     {
-        //public T RunStatement<T>(ISession session, string statementName, params object[] inputParams)
-        //{
-        //    return RunStatement<T>(session, statementName, null, inputParams);
-        //}
         GetSetStore getSetStore = new GetSetStore();
 
         /// <summary>
@@ -65,10 +61,9 @@ namespace Goliath.Data.DataAccess
                 var compiledStatement = parser.Parse(session.SessionFactory.DbSettings.SqlDialect, session.SessionFactory.DbSettings.Map, inParameters, statement.Body.Trim());
                 ProcessCompiledStatement(compiledStatement, statement, paramArray, inObjects);
 
-
             }
 
-            throw new NotImplementedException();
+            return RunStatementInternal<T>(statement, session);
 
         }
 

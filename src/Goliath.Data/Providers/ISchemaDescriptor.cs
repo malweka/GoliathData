@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using Goliath.Data.Mapping;
 
 namespace Goliath.Data.Providers
 {
-    using Mapping;
-
     /// <summary>
     /// 
     /// </summary>

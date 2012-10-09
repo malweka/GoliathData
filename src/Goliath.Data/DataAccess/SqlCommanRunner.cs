@@ -1,17 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Linq;
 using System.Text;
-using System.Data.Common;
+using Goliath.Data.Diagnostics;
+using Goliath.Data.Mapping;
+using Goliath.Data.Sql;
 
 namespace Goliath.Data.DataAccess
 {
-    using Diagnostics;
-    using Mapping;
-    using Sql;
-
     /// <summary>
-    /// 
+    /// Sql command runner helper class
     /// </summary>
     public class SqlCommandRunner
     {

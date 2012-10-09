@@ -1,15 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.IO;
+using Goliath.Data.Config;
+using Goliath.Data.Mapping;
+
 namespace Goliath.Data
 {
-    using Mapping;
-    using Diagnostics;
-    using Providers;
-    using Config;
-
     /// <summary>
     /// 
     /// </summary>

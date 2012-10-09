@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
-using System.Linq;
-//using Goliath.Data.DataAccess;
 using Goliath.Data.Mapping;
 using Goliath.Data.Providers;
 
@@ -22,11 +20,12 @@ namespace Goliath.Data.Utils
         /// <param name="entMap">The ent map.</param>
         /// <param name="text">The text.</param>
         /// <returns></returns>
-        public CompiledStatement Parse(SqlDialect dialect, EntityMap entMap, string text)
+        public CompiledStatement Parse(SqlDialect dialect, EntityMap entMap, string text, params QueryParam[] dbParameters)
         {
             text = ParseColumnTag(entMap, text);
             var statement = ParseObjectPropertyTag(dialect, entMap, text);
             statement.Body =  ParseEntityMapAllowedProperties(entMap, statement.Body);
+            ParseDbParameters(dialect, statement, dbParameters);
             return statement;
         }
 
@@ -38,7 +37,7 @@ namespace Goliath.Data.Utils
         /// <param name="inputParams">The input params.</param>
         /// <param name="text">The text.</param>
         /// <returns></returns>
-        public CompiledStatement Parse(SqlDialect dialect, MapConfig config, IDictionary<string, StatementInputParam> inputParams, string text)
+        public CompiledStatement Parse(SqlDialect dialect, MapConfig config, IDictionary<string, StatementInputParam> inputParams, string text, params QueryParam[] dbParameters)
         {
             foreach (var stat in inputParams.Values)
             {
@@ -67,7 +66,20 @@ namespace Goliath.Data.Utils
             text = ParseColumnTag(config, inputParams, text);
             var statement = ParseObjectPropertyTag(dialect, config, inputParams, text);
             statement.Body = ParseEntityMapAllowedProperties(config, inputParams, statement.Body);
+            ParseDbParameters(dialect, statement, dbParameters);
             return statement;
+        }
+
+        void ParseDbParameters(SqlDialect dialect, CompiledStatement statement, QueryParam[] dbParameters)
+        {
+            if (dbParameters == null)
+                dbParameters = new QueryParam[] { };
+
+            foreach (var param in dbParameters)
+            {
+                statement.Body = statement.Body.Replace("@{" + param.Name + "}", dialect.CreateParameterName(param.Name));
+            }
+
         }
 
         string ParseEntityMapAllowedProperties(EntityMap entMap, string text)
@@ -155,19 +167,7 @@ namespace Goliath.Data.Utils
             return text;
         }
 
-        string ParseColumnTag(EntityMap entMap, string text)
-        {
-            Dictionary<string, string> values = ExtractTags("(col|sel)", 3, text);
-            foreach (var m in values)
-            {
-                var prop = entMap[m.Value];
-                text = replaceColumnText(entMap, prop, m.Key, text);
-            }
-
-            return text;
-        }
-
-        string replaceColumnText(EntityMap entMap, Property prop, string key,  string text)
+        string ReplaceColumnText(EntityMap entMap, Property prop, string key,  string text)
         {
             if (prop == null)
             {
@@ -188,6 +188,18 @@ namespace Goliath.Data.Utils
             return text.Replace(key, columnText); ;
         }
 
+        string ParseColumnTag(EntityMap entMap, string text)
+        {
+            Dictionary<string, string> values = ExtractTags("(col|sel)", 3, text);
+            foreach (var m in values)
+            {
+                var prop = entMap[m.Value];
+                text = ReplaceColumnText(entMap, prop, m.Key, text);
+            }
+
+            return text;
+        }
+
         string ParseColumnTag(MapConfig config, IDictionary<string, StatementInputParam> inputParams, string text)
         {
             Dictionary<string, string> values = ExtractTags("(col|sel)", 3, text);
@@ -201,7 +213,7 @@ namespace Goliath.Data.Utils
                 {
                     
                     var prop = inputVariable.Map[info.PropName];
-                    text = replaceColumnText(inputVariable.Map, prop, m.Key, text);                   
+                    text = ReplaceColumnText(inputVariable.Map, prop, m.Key, text);                   
                 }
                 else
                 {
@@ -211,21 +223,6 @@ namespace Goliath.Data.Utils
 
             return text;
         }
-
-        VarPropNameInfo ExtractVariables(string item)
-        {
-            VarPropNameInfo info = new VarPropNameInfo();
-
-            string[] split = item.Split(new char[] { '.' }, StringSplitOptions.RemoveEmptyEntries);
-
-            if (split.Length < 2)
-                throw new GoliathDataException("cannot parse statement name.property missing");
-
-            info.VarName = split[0];
-            info.PropName = split[1];
-
-            return info;
-        }        
 
         CompiledStatement ParseObjectPropertyTag(SqlDialect dialect, EntityMap entMap, string text)
         {
@@ -241,8 +238,6 @@ namespace Goliath.Data.Utils
             statement.Body = text;
             return statement;
         }
-
-        
 
         CompiledStatement ParseObjectPropertyTag(SqlDialect dialect, MapConfig config, IDictionary<string, StatementInputParam> inputParams, string text)
         {
@@ -277,6 +272,21 @@ namespace Goliath.Data.Utils
             statement.Body = text;
             return statement;
         }
+        
+        VarPropNameInfo ExtractVariables(string item)
+        {
+            VarPropNameInfo info = new VarPropNameInfo();
+
+            string[] split = item.Split(new char[] { '.' }, StringSplitOptions.RemoveEmptyEntries);
+
+            if (split.Length < 2)
+                throw new GoliathDataException("cannot parse statement name.property missing");
+
+            info.VarName = split[0];
+            info.PropName = split[1];
+
+            return info;
+        }        
 
         Dictionary<string, string> ExtractTags(string tagName, string text)
         {
@@ -313,6 +323,5 @@ namespace Goliath.Data.Utils
         }
 
     }
-
     
 }

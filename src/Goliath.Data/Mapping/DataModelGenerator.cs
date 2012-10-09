@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Goliath.Data.Providers;
+using Goliath.Data.Transformers;
 
 namespace Goliath.Data.Mapping
 {
-    using Providers;
-    using Transformers;
-
     /// <summary>
     /// 
     /// </summary>

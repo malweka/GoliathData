@@ -86,6 +86,7 @@
     <Content Include="TestFiles\MapConfigTests\Test_statement_invalid_statement_operationType.xml" />
     <Content Include="TestFiles\MapConfigTests\Test_statement_valid.xml" />
     <Content Include="TestFiles\MapConfigTests\Test_valid_statements.xml" />
+    <Content Include="TestFiles\MappedStatementTests\TestFullMap.xml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Goliath.Data.Providers.Sqlite\Goliath.Data.Providers.Sqlite.csproj">
@@ -97,5 +98,6 @@
       <Name>Goliath.Data</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

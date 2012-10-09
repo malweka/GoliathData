@@ -2,11 +2,12 @@
 using System.Data;
 using System.Collections.Generic;
 using System.Linq;
+using Goliath.Data.Diagnostics;
+using Goliath.Data.Sql;
 
 namespace Goliath.Data.DataAccess
 {
-    using Diagnostics;
-    using Sql;
+    
 
     [Serializable]
     class Session : ISession

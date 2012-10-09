@@ -1,16 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Data.Common;
+using Goliath.Data.Collections;
+using Goliath.Data.DataAccess;
+using Goliath.Data.Diagnostics;
+using Goliath.Data.Mapping;
+using Goliath.Data.Providers;
 
 namespace Goliath.Data.Sql
 {
-    using DataAccess;
-    using Providers;
-    using Diagnostics;
-    using Mapping;
-    using Collections;
+    
 
     /// <summary>
     /// 

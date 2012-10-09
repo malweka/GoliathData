@@ -1,13 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Text;
+using Goliath.Data.Mapping;
+using Goliath.Data.Providers;
+
 
 namespace Goliath.Data.Sql
 {
-    using Providers;
-    using Mapping;
-
     class SelectSqlBuilder : SqlBuilder
     {
         PagingInfo? paging;

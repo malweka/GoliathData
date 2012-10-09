@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Data;
 using System.Data.Common;
-
+using Goliath.Data.Diagnostics;
 
 namespace Goliath.Data.DataAccess
 {
-    using Diagnostics;
-
     [Serializable]
     class ConnectionProvider : IConnectionProvider
     {

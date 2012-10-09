@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.Common;
+using Goliath.Data.Mapping;
 
 namespace Goliath.Data.DataAccess
 {
-    using Mapping;
-
     /// <summary>
     /// 
     /// </summary>

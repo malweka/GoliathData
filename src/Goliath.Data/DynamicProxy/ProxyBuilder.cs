@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Reflection;
 using System.Reflection.Emit;
+using Goliath.Data.Mapping;
 
 namespace Goliath.Data.DynamicProxy
 {
-    using Mapping;
-
-
     class ProxyBuilder
     {
 

@@ -3,11 +3,10 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Reflection;
 using Fasterflect;
+using Goliath.Data.Mapping;
 
 namespace Goliath.Data.DataAccess
 {
-    using Mapping;
-
     [Serializable]
     class GetSetStore
     {
