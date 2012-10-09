@@ -51,10 +51,10 @@ namespace Goliath.Data.Tests
             config.Load(testMapfile);
 
             var statement = config.UnprocessedStatements.Where(c => c.Name == "updateTest").First();
-            Assert.AreEqual("WebZoo.Data.Zoo", statement.InputParameterType);
+            Assert.AreEqual("WebZoo.Data.Zoo", statement.InputParametersMap.Values.First());
 
             statement = config.UnprocessedStatements.Where(c => c.Name == "testInsert").First();
-            Assert.AreEqual("WebZoo.Data.Zoo", statement.InputParameterType);
+            Assert.AreEqual("WebZoo.Data.Zoo", statement.InputParametersMap.Values.First());
         }
 
         [Test]

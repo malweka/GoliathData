@@ -15,9 +15,9 @@ namespace Goliath.Data.Mapping
     [DataContract]
     public class StatementMap : IMapModel
     {
-        Dictionary<string, string> parameters = new Dictionary<string, string>();
+        Dictionary<string, QueryParam> parameters = new Dictionary<string, QueryParam>();
         Dictionary<string, string> inputParams = new Dictionary<string, string>();
-
+        Dictionary<string, StatementInputParam> paramPropertyMap = new Dictionary<string, StatementInputParam>();
         /// <summary>
         /// Gets a value indicating whether this instance is ready.
         /// </summary>
@@ -46,11 +46,16 @@ namespace Goliath.Data.Mapping
             }
         }
 
+        //internal Dictionary<string, StatementInputParam> ParamPropertyMap
+        //{
+        //    get { return paramPropertyMap; }
+        //}
+
         /// <summary>
         /// Gets the parameters.
         /// </summary>
         /// <value>The parameters.</value>
-        public Dictionary<string, string> DBParametersMap
+        public Dictionary<string, QueryParam> DBParametersMap
         {
             get
             {
@@ -80,13 +85,13 @@ namespace Goliath.Data.Mapping
         /// </value>
         public string DependsOnEntity { get; set; }
 
-        /// <summary>
-        /// The system full type name of the input object that will be passed to the code executing the procedure. 
-        /// </summary>
-        /// <value>
-        /// The type of the input parameter.
-        /// </value>
-        public string InputParameterType { get; set; }
+        ///// <summary>
+        ///// The system full type name of the input object that will be passed to the code executing the procedure. 
+        ///// </summary>
+        ///// <value>
+        ///// The type of the input parameter.
+        ///// </value>
+        //public string InputParameterType { get; set; }
 
         /// <summary>
         /// The type to serialize the result of the procedure.
@@ -133,7 +138,7 @@ namespace Goliath.Data.Mapping
         /// <summary>
         /// Initializes a new instance of the <see cref="StatementMap"/> class.
         /// </summary>
-        internal StatementMap(){}
+        internal StatementMap() { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="StatementMap"/> class.
