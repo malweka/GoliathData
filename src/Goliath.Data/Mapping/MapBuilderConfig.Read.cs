@@ -133,7 +133,7 @@ namespace Goliath.Data.Mapping
                                 statement.ResultIsCollection = ReadBool(reader.Value);
                                 break;
                             case "inputParamType":
-                                statement.InputParameterType = reader.Value;
+                                statement.InputParametersMap.Add("a", reader.Value);
                                 break;
                             case "operationType":
                                 statement.OperationType = ReadEnumType<MappedStatementType>(reader.Value);
@@ -205,9 +205,9 @@ namespace Goliath.Data.Mapping
                                 }
                             }
 
-                            if (string.IsNullOrEmpty(statement.InputParameterType) && ((statement.OperationType == MappedStatementType.Insert) || (statement.OperationType == MappedStatementType.Update)))
+                            if ((statement.InputParametersMap.Count == 0) && ((statement.OperationType == MappedStatementType.Insert) || (statement.OperationType == MappedStatementType.Update)))
                             {
-                                statement.InputParameterType = entMap.FullName;
+                                statement.InputParametersMap.Add("a", entMap.FullName);
                             }
                         }
 
@@ -350,7 +350,7 @@ namespace Goliath.Data.Mapping
                     throw new MappingSerializationException(typeof(StatementMap), string.Format("statement {0} - all parameters must have name and value attributes. {1} {2}", statement.Name, name, property));
                 }
 
-                statement.DBParametersMap.Add(name, property);
+                statement.DBParametersMap.Add(name, null);
                 reader.MoveToElement();
             }
 
