@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Text;
+using Goliath.Data.Providers;
 
 namespace Goliath.Data
 {
-    using Providers;
-    using Mapping;
-
     /// <summary>
     /// 
     /// </summary>

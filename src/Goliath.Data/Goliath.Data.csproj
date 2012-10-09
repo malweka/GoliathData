@@ -87,10 +87,8 @@
     <Compile Include="DataAccess\EntitySerialization\SerializeManyToOne.cs" />
     <Compile Include="DataAccess\EntitySerialization\SerializeOneToMany.cs" />
     <Compile Include="DataAccess\EntitySerialization\RelationSerializer.cs" />
-    <Compile Include="DataAccess\SessionManager.cs" />
     <Compile Include="DynamicProxy\IProxyHydrator.cs" />
     <Compile Include="DynamicProxy\ProxyHydrator.cs" />
-    <Compile Include="DataAccess\QueryImpl.cs" />
     <Compile Include="DataAccess\SessionFactory.cs" />
     <Compile Include="DataAccess\Session.cs" />
     <Compile Include="DataAccess\TypeConversionException.cs" />

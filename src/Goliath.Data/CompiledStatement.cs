@@ -25,6 +25,7 @@ namespace Goliath.Data
         public string Value{get;set;}
         public string Type{get;set;}
         public bool IsMapped{get;set;}
+
         internal Goliath.Data.Mapping.EntityMap Map { get; set; }
         internal string QueryParamName { get; set; }
         internal Type ClrType { get; set; }

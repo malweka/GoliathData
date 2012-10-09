@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using Goliath.Data.Mapping;
+using Goliath.Data.Providers;
 
 namespace Goliath.Data.Sql
 {
-    using DataAccess;
-    using Mapping;
-    using Providers;
-
     abstract class SqlBuilder
     {
         protected SqlDialect sqlDialect;

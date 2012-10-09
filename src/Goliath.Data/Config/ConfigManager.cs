@@ -1,13 +1,11 @@
 ﻿using System;
+using Goliath.Data.DataAccess;
+using Goliath.Data.Diagnostics;
+using Goliath.Data.Mapping;
+using Goliath.Data.Providers;
 
 namespace Goliath.Data.Config
 {
-
-    using DataAccess;
-    using Diagnostics;
-    using Mapping;
-    using Providers;
-
     class ConfigManager : IConfigurationManager, IDatabaseSettings
     {
         MapConfig mainMap;

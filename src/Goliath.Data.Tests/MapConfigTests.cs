@@ -91,6 +91,7 @@ namespace Goliath.Data.Tests
 
             var statements = config.UnprocessedStatements.ToList();
             Assert.AreEqual(6, statements.Count);
+
             foreach (var st in statements)
             {
                 Assert.AreEqual("WebZoo.Data.Zoo", st.DependsOnEntity);
@@ -110,15 +111,6 @@ namespace Goliath.Data.Tests
             Assert.Fail("should have thrown an exception; map is invalid");
         }
 
-        [Test, ExpectedException(typeof(MappingSerializationException))]
-        public void Load_statement_with_params_invalid_param_missing_prop_throw()
-        {
-            string testMapfile = Path.Combine(SessionHelper.BaseDirectory, "TestFiles", "MapConfigTests", "Test_statement_invalid_param_missing_prop.xml");
-            MapConfig config = new MapConfig();
-            config.Load(testMapfile);
-
-            Assert.Fail("should have thrown an exception: entity/statements/update/dbParameters/param property missing.");
-        }
 
         [Test, ExpectedException(typeof(MappingSerializationException))]
         public void Load_statement_not_depending_on_entity_with_no_name_should_throw()

@@ -1,9 +1,8 @@
 ﻿using System;
+using Goliath.Data.Mapping;
 
 namespace Goliath.Data.DataAccess
 {
-    using Mapping;
-
     [Serializable]
     class SessionFactory : ISessionFactory
     {

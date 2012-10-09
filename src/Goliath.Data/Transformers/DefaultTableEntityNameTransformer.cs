@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Goliath.Data.Utils;
 using Goliath.Data.Mapping;
+using Goliath.Data.Utils;
 
 namespace Goliath.Data.Transformers
 {

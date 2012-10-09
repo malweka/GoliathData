@@ -1,14 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using Goliath.Data.DataAccess;
+using Goliath.Data.Mapping;
+using Goliath.Data.Providers;
 
 namespace Goliath.Data
 {
-    using DataAccess;
-    using Providers;
-    using Mapping;
-
     /// <summary>
     /// 
     /// </summary>

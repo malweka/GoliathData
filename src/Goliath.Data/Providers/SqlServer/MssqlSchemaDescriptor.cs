@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.Common;
+using Goliath.Data.Diagnostics;
+using Goliath.Data.Mapping;
 
 namespace Goliath.Data.Providers.SqlServer
 {
-    using Diagnostics;
-    using Mapping;
-
     /// <summary>
     /// 
     /// </summary>

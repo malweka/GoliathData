@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Goliath.Data.DataAccess;
+using Goliath.Data.Mapping;
+using Goliath.Data.Providers;
 
 namespace Goliath.Data.Sql
 {
-    using DataAccess;
-    using Mapping;
-    using Providers;
-
     class InsertSqlBuilder : SqlBuilder
     {
         //Consolidate with parameter building 

@@ -1,7 +1,8 @@
-﻿
+﻿using Goliath.Data.DataAccess;
+
 namespace Goliath.Data
 {
-    using DataAccess;
+    
 
     /// <summary>
     /// 

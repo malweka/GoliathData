@@ -1,14 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Data;
-using System.Data.Common;
+using Goliath.Data.Diagnostics;
 
 namespace Goliath.Data.DataAccess
 {
-    using Diagnostics;
-
     [Serializable]
     class AdoTransaction : ITransaction
     {

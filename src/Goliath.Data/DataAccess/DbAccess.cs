@@ -1,11 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data.Common;
+using Goliath.Data.Diagnostics;
 
 namespace Goliath.Data
 {
-    using Diagnostics;
-
     /// <summary>
     /// 
     /// </summary>

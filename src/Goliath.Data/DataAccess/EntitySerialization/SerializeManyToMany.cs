@@ -2,13 +2,12 @@
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
+using Goliath.Data.Mapping;
+using Goliath.Data.Providers;
+using Goliath.Data.Sql;
 
 namespace Goliath.Data.DataAccess
 {
-    using Mapping;
-    using Providers;
-    using Sql;
-
     class SerializeManyToMany : RelationSerializer
     {
         public SerializeManyToMany(SqlDialect sqlDialect, GetSetStore getSetStore)

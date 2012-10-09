@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Data.Common;
+using Goliath.Data.DataAccess;
 
 namespace Goliath.Data
-{
-    using DataAccess;
-
+{  
     /// <summary>
     /// 
     /// </summary>
