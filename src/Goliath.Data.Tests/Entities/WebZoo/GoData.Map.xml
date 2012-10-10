@@ -1,4 +1,4 @@
-﻿<goliath.data rdbms="Mssql2008R2" version="1.0.1.15" xmlns="http://schemas.hamsman.com/goliath/data/1.1">
+﻿<goliath.data rdbms="Sqlite3" version="1.0.1.15" xmlns="http://schemas.hamsman.com/goliath/data/1.1">
   <connectionString>Data Source=localhost;Initial Catalog=DbZoo;Integrated Security=True</connectionString>
   <tablePrefixes />
   <namespace>WebZoo.Data</namespace>
@@ -17,10 +17,10 @@
         <list name="EmployeesOnAssignedToZooId" column="Id" scale="0" type="" lazy="True" relation="OneToMany" referenceProperty="AssignedToZoo" refEntity="WebZoo.Data.Employee" />
       </properties>
       <statements>
-        <query><![CDATA[select @{sel:Id}, @{sel:Name}, @{sel:City}, @{sel:AcceptNewAnimals} from  @{TableName} where t.col = 1;]]></query>
+        <query><![CDATA[select @{col:Id}, @{col:Name}, @{col:City}, @{col:AcceptNewAnimals} from  @{TableName} where @{col:Name} = @{prop:Name};]]></query>
         <statement name="testingo" operationType="ExecuteScalar" dbName="testingo_sp" />
         <update name="updateTest" dbName="updateTest_SP"></update>
-        <insert name="testInsert">INSERT INTO @{TableName}(@{col:Name},@{col:City},@{col:AcceptNewAnimals}) VALUES(@{prop:Name},@{prop:City},@{prop:AcceptNewAnimals})</insert>
+        <insert parse="true" name="testInsert">INSERT INTO @{TableName}(@{col:Name},@{col:City},@{col:AcceptNewAnimals}) VALUES(@{prop:Name},@{prop:City},@{prop:AcceptNewAnimals})</insert>
         <insert>INSERT INTO @{TableName}(@{col:Name},@{col:City},@{col:AcceptNewAnimals}) VALUES(@{prop:Name},@{prop:City},@{prop:AcceptNewAnimals})</insert>
         <update name="updateTest2" dbName="updateTest_SP2">
           <dbParameters>
@@ -85,6 +85,26 @@
       </inputParameters>
       <body>Mr Jailer</body>
     </update>
+    <statement name="countZooStatement" canRunOn="Sqlite3, Mssql2008R2" resultMap="int" operationType="ExecuteScalar">
+      select count(*) from zoos;
+    </statement>
+    <statement name="insertZoos" canRunOn="Sqlite3, Mssql2008R2"  operationType="ExecuteNonQuery">
+      <inputParameters>
+        <input name="a" type="WebZoo.Data.Zoo"/>
+        <input name="b" type="WebZoo.Data.Zoo"/>
+      </inputParameters>
+      <body>
+        INSERT INTO zoos(name, city, acceptanimals) VALUES(@{prop:a.Name}, @{prop:a.City}, @{prop:a.AcceptAnimals});
+        INSERT INTO zoos(name, city, acceptanimals) VALUES(@{prop:b.Name}, @{prop:b.City}, @{prop:b.AcceptAnimals});
+      </body>
+    </statement>
+    <statement name="querySupergloo" canRunOn="Sqlite3, Mssql2008R2"  operationType="Query">
+      <dbParameters>
+        <param name="p1"/>
+        <param name="p2"/>
+      </dbParameters>
+      <body>select  * from zoos where Name = @{p1} and AcceptAnimals = @{p2};</body>
+    </statement>
   </statements>
   <complexTypes>
     <type fullname="WebZoo.Data.BaseEntityInt" enum="False">
