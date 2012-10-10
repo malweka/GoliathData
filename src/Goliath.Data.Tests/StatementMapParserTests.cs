@@ -83,7 +83,57 @@ namespace Goliath.Data.Tests
             var statement = parser.Parse(new SqliteDialect(), config, inputParams, template);
             Console.WriteLine(statement.Body);
             Assert.AreEqual(verify, statement.Body);
+        }
 
+        [Test]
+        public void Parse_with_db_parameters_parse_parameters()
+        {
+            string verify = "select  * from zoos where Name = $p1 and AcceptAnimals = $p2;";
+            string testMapfile = Path.Combine(SessionHelper.BaseDirectory, "TestFiles", "MappedStatementTests", "TestFullMap.xml");
+            MapConfig config = new MapConfig();
+            config.Load(testMapfile);
+
+            Providers.Sqlite.SqliteProvider provider = new Providers.Sqlite.SqliteProvider();
+            config.MapStatements(provider.Name);
+            StatementMap statement;
+            config.MappedStatements.TryGetValue("querySupergloo", out statement);
+            StatementMapParser parser = new StatementMapParser();
+            var compiled = parser.Parse(new SqliteDialect(), config, null, statement.Body, new QueryParam("p1"), new QueryParam("p2"));
+            Console.WriteLine(compiled.Body.Trim());
+            Assert.AreEqual(verify, compiled.Body.Trim());
+        }
+
+        [Test]
+        public void Parse_input_parameters_and_add_db_parameter_names_to_resulting_compiled_statement()
+        {
+            string verify = "INSERT INTO zoos(name, city, acceptanimals) VALUES($a_Name, $a_City, $a_AcceptAnimals);\nINSERT INTO zoos(name, city, acceptanimals) VALUES($b_Name, $b_City, $b_AcceptAnimals);";
+
+            string testMapfile = Path.Combine(SessionHelper.BaseDirectory, "TestFiles", "MappedStatementTests", "TestFullMap.xml");
+            MapConfig config = new MapConfig();
+            config.Load(testMapfile);
+
+            Providers.Sqlite.SqliteProvider provider = new Providers.Sqlite.SqliteProvider();
+            config.MapStatements(provider.Name);
+            StatementMap statement;
+            config.MappedStatements.TryGetValue("insertZoos", out statement);
+            StatementMapParser parser = new StatementMapParser();
+
+            Dictionary<string, StatementInputParam> inputParams = new Dictionary<string, StatementInputParam> { { "a", new StatementInputParam() { Name = "a", Type = "WebZoo.Data.Zoo", ClrType=typeof(WebZoo.Data.Zoo) } }, 
+            { "b", new StatementInputParam() { Name = "b", Type = "WebZoo.Data.Zoo", ClrType=typeof(WebZoo.Data.Zoo)} } };
+
+            var compiled = parser.Parse(new SqliteDialect(), config, inputParams, statement.Body.Trim());
+            string[] verifySplit = verify.Split(new string[] { "\n" }, StringSplitOptions.RemoveEmptyEntries);
+            string[] bodySplit = compiled.Body.Split(new string[] { "\n" }, StringSplitOptions.RemoveEmptyEntries);
+
+            Console.WriteLine(bodySplit[0].Trim());
+            Assert.AreEqual(verifySplit[0], bodySplit[0].Trim());
+
+            Console.WriteLine(bodySplit[1].Trim());
+            Assert.AreEqual(verifySplit[1], bodySplit[1].Trim());
+
+            Assert.AreEqual(6, compiled.ParamPropertyMap.Count);
+            Assert.IsTrue(compiled.ParamPropertyMap.Values.Where(c => c.QueryParamName == "a_Name").FirstOrDefault() != null);
+            Assert.IsTrue(compiled.ParamPropertyMap.Values.Where(c => c.QueryParamName == "b_AcceptAnimals").FirstOrDefault() != null);
         }
     }
 }

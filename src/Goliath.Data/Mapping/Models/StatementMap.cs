@@ -29,23 +29,25 @@ namespace Goliath.Data.Mapping
         /// <value>
         /// 	<c>true</c> if this instance requires parsing; otherwise, <c>false</c>.
         /// </value>
-        internal bool IsParsingRequired
-        {
-            get
-            {
-                if ((parameters.Count > 0) || (inputParams.Count > 0))
-                {
-                    return true;
-                }
-                else
-                    return false;
-            }
-        }
+        public bool IsParsingRequired { get; set; }
 
-        //internal Dictionary<string, StatementInputParam> ParamPropertyMap
+        //internal bool IsParsingRequired
         //{
-        //    get { return paramPropertyMap; }
+        //    get
+        //    {
+        //        if ((parameters.Count > 0) || (inputParams.Count > 0))
+        //        {
+        //            return true;
+        //        }
+        //        else
+        //            return false;
+        //    }
         //}
+
+        internal Dictionary<string, StatementInputParam> ParamPropertyMap
+        {
+            get { return paramPropertyMap; }
+        }
 
         /// <summary>
         /// Gets the parameters.
@@ -134,7 +136,7 @@ namespace Goliath.Data.Mapping
         /// <summary>
         /// Initializes a new instance of the <see cref="StatementMap"/> class.
         /// </summary>
-        internal StatementMap() { }
+        internal StatementMap() : this(null, null, MappedStatementType.Undefined) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="StatementMap"/> class.

@@ -168,12 +168,12 @@ namespace Goliath.Data.Mapping
             return InnerProcedureList.TryGetValue(key, out val);
         }
 
-        internal static string BuildProcedureName(EntityMap map, MappedStatementType type)
+        public  static string BuildProcedureName(EntityMap map, MappedStatementType type)
         {
             return string.Format("{0}_{1}", map.FullName, type); ;
         }
 
-        internal static string BuildProcedureName(Type type, MappedStatementType procType)
+        public static string BuildProcedureName(Type type, MappedStatementType procType)
         {
             return string.Format("{0}_{1}", type.FullName, procType); ;
         }

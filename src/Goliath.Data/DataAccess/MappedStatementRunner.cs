@@ -5,6 +5,7 @@ using System.Text;
 using Goliath.Data.Mapping;
 using Goliath.Data.Utils;
 using Goliath.Data.DataAccess;
+using Goliath.Data.Diagnostics;
 
 namespace Goliath.Data.DataAccess
 {
@@ -14,6 +15,13 @@ namespace Goliath.Data.DataAccess
     public class MappedStatementRunner
     {
         GetSetStore getSetStore = new GetSetStore();
+
+        static ILogger logger;
+
+        static MappedStatementRunner()
+        {
+            logger = Logger.GetLogger(typeof(MappedStatementRunner));
+        }
 
         /// <summary>
         /// Runs the statement.
@@ -32,7 +40,7 @@ namespace Goliath.Data.DataAccess
             StatementMap statement;
             if (!session.SessionFactory.DbSettings.Map.MappedStatements.TryGetValue(statementName, out statement))
             {
-                throw new MappingException("Statement " + statementName + " was not found. Verified if it is mapped properly.");
+                throw new MappingException("Statement " + statementName + " was not found. Please check that it is mapped properly and that it can run on this platform. Please check that the statement canRunOn support Current loaded platform: " + session.SessionFactory.DbSettings.Map.MappedStatements.Platform.Title);
             }
 
             if (string.IsNullOrWhiteSpace(statement.Body))
@@ -41,16 +49,30 @@ namespace Goliath.Data.DataAccess
             if (paramArray == null)
                 paramArray = new QueryParam[] { };
 
-            if (statement.IsParsingRequired && !statement.IsReady)
+            bool parse = statement.IsParsingRequired;
+            Dictionary<string, object> inObjects = new Dictionary<string, object>();
+
+            if (!parse)
+            {
+                parse = ((statement.DBParametersMap.Count > 0) || (statement.InputParametersMap.Count > 0) || ((inputParams != null) && (inputParams.Length > 0)));
+            }
+
+            if (parse && !statement.IsReady)
             {
                 //parse it
                 StatementMapParser parser = new StatementMapParser();
+
                 if ((statement.InputParametersMap.Count > 1) && ((inputParams == null) || (inputParams.Length < statement.InputParametersMap.Count)))
                     throw new GoliathDataException(string.Format("{0} requires {1} input paremeters.", statement.Name, statement.InputParametersMap.Count));
+                else if ((inputParams.Length > 0) && (statement.InputParametersMap.Count == 0) && !string.IsNullOrWhiteSpace(statement.DependsOnEntity))
+                {
+                    statement.InputParametersMap.Add("a", statement.DependsOnEntity);
+                }
 
                 int counter = 0;
                 Dictionary<string, StatementInputParam> inParameters = new Dictionary<string, StatementInputParam>();
-                Dictionary<string, object> inObjects = new Dictionary<string, object>();
+
+
                 foreach (var kpair in statement.InputParametersMap)
                 {
                     inParameters.Add(kpair.Key, new StatementInputParam() { Name = kpair.Key, Type = inputParams[0].GetType().FullName, ClrType = inputParams[0].GetType() });
@@ -59,11 +81,16 @@ namespace Goliath.Data.DataAccess
                 }
 
                 var compiledStatement = parser.Parse(session.SessionFactory.DbSettings.SqlDialect, session.SessionFactory.DbSettings.Map, inParameters, statement.Body.Trim());
-                ProcessCompiledStatement(compiledStatement, statement, paramArray, inObjects);
+                ProcessCompiledStatement(compiledStatement, statement);
 
             }
+            else
+            {
+                logger.Log(LogLevel.Debug, string.Format("Statement {0} do not require Parsing: IsParsingRequired={1} && IsReady={2}", statement.Name, statement.IsParsingRequired, statement.IsReady));
+            }
 
-            return RunStatementInternal<T>(statement, session);
+            var parameters = BuildParameterArray(statement, paramArray, inObjects);
+            return RunStatementInternal<T>(statement, session, parameters);
 
         }
 
@@ -86,7 +113,7 @@ namespace Goliath.Data.DataAccess
                 throw new MappingException("Statement " + statementName + " was not found. Verified if it is mapped properly.");
             }
 
-            if(string.IsNullOrWhiteSpace(statement.Body))
+            if (string.IsNullOrWhiteSpace(statement.Body))
                 throw new MappingException("Statement " + statementName + " body's was null or empty. Cannot run a mapped statement without SQL.");
 
             if (paramArray == null)
@@ -110,18 +137,19 @@ namespace Goliath.Data.DataAccess
                 }
 
                 var compiledStatement = parser.Parse(session.SessionFactory.DbSettings.SqlDialect, entityMap, statement.Body.Trim());
-                ProcessCompiledStatement(compiledStatement, statement, paramArray, new Dictionary<string, object>() { });
+                ProcessCompiledStatement(compiledStatement, statement);
             }
 
-            return RunStatementInternal<T>(statement, session);
+            var parameters = BuildParameterArray(statement, paramArray, new Dictionary<string, object>() { });
+            return RunStatementInternal<T>(statement, session, parameters);
         }
 
-        T RunStatementInternal<T>(StatementMap statement, ISession session)
+        T RunStatementInternal<T>(StatementMap statement, ISession session, QueryParam[] parameters)
         {
             if ((statement.OperationType == MappedStatementType.ExecuteScalar) || (statement.OperationType == MappedStatementType.Query))
             {
                 SqlCommandRunner runner = new SqlCommandRunner();
-                var result = runner.Run<T>(session, statement.Body.Trim(), statement.DBParametersMap.Values.ToArray());
+                var result = runner.Run<T>(session, statement.Body.Trim(), parameters);
                 return result;
             }
             else
@@ -130,40 +158,57 @@ namespace Goliath.Data.DataAccess
             }
         }
 
-        void ProcessCompiledStatement(CompiledStatement compiledStatement, StatementMap statement, QueryParam[] paramArray, IDictionary<string, object> inputObjects)
+        QueryParam[] BuildParameterArray(StatementMap statement, QueryParam[] paramArray, IDictionary<string, object> inputObjects)
         {
-            statement.Body = compiledStatement.Body;
+            Dictionary<string, QueryParam> dbParams = new Dictionary<string, QueryParam>();
             foreach (var p in paramArray)
             {
-                if (statement.DBParametersMap.ContainsKey(p.Name))
-                {
-                    statement.DBParametersMap[p.Name] = p;
-                }
-
+                dbParams.Add(p.Name, p);
             }
 
-            EntityGetSetInfo getSetInfo;
-
-            foreach (var inParam in compiledStatement.ParamPropertyMap.Values)
+            if ((inputObjects != null) && (inputObjects.Count > 0))
             {
-                object paramObj;
-                if (inputObjects.TryGetValue(inParam.Property.VarName, out paramObj))
+
+                EntityGetSetInfo getSetInfo;
+
+                foreach (var inParam in statement.ParamPropertyMap.Values)
                 {
-                    getSetInfo = getSetStore.GetReflectionInfoAddIfMissing(inParam.ClrType, inParam.Map);
-                    
-                    PropInfo pInfo;
-                    if (getSetInfo.Properties.TryGetValue(inParam.Property.PropName, out pInfo))
+                    object paramObj;
+                    if (inputObjects.TryGetValue(inParam.Property.VarName, out paramObj))
                     {
-                        QueryParam dbParam = new QueryParam(inParam.QueryParamName);
-                        dbParam.Value = pInfo.Getter(paramObj);
-                        if (!statement.DBParametersMap.ContainsKey(inParam.QueryParamName))
+                        getSetInfo = getSetStore.GetReflectionInfoAddIfMissing(inParam.ClrType, inParam.Map);
+
+                        PropInfo pInfo;
+                        if (getSetInfo.Properties.TryGetValue(inParam.Property.PropName, out pInfo))
                         {
-                            statement.DBParametersMap.Add(inParam.QueryParamName, dbParam);
+                            QueryParam dbParam = new QueryParam(inParam.QueryParamName);
+                            dbParam.Value = pInfo.Getter(paramObj);
+                            if (!dbParams.ContainsKey(inParam.QueryParamName))
+                            {
+                                dbParams.Add(inParam.QueryParamName, dbParam);
+                            }
                         }
                     }
-                }
 
+                }
             }
+
+            return dbParams.Values.ToArray();
+        }
+
+        void ProcessCompiledStatement(CompiledStatement compiledStatement, StatementMap statement)
+        {
+            statement.Body = compiledStatement.Body;
+
+            foreach (var keyVal in compiledStatement.ParamPropertyMap)
+            {
+                if (!statement.ParamPropertyMap.ContainsKey(keyVal.Key))
+                {
+                    statement.ParamPropertyMap.Add(keyVal.Key, keyVal.Value);
+                }
+            }
+
+
 
             statement.IsReady = true;
         }

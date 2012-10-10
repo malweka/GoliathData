@@ -134,6 +134,9 @@ namespace Goliath.Data.Mapping
                             case "inputParamType":
                                 statement.InputParametersMap.Add("a", reader.Value);
                                 break;
+                            case "parse":
+                                statement.IsParsingRequired = ReadBool(reader.Value);
+                                break;
                             case "operationType":
                                 statement.OperationType = ReadEnumType<MappedStatementType>(reader.Value);
                                 break;
@@ -175,7 +178,7 @@ namespace Goliath.Data.Mapping
                         if (string.IsNullOrEmpty(statement.Name))
                         {
                             if (dependsOnEntity)
-                                statement.Name = string.Format("{0}_{1}", entMap.FullName, statement.OperationType);
+                                statement.Name = StatementStore.BuildProcedureName(entMap, statement.OperationType);
                             else
                                 throw new MappingSerializationException(typeof(StatementMap), "A statement in goliath.data/statements does not have name defined. A name cannot be infered.");
 
@@ -277,6 +280,7 @@ namespace Goliath.Data.Mapping
 
                         if (statement.OperationType == MappedStatementType.Undefined)
                             throw new MappingSerializationException(typeof(StatementMap), string.Format("Statement {0} must have have an operationType", statement.Name));
+
 
                         config.UnprocessedStatements.Add(statement);
 

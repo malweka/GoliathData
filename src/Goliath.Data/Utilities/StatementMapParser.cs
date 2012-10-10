@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using Goliath.Data.Mapping;
 using Goliath.Data.Providers;
+using System.Linq;
 
 namespace Goliath.Data.Utils
 {
@@ -24,8 +25,9 @@ namespace Goliath.Data.Utils
         {
             text = ParseColumnTag(entMap, text);
             var statement = ParseObjectPropertyTag(dialect, entMap, text);
-            statement.Body =  ParseEntityMapAllowedProperties(entMap, statement.Body);
             ParseDbParameters(dialect, statement, dbParameters);
+            statement.Body =  ParseEntityMapAllowedProperties(entMap, statement.Body);
+           
             return statement;
         }
 
@@ -39,6 +41,11 @@ namespace Goliath.Data.Utils
         /// <returns></returns>
         public CompiledStatement Parse(SqlDialect dialect, MapConfig config, IDictionary<string, StatementInputParam> inputParams, string text, params QueryParam[] dbParameters)
         {
+            if (inputParams == null)
+            {
+                inputParams = new Dictionary<string, StatementInputParam>() { };
+            }
+
             foreach (var stat in inputParams.Values)
             {
                 EntityMap entMap;
@@ -63,10 +70,16 @@ namespace Goliath.Data.Utils
                 stat.Map = entMap;
             }
 
+            if (inputParams.Count == 1)
+            {
+                return Parse(dialect, inputParams.Values.First().Map, text, dbParameters);
+            }
+
             text = ParseColumnTag(config, inputParams, text);
             var statement = ParseObjectPropertyTag(dialect, config, inputParams, text);
-            statement.Body = ParseEntityMapAllowedProperties(config, inputParams, statement.Body);
             ParseDbParameters(dialect, statement, dbParameters);
+            statement.Body = ParseEntityMapAllowedProperties(config, inputParams, statement.Body);
+            
             return statement;
         }
 
@@ -117,6 +130,7 @@ namespace Goliath.Data.Utils
                 text = text.Replace(m.Key, value);
                 
             }
+
             return text;
         }
 
