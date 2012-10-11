@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using Goliath.Data.Diagnostics;
 using Goliath.Data.Mapping;
 using Goliath.Data.Utils;
-using Goliath.Data.DataAccess;
-using Goliath.Data.Diagnostics;
 
 namespace Goliath.Data.DataAccess
 {
@@ -14,8 +12,8 @@ namespace Goliath.Data.DataAccess
     /// </summary>
     public class MappedStatementRunner
     {
-        GetSetStore getSetStore = new GetSetStore();
 
+        GetSetStore getSetStore = new GetSetStore();
         static ILogger logger;
 
         static MappedStatementRunner()
@@ -23,16 +21,9 @@ namespace Goliath.Data.DataAccess
             logger = Logger.GetLogger(typeof(MappedStatementRunner));
         }
 
-        /// <summary>
-        /// Runs the statement.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="session">The session.</param>
-        /// <param name="statementName">Name of the statement.</param>
-        /// <param name="paramArray">The param array.</param>
-        /// <param name="inputParams">The input params.</param>
-        /// <returns></returns>
-        public T RunStatement<T>(ISession session, string statementName, QueryParam[] paramArray, params object[] inputParams)
+        #region helper methods 
+
+        StatementMap PrepareStatement<T>(ISession session, string statementName, QueryParam[] paramArray, Dictionary<string, object> inObjects, params object[] inputParams)
         {
             if (session == null)
                 throw new ArgumentNullException("session");
@@ -46,11 +37,8 @@ namespace Goliath.Data.DataAccess
             if (string.IsNullOrWhiteSpace(statement.Body))
                 throw new MappingException("Statement " + statementName + " body's was null or empty. Cannot run a mapped statement without SQL.");
 
-            if (paramArray == null)
-                paramArray = new QueryParam[] { };
-
             bool parse = statement.IsParsingRequired;
-            Dictionary<string, object> inObjects = new Dictionary<string, object>();
+            
 
             if (!parse)
             {
@@ -89,20 +77,11 @@ namespace Goliath.Data.DataAccess
                 logger.Log(LogLevel.Debug, string.Format("Statement {0} do not require Parsing: IsParsingRequired={1} && IsReady={2}", statement.Name, statement.IsParsingRequired, statement.IsReady));
             }
 
-            var parameters = BuildParameterArray(statement, paramArray, inObjects);
-            return RunStatementInternal<T>(statement, session, parameters);
+            return statement;
 
         }
 
-        /// <summary>
-        /// Runs the statement.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="session">The session.</param>
-        /// <param name="statementName">Name of the statement.</param>
-        /// <param name="paramArray">The param array.</param>
-        /// <returns></returns>
-        public T RunStatement<T>(ISession session, string statementName, params QueryParam[] paramArray)
+        StatementMap PrepareStatement<T>(ISession session, string statementName, params QueryParam[] paramArray)
         {
             if (session == null)
                 throw new ArgumentNullException("session");
@@ -115,9 +94,6 @@ namespace Goliath.Data.DataAccess
 
             if (string.IsNullOrWhiteSpace(statement.Body))
                 throw new MappingException("Statement " + statementName + " body's was null or empty. Cannot run a mapped statement without SQL.");
-
-            if (paramArray == null)
-                paramArray = new QueryParam[] { };
 
 
             //does the statement needs to be parsed?
@@ -136,12 +112,11 @@ namespace Goliath.Data.DataAccess
                     entityMap = new DynamicEntityMap(type);
                 }
 
-                var compiledStatement = parser.Parse(session.SessionFactory.DbSettings.SqlDialect, entityMap, statement.Body.Trim());
+                var compiledStatement = parser.Parse(session.SessionFactory.DbSettings.SqlDialect, entityMap, statement.Body.Trim(), null, paramArray);
                 ProcessCompiledStatement(compiledStatement, statement);
             }
 
-            var parameters = BuildParameterArray(statement, paramArray, new Dictionary<string, object>() { });
-            return RunStatementInternal<T>(statement, session, parameters);
+            return statement;
         }
 
         T RunStatementInternal<T>(StatementMap statement, ISession session, QueryParam[] parameters)
@@ -150,6 +125,20 @@ namespace Goliath.Data.DataAccess
             {
                 SqlCommandRunner runner = new SqlCommandRunner();
                 var result = runner.Run<T>(session, statement.Body.Trim(), parameters);
+                return result;
+            }
+            else
+            {
+                throw new GoliathDataException(string.Format("Operation {1} not supported on {0}. Use another Run method.", statement.Name, statement.OperationType));
+            }
+        }
+
+        IList<T> RunListStatementInternal<T>(StatementMap statement, ISession session, QueryParam[] parameters)
+        {
+            if ((statement.OperationType == MappedStatementType.ExecuteScalar) || (statement.OperationType == MappedStatementType.Query))
+            {
+                SqlCommandRunner runner = new SqlCommandRunner();
+                var result = runner.RunList<T>(session, statement.Body.Trim(), parameters);
                 return result;
             }
             else
@@ -212,6 +201,88 @@ namespace Goliath.Data.DataAccess
 
             statement.IsReady = true;
         }
+
+        #endregion
+
+        #region public methods 
+        
+        /// <summary>
+        /// Runs the statement.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="session">The session.</param>
+        /// <param name="statementName">Name of the statement.</param>
+        /// <param name="paramArray">The param array.</param>
+        /// <returns></returns>
+        public T RunStatement<T>(ISession session, string statementName, params QueryParam[] paramArray)
+        {
+            if (paramArray == null)
+                paramArray = new QueryParam[] { };
+
+            var statement = PrepareStatement<T>(session, statementName, paramArray);
+            var parameters = BuildParameterArray(statement, paramArray, new Dictionary<string, object>() { });
+            return RunStatementInternal<T>(statement, session, parameters);
+        }
+
+        /// <summary>
+        /// Runs the statement.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="session">The session.</param>
+        /// <param name="statementName">Name of the statement.</param>
+        /// <param name="paramArray">The param array.</param>
+        /// <param name="inputParams">The input params.</param>
+        /// <returns></returns>
+        public T RunStatement<T>(ISession session, string statementName, QueryParam[] paramArray, params object[] inputParams)
+        {
+            if (paramArray == null)
+                paramArray = new QueryParam[] { };
+
+            Dictionary<string, object> inObjects = new Dictionary<string, object>();
+            var statement = PrepareStatement<T>(session, statementName, paramArray, inObjects, inputParams);
+            var parameters = BuildParameterArray(statement, paramArray, inObjects);
+            return RunStatementInternal<T>(statement, session, parameters);
+        }
+
+        /// <summary>
+        /// Runs the list statement.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="session">The session.</param>
+        /// <param name="statementName">Name of the statement.</param>
+        /// <param name="paramArray">The param array.</param>
+        /// <returns></returns>
+        public IList<T> RunListStatement<T>(ISession session, string statementName, params QueryParam[] paramArray)
+        {
+            if (paramArray == null)
+                paramArray = new QueryParam[] { };
+
+            var statement = PrepareStatement<T>(session, statementName, paramArray);
+            var parameters = BuildParameterArray(statement, paramArray, new Dictionary<string, object>() { });
+            return RunListStatementInternal<T>(statement, session, parameters);
+        }
+
+        /// <summary>
+        /// Runs the list statement.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="session">The session.</param>
+        /// <param name="statementName">Name of the statement.</param>
+        /// <param name="paramArray">The param array.</param>
+        /// <param name="inputParams">The input params.</param>
+        /// <returns></returns>
+        public IList<T> RunListStatement<T>(ISession session, string statementName, QueryParam[] paramArray, params object[] inputParams)
+        {
+            if (paramArray == null)
+                paramArray = new QueryParam[] { };
+
+            Dictionary<string, object> inObjects = new Dictionary<string, object>();
+            var statement = PrepareStatement<T>(session, statementName, paramArray, inObjects, inputParams);
+            var parameters = BuildParameterArray(statement, paramArray, inObjects);
+            return RunListStatementInternal<T>(statement, session, parameters);
+        }
+
+        #endregion
 
     }
 }

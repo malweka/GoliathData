@@ -16,7 +16,7 @@ namespace Goliath.Data.Tests
         [Test]
         public void Parse_valid_string_should_return_parsed_text()
         {
-            string template = "INSERT INTO @{TableName}(@{col:Name},@{col:City},@{col:AcceptNewAnimals}) VALUES(@{prop:Name},@{prop:City},@{prop:AcceptNewAnimals})";
+            string template = "INSERT INTO @{TableName}(@{sel:Name},@{sel:City},@{sel:AcceptNewAnimals}) VALUES(@{prop:Name},@{prop:City},@{prop:AcceptNewAnimals})";
             string compiled = "INSERT INTO zoos(Name as zoo_Name,City as zoo_City,AcceptNewAnimals as zoo_AcceptNewAnimals) VALUES($Name,$City,$AcceptNewAnimals)";
             string testMapfile = Path.Combine(SessionHelper.BaseDirectory, "TestFiles", "MapConfigTests", "TestFullMap.xml");
             MapConfig config = new MapConfig();
@@ -26,7 +26,8 @@ namespace Goliath.Data.Tests
                     .FirstOrDefault();
 
             StatementMapParser parser = new StatementMapParser();
-            var statement = parser.Parse(new SqliteDialect(), zooEntMap, template);
+            StatementInputParam inputParam = new StatementInputParam() { Name = "a", ClrType = typeof(WebZoo.Data.Zoo), Type = zooEntMap.FullName, Map = zooEntMap, IsMapped = true };
+            var statement = parser.Parse(new SqliteDialect(), zooEntMap, template, inputParam);
             Console.WriteLine(statement.Body);
             Assert.AreEqual(compiled, statement.Body);
             Assert.AreEqual(3, statement.ParamPropertyMap.Count);
@@ -45,7 +46,7 @@ namespace Goliath.Data.Tests
                     .FirstOrDefault();
 
             StatementMapParser parser = new StatementMapParser();
-            var statement = parser.Parse(new SqliteDialect(), zooEntMap, template);
+            var statement = parser.Parse(new SqliteDialect(), zooEntMap, template, null);
 
             Assert.Fail("Should have thrown, AssemblyName property is not supported ");
         }
@@ -62,7 +63,7 @@ namespace Goliath.Data.Tests
                     .FirstOrDefault();
 
             StatementMapParser parser = new StatementMapParser();
-            var statement = parser.Parse(new SqliteDialect(), zooEntMap, template);
+            var statement = parser.Parse(new SqliteDialect(), zooEntMap, template, null);
 
             Assert.Fail("Should have thrown, column WaterPressure doesn't exist");
         }
@@ -70,7 +71,7 @@ namespace Goliath.Data.Tests
         [Test]
         public void Parse_with_several_input_parameters()
         {
-            string template = "select @{col:a.Id}, @{col:a.Name}, @{sel:a.City}, @{sel:a.AcceptNewAnimals} from  @{a.TableName} where @{prop:a.Id} = @{prop:b.Id}";
+            string template = "select @{sel:a.Id}, @{sel:a.Name}, @{sel:a.City}, @{sel:a.AcceptNewAnimals} from  @{a.TableName} where @{prop:a.Id} = @{prop:b.Id}";
             string verify = "select Id as zoo_Id, Name as zoo_Name, City as zoo_City, AcceptNewAnimals as zoo_AcceptNewAnimals from  zoos where $a_Id = $b_Id";
             string testMapfile = Path.Combine(SessionHelper.BaseDirectory, "TestFiles", "MapConfigTests", "TestFullMap.xml");
             MapConfig config = new MapConfig();

@@ -59,7 +59,7 @@ namespace WebZoo.Data
 
  
             StatementMapParser parser = new StatementMapParser();
-            var compiled = parser.Parse(new SqliteDialect(), zooEntMap, template2);
+            var compiled = parser.Parse(new SqliteDialect(), zooEntMap, template2, null);
 
             Dictionary<string, StatementInputParam> inputParams = new Dictionary<string, StatementInputParam> { { "a", new StatementInputParam() { Name = "a", Type = "WebZoo.Data.Zoo" } }, { "b", new StatementInputParam() { Name = "b", Type = "WebZoo.Data.Animal" } } };
             compiled = parser.Parse(new SqliteDialect(), mapConfig, inputParams, template);
@@ -203,6 +203,15 @@ namespace WebZoo.Data
             MappedStatementRunner mapStatRunner = new MappedStatementRunner();
 
             int countZooStatement = mapStatRunner.RunStatement<int>(sess, "countZooStatement");
+
+            string statName = StatementStore.BuildProcedureName(typeof(Zoo), MappedStatementType.Query);
+            Console.WriteLine("Statement name {0}", statName);
+            Zoo sdZoo = new Zoo() { Name = "SD Zoo", City = "San Diego", AcceptNewAnimals = true };
+
+            MappedStatementRunner runner = new MappedStatementRunner();
+            var verify = runner.RunStatement<Zoo>(sess, statName, null, sdZoo);
+
+
 
             var zoodapter = sess.CreateDataAccessAdapter<Zoo>();
             var animalapter = sess.CreateDataAccessAdapter<Animal>();

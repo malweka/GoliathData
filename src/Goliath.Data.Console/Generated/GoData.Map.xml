@@ -1,4 +1,4 @@
-﻿<goliath.data rdbms="Mssql2008R2" version="1.0.1.15" xmlns="http://schemas.hamsman.com/goliath/data/1.1">
+﻿<goliath.data rdbms="Sqlite3" version="1.0.1.15" xmlns="http://schemas.hamsman.com/goliath/data/1.1">
   <connectionString>Data Source=localhost;Initial Catalog=DbZoo;Integrated Security=True</connectionString>
   <tablePrefixes />
   <namespace>WebZoo.Data</namespace>
@@ -16,6 +16,20 @@
         <list name="AnimalsOnZooId" column="Id" scale="0" type="" lazy="True" relation="OneToMany" referenceProperty="Zoo" refEntity="WebZoo.Data.Animal" />
         <list name="EmployeesOnAssignedToZooId" column="Id" scale="0" type="" lazy="True" relation="OneToMany" referenceProperty="AssignedToZoo" refEntity="WebZoo.Data.Employee" />
       </properties>
+      <statements>
+        <query><![CDATA[select @{sel:Id}, @{sel:Name}, @{sel:City}, @{sel:AcceptNewAnimals} from  @{TableName} where @{col:Name} = @{prop:Name};]]></query>
+        <statement name="testingo" operationType="ExecuteScalar" dbName="testingo_sp" />
+        <update name="updateTest" dbName="updateTest_SP"></update>
+        <insert parse="true" name="testInsert">INSERT INTO @{TableName}(@{col:Name},@{col:City},@{col:AcceptNewAnimals}) VALUES(@{prop:Name},@{prop:City},@{prop:AcceptNewAnimals})</insert>
+        <insert>INSERT INTO @{TableName}(@{col:Name},@{col:City},@{col:AcceptNewAnimals}) VALUES(@{prop:Name},@{prop:City},@{prop:AcceptNewAnimals})</insert>
+        <update name="updateTest2" dbName="updateTest_SP2">
+          <dbParameters>
+            <param name="name1" property="prop1"/>
+            <param name="name2" property="prop2"/>
+            <param name="name3" property="prop3"/>
+          </dbParameters>
+        </update>
+      </statements>
     </entity>
     <entity name="Animal" extends="WebZoo.Data.BaseEntityInt" assembly="WebZoo.Data" entityNamespace="WebZoo.Data" table="animals" schema="dbo" alias="anim">
       <primaryKey>
