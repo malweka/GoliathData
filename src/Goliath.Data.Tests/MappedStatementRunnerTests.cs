@@ -30,7 +30,7 @@ namespace Goliath.Data.Tests
         }
 
         [Test, ExpectedException(typeof(GoliathDataException))]
-        public void RunStatement_null_session_trying_to_run_non_query_should_throw_when_picking_wrong_method()
+        public void RunStatement_session_trying_to_run_non_query_should_throw_when_picking_wrong_method()
         {
             try
             {
