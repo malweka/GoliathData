@@ -1,0 +1,140 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{02080BC5-4BB4-4D48-B132-57BCEC010387}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Goliath.Data.Console</RootNamespace>
+    <AssemblyName>Goliath.Data.Console</AssemblyName>
+    <FileAlignment>512</FileAlignment>
+    <SccProjectName>
+    </SccProjectName>
+    <SccLocalPath>
+    </SccLocalPath>
+    <SccAuxPath>
+    </SccAuxPath>
+    <SccProvider>
+    </SccProvider>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="BaseEntity.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="CodeGenerator.cs" />
+    <Compile Include="Generated\Animal.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Generated\Employee.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Generated\Monkey.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Generated\Mssql2008\Animal.cs" />
+    <Compile Include="Generated\Mssql2008\Employee.cs" />
+    <Compile Include="Generated\Mssql2008\Monkey.cs" />
+    <Compile Include="Generated\Mssql2008\Zoo.cs" />
+    <Compile Include="Generated\Sqlite\Animal.cs" />
+    <Compile Include="Generated\Sqlite\Employee.cs" />
+    <Compile Include="Generated\Sqlite\Monkey.cs" />
+    <Compile Include="Generated\Sqlite\Zoo.cs" />
+    <Compile Include="Generated\Zoo.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="IRunner.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TransactionWrapper.cs" />
+    <Compile Include="WebZooRunner.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Generated\GoData.Map.xml">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Generated\WebZoo.db" />
+    <None Include="Templates\Class.razt" />
+    <None Include="Data\WebZoo.db" />
+    <None Include="Templates\CRUDStoredProcSqlServer.razt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Goliath.Data.Providers.Sqlite\Goliath.Data.Providers.Sqlite.csproj">
+      <Project>{CA4F51B8-40C8-4FF8-934F-8213126EBAA2}</Project>
+      <Name>Goliath.Data.Providers.Sqlite</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Goliath.Data\Goliath.Data.csproj">
+      <Project>{B3FC3122-EF38-45D1-8019-4D889283B4DC}</Project>
+      <Name>Goliath.Data</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <Content Include="Generated\Mssql2008\GoData.Map.xml" />
+    <Content Include="Generated\Sqlite\GoData.Map.xml" />
+    <Content Include="Scripts\05_data_insert.sql" />
+    <Content Include="Scripts\Mssql2008\WebZooAutoIncrement\01_animals.sql" />
+    <Content Include="Scripts\Mssql2008\WebZooAutoIncrement\00_zoos.sql" />
+    <Content Include="Scripts\Mssql2008\WebZooAutoIncrement\02_employees.sql" />
+    <Content Include="Scripts\Mssql2008\WebZooAutoIncrement\03_animals_handlers.sql" />
+    <Content Include="Scripts\Mssql2008\WebZooAutoIncrement\04_monkeys.sql" />
+    <Content Include="Scripts\Mssql2008\WebZooAutoIncrement\00_00Dropzone.sql" />
+    <Content Include="Scripts\Mssql2008\WebZooGuid\00_zoos.sql" />
+    <Content Include="Scripts\Mssql2008\WebZooGuid\01_animals.sql" />
+    <Content Include="Scripts\Mssql2008\WebZooGuid\02_employees.sql" />
+    <Content Include="Scripts\Mssql2008\WebZooGuid\03_animals_handlers.sql" />
+    <Content Include="Scripts\Mssql2008\WebZooGuid\04_monkeys.sql" />
+    <Content Include="Scripts\Sqlite3\WebZooAutoIncrement\00_zoos.sql" />
+    <Content Include="Scripts\Sqlite3\WebZooAutoIncrement\01_animals.sql" />
+    <Content Include="Scripts\Sqlite3\WebZooAutoIncrement\02_employees.sql" />
+    <Content Include="Scripts\Sqlite3\WebZooAutoIncrement\03_animals_handlers.sql" />
+    <Content Include="Scripts\Sqlite3\WebZooAutoIncrement\04_monkeys.sql" />
+    <Content Include="Scripts\Sqlite3\WebZooGuid\00_zoos.sql" />
+    <Content Include="Scripts\Sqlite3\WebZooGuid\01_animals.sql" />
+    <Content Include="Scripts\Sqlite3\WebZooGuid\02_employees.sql" />
+    <Content Include="Scripts\Sqlite3\WebZooGuid\03_animals_handlers.sql" />
+    <Content Include="Scripts\Sqlite3\WebZooGuid\04_monkeys.sql" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+  <ItemGroup />
+</Project>
