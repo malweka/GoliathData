@@ -23,7 +23,7 @@ namespace Goliath.Data.DataAccess
 
         #region helper methods 
 
-        StatementMap PrepareStatement<T>(ISession session, string statementName, QueryParam[] paramArray, Dictionary<string, object> inObjects, params object[] inputParams)
+        StatementMap PrepareStatement(ISession session, string statementName, QueryParam[] paramArray, Dictionary<string, object> inObjects, params object[] inputParams)
         {
             if (session == null)
                 throw new ArgumentNullException("session");
@@ -37,9 +37,7 @@ namespace Goliath.Data.DataAccess
             if (string.IsNullOrWhiteSpace(statement.Body))
                 throw new MappingException("Statement " + statementName + " body's was null or empty. Cannot run a mapped statement without SQL.");
 
-            bool parse = statement.IsParsingRequired;
-            
-
+            bool parse = statement.IsParsingRequired;          
             if (!parse)
             {
                 parse = ((statement.DBParametersMap.Count > 0) || (statement.InputParametersMap.Count > 0) || ((inputParams != null) && (inputParams.Length > 0)));
@@ -98,7 +96,13 @@ namespace Goliath.Data.DataAccess
 
             //does the statement needs to be parsed?
             //does the statement has input parameter and db parameters? 
-            if (statement.IsParsingRequired && !statement.IsReady)
+            bool parse = statement.IsParsingRequired;
+            if (!parse)
+            {
+                parse = ((statement.DBParametersMap.Count > 0) || (statement.InputParametersMap.Count > 0));
+            }
+
+            if (parse && !statement.IsReady)
             {
                 //parse it
                 StatementMapParser parser = new StatementMapParser();
@@ -119,6 +123,7 @@ namespace Goliath.Data.DataAccess
             return statement;
         }
 
+
         T RunStatementInternal<T>(StatementMap statement, ISession session, QueryParam[] parameters)
         {
             if ((statement.OperationType == MappedStatementType.ExecuteScalar) || (statement.OperationType == MappedStatementType.Query))
@@ -133,12 +138,27 @@ namespace Goliath.Data.DataAccess
             }
         }
 
+
         IList<T> RunListStatementInternal<T>(StatementMap statement, ISession session, QueryParam[] parameters)
         {
             if ((statement.OperationType == MappedStatementType.ExecuteScalar) || (statement.OperationType == MappedStatementType.Query))
             {
                 SqlCommandRunner runner = new SqlCommandRunner();
                 var result = runner.RunList<T>(session, statement.Body.Trim(), parameters);
+                return result;
+            }
+            else
+            {
+                throw new GoliathDataException(string.Format("Operation {1} not supported on {0}. Use another Run method.", statement.Name, statement.OperationType));
+            }
+        }
+
+        int RunNonQueryStatementInternal(StatementMap statement, ISession session, QueryParam[] parameters)
+        {
+            if (statement.OperationType > MappedStatementType.Update)
+            {
+                SqlCommandRunner runner = new SqlCommandRunner();
+                var result = runner.RunNonQuery(session, statement.Body.Trim(), parameters);
                 return result;
             }
             else
@@ -224,6 +244,8 @@ namespace Goliath.Data.DataAccess
             return RunStatementInternal<T>(statement, session, parameters);
         }
 
+
+
         /// <summary>
         /// Runs the statement.
         /// </summary>
@@ -239,9 +261,30 @@ namespace Goliath.Data.DataAccess
                 paramArray = new QueryParam[] { };
 
             Dictionary<string, object> inObjects = new Dictionary<string, object>();
-            var statement = PrepareStatement<T>(session, statementName, paramArray, inObjects, inputParams);
+            var statement = PrepareStatement(session, statementName, paramArray, inObjects, inputParams);
             var parameters = BuildParameterArray(statement, paramArray, inObjects);
             return RunStatementInternal<T>(statement, session, parameters);
+        }
+
+        public int RunNonQueryMappedStatement(ISession session, string statementName, params QueryParam[] paramArray)
+        {
+            if (paramArray == null)
+                paramArray = new QueryParam[] { };
+
+            var statement = PrepareStatement<object>(session, statementName, paramArray);
+            var parameters = BuildParameterArray(statement, paramArray, new Dictionary<string, object>() { });
+            return RunNonQueryStatementInternal(statement, session, parameters);
+        }
+
+        public int RunNonQueryMappedStatement(ISession session, string statementName, QueryParam[] paramArray, params object[] inputParams)
+        {
+            if (paramArray == null)
+                paramArray = new QueryParam[] { };
+
+            Dictionary<string, object> inObjects = new Dictionary<string, object>();
+            var statement = PrepareStatement(session, statementName, paramArray, inObjects, inputParams);
+            var parameters = BuildParameterArray(statement, paramArray, inObjects);
+            return RunNonQueryStatementInternal(statement, session, parameters);
         }
 
         /// <summary>
@@ -277,7 +320,7 @@ namespace Goliath.Data.DataAccess
                 paramArray = new QueryParam[] { };
 
             Dictionary<string, object> inObjects = new Dictionary<string, object>();
-            var statement = PrepareStatement<T>(session, statementName, paramArray, inObjects, inputParams);
+            var statement = PrepareStatement(session, statementName, paramArray, inObjects, inputParams);
             var parameters = BuildParameterArray(statement, paramArray, inObjects);
             return RunListStatementInternal<T>(statement, session, parameters);
         }

@@ -79,8 +79,14 @@ namespace Goliath.Data
         T Run<T>(SqlQueryBody sql, params QueryParam[] paramArray);
 
         T RunMappedStatement<T>(string statementName, params QueryParam[] paramArray);
+        T RunMappedStatement<T>(string statementName, QueryParam[] paramArray, params object[] inputParams);
+
         IList<T> RunListMappedStatement<T>(string statementName, params QueryParam[] paramArray);
-        int RunNonQueryMappedStatement<T>(T entity, params QueryParam[] paramArray);
+        IList<T> RunListMappedStatement<T>(string statementName, QueryParam[] paramArray, params object[] inputParams);
+
+        int RunNonQueryMappedStatement(string statementName, params QueryParam[] paramArray);
+        //int RunNonQueryMappedStatement<T>(string statementName, params QueryParam[] paramArray);
+        int RunNonQueryMappedStatement(string statementName, QueryParam[] paramArray, params object[] inputParams);
 
         #endregion
 

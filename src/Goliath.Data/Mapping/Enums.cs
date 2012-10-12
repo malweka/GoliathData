@@ -96,11 +96,15 @@ namespace Goliath.Data.Mapping
         /// <summary>
         /// 
         /// </summary>
-        Undefined=0,
+        Undefined = 0,
         /// <summary>
         /// 
         /// </summary>
-        Query,
+        Query = 1,
+        /// <summary>
+        /// 
+        /// </summary>
+        ExecuteScalar = 2,
         /// <summary>
         /// 
         /// </summary>
@@ -117,10 +121,7 @@ namespace Goliath.Data.Mapping
         /// 
         /// </summary>
         ExecuteNonQuery,
-        /// <summary>
-        /// 
-        /// </summary>
-        ExecuteScalar,
+
     }
 
 }

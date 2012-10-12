@@ -229,6 +229,37 @@ namespace Goliath.Data.DataAccess
             }
         }
 
+        public int RunNonQuery(ISession session, string sql, params QueryParam[] paramArray)
+        {
+            bool ownTransaction = false;
+            var dbConn = session.ConnectionManager.OpenConnection();
+
+            if ((session.CurrentTransaction == null) || !session.CurrentTransaction.IsStarted)
+            {
+                session.BeginTransaction();
+                ownTransaction = true;
+            }
+
+            try
+            {
+                int value = session.DataAccess.ExecuteNonQuery(dbConn, sql, paramArray);
+
+                if (ownTransaction)
+                    session.CommitTransaction();
+
+                return value;
+            }
+            catch (GoliathDataException ex)
+            {
+                logger.Log(LogLevel.Debug, string.Format("Goliath Exception found {0} ", ex.Message));
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new GoliathDataException(string.Format("Exception while inserting: {0}", sql), ex);
+            }
+        }
+
         /// <summary>
         /// Runs the statement.
         /// </summary>
