@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Goliath.Data.Transformers;
+using Goliath.Data.Utils;
 
 namespace Goliath.Data.Mapping
 {
@@ -63,7 +64,7 @@ namespace Goliath.Data.Mapping
                             if (rel.RelationType == RelationshipType.ManyToOne)
                             {
                                 Property newProperty = rel.Clone();
-                                newProperty.PropertyName = rel.ColumnName;
+                                newProperty.PropertyName = rel.ColumnName.Pascalize();
                                 table.Remove(rel);
                                 rel.PropertyName = name;
                                 table.Add(rel);
