@@ -225,7 +225,7 @@ namespace Goliath.Data.DataAccess
             }
             catch (Exception ex)
             {
-                throw new GoliathDataException(string.Format("Exception while inserting: {0}", sql), ex);
+                throw new GoliathDataException(string.Format("Exception while running sql command: {0}", sql), ex);
             }
         }
 
@@ -294,7 +294,7 @@ namespace Goliath.Data.DataAccess
             }
             catch (Exception ex)
             {
-                throw new GoliathDataException(string.Format("Exception while inserting: {0}", sql), ex);
+                throw new GoliathDataException(string.Format("Exception while running sql command: {0}", sql), ex);
             }
         }
 
@@ -366,7 +366,7 @@ namespace Goliath.Data.DataAccess
             }
             catch (Exception ex)
             {
-                throw new GoliathDataException(string.Format("Exception while inserting: {0}", sql), ex);
+                throw new GoliathDataException(string.Format("Exception while running sql command: {0}", sql), ex);
             }
         }
 
@@ -436,7 +436,7 @@ namespace Goliath.Data.DataAccess
             }
             catch (Exception ex)
             {
-                throw new GoliathDataException(string.Format("Exception while inserting: {0}", sql), ex);
+                throw new GoliathDataException(string.Format("Exception while running sql command: {0}", sql), ex);
             }
         }
     }
