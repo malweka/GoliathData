@@ -13,7 +13,7 @@ namespace Goliath.Data.Sql
     {
         ISession session;
         QueryBuilder innerBuilder;
-        public EntityMap Table { get; private set; }
+        public EntityMap Table { get; private set; } 
         public EntityMap Extends { get; private set; }
         public QueryBuilder InnerBuilder { get { return innerBuilder; } }
 
@@ -52,7 +52,7 @@ namespace Goliath.Data.Sql
                 {
                     var relEntity = session.SessionFactory.DbSettings.Map.GetEntityMap(rel.ReferenceEntityName);
                     if (!innerBuilder.Joins.ContainsKey(relEntity.TableAlias))
-                        innerBuilder.LeftJoin(relEntity.TableName, relEntity.TableAlias).On(prop.ColumnName).EqualTo(rel.ColumnName);
+                        innerBuilder.InnerJoin(relEntity.TableName, relEntity.TableAlias).On(prop.ColumnName).EqualTo(rel.ReferenceColumn);
                 }
             }
 
@@ -77,10 +77,15 @@ namespace Goliath.Data.Sql
                     {
                         if (!cols.ContainsKey(rel.ColumnName))
                             cols.Add(rel.ColumnName, BuildColumnSelectString(rel.ColumnName, entityMap.TableAlias));
+
                         if (!rel.LazyLoad)
                         {
                             var relEnt = session.SessionFactory.DbSettings.Map.GetEntityMap(rel.ReferenceEntityName);
                             LoadColumns(relEnt, propertyNames);
+                            if (!innerBuilder.Joins.ContainsKey(relEnt.TableAlias))
+                            {
+                                innerBuilder.InnerJoin(relEnt.TableName, relEnt.TableAlias).On(rel.ReferenceColumn).EqualTo(prop.ColumnName);
+                            }
                         }
                     }
                 }
@@ -95,6 +100,8 @@ namespace Goliath.Data.Sql
         {
             string typeFullName = typeof(T).FullName;
             Table = session.SessionFactory.DbSettings.Map.GetEntityMap(typeFullName);
+            innerBuilder = new QueryBuilder(session, propertyNames);
+            innerBuilder.From(Table.TableName, Table.TableAlias);
 
             if (propertyNames == null)
                 propertyNames = new List<string>();
@@ -102,10 +109,7 @@ namespace Goliath.Data.Sql
             if (propertyNames.Count == 0)
             {
                 LoadColumns(Table, propertyNames);
-            }
-
-            innerBuilder = new QueryBuilder(session, propertyNames);
-            innerBuilder.From(Table.TableName, Table.TableAlias);
+            }            
 
             if (Table.IsSubClass)
             {

@@ -42,7 +42,7 @@ namespace Goliath.Data.Transformers
                     string name = original.Substring(0, original.IndexOf("Id", StringComparison.OrdinalIgnoreCase));
                     //mapModel.PropertyName = name;
                     //mapModel.KeyFieldName = original;
-                    return name.Pascalize();
+                    return name.Pascalize().Replace("_", string.Empty);
                 }
                 else
                 {
