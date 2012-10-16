@@ -37,7 +37,7 @@ namespace Goliath.Data.Sql
 
         #region IJoinable Members
 
-        IJoinOperation IJoinable.On(string propertyName)
+        IJoinOperation IJoinable.On(string tableAlias, string propertyName)
         {
             throw new NotImplementedException();
         }

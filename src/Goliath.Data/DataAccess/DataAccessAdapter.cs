@@ -208,7 +208,11 @@ namespace Goliath.Data
             string sql = sqlInserts.ToString();
             try
             {
-                result = session.DataAccess.ExecuteNonQuery(dbConn, session.CurrentTransaction, sql, paramList);
+                if (!string.IsNullOrEmpty(sql))
+                {
+                    result = session.DataAccess.ExecuteNonQuery(dbConn, session.CurrentTransaction, sql, paramList);
+                }
+
                 if (ownTransaction)
                     session.CommitTransaction();
             }
@@ -243,7 +247,7 @@ namespace Goliath.Data
                 {
                     //we expects that this queries will be for generating ideas and that the ID will be the first column
                     //returned and only 1 row of data. Therefore, we will reader column 1 row 1 ignore rest.
-                    ReadGeneratedId(hasGreaterPriority[i], neededParams);
+                    ReadGeneratedId(hasGreaterPriority[i], neededParams, transaction);
                     batchOp.KeyGenerationOperations.Remove(hasGreaterPriority[i].Key);
                 }
             }
@@ -288,7 +292,7 @@ namespace Goliath.Data
                         foreach (var kop in batchOp.KeyGenerationOperations)
                         {
                             //inserts.Add(kop.Value.Operation.SqlText);
-                            ReadGeneratedId(kop, neededParams);
+                            ReadGeneratedId(kop, neededParams, transaction);
                         }
                     }
                 }
@@ -301,13 +305,13 @@ namespace Goliath.Data
             }
         }
 
-        void ReadGeneratedId(KeyValuePair<string, KeyGenOperationInfo> kpair, Dictionary<string, QueryParam> neededParams)
+        void ReadGeneratedId(KeyValuePair<string, KeyGenOperationInfo> kpair, Dictionary<string, QueryParam> neededParams, ITransaction transaction)
         {
             var kgInfo = kpair.Value;
             var paramName = kpair.Key;
 
 
-            var val = session.DataAccess.ExecuteScalar(session.ConnectionManager.OpenConnection(), kgInfo.Operation.SqlText);
+            var val = session.DataAccess.ExecuteScalar(session.ConnectionManager.OpenConnection(), transaction, kgInfo.Operation.SqlText);
             if (val != null)
             {
                 object id = serializer.ReadFieldData(kgInfo.PropertyType, val);

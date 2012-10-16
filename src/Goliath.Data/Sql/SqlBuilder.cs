@@ -42,7 +42,7 @@ namespace Goliath.Data.Sql
 
         public static string BuildParameterNameWithLevel(string columnName, string tableAlias, int level)
         {
-            return string.Format("{0}_{1}", ParameterNameBuilderHelper.ColumnQueryName(columnName, tableAlias), level);
+            return string.Format("{0}_{1}", ParameterNameBuilderHelper.ColumnQueryName(columnName, tableAlias), level.ToString().Replace("-", "_"));
         }
 
         public static WhereStatement[] BuildWhereStatementFromPrimaryKey(EntityMap entMap, SqlDialect dialect, int level)
