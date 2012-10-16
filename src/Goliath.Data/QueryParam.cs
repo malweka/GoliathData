@@ -117,6 +117,9 @@ namespace Goliath.Data
         {
             get
             {
+                if (Getter == null)
+                    return null;
+
                 object val = Getter(Entity);
                 if (val == null && !IsNullable)
                 {

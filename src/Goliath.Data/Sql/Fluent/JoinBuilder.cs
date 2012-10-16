@@ -16,6 +16,7 @@ namespace Goliath.Data.Sql
         public JoinType Type { get; set; }
 
         public string JoinLeftColumn { get; internal set; }
+        public string JoinLeftTableAlias { get; internal set; }
         public string JoinRightColumn { get; internal set; }
         public string TableName { get; internal set; }
 
@@ -98,9 +99,10 @@ namespace Goliath.Data.Sql
 
         #region IJoinable Members
 
-        public IJoinOperation On(string propertyName)
+        public IJoinOperation On(string tableAlias, string propertyName)
         {
             JoinLeftColumn = propertyName;
+            JoinLeftTableAlias = tableAlias;
             return this;
         }
 

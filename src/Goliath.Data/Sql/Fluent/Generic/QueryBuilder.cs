@@ -52,7 +52,7 @@ namespace Goliath.Data.Sql
                 {
                     var relEntity = session.SessionFactory.DbSettings.Map.GetEntityMap(rel.ReferenceEntityName);
                     if (!innerBuilder.Joins.ContainsKey(relEntity.TableAlias))
-                        innerBuilder.InnerJoin(relEntity.TableName, relEntity.TableAlias).On(prop.ColumnName).EqualTo(rel.ReferenceColumn);
+                        innerBuilder.LeftJoin(relEntity.TableName, relEntity.TableAlias).On(Table.TableAlias, prop.ColumnName).EqualTo(rel.ReferenceColumn);
                 }
             }
 
@@ -81,11 +81,12 @@ namespace Goliath.Data.Sql
                         if (!rel.LazyLoad)
                         {
                             var relEnt = session.SessionFactory.DbSettings.Map.GetEntityMap(rel.ReferenceEntityName);
-                            LoadColumns(relEnt, propertyNames);
                             if (!innerBuilder.Joins.ContainsKey(relEnt.TableAlias))
                             {
-                                innerBuilder.InnerJoin(relEnt.TableName, relEnt.TableAlias).On(rel.ReferenceColumn).EqualTo(prop.ColumnName);
+                                innerBuilder.LeftJoin(relEnt.TableName, relEnt.TableAlias).On(entityMap.TableAlias, rel.ReferenceColumn).EqualTo(prop.ColumnName);
                             }
+                            LoadColumns(relEnt, propertyNames);
+                            
                         }
                     }
                 }
@@ -122,7 +123,7 @@ namespace Goliath.Data.Sql
                 foreach (var pk in Extends.PrimaryKey.Keys)
                 {
                     var k = Table.PrimaryKey.Keys[pk.Key.Name];
-                    innerBuilder.InnerJoin(Extends.TableName, Extends.TableAlias).On(k.Key.ColumnName).EqualTo(pk.Key.ColumnName);
+                    innerBuilder.InnerJoin(Extends.TableName, Extends.TableAlias).On(Table.TableAlias, k.Key.ColumnName).EqualTo(pk.Key.ColumnName);
                 }
 
             }

@@ -25,7 +25,7 @@ namespace Goliath.Data.Sql
 
     public interface IJoinable
     {
-        IJoinOperation On(string propertyName);
+        IJoinOperation On(string tableAlias, string propertyName);
     }
 
     public interface IJoinOperation
