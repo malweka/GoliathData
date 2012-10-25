@@ -181,7 +181,7 @@ namespace Goliath.Data.Sql
                     }
 
                     joinBuilder.AppendFormat("{0} {1} {2} ON ", jtype, join.JoinTableName, join.JoinTableAlias);
-                    joinBuilder.AppendFormat("{0}.{1} = {2}.{3} ", alias, join.JoinRightColumn, join.JoinTableAlias, join.JoinLeftColumn);
+                    joinBuilder.AppendFormat("{0}.{1} = {2}.{3} ", join.JoinLeftTableAlias, join.JoinRightColumn, join.JoinTableAlias, join.JoinLeftColumn);
                 }
 
                 queryBody.JoinEnumeration = joinBuilder.ToString().Trim();
