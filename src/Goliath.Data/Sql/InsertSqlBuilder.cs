@@ -42,10 +42,13 @@ namespace Goliath.Data.Sql
                     {
                         if (prop is Relation)
                         {
-                            Columns.Remove(prop.ColumnName);
+                            //Columns.Remove(prop.ColumnName);
+                            continue;
                         }
                         else
-                            continue;
+                        {
+                            Columns.Remove(prop.ColumnName); 
+                        }
                     }
                     Columns.Add(prop.ColumnName, dialect.CreateParameterName(paramName));
                 }
@@ -76,26 +79,34 @@ namespace Goliath.Data.Sql
                     if (getSetInfo.Properties.TryGetValue(prop.PropertyName, out pInfo))
                     {
                         var relInstance = pInfo.Getter(entity);
+                        var relEntMap = entityMap.Parent.GetEntityMap(rel.ReferenceEntityName);
+                        string paramName = BuildParameterNameWithLevel(rel.ReferenceColumn, relEntMap.TableAlias, rootLevel);
+                        ParamHolder param = null;
+
                         if (relInstance != null)
                         {
                             EntityGetSetInfo relGetSet = getSetStore.GetReflectionInfoAddIfMissing(pInfo.PropertType, entityMap);
                             PropInfo referenceProp;
                             if (relGetSet.Properties.TryGetValue(rel.ReferenceProperty, out referenceProp))
                             {
-                                var relEntMap = entityMap.Parent.GetEntityMap(rel.ReferenceEntityName);
-                                string paramName = paramName = BuildParameterNameWithLevel(rel.ReferenceColumn, relEntMap.TableAlias, rootLevel);
 
-                                ParamHolder param = new ParamHolder(paramName, referenceProp.Getter, relInstance) { IsNullable = prop.IsNullable };
+                                param = new ParamHolder(paramName, referenceProp.Getter, relInstance) { IsNullable = prop.IsNullable };
 
-                                if (!parameters.ContainsKey(prop.ColumnName))
-                                {
-                                    parameters.Add(prop.ColumnName, param);
-                                }
-
+                               
                             }
                             else
                                 throw new MappingException(string.Format("Property {0} of entity {1} is referencing property {2} which was not found in {3}", prop.PropertyName, entityMap.FullName, rel.ReferenceProperty, rel.ReferenceEntityName));
                         }
+                        else
+                        {
+                            param = new ParamHolder(paramName, null, null);
+                        }
+
+                        if (!parameters.ContainsKey(prop.ColumnName))
+                        {
+                            parameters.Add(prop.ColumnName, param);
+                        }
+
                     }
                     else
                         throw new MappingException(string.Format("Property {0} was not found for entity {1}", prop.PropertyName, entityMap.FullName));
@@ -139,7 +150,7 @@ namespace Goliath.Data.Sql
 
             return parameters;
         }
-        
+
         public override string ToSqlString()
         {
             StringBuilder sb = new StringBuilder("INSERT INTO ");

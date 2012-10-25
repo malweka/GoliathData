@@ -35,7 +35,8 @@ namespace Goliath.Data.Sql
             if(prop == null)
                 throw new GoliathDataException(string.Format("Could not find property {0}. {0} was not mapped properly.", propName));
 
-            joinBuilder.On(prop.ColumnName);
+            throw new Exception("Fix this");
+            //joinBuilder.On(prop.ColumnName);
             return this;
 
         }
