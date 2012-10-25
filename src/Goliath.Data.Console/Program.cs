@@ -31,7 +31,14 @@ namespace WebZoo.Data
             string template = "select @{col:a.Id}, @{sel:a.Name}, @{sel:a.City}, @{sel:a.AcceptNewAnimals} from  @{a.TableName} where @{prop:a.Id} = @{prop:b.Id}";
             string template2 = @"INSERT INTO @{TableName}(@{sel:Name},@{col:City},@{col:AcceptNewAnimals}) VALUES(@{prop:Name},@{prop:City},@{prop:AcceptNewAnimals})";
 
-           
+            Zoo reflZoo = new Zoo() {AcceptNewAnimals = true, City = "Refl", Name = "machin"};
+            var propInfo = typeof (Zoo).GetProperty("Name");
+            var getMethod = propInfo.CreateDynamicGetMethodDelegate("get_Zoo_Name");
+            var nmae = getMethod(reflZoo);
+
+            var setMethod = propInfo.CreateDynamicSetMethodDelegate("set_Zoo_Name");
+            setMethod(reflZoo, "gabin");
+            Console.WriteLine(reflZoo.Name);
 
             //si.Select<Animal>("Id", "some", "Xoe")
             //    .InnerJoin<Zoo>()

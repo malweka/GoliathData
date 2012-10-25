@@ -118,6 +118,10 @@
     <Compile Include="Collections\LazyList.cs" />
     <Compile Include="Generators\IKeyGenerator.cs" />
     <Compile Include="Generators\KeyGeneratorStore.cs" />
+    <Compile Include="Libs\Fasterflect.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Libs\TinyIoC.cs" />
     <Compile Include="Mapping\MapBuilderConfig.Read.cs" />
     <Compile Include="Mapping\MapBuilderConfig.Write.cs" />
     <Compile Include="Mapping\MappingException.cs" />
@@ -129,11 +133,12 @@
     <Compile Include="Mapping\Models\StatementMap.cs" />
     <Compile Include="Mapping\Models\StatementStore.cs" />
     <Compile Include="Mapping\Models\UnMappedTableMap.cs" />
+    <Compile Include="Mapping\Models\View.cs" />
     <Compile Include="Mapping\PostGenProcessors\IPostGenerationProcessor.cs" />
     <Compile Include="Mapping\MappingExtensions.cs" />
     <Compile Include="Mapping\PostGenProcessors\NamePostProcessor.cs" />
     <Compile Include="Mapping\Models\ProjectSettings.cs" />
-    <Compile Include="Mapping\Models\EntityConfig.cs" />
+    <Compile Include="Mapping\Models\EntityMap.cs" />
     <Compile Include="Mapping\Models\EntityConfigCollection.cs" />
     <Compile Include="Mapping\Models\IMapModel.cs" />
     <Compile Include="Mapping\MapBuilderConfig.cs" />
@@ -201,6 +206,7 @@
     <Compile Include="Sql\UpdateSqlBuilder.cs" />
     <Compile Include="Sql\Fluent\WhereClauseBuilder.cs" />
     <Compile Include="Sql\WhereStatement.cs" />
+    <Compile Include="Utilities\ReflectionHelper.cs" />
     <Compile Include="Utilities\StatementMapParser.cs" />
     <Compile Include="ThreadStaticSessionStore.cs" />
     <Compile Include="Transformers\Abbreviator.cs" />
@@ -213,7 +219,6 @@
     <Compile Include="Utilities\EnumComparer.cs" />
     <Compile Include="Utilities\Extensions.cs" />
     <Compile Include="Libs\Inflector.cs" />
-    <Compile Include="Libs\Fasterflect.cs" />
     <Compile Include="Utilities\StringHelpers.cs" />
     <Compile Include="Mapping\Fluent\FluentMap.cs" />
     <Compile Include="Mapping\Fluent\PropertyMap.cs" />

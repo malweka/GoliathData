@@ -13,4 +13,6 @@ glob:*.orig
 glob:*.userprefs
 glob:*.pidb
 glob:security.config
+glob:_ReSharper*/
+glob:[Tt]humbs.db
 syntax: glob

@@ -41,9 +41,9 @@ namespace Goliath.Data.Config
         /// <summary>
         /// Overrides the type converter factory.
         /// </summary>
-        /// <param name="typeConverterFactory">The type converter factory.</param>
+        /// <param name="converterStore">The type converter factory.</param>
         /// <returns></returns>
-        IConfigurationManager OverrideTypeConverterStore(ITypeConverterStore typeConverterFactory);
+        IConfigurationManager OverrideTypeConverterStore(ITypeConverterStore converterStore);
         /// <summary>
         /// Overrides the entity serialize factory.
         /// </summary>

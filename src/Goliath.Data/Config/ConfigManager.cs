@@ -46,6 +46,8 @@ namespace Goliath.Data.Config
             return Load(config);
         }
 
+
+
         public IConfigurationManager Load(MapConfig map)
         {
             if (map == null)
@@ -91,12 +93,17 @@ namespace Goliath.Data.Config
             return this;
         }
 
-        public IConfigurationManager OverrideTypeConverterStore(ITypeConverterStore typeConverterStore)
+        /// <summary>
+        /// Overrides the type converter factory.
+        /// </summary>
+        /// <param name="converterStore">The type converter factory.</param>
+        /// <returns></returns>
+        public IConfigurationManager OverrideTypeConverterStore(ITypeConverterStore converterStore)
         {
-            if (typeConverterStore == null)
-                throw new ArgumentNullException("typeConverterFactory");
+            if (converterStore == null)
+                throw new ArgumentNullException("converterStore");
 
-            this.typeConverterStore = typeConverterStore;
+            typeConverterStore = converterStore;
             return this;
         }
 
@@ -138,7 +145,7 @@ namespace Goliath.Data.Config
 
             if (LoggerFactory == null)
             {
-                LoggerFactory = x => { return new ConsoleLogger(); };
+                LoggerFactory = x => new ConsoleLogger();
             }
 
             if (entitySerializerFactory == null)
@@ -148,9 +155,7 @@ namespace Goliath.Data.Config
 
             if (dataAccessAdapterFactory == null)
             {
-                dataAccessAdapterFactory = (map, serializer) => {
-                    return new DataAccessAdapterFactory(map, serializer);
-                };
+                dataAccessAdapterFactory = (map, serializer) => new DataAccessAdapterFactory(map, serializer);
             }
 
             var dbConnector = DbProvider.GetDatabaseConnector(mainMap.Settings.ConnectionString);
@@ -163,8 +168,8 @@ namespace Goliath.Data.Config
        public  DbAccess CreateAccessor()
         {
             var dbConnector = DbProvider.GetDatabaseConnector(mainMap.Settings.ConnectionString);
-            var dbAccess = new DbAccess(dbConnector);
-            return dbAccess;
+            var accessor = new DbAccess(dbConnector);
+            return accessor;
         }
 
         #endregion
@@ -203,12 +208,7 @@ namespace Goliath.Data.Config
 
         public IDbAccess DbAccess
         {
-            get
-            {
-                if (dbAccess == null)
-                    dbAccess = CreateAccessor();
-                return dbAccess;
-            }
+            get { return dbAccess ?? (dbAccess = CreateAccessor()); }
         }
 
         #endregion
