@@ -39,7 +39,7 @@ namespace Goliath.Data.Tests
             DatabaseInit.CreateSqliteDatabase(config, scriptFolder, dbfile);
 
             var sessionFactory = new Database().Configure(config)
-                .Provider(new SqliteProvider()).Init();
+                .RegisterProvider(new SqliteProvider()).Init();
 
             SessionHelper.SetFactory(sessionFactory);
         }

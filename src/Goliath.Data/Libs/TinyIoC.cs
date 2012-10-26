@@ -26,7 +26,7 @@
 #define UNBOUND_GENERICS_GETCONSTRUCTORS    // Platform supports GetConstructors on unbound generic types
 #define GETPARAMETERS_OPEN_GENERICS         // Platform supports GetParameters on open generics
 #define RESOLVE_OPEN_GENERICS               // Platform supports resolving open generics
-
+//#define NETFX_CORE
 //// NETFX_CORE
 //#if NETFX_CORE
 //#endif
