@@ -10,54 +10,10 @@ namespace Goliath.Data.Entity
     /// 
     /// </summary>
     [Serializable]
-    public class ChangeItem
-    {
-        /// <summary>
-        /// Gets the name of the item.
-        /// </summary>
-        /// <value>
-        /// The name of the item.
-        /// </value>
-        public string ItemName { get; private set; }
-
-        /// <summary>
-        /// Gets or sets the value.
-        /// </summary>
-        /// <value>
-        /// The value.
-        /// </value>
-        public object Value { get; set; }
-
-        /// <summary>
-        /// Gets the initial value.
-        /// </summary>
-        public object InitialValue { get; internal set; }
-
-        /// <summary>
-        /// Gets the version.
-        /// </summary>
-        public long Version { get; internal set; }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ChangeItem"/> class.
-        /// </summary>
-        /// <param name="itemName">Name of the item.</param>
-        /// <param name="initialValue">The initial value.</param>
-        public ChangeItem(string itemName, object initialValue)
-        {
-            ItemName = itemName;
-            InitialValue = initialValue;
-            Value = initialValue;
-        }
-    }
-
-    /// <summary>
-    /// 
-    /// </summary>
-    [Serializable]
     public class ChangeSet
     {
         Dictionary<string, ChangeItem> changeList = new Dictionary<string, ChangeItem>();
+
         /// <summary>
         /// Gets the version.
         /// </summary>
@@ -65,7 +21,7 @@ namespace Goliath.Data.Entity
         object stateObject = new object();
         List<string> changes = new List<string>();
 
-        bool tracking = false;
+        bool tracking;
 
         /// <summary>
         /// Starts the tracking.
@@ -163,9 +119,9 @@ namespace Goliath.Data.Entity
             if (!tracking)
                 return;
 
-            ChangeItem item;
             lock (stateObject)
             {
+                ChangeItem item;
                 if (changeList.TryGetValue(propertyName, out item))
                 {
                     if (item.Value.Equals(value))
@@ -203,7 +159,7 @@ namespace Goliath.Data.Entity
         /// <param name="value">The value.</param>
         public void Track<TProperty>(Expression<Func<TProperty>> property, object value)
         {
-            string propertyName = property.GetMemberName();
+            var propertyName = property.GetMemberName();
             Track(propertyName, value);
         }
 

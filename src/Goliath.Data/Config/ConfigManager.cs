@@ -60,7 +60,7 @@ namespace Goliath.Data.Config
             return this;
         }
 
-        public IConfigurationManager Provider(IDbProvider provider)
+        public IConfigurationManager RegisterProvider(IDbProvider provider)
         {
             if (provider == null)
                 throw new ArgumentNullException("provider");
@@ -81,14 +81,16 @@ namespace Goliath.Data.Config
         }
 
         /// <summary>
-        /// Overrides the data access adapter factory.
+        /// Registers the data access adapter factory.
         /// </summary>
         /// <param name="factoryMethod">The factory method.</param>
         /// <returns></returns>
-        public IConfigurationManager OverrideDataAccessAdapterFactory(Func<MapConfig,IEntitySerializer,IDataAccessAdapterFactory> factoryMethod)
+        /// <exception cref="System.ArgumentNullException">factoryMethod</exception>
+        public IConfigurationManager RegisterDataAccessAdapterFactory(Func<MapConfig,IEntitySerializer,IDataAccessAdapterFactory> factoryMethod)
         {
             if (factoryMethod == null)
                 throw new ArgumentNullException("factoryMethod");
+
             this.dataAccessAdapterFactory = factoryMethod;
             return this;
         }
@@ -98,7 +100,7 @@ namespace Goliath.Data.Config
         /// </summary>
         /// <param name="converterStore">The type converter factory.</param>
         /// <returns></returns>
-        public IConfigurationManager OverrideTypeConverterStore(ITypeConverterStore converterStore)
+        public IConfigurationManager RegisterTypeConverterStore(ITypeConverterStore converterStore)
         {
             if (converterStore == null)
                 throw new ArgumentNullException("converterStore");
@@ -112,7 +114,7 @@ namespace Goliath.Data.Config
         /// </summary>
         /// <param name="entitySerializerFactory">The entity serializer factory.</param>
         /// <returns></returns>
-        public IConfigurationManager OverrideEntitySerializeFactory(IEntitySerializer entitySerializerFactory)
+        public IConfigurationManager RegisterEntitySerializeFactory(IEntitySerializer entitySerializerFactory)
         {
             if (entitySerializerFactory == null)
                 throw new ArgumentNullException("entitySerializerFactory");
@@ -127,7 +129,7 @@ namespace Goliath.Data.Config
         /// <typeparam name="TEntity">The type of the entity.</typeparam>
         /// <param name="typeConverterFactoryMethod">The type converter factory method.</param>
         /// <returns></returns>
-        public IConfigurationManager RegisterTypeConverter<TEntity>(Func<Object, Object> typeConverterFactoryMethod)
+        public IConfigurationManager AddTypeConverter<TEntity>(Func<Object, Object> typeConverterFactoryMethod)
         {
             typeConverterStore.AddConverter(typeof(TEntity), typeConverterFactoryMethod);
             return this;

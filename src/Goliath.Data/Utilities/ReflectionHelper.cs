@@ -1,23 +1,30 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Diagnostics;
 using System.Reflection;
 using System.Reflection.Emit;
-using System.Linq.Expressions;
 
 namespace Goliath.Data.Utils
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public static class ReflectionHelper
     {
+        /// <summary>
+        /// Creates dynamic get method delegate for property.
+        /// </summary>
+        /// <param name="property">The property.</param>
+        /// <param name="methodName">Name of the method.</param>
+        /// <returns></returns>
+        /// <exception cref="System.ArgumentNullException">property</exception>
         public static Func<object, object> CreateDynamicGetMethodDelegate(this PropertyInfo property, string methodName)
         {
             if (property == null)
                 throw new ArgumentNullException("property");
 
+            Debug.Assert(property.DeclaringType != null, "property.DeclaringType != null");
             var method = new DynamicMethod(methodName, typeof(object), new[] { typeof(object) });
-            ILGenerator gen = method.GetILGenerator();
+            var gen = method.GetILGenerator();
             gen.Emit(OpCodes.Ldarg_0);
             gen.Emit(OpCodes.Castclass, property.DeclaringType);
             gen.Emit(OpCodes.Callvirt, property.GetGetMethod());
@@ -26,16 +33,27 @@ namespace Goliath.Data.Utils
             return (Func<object, object>)method.CreateDelegate(typeof(Func<object, object>));
         }
 
+        /// <summary>
+        /// Creates the dynamic set method delegate.
+        /// </summary>
+        /// <param name="property">The property.</param>
+        /// <param name="methodName">Name of the method.</param>
+        /// <returns></returns>
+        /// <exception cref="System.ArgumentNullException">property</exception>
         public static Action<object, object> CreateDynamicSetMethodDelegate(this PropertyInfo property, string methodName)
         {
-            MethodInfo setMethod = property.GetSetMethod();
+            if (property == null)
+                throw new ArgumentNullException("property");
+
+            var setMethod = property.GetSetMethod();
             if (setMethod == null)
                 return null;
 
-            Type[] arguments = new Type[] {typeof (object), typeof (object)};
+            var arguments = new Type[] {typeof (object), typeof (object)};
 
-            DynamicMethod setter = new DynamicMethod(methodName, typeof(void), arguments, property.DeclaringType);
-            ILGenerator generator = setter.GetILGenerator();
+            Debug.Assert(property.DeclaringType != null, "property.DeclaringType != null");
+            var setter = new DynamicMethod(methodName, typeof(void), arguments, property.DeclaringType);
+            var generator = setter.GetILGenerator();
             generator.Emit(OpCodes.Ldarg_0);
             generator.Emit(OpCodes.Castclass, property.DeclaringType);
             generator.Emit(OpCodes.Ldarg_1);

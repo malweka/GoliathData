@@ -29,9 +29,9 @@ namespace Goliath.Data.Tests
                 .From("tb_fakeTable", "ftb");
 
                 query.InnerJoin("tb_join1", "j1")
-                    .On("jcol1").EqualTo("jid")
+                    .On("ftb", "jcol1").EqualTo("jid")
                 .LeftJoin("tb_join2", "j2")
-                    .On("jcol2").EqualTo("j2id");
+                    .On("ftb", "jcol2").EqualTo("j2id");
 
             QueryBuilder builder = query as QueryBuilder;
             string sql = builder.BuildSql().ToString();
@@ -69,7 +69,7 @@ namespace Goliath.Data.Tests
                 .From("tb_fakeTable", "ftb");
 
             query.InnerJoin("tb_join1", "j1")
-                .On("jcol1").EqualTo("jid")
+                .On("ftb", "jcol1").EqualTo("jid")
                 .OrderBy("Name").Desc()
                 .OrderBy("Age").Asc()
                 .OrderBy("Id");

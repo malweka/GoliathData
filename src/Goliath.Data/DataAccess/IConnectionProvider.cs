@@ -3,7 +3,7 @@
 namespace Goliath.Data.DataAccess
 {
     /// <summary>
-    /// Connection Provider Interface
+    /// Connection RegisterProvider Interface
     /// </summary>
    public interface IConnectionProvider
     {

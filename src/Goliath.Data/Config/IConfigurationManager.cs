@@ -26,37 +26,39 @@ namespace Goliath.Data.Config
         /// <param name="createLogger">The create logger.</param>
         /// <returns></returns>
         IConfigurationManager LoggerFactoryMethod(Func<Type, Diagnostics.ILogger> createLogger);
+
         /// <summary>
-        /// Providers the specified provider.
+        /// Registers the provider.
         /// </summary>
         /// <param name="provider">The provider.</param>
         /// <returns></returns>
-        IConfigurationManager Provider(Goliath.Data.Providers.IDbProvider provider);
+        IConfigurationManager RegisterProvider(Goliath.Data.Providers.IDbProvider provider);
+
         /// <summary>
         /// Overrides the data access adapter factory.
         /// </summary>
         /// <param name="dataAccessAdapter">The data access adapter.</param>
         /// <returns></returns>
-        IConfigurationManager OverrideDataAccessAdapterFactory(Func<Mapping.MapConfig, IEntitySerializer, IDataAccessAdapterFactory> dataAccessAdapter);
+        IConfigurationManager RegisterDataAccessAdapterFactory(Func<Mapping.MapConfig, IEntitySerializer, IDataAccessAdapterFactory> dataAccessAdapter);
         /// <summary>
         /// Overrides the type converter factory.
         /// </summary>
         /// <param name="converterStore">The type converter factory.</param>
         /// <returns></returns>
-        IConfigurationManager OverrideTypeConverterStore(ITypeConverterStore converterStore);
+        IConfigurationManager RegisterTypeConverterStore(ITypeConverterStore converterStore);
         /// <summary>
         /// Overrides the entity serialize factory.
         /// </summary>
         /// <param name="entitySerializerFactory">The entity serializer factory.</param>
         /// <returns></returns>
-        IConfigurationManager OverrideEntitySerializeFactory(IEntitySerializer entitySerializerFactory);
+        IConfigurationManager RegisterEntitySerializeFactory(IEntitySerializer entitySerializerFactory);
         /// <summary>
         /// Registers the type converter.
         /// </summary>
         /// <typeparam name="TEntity">The type of the entity.</typeparam>
         /// <param name="typeConverterFactoryMethod">The type converter factory method.</param>
         /// <returns></returns>
-        IConfigurationManager RegisterTypeConverter<TEntity>(Func<Object, Object> typeConverterFactoryMethod);
+        IConfigurationManager AddTypeConverter<TEntity>(Func<Object, Object> typeConverterFactoryMethod);
 
         /// <summary>
         /// Inits this instance.

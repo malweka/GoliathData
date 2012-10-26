@@ -203,7 +203,7 @@ namespace WebZoo.Data
 
 
             var sessionFactory = new Database().Configure(mapConfig)
-                .Provider(new SqliteProvider()).Init();
+                .RegisterProvider(new SqliteProvider()).Init();
 
             var sess = sessionFactory.OpenSession();
 
