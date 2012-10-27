@@ -8,7 +8,7 @@ namespace Goliath.Data.Mapping
     /// </summary>
     public class DynamicEntityMap : EntityMap
     {
-        Type type;
+        readonly Type type;
 
         /// <summary>
         /// Gets the type of the mapping.
@@ -46,16 +46,16 @@ namespace Goliath.Data.Mapping
             TableName = tableName;
             TableAlias = tableAlias;
 
-            var PropertyAccessors = MappingType.GetProperties(BindingFlags.Public | BindingFlags.SetProperty | BindingFlags.Instance);
-            
-            foreach (var prop in PropertyAccessors)
+            var propertyInfos = MappingType.GetProperties(BindingFlags.Public | BindingFlags.SetProperty | BindingFlags.Instance);
+
+            foreach (var prop in propertyInfos)
             {
-                var mProp = new Property()
-                {
-                    ClrType = prop.PropertyType,
-                    ColumnName = prop.Name,
-                    PropertyName = prop.Name,
-                };
+                var mProp = new Property
+                                {
+                                    ClrType = prop.PropertyType,
+                                    ColumnName = prop.Name,
+                                    PropertyName = prop.Name,
+                                };
 
                 Add(mProp);
             }
