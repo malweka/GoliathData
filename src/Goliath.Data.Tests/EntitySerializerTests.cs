@@ -1,16 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using WebZoo.Data;
 
 namespace Goliath.Data.Tests
 {
     using DataAccess;
-    using Mapping;
 
-     [TestFixture]
+    [TestFixture]
     public class EntitySerializerTests
     {
          [Test]
