@@ -20,6 +20,14 @@ namespace Goliath.Data.Utils
         public Type DeclaringType { get; internal set; }
 
         /// <summary>
+        /// Gets the type of the property.
+        /// </summary>
+        /// <value>
+        /// The type of the property.
+        /// </value>
+        public Type PropertyType { get; internal set; }
+
+        /// <summary>
         /// Gets the name of the property.
         /// </summary>
         /// <value>

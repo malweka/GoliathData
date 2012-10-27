@@ -5,28 +5,29 @@ using Goliath.Data.DynamicProxy;
 using Goliath.Data.Mapping;
 using Goliath.Data.Providers;
 using Goliath.Data.Sql;
+using Goliath.Data.Utils;
 
 namespace Goliath.Data.DataAccess
 {
     class SerializeManyToOne : RelationSerializer
     {
 
-        public SerializeManyToOne(SqlDialect sqlDialect, GetSetStore getSetStore)
-            : base(sqlDialect, getSetStore)
+        public SerializeManyToOne(SqlDialect sqlDialect, EntityAccessorStore store)
+            : base(sqlDialect, store)
         {
         }
 
-        public override void Serialize(IDatabaseSettings settings, EntitySerializer serializer, Relation rel, object instanceEntity, PropInfo pInfo, EntityMap entityMap, EntityGetSetInfo getSetInfo, Dictionary<string, int> columns, DbDataReader dbReader)
+        public override void Serialize(IDatabaseSettings settings, EntitySerializer serializer, Relation rel, object instanceEntity, PropertyAccessor pInfo, EntityMap entityMap, EntityAccessor entityAccessor, Dictionary<string, int> columns, DbDataReader dbReader)
         {
             if (!rel.LazyLoad)
             {
                 var relEntMap = entityMap.Parent.GetEntityMap(rel.ReferenceEntityName);
                 var relColumns = EntitySerializer.GetColumnNames(dbReader, relEntMap.TableAlias);
-                Type relType = pInfo.PropertType;
-                EntityGetSetInfo relGetSetInfo = getSetStore.GetReflectionInfoAddIfMissing(relType, relEntMap);
+                Type relType = pInfo.PropertyType;
+                var relEntAccessor = store.GetEntityAccessor(relType, relEntMap);
                 object relIstance = Activator.CreateInstance(relType);
-                serializer.SerializeSingle(relIstance, relType, relEntMap, relGetSetInfo, relColumns, dbReader);
-                pInfo.Setter(instanceEntity, relIstance);
+                serializer.SerializeSingle(relIstance, relType, relEntMap, relEntAccessor, relColumns, dbReader);
+                pInfo.SetMethod(instanceEntity, relIstance);
             }
             else
             {
@@ -49,10 +50,10 @@ namespace Goliath.Data.DataAccess
                         qInfo.SqlText = sqlBuilder.ToSqlString();
                         qInfo.Parameters = new QueryParam[] { qp };
 
-                        IProxyHydrator hydrator = new ProxyHydrator(qInfo, pInfo.PropertType, relEntMap, serializer, settings);
-                        var proxyType = pbuilder.CreateProxy(pInfo.PropertType, relEntMap);
-                        object proxyobj = Activator.CreateInstance(proxyType, new object[] { pInfo.PropertType, hydrator });
-                        pInfo.Setter(instanceEntity, proxyobj);
+                        IProxyHydrator hydrator = new ProxyHydrator(qInfo, pInfo.PropertyType, relEntMap, serializer, settings);
+                        var proxyType = pbuilder.CreateProxy(pInfo.PropertyType, relEntMap);
+                        object proxyobj = Activator.CreateInstance(proxyType, new object[] { pInfo.PropertyType, hydrator });
+                        pInfo.SetMethod(instanceEntity, proxyobj);
                         
                     }
                 }

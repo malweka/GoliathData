@@ -207,13 +207,13 @@ namespace Goliath.Data.DynamicProxy
             
         }
 
-        public MethodBuilder OverrideGetProperty(PropertyInfo propinfo, Type baseType, TypeBuilder type, MethodBuilder loadMeMethodBuilder)
+        public MethodBuilder OverrideGetProperty(PropertyInfo PropertyAccessor, Type baseType, TypeBuilder type, MethodBuilder loadMeMethodBuilder)
         {
             System.Reflection.MethodAttributes methodAttributes = MethodAttributes.Public
                 | MethodAttributes.Virtual
                 | MethodAttributes.HideBySig;
 
-            string methodName = "get_" + propinfo.Name;
+            string methodName = "get_" + PropertyAccessor.Name;
             MethodBuilder method = type.DefineMethod(methodName, methodAttributes);
             // Preparing Reflection instances
 
@@ -225,11 +225,11 @@ namespace Goliath.Data.DynamicProxy
                 null
                 );
             // Setting return type
-            method.SetReturnType(propinfo.PropertyType);
+            method.SetReturnType(PropertyAccessor.PropertyType);
             // Adding parameters
             ILGenerator gen = method.GetILGenerator();
             // Preparing locals
-            LocalBuilder localBuilder = gen.DeclareLocal(propinfo.PropertyType);
+            LocalBuilder localBuilder = gen.DeclareLocal(PropertyAccessor.PropertyType);
             // Preparing labels
             Label label17 = gen.DefineLabel();
             // Writing body
@@ -249,13 +249,13 @@ namespace Goliath.Data.DynamicProxy
 
         }
 
-        public MethodBuilder OverrideSetProperty(PropertyInfo propinfo, Type baseType, TypeBuilder type, MethodBuilder loadMeMethodBuilder)
+        public MethodBuilder OverrideSetProperty(PropertyInfo PropertyAccessor, Type baseType, TypeBuilder type, MethodBuilder loadMeMethodBuilder)
         {
             System.Reflection.MethodAttributes methodAttributes = MethodAttributes.Public
                 | MethodAttributes.Virtual
                 | MethodAttributes.HideBySig;
 
-            string methodName = "set_" + propinfo.Name;
+            string methodName = "set_" + PropertyAccessor.Name;
             MethodBuilder method = type.DefineMethod(methodName, methodAttributes);
             // Preparing Reflection instances
 
@@ -264,7 +264,7 @@ namespace Goliath.Data.DynamicProxy
             // Setting return type
             method.SetReturnType(typeof(void));
             // Adding parameters
-            method.SetParameters(propinfo.PropertyType);
+            method.SetParameters(PropertyAccessor.PropertyType);
             // Parameter value
             ParameterBuilder value = method.DefineParameter(1, ParameterAttributes.None, "value");
             ILGenerator gen = method.GetILGenerator();

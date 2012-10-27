@@ -98,6 +98,7 @@ namespace Goliath.Data.Utils
                         var property = new PropertyAccessor
                                            {
                                                DeclaringType = EntityType,
+                                               PropertyType = pinfo.PropertyType,
                                                PropertyName = prop.Name,
                                                GetMethod = pinfo.CreateDynamicGetMethodDelegate(),
                                                SetMethod = pinfo.CreateDynamicSetMethodDelegate(),

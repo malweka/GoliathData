@@ -2,21 +2,22 @@
 using System.Data.Common;
 using Goliath.Data.Mapping;
 using Goliath.Data.Providers;
+using Goliath.Data.Utils;
 
 namespace Goliath.Data.DataAccess
 {
     abstract class RelationSerializer
     {
         protected SqlDialect sqlDialect;
-        protected GetSetStore getSetStore;
+        protected EntityAccessorStore store;
 
-        protected RelationSerializer(SqlDialect sqlDialect, GetSetStore getSetStore)
+        protected RelationSerializer(SqlDialect sqlDialect, EntityAccessorStore store)
         {
             this.sqlDialect = sqlDialect;
-            this.getSetStore = getSetStore;
+            this.store = store;
         }
 
-        public abstract void Serialize(IDatabaseSettings settings, EntitySerializer serializer, Relation rel, object instanceEntity, PropInfo pInfo, EntityMap entityMap, EntityGetSetInfo getSetInfo, Dictionary<string, int> columns, DbDataReader dbReader);
+        public abstract void Serialize(IDatabaseSettings settings, EntitySerializer serializer, Relation rel, object instanceEntity, PropertyAccessor pInfo, EntityMap entityMap, EntityAccessor entityAccessor, Dictionary<string, int> columns, DbDataReader dbReader);
         
     }
 }
