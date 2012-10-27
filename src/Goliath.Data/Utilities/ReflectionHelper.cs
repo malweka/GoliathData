@@ -10,6 +10,20 @@ namespace Goliath.Data.Utils
     /// </summary>
     public static class ReflectionHelper
     {
+        static string GetMethodName(PropertyInfo property)
+        {
+            if (property == null)
+                throw new ArgumentNullException("property");
+
+            string propName = "get_" + property.DeclaringType.FullName.Replace(".", "_") + property.Name;
+            return propName;
+        }
+
+        public static Func<object, object> CreateDynamicGetMethodDelegate(this PropertyInfo property)
+        {
+            return CreateDynamicGetMethodDelegate(property, GetMethodName(property));
+        }
+
         /// <summary>
         /// Creates dynamic get method delegate for property.
         /// </summary>
@@ -31,6 +45,11 @@ namespace Goliath.Data.Utils
             gen.Emit(OpCodes.Ret);
 
             return (Func<object, object>)method.CreateDelegate(typeof(Func<object, object>));
+        }
+
+        public static Action<object, object> CreateDynamicSetMethodDelegate(this PropertyInfo property)
+        {
+            return CreateDynamicSetMethodDelegate(property, GetMethodName(property));
         }
 
         /// <summary>
