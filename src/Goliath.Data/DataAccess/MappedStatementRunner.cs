@@ -13,7 +13,7 @@ namespace Goliath.Data.DataAccess
     public class MappedStatementRunner
     {
 
-        EntityAccessorStore EntityAccessorStore = new EntityAccessorStore();
+        EntityAccessorStore store = new EntityAccessorStore();
         static ILogger logger;
 
         static MappedStatementRunner()
@@ -185,7 +185,7 @@ namespace Goliath.Data.DataAccess
                     object paramObj;
                     if (inputObjects.TryGetValue(inParam.Property.VarName, out paramObj))
                     {
-                        getSetInfo = EntityAccessorStore.GetEntityAccessor(inParam.ClrType, inParam.Map);
+                        getSetInfo = store.GetEntityAccessor(inParam.ClrType, inParam.Map);
 
                         PropertyAccessor pInfo;
                         if (getSetInfo.Properties.TryGetValue(inParam.Property.PropName, out pInfo))
