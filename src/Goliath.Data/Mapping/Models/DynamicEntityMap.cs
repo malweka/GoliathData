@@ -46,9 +46,9 @@ namespace Goliath.Data.Mapping
             TableName = tableName;
             TableAlias = tableAlias;
 
-            var propInfos = MappingType.GetProperties(BindingFlags.Public | BindingFlags.SetProperty | BindingFlags.Instance);
+            var PropertyAccessors = MappingType.GetProperties(BindingFlags.Public | BindingFlags.SetProperty | BindingFlags.Instance);
             
-            foreach (var prop in propInfos)
+            foreach (var prop in PropertyAccessors)
             {
                 var mProp = new Property()
                 {

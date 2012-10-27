@@ -79,7 +79,6 @@
     <Compile Include="DataAccess\ConnectionProvider.cs" />
     <Compile Include="DataAccess\DataAccessAdapterFactory.cs" />
     <Compile Include="DataAccess\EntitySerialization\EntitySerializer.cs" />
-    <Compile Include="DataAccess\GetSetStore.cs" />
     <Compile Include="DataAccess\IConnectionProvider.cs" />
     <Compile Include="DataAccess\IDbConnector.cs" />
     <Compile Include="DataAccess\EntitySerialization\IEntitySerializer.cs" />
@@ -119,9 +118,6 @@
     <Compile Include="Collections\LazyList.cs" />
     <Compile Include="Generators\IKeyGenerator.cs" />
     <Compile Include="Generators\KeyGeneratorStore.cs" />
-    <Compile Include="Libs\Fasterflect.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="Libs\TinyIoC.cs" />
     <Compile Include="Mapping\MapBuilderConfig.Read.cs" />
     <Compile Include="Mapping\MapBuilderConfig.Write.cs" />
@@ -156,6 +152,8 @@
     <Compile Include="DataAccess\IMigrationGenerator.cs" />
     <Compile Include="Mapping\Models\PrimaryKeyPropertyCollection.cs" />
     <Compile Include="Mapping\Models\PrimaryKeyProperty.cs" />
+    <Compile Include="ParamHolder.cs" />
+    <Compile Include="PropertyQueryParam.cs" />
     <Compile Include="Providers\DbConnector.cs" />
     <Compile Include="Providers\ISchemaDescriptor.cs" />
     <Compile Include="Mapping\Models\Relation.cs" />

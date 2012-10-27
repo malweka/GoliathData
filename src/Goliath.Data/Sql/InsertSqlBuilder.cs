@@ -4,6 +4,7 @@ using System.Text;
 using Goliath.Data.DataAccess;
 using Goliath.Data.Mapping;
 using Goliath.Data.Providers;
+using Goliath.Data.Utils;
 
 namespace Goliath.Data.Sql
 {
@@ -55,15 +56,15 @@ namespace Goliath.Data.Sql
             }
         }
 
-        public Dictionary<string, ParamHolder> BuildQueryParams(object entity, GetSetStore getSetStore, int level, int rootLevel)
+        public Dictionary<string, ParamHolder> BuildQueryParams(object entity, EntityAccessorStore store, int level, int rootLevel)
         {
             Type entityType = entity.GetType();
-            EntityGetSetInfo getSetInfo = getSetStore.GetReflectionInfoAddIfMissing(entityType, entMap);
-            return BuildInsertQueryParams(entity, getSetInfo, entMap, getSetStore, level, rootLevel);
+            EntityAccessor getSetInfo = store.GetEntityAccessor(entityType, entMap);
+            return BuildInsertQueryParams(entity, getSetInfo, entMap, store, level, rootLevel);
         }
 
-        public static Dictionary<string, ParamHolder> BuildInsertQueryParams(object entity, EntityGetSetInfo getSetInfo,
-            EntityMap entityMap, GetSetStore getSetStore, int level, int rootLevel)
+        public static Dictionary<string, ParamHolder> BuildInsertQueryParams(object entity, EntityAccessor entityAccessor,
+            EntityMap entityMap, EntityAccessorStore store, int level, int rootLevel)
         {
             Dictionary<string, ParamHolder> parameters = new Dictionary<string, ParamHolder>();
             foreach (var prop in entityMap)
@@ -75,22 +76,22 @@ namespace Goliath.Data.Sql
                     if (rel.RelationType != RelationshipType.ManyToOne)
                         continue;
 
-                    PropInfo pInfo;
-                    if (getSetInfo.Properties.TryGetValue(prop.PropertyName, out pInfo))
+                    PropertyAccessor pInfo;
+                    if (entityAccessor.Properties.TryGetValue(prop.PropertyName, out pInfo))
                     {
-                        var relInstance = pInfo.Getter(entity);
+                        var relInstance = pInfo.GetMethod(entity);
                         var relEntMap = entityMap.Parent.GetEntityMap(rel.ReferenceEntityName);
                         string paramName = BuildParameterNameWithLevel(rel.ReferenceColumn, relEntMap.TableAlias, rootLevel);
                         ParamHolder param = null;
 
                         if (relInstance != null)
                         {
-                            EntityGetSetInfo relGetSet = getSetStore.GetReflectionInfoAddIfMissing(pInfo.PropertType, entityMap);
-                            PropInfo referenceProp;
+                            EntityAccessor relGetSet = store.GetEntityAccessor(pInfo.PropertyType, entityMap);
+                            PropertyAccessor referenceProp;
                             if (relGetSet.Properties.TryGetValue(rel.ReferenceProperty, out referenceProp))
                             {
 
-                                param = new ParamHolder(paramName, referenceProp.Getter, relInstance) { IsNullable = prop.IsNullable };
+                                param = new ParamHolder(paramName, referenceProp.GetMethod, relInstance) { IsNullable = prop.IsNullable };
 
                                
                             }
@@ -114,8 +115,8 @@ namespace Goliath.Data.Sql
 
                 else
                 {
-                    PropInfo pInfo;
-                    if (getSetInfo.Properties.TryGetValue(prop.PropertyName, out pInfo))
+                    PropertyAccessor pInfo;
+                    if (entityAccessor.Properties.TryGetValue(prop.PropertyName, out pInfo))
                     {
                         string paramName = null;
                         if ((prop is Relation) && prop.IsPrimaryKey)
@@ -130,7 +131,7 @@ namespace Goliath.Data.Sql
                             paramName = BuildParameterNameWithLevel(prop.ColumnName, entityMap.TableAlias, level);
                         }
 
-                        ParamHolder param = new ParamHolder(paramName, pInfo.Getter, entity) { IsNullable = prop.IsNullable };
+                        ParamHolder param = new ParamHolder(paramName, pInfo.GetMethod, entity) { IsNullable = prop.IsNullable };
                         //val = pInfo.Getter(entity);
 
                         //if ((val == null) && !prop.IsNullable)

@@ -8,6 +8,7 @@ using Goliath.Data.Diagnostics;
 using Goliath.Data.Mapping;
 using Goliath.Data.Providers;
 using Goliath.Data.Sql;
+using Goliath.Data.Utils;
 
 namespace Goliath.Data.DataAccess
 {
@@ -19,7 +20,7 @@ namespace Goliath.Data.DataAccess
 
         static ILogger logger;
         internal ITypeConverterStore TypeConverterStore { get; set; }
-        GetSetStore getSetStore = new GetSetStore();
+        EntityAccessorStore EntityAccessorStore = new EntityAccessorStore();
         IDatabaseSettings settings;
 
         MapConfig Map
@@ -82,20 +83,20 @@ namespace Goliath.Data.DataAccess
             Type type = typeof(T);
             var instance = Activator.CreateInstance(type);
 
-            EntityGetSetInfo getSetInfo = getSetStore.GetReflectionInfoAddIfMissing(type, entityMap);
+            var getSetInfo = EntityAccessorStore.GetEntityAccessor(type, entityMap);
 
             //load collections
             foreach (var rel in entityMap.Relations)
             {
                 if ((rel.RelationType == RelationshipType.ManyToMany) || (rel.RelationType == RelationshipType.OneToMany))
                 {
-                    PropInfo pInfo;
+                    PropertyAccessor pInfo;
                     if (getSetInfo.Properties.TryGetValue(rel.PropertyName, out pInfo))
                     {
-                        Type refEntityType = pInfo.PropertType.GetGenericArguments().FirstOrDefault();
+                        Type refEntityType = pInfo.PropertyType.GetGenericArguments().FirstOrDefault();
                         var collectionType = typeof(TrackableList<>).MakeGenericType(new Type[] { refEntityType });
                         var lazyCol = Activator.CreateInstance(collectionType);
-                        pInfo.Setter(instance, lazyCol);
+                        pInfo.SetMethod(instance, lazyCol);
                     }
                 }
             }
@@ -158,9 +159,9 @@ namespace Goliath.Data.DataAccess
             if (dataReader.HasRows)
             {
                 Dictionary<string, int> columns = GetColumnNames(dataReader, entityMap.TableAlias);
-                EntityGetSetInfo getSetInfo = getSetStore.GetReflectionInfoAddIfMissing(typeOfInstance, entityMap);
+                var entityAccessor = EntityAccessorStore.GetEntityAccessor(typeOfInstance, entityMap);
                 dataReader.Read();
-                SerializeSingle(instanceToHydrate, typeOfInstance, entityMap, getSetInfo, columns, dataReader);
+                SerializeSingle(instanceToHydrate, typeOfInstance, entityMap, entityAccessor, columns, dataReader);
             }
         }
 
@@ -174,11 +175,11 @@ namespace Goliath.Data.DataAccess
         {
             Type typeOfInstance = entity.GetType();
             var entityMap = Map.GetEntityMap(typeOfInstance.FullName);
-            EntityGetSetInfo getSetInfo = getSetStore.GetReflectionInfoAddIfMissing(typeOfInstance, entityMap);
-            PropInfo pInfo;
-            if (getSetInfo.Properties.TryGetValue(propertyName, out pInfo))
+            var entityAccessor = EntityAccessorStore.GetEntityAccessor(typeOfInstance, entityMap);
+            PropertyAccessor pInfo;
+            if (entityAccessor.Properties.TryGetValue(propertyName, out pInfo))
             {
-                pInfo.Setter(entity, propertyValue);
+                pInfo.SetMethod(entity, propertyValue);
             }
         }
 
@@ -188,7 +189,7 @@ namespace Goliath.Data.DataAccess
         /// <returns></returns>
         public ISqlWorker CreateSqlWorker()
         {
-            return new SqlWorker(SqlDialect, getSetStore, settings.ConverterStore);
+            return new SqlWorker(SqlDialect, EntityAccessorStore, settings.ConverterStore);
         }
 
         /// <summary>
@@ -273,7 +274,7 @@ namespace Goliath.Data.DataAccess
                 List<TEntity> list = new List<TEntity>();
 
                 Type type = typeof(TEntity);
-                EntityGetSetInfo getSetInfo;
+                EntityAccessor entityAccessor;
                 Dictionary<string, int> columns = null;
 
                 if (model is EntityMap)
@@ -281,21 +282,21 @@ namespace Goliath.Data.DataAccess
                     EntityMap entityMap = (EntityMap)model;
                     columns = GetColumnNames(dbReader, model.TableAlias);
 
-                    
+                    //TODO: should we cache everything?
                     if (entityMap is DynamicEntityMap)
                     {
-                        getSetInfo = new EntityGetSetInfo(type);
-                        getSetInfo.Load(entityMap);
+                        entityAccessor = new EntityAccessor(type);
+                        entityAccessor.Load(entityMap);
                     }
                     else
                     {
-                        getSetInfo = getSetStore.GetReflectionInfoAddIfMissing(type, entityMap);
+                        entityAccessor = EntityAccessorStore.GetEntityAccessor(type, entityMap);
                     }
 
                     while (dbReader.Read())
                     {
                         var instanceEntity = Activator.CreateInstance(type);
-                        SerializeSingle(instanceEntity, type, entityMap, getSetInfo, columns, dbReader);
+                        SerializeSingle(instanceEntity, type, entityMap, entityAccessor, columns, dbReader);
                         list.Add((TEntity)instanceEntity);
                     }  
                                       
@@ -304,12 +305,12 @@ namespace Goliath.Data.DataAccess
                 {
                     ComplexType complexType = (ComplexType)model;
                     columns = GetColumnNames(dbReader, null);
-                    getSetInfo = getSetStore.GetReflectionInfoAddIfMissing(type, complexType);
+                    entityAccessor = EntityAccessorStore.GetEntityAccessor(type, complexType);
 
                     while (dbReader.Read())
                     {
                         var instanceEntity = Activator.CreateInstance(type);
-                        SerializeSingle(instanceEntity, type, complexType, getSetInfo, columns, dbReader);
+                        SerializeSingle(instanceEntity, type, complexType, entityAccessor, columns, dbReader);
                         list.Add((TEntity)instanceEntity);
                     }  
                 }
@@ -345,7 +346,7 @@ namespace Goliath.Data.DataAccess
             return columns;
         }
 
-        internal void SerializeSingle(object instanceEntity, Type type, EntityMap entityMap, EntityGetSetInfo getSetInfo, Dictionary<string, int> columns, DbDataReader dbReader)
+        internal void SerializeSingle(object instanceEntity, Type type, EntityMap entityMap, EntityAccessor entityAccessor, Dictionary<string, int> columns, DbDataReader dbReader)
         {
             EntityMap superEntityMap = null;
             if (entityMap.IsSubClass)
@@ -353,7 +354,7 @@ namespace Goliath.Data.DataAccess
                 superEntityMap = entityMap.Parent.GetEntityMap(entityMap.Extends);
             }
 
-            foreach (var keyVal in getSetInfo.Properties)
+            foreach (var keyVal in entityAccessor.Properties)
             {
                 /* NOTE: Intentionally going only 1 level up the inheritance. something like :
                  *  SuperSuperClass
@@ -376,16 +377,16 @@ namespace Goliath.Data.DataAccess
                         switch (rel.RelationType)
                         {
                             case RelationshipType.ManyToOne:
-                                SerializeManyToOne manyToOneHelper = new SerializeManyToOne(SqlDialect, getSetStore);
-                                manyToOneHelper.Serialize(settings, this, rel, instanceEntity, keyVal.Value, entityMap, getSetInfo, columns, dbReader);
+                                SerializeManyToOne manyToOneHelper = new SerializeManyToOne(SqlDialect, EntityAccessorStore);
+                                manyToOneHelper.Serialize(settings, this, rel, instanceEntity, keyVal.Value, entityMap, entityAccessor, columns, dbReader);
                                 break;
                             case RelationshipType.OneToMany:
-                                SerializeOneToMany oneToManyHelper = new SerializeOneToMany(SqlDialect, getSetStore);
-                                oneToManyHelper.Serialize(settings, this, rel, instanceEntity, keyVal.Value, entityMap, getSetInfo, columns, dbReader);
+                                SerializeOneToMany oneToManyHelper = new SerializeOneToMany(SqlDialect, EntityAccessorStore);
+                                oneToManyHelper.Serialize(settings, this, rel, instanceEntity, keyVal.Value, entityMap, entityAccessor, columns, dbReader);
                                 break;
                             case RelationshipType.ManyToMany:
-                                SerializeManyToMany manyToMany = new SerializeManyToMany(SqlDialect, getSetStore);
-                                manyToMany.Serialize(settings, this, rel, instanceEntity, keyVal.Value, entityMap, getSetInfo, columns, dbReader);
+                                SerializeManyToMany manyToMany = new SerializeManyToMany(SqlDialect, EntityAccessorStore);
+                                manyToMany.Serialize(settings, this, rel, instanceEntity, keyVal.Value, entityMap, entityAccessor, columns, dbReader);
                                 break;
                             default:
                                 break;
@@ -396,28 +397,28 @@ namespace Goliath.Data.DataAccess
                     {
                         var val = dbReader[ordinal];
                         var fieldType = dbReader.GetFieldType(ordinal);
-                        if (fieldType.Equals(keyVal.Value.PropertType) && (val != DBNull.Value))
+                        if ((fieldType == keyVal.Value.PropertyType) && (val != DBNull.Value))
                         {
-                            keyVal.Value.Setter(instanceEntity, val);
+                            keyVal.Value.SetMethod(instanceEntity, val);
                         }
-                        else if (keyVal.Value.PropertType.IsEnum)
+                        else if (keyVal.Value.PropertyType.IsEnum)
                         {
-                            var enumVal = TypeConverterStore.ConvertToEnum(keyVal.Value.PropertType, val);
-                            keyVal.Value.Setter(instanceEntity, enumVal);
+                            var enumVal = TypeConverterStore.ConvertToEnum(keyVal.Value.PropertyType, val);
+                            keyVal.Value.SetMethod(instanceEntity, enumVal);
                         }
                         else
                         {
-                            var converter = TypeConverterStore.GetConverterFactoryMethod(keyVal.Value.PropertType);
-                            keyVal.Value.Setter(instanceEntity, converter.Invoke(val));
+                            var converter = TypeConverterStore.GetConverterFactoryMethod(keyVal.Value.PropertyType);
+                            keyVal.Value.SetMethod(instanceEntity, converter.Invoke(val));
                         }
                     }
                 }
             }
         }
 
-        internal void SerializeSingle(object instanceEntity, Type type, ComplexType complextType, EntityGetSetInfo getSetInfo, Dictionary<string, int> columns, DbDataReader dbReader)
+        internal void SerializeSingle(object instanceEntity, Type type, ComplexType complextType, EntityAccessor entityAccessor, Dictionary<string, int> columns, DbDataReader dbReader)
         {
-            foreach (var keyVal in getSetInfo.Properties)
+            foreach (var keyVal in entityAccessor.Properties)
             {
                 /* NOTE: Intentionally going only 1 level up the inheritance. something like :
                  *  SuperSuperClass
@@ -428,26 +429,26 @@ namespace Goliath.Data.DataAccess
                  *  For now too ugly don't want to touch.
                  */
                 var prop = complextType.GetProperty(keyVal.Key);
-                int ordinal;
                 if (prop != null)
                 {
+                    int ordinal;
                     if (columns.TryGetValue(prop.ColumnName, out ordinal))
                     {
                         var val = dbReader[ordinal];
                         var fieldType = dbReader.GetFieldType(ordinal);
-                        if (fieldType.Equals(keyVal.Value.PropertType) && (val != DBNull.Value))
+                        if ((fieldType == keyVal.Value.PropertyType) && (val != DBNull.Value))
                         {
-                            keyVal.Value.Setter(instanceEntity, val);
+                            keyVal.Value.SetMethod(instanceEntity, val);
                         }
-                        else if (keyVal.Value.PropertType.IsEnum)
+                        else if (keyVal.Value.PropertyType.IsEnum)
                         {
-                            var enumVal = TypeConverterStore.ConvertToEnum(keyVal.Value.PropertType, val);
-                            keyVal.Value.Setter(instanceEntity, enumVal);
+                            var enumVal = TypeConverterStore.ConvertToEnum(keyVal.Value.PropertyType, val);
+                            keyVal.Value.SetMethod(instanceEntity, enumVal);
                         }
                         else
                         {
-                            var converter = TypeConverterStore.GetConverterFactoryMethod(keyVal.Value.PropertType);
-                            keyVal.Value.Setter(instanceEntity, converter.Invoke(val));
+                            var converter = TypeConverterStore.GetConverterFactoryMethod(keyVal.Value.PropertyType);
+                            keyVal.Value.SetMethod(instanceEntity, converter.Invoke(val));
                         }
                     }
                 }

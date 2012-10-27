@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Goliath.Data.Mapping;
+using Goliath.Data.Utils;
 
 namespace Goliath.Data.DataAccess
 {
@@ -394,13 +395,13 @@ namespace Goliath.Data.DataAccess
         /// <returns>
         /// 	<c>true</c> if this instance [can generate key] the specified pk; otherwise, <c>false</c>.
         /// </returns>
-        public static bool CanGenerateKey(this PrimaryKeyProperty pk, PropInfo pInfo, object entity, ITypeConverterStore typeConverterStore)
+        public static bool CanGenerateKey(this PrimaryKeyProperty pk, PropertyAccessor pInfo, object entity, ITypeConverterStore typeConverterStore)
         {
             if (pk.KeyGenerator == null)
                 return false;
 
             //now let's  check the value
-            var idValue = pInfo.Getter.Invoke(entity);
+            var idValue = pInfo.GetMethod(entity);
             
             if (idValue == null)
                 return true;

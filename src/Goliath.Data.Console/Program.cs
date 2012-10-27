@@ -32,11 +32,11 @@ namespace WebZoo.Data
             string template2 = @"INSERT INTO @{TableName}(@{sel:Name},@{col:City},@{col:AcceptNewAnimals}) VALUES(@{prop:Name},@{prop:City},@{prop:AcceptNewAnimals})";
 
             Zoo reflZoo = new Zoo() {AcceptNewAnimals = true, City = "Refl", Name = "machin"};
-            var propInfo = typeof (Zoo).GetProperty("Name");
-            var getMethod = propInfo.CreateDynamicGetMethodDelegate("get_Zoo_Name");
+            var PropertyAccessor = typeof (Zoo).GetProperty("Name");
+            var getMethod = PropertyAccessor.CreateDynamicGetMethodDelegate("get_Zoo_Name");
             var nmae = getMethod(reflZoo);
 
-            var setMethod = propInfo.CreateDynamicSetMethodDelegate("set_Zoo_Name");
+            var setMethod = PropertyAccessor.CreateDynamicSetMethodDelegate("set_Zoo_Name");
             setMethod(reflZoo, "gabin");
             Console.WriteLine(reflZoo.Name);
 

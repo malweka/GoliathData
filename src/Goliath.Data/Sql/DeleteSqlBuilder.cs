@@ -3,6 +3,7 @@ using System.Text;
 using Goliath.Data.DataAccess;
 using Goliath.Data.Mapping;
 using Goliath.Data.Providers;
+using Goliath.Data.Utils;
 
 namespace Goliath.Data.Sql
 {
@@ -21,8 +22,8 @@ namespace Goliath.Data.Sql
             return this;
         }
 
-        public static Dictionary<string, ParamHolder> BuildDeleteQueryParams(object entity, EntityGetSetInfo getSetInfo,
-             EntityMap entityMap, GetSetStore getSetStore)
+        public static Dictionary<string, ParamHolder> BuildDeleteQueryParams(object entity, EntityAccessor getSetInfo,
+             EntityMap entityMap, EntityAccessorStore EntityAccessorStore)
         {
             
             Dictionary<string, ParamHolder> parameters = new Dictionary<string, ParamHolder>();
@@ -30,7 +31,7 @@ namespace Goliath.Data.Sql
             {
                 for (int i = 0; i < entityMap.PrimaryKey.Keys.Count; i++)
                 {
-                    PropInfo pInfo;
+                    PropertyAccessor pInfo;
                     var prop = entityMap.PrimaryKey.Keys[i].Key;
 
                     if (getSetInfo.Properties.TryGetValue(prop.PropertyName, out pInfo))
@@ -38,7 +39,7 @@ namespace Goliath.Data.Sql
 
                         string colname = entityMap.PrimaryKey.Keys[i].Key.ColumnName;
                         var paramName = BuildParameterNameWithLevel(colname, entityMap.TableAlias, 0);
-                        ParamHolder param = new ParamHolder(paramName, pInfo.Getter, entity);
+                        ParamHolder param = new ParamHolder(paramName, pInfo.GetMethod, entity);
 
                         if (parameters.ContainsKey(prop.ColumnName))
                         {

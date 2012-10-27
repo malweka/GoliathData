@@ -3,6 +3,7 @@ using System.Text;
 using Goliath.Data.DataAccess;
 using Goliath.Data.Mapping;
 using Goliath.Data.Providers;
+using Goliath.Data.Utils;
 
 namespace Goliath.Data.Sql
 {
@@ -91,8 +92,8 @@ namespace Goliath.Data.Sql
             return sb.ToString();
         }
 
-        public static Dictionary<string, ParamHolder> BuildUpdateQueryParams(object entity, EntityGetSetInfo getSetInfo,
-             EntityMap entityMap, GetSetStore getSetStore, int level, int rootLevel)
+        public static Dictionary<string, ParamHolder> BuildUpdateQueryParams(object entity, EntityAccessor entityAccessor,
+             EntityMap entityMap, EntityAccessorStore EntityAccessorStore, int level, int rootLevel)
         {
             Dictionary<string, ParamHolder> parameters = new Dictionary<string, ParamHolder>();
 
@@ -107,20 +108,20 @@ namespace Goliath.Data.Sql
                     if (rel.RelationType != RelationshipType.ManyToOne)
                         continue;
 
-                    PropInfo pInfo;
-                    if (getSetInfo.Properties.TryGetValue(prop.PropertyName, out pInfo))
+                    PropertyAccessor pInfo;
+                    if (entityAccessor.Properties.TryGetValue(prop.PropertyName, out pInfo))
                     {
-                        var relInstance = pInfo.Getter(entity);
+                        var relInstance = pInfo.GetMethod(entity);
                         if (relInstance != null)
                         {
-                            EntityGetSetInfo relGetSet = getSetStore.GetReflectionInfoAddIfMissing(pInfo.PropertType, entityMap);
-                            PropInfo referenceProp;
+                            EntityAccessor relGetSet = EntityAccessorStore.GetEntityAccessor(pInfo.PropertyType, entityMap);
+                            PropertyAccessor referenceProp;
                             if (relGetSet.Properties.TryGetValue(rel.ReferenceProperty, out referenceProp))
                             {
                                 var relEntMap = entityMap.Parent.GetEntityMap(rel.ReferenceEntityName);
                                 string paramName = paramName = BuildParameterNameWithLevel(rel.ReferenceColumn, relEntMap.TableAlias, rootLevel);
 
-                                ParamHolder param = new ParamHolder(paramName, referenceProp.Getter, relInstance) { IsNullable = prop.IsNullable };
+                                ParamHolder param = new ParamHolder(paramName, referenceProp.GetMethod, relInstance) { IsNullable = prop.IsNullable };
 
                                 if (!parameters.ContainsKey(prop.ColumnName))
                                 {
@@ -138,8 +139,8 @@ namespace Goliath.Data.Sql
 
                 else
                 {
-                    PropInfo pInfo;
-                    if (getSetInfo.Properties.TryGetValue(prop.PropertyName, out pInfo))
+                    PropertyAccessor pInfo;
+                    if (entityAccessor.Properties.TryGetValue(prop.PropertyName, out pInfo))
                     {
                         string paramName = null;
                         if ((prop is Relation) && prop.IsPrimaryKey)
@@ -154,7 +155,7 @@ namespace Goliath.Data.Sql
                             paramName = BuildParameterNameWithLevel(prop.ColumnName, entityMap.TableAlias, level);
                         }
 
-                        ParamHolder param = new ParamHolder(paramName, pInfo.Getter, entity) { IsNullable = prop.IsNullable };
+                        ParamHolder param = new ParamHolder(paramName, pInfo.GetMethod, entity) { IsNullable = prop.IsNullable };
 
                         if (parameters.ContainsKey(prop.ColumnName))
                         {
