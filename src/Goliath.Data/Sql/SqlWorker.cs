@@ -30,7 +30,7 @@ namespace Goliath.Data.Sql
         internal SqlWorker(SqlDialect dialect, EntityAccessorStore EntityAccessorStore, ITypeConverterStore typeConverterStore)
         {
             if (dialect == null)
-                throw new ArgumentNullException("sqlMapper");
+                throw new ArgumentNullException("dialect");
             if (EntityAccessorStore == null)
                 throw new ArgumentNullException("EntityAccessorStore");
 

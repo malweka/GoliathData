@@ -1,4 +1,5 @@
 ﻿using System;
+using Goliath.Data.Mapping;
 
 namespace Goliath.Data 
 {
@@ -64,6 +65,16 @@ namespace Goliath.Data
 
             var pname = queryName.Substring(tableAlias.Length + 1);
             return pname;
+        }
+
+        public static string QueryParamName(EntityMap entityMap, string columnName)
+        {
+            return QueryParamName(entityMap.TableAlias ?? entityMap.FullName.Replace(".", "_"), columnName);
+        }
+
+        public static string QueryParamName(string prefix, string columnName)
+        {
+            return prefix + "_" + columnName;
         }
     }
 }
