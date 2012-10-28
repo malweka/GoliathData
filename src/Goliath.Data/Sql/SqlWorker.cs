@@ -155,7 +155,7 @@ namespace Goliath.Data.Sql
             EntityMap baseEntMap = null;
             Dictionary<string, KeyGenOperationInfo> keygenerationOperations = new Dictionary<string, KeyGenOperationInfo>();
             bool isSubclass = entityMap.IsSubClass;
-            InsertSqlBuilder baseInsertSqlBuilder = null;
+            InsertSqlBuilderOld baseInsertSqlBuilderOld = null;
             BatchSqlOperation operation = null;
 
             EntityAccessor entGetSets = EntityAccessorStore.GetEntityAccessor(entityType, entityMap);
@@ -164,12 +164,12 @@ namespace Goliath.Data.Sql
             {
                 //get base class first
                 baseEntMap = entityMap.Parent.GetEntityMap(entityMap.Extends);
-                baseInsertSqlBuilder = new InsertSqlBuilder(dialect, baseEntMap, recursionLevel, rootRecursionLevel);
+                baseInsertSqlBuilderOld = new InsertSqlBuilderOld(dialect, baseEntMap, recursionLevel, rootRecursionLevel);
                 keygenerationOperations = GeneratePksForInsert(entity, baseEntMap, entGetSets);
 
-                var baseParamDictionary = InsertSqlBuilder.BuildInsertQueryParams(entity, entGetSets, baseEntMap, EntityAccessorStore, recursionLevel, rootRecursionLevel);
+                var baseParamDictionary = InsertSqlBuilderOld.BuildInsertQueryParams(entity, entGetSets, baseEntMap, EntityAccessorStore, recursionLevel, rootRecursionLevel);
                 SqlOperationInfo baseClassOperation = new SqlOperationInfo() { CommandType = SqlStatementType.Insert };
-                baseClassOperation.SqlText = baseInsertSqlBuilder.ToSqlString();
+                baseClassOperation.SqlText = baseInsertSqlBuilderOld.ToSqlString();
                 List<QueryParam> baseParameters = new List<QueryParam>();
                 baseParameters.AddRange(baseParamDictionary.Values);
                 baseClassOperation.Parameters = baseParameters;
@@ -186,11 +186,11 @@ namespace Goliath.Data.Sql
                 operation.Priority = SqlOperationPriority.Medium;
             }
 
-            InsertSqlBuilder entInsertSqlBuilder = new InsertSqlBuilder(dialect, entityMap, recursionLevel, rootRecursionLevel);
+            InsertSqlBuilderOld entInsertSqlBuilderOld = new InsertSqlBuilderOld(dialect, entityMap, recursionLevel, rootRecursionLevel);
 
-            var paramDictionary = InsertSqlBuilder.BuildInsertQueryParams(entity, entGetSets, entityMap, EntityAccessorStore, recursionLevel, rootRecursionLevel);
+            var paramDictionary = InsertSqlBuilderOld.BuildInsertQueryParams(entity, entGetSets, entityMap, EntityAccessorStore, recursionLevel, rootRecursionLevel);
             SqlOperationInfo operationInfo = new SqlOperationInfo() { CommandType = SqlStatementType.Insert };
-            operationInfo.SqlText = entInsertSqlBuilder.ToSqlString();
+            operationInfo.SqlText = entInsertSqlBuilderOld.ToSqlString();
             List<QueryParam> parameters = new List<QueryParam>();
             parameters.AddRange(paramDictionary.Values);
             operationInfo.Parameters = parameters;
@@ -266,8 +266,8 @@ namespace Goliath.Data.Sql
 
                                     if (mapRel != null)
                                     {
-                                        var paramName1 = InsertSqlBuilder.BuildParameterNameWithLevel(rel.MapColumn, entityMap.TableAlias, recursionLevel);
-                                        var paramName2 = InsertSqlBuilder.BuildParameterNameWithLevel(rel.MapReferenceColumn, relMap.TableAlias, recursionLevel);
+                                        var paramName1 = InsertSqlBuilderOld.BuildParameterNameWithLevel(rel.MapColumn, entityMap.TableAlias, recursionLevel);
+                                        var paramName2 = InsertSqlBuilderOld.BuildParameterNameWithLevel(rel.MapReferenceColumn, relMap.TableAlias, recursionLevel);
                                         manyToManyOp.SqlText = string.Format("INSERT INTO {0} ({1}, {2}) VALUES({3},{4})", rel.MapTableName, rel.MapColumn, rel.MapReferenceColumn, dialect.CreateParameterName(paramName1), dialect.CreateParameterName(paramName2));
                                         var param1Prop = entGetSets.Properties[mapRel.PropertyName];
 
@@ -417,8 +417,8 @@ namespace Goliath.Data.Sql
 
                 if (mapRel != null)
                 {
-                    var paramName1 = InsertSqlBuilder.BuildParameterNameWithLevel(rel.MapColumn, entityMap.TableAlias, recursionLevel);
-                    var paramName2 = InsertSqlBuilder.BuildParameterNameWithLevel(rel.MapReferenceColumn, relMap.TableAlias, recursionLevel);
+                    var paramName1 = InsertSqlBuilderOld.BuildParameterNameWithLevel(rel.MapColumn, entityMap.TableAlias, recursionLevel);
+                    var paramName2 = InsertSqlBuilderOld.BuildParameterNameWithLevel(rel.MapReferenceColumn, relMap.TableAlias, recursionLevel);
                     string sqlText = string.Empty;
 
                     if (insert)

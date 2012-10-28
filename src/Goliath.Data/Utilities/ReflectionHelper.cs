@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Diagnostics;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -10,6 +11,24 @@ namespace Goliath.Data.Utils
     /// </summary>
     public static class ReflectionHelper
     {
+        static Hashtable mTypeHash = new Hashtable();
+
+        static ReflectionHelper()
+        {
+            mTypeHash[typeof(sbyte)] = OpCodes.Ldind_I1;
+            mTypeHash[typeof(byte)] = OpCodes.Ldind_U1;
+            mTypeHash[typeof(char)] = OpCodes.Ldind_U2;
+            mTypeHash[typeof(short)] = OpCodes.Ldind_I2;
+            mTypeHash[typeof(ushort)] = OpCodes.Ldind_U2;
+            mTypeHash[typeof(int)] = OpCodes.Ldind_I4;
+            mTypeHash[typeof(uint)] = OpCodes.Ldind_U4;
+            mTypeHash[typeof(long)] = OpCodes.Ldind_I8;
+            mTypeHash[typeof(ulong)] = OpCodes.Ldind_I8;
+            mTypeHash[typeof(bool)] = OpCodes.Ldind_I1;
+            mTypeHash[typeof(double)] = OpCodes.Ldind_R8;
+            mTypeHash[typeof(float)] = OpCodes.Ldind_R4;
+        }
+
         static string GetMethodName(PropertyInfo property)
         {
             if (property == null)
@@ -42,6 +61,10 @@ namespace Goliath.Data.Utils
             gen.Emit(OpCodes.Ldarg_0);
             gen.Emit(OpCodes.Castclass, property.DeclaringType);
             gen.Emit(OpCodes.Callvirt, property.GetGetMethod());
+
+            if (property.PropertyType.IsValueType)
+                gen.Emit(OpCodes.Box, property.PropertyType);
+
             gen.Emit(OpCodes.Ret);
 
             return (Func<object, object>)method.CreateDelegate(typeof(Func<object, object>));
@@ -77,10 +100,28 @@ namespace Goliath.Data.Utils
             generator.Emit(OpCodes.Castclass, property.DeclaringType);
             generator.Emit(OpCodes.Ldarg_1);
 
-            if (property.PropertyType.IsClass)
-                generator.Emit(OpCodes.Castclass, property.PropertyType);
+            //if (property.PropertyType.IsClass)
+            //    generator.Emit(OpCodes.Castclass, property.PropertyType);
+            //else
+            //    generator.Emit(OpCodes.Unbox_Any, property.PropertyType);
+
+            if(property.PropertyType.IsValueType)
+            {
+                generator.Emit(OpCodes.Unbox, property.PropertyType);
+                if (mTypeHash[property.PropertyType] != null)
+                {
+                    OpCode load = (OpCode)mTypeHash[property.PropertyType];
+                    generator.Emit(load);
+                }
+                else
+                {
+                    generator.Emit(OpCodes.Ldobj, property.PropertyType);
+                }
+            }
             else
-                generator.Emit(OpCodes.Unbox_Any, property.PropertyType);
+            {
+                generator.Emit(OpCodes.Castclass, property.PropertyType);
+            }
 
             generator.EmitCall(OpCodes.Callvirt, setMethod, null);
             generator.Emit(OpCodes.Ret);
@@ -94,19 +135,7 @@ namespace Goliath.Data.Utils
         //    if (property == null)
         //        throw new ArgumentNullException("property");
 
-        //    var mTypeHash = new Hashtable();
-        //    mTypeHash[typeof(sbyte)] = OpCodes.Ldind_I1;
-        //    mTypeHash[typeof(byte)] = OpCodes.Ldind_U1;
-        //    mTypeHash[typeof(char)] = OpCodes.Ldind_U2;
-        //    mTypeHash[typeof(short)] = OpCodes.Ldind_I2;
-        //    mTypeHash[typeof(ushort)] = OpCodes.Ldind_U2;
-        //    mTypeHash[typeof(int)] = OpCodes.Ldind_I4;
-        //    mTypeHash[typeof(uint)] = OpCodes.Ldind_U4;
-        //    mTypeHash[typeof(long)] = OpCodes.Ldind_I8;
-        //    mTypeHash[typeof(ulong)] = OpCodes.Ldind_I8;
-        //    mTypeHash[typeof(bool)] = OpCodes.Ldind_I1;
-        //    mTypeHash[typeof(double)] = OpCodes.Ldind_R8;
-        //    mTypeHash[typeof(float)] = OpCodes.Ldind_R4;
+        
 
         //    var method = new DynamicMethod(methodName, null, new[] { typeof(object), typeof(object) });
         //    ILGenerator gen = method.GetILGenerator();

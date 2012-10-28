@@ -31,24 +31,16 @@ namespace WebZoo.Data
             string template = "select @{col:a.Id}, @{sel:a.Name}, @{sel:a.City}, @{sel:a.AcceptNewAnimals} from  @{a.TableName} where @{prop:a.Id} = @{prop:b.Id}";
             string template2 = @"INSERT INTO @{TableName}(@{sel:Name},@{col:City},@{col:AcceptNewAnimals}) VALUES(@{prop:Name},@{prop:City},@{prop:AcceptNewAnimals})";
 
-            Zoo reflZoo = new Zoo() {AcceptNewAnimals = true, City = "Refl", Name = "machin"};
-            var PropertyAccessor = typeof (Zoo).GetProperty("Name");
-            var getMethod = PropertyAccessor.CreateDynamicGetMethodDelegate("get_Zoo_Name");
-            var nmae = getMethod(reflZoo);
-
-            var setMethod = PropertyAccessor.CreateDynamicSetMethodDelegate("set_Zoo_Name");
-            setMethod(reflZoo, "gabin");
-            Console.WriteLine(reflZoo.Name);
 
             //si.Select<Animal>("Id", "some", "Xoe")
             //    .InnerJoin<Zoo>()
             //    .On(c => c.Id).EqualTo(c => c.ZooId)
             //    .ForJoin<Zoo>().Where(c => c.Id).EqualTo(2)
             //    .ForJoin<Employee>().And(e => e.Id).EqualTo(20);
-               
-           // si.SelectAll().From("users").InnerJoin("department", "dep").On("DeptID").EqualTo("u.deptId").
-               
-            
+
+            // si.SelectAll().From("users").InnerJoin("department", "dep").On("DeptID").EqualTo("u.deptId").
+
+
             Console.WriteLine("Start run");
             //Console.WriteLine(Guid.NewGuid().ToString("N"));
             MapConfig mapConfig = null;
@@ -61,10 +53,9 @@ namespace WebZoo.Data
             string mapfile = Path.Combine(zoorunner.WorkingFolder, Goliath.Data.CodeGen.Constants.MapFileName);
             mapConfig = MapConfig.Create(mapfile);
 
-            var zooEntMap = mapConfig.EntityConfigs.Where(c => string.Equals(c.Name, "Zoo", StringComparison.Ordinal))
-                    .FirstOrDefault();
+            var zooEntMap = mapConfig.EntityConfigs.FirstOrDefault(c => string.Equals(c.Name, "Zoo", StringComparison.Ordinal));
 
- 
+
             StatementMapParser parser = new StatementMapParser();
             var compiled = parser.Parse(new SqliteDialect(), zooEntMap, template2, null);
 
@@ -80,120 +71,6 @@ namespace WebZoo.Data
 
         }
 
-        static void Generate(string workingFolder, string templateFolder)
-        {
-            string mapfile = Path.Combine(workingFolder, MapFileName);
-            MapConfig project = MapConfig.Create(mapfile);
-            var basefolder = workingFolder;
-            ICodeGenerator generator = new RazorCodeGenerator();
-            foreach (var table in project.EntityConfigs)
-            {
-                if (table.IsLinkTable)
-                    continue;
-
-                //try
-                //{
-                string fname = Path.Combine(basefolder, table.Name + ".cs");
-                generator.Generate(Path.Combine(templateFolder, "Class.razt"), fname, table);
-                //}
-                //catch (Exception ex)
-                //{
-                //    Console.WriteLine(ex.ToString());
-                //}
-            }
-
-            //foreach (var table in project.EntityConfigs)
-            //{
-            //    if (table.IsLinkTable)
-            //        continue;
-            //    //try
-            //    //{
-            //    string fname = Path.Combine(basefolder, table.Name + "Adapter.cs");
-            //    generator.Generate(Path.Combine(templateFolder, "DataAdapter.razt"), fname, table);
-            //    //}
-            //    //catch (Exception ex)
-            //    //{
-            //    //    Console.WriteLine(ex.ToString());
-            //    //}
-            //}
-
-            //generator.Generate(Path.Combine(templateFolder, "DataAdapterFactory.razt"),
-            //    Path.Combine(basefolder, "DataAccessAdapterFactory.cs"),
-            //    project);
-        }
-
-        static void BuildSqlite(string workingFolder)
-        {
-            ProjectSettings settings = new ProjectSettings();
-            string pdir = AppDomain.CurrentDomain.BaseDirectory.Substring(0, AppDomain.CurrentDomain.BaseDirectory.IndexOf("bin"));
-            string dbfile = Path.Combine(pdir, "Data", "WebZoo.db");
-            settings.ConnectionString = string.Format("Data Source={0}; Version=3", dbfile);
-            settings.Namespace = "WebZoo.Data.Sqlite";
-            settings.Version = "1.0";
-            settings.AssemblyName = "WebZoo.Data";
-            settings.BaseModel = "WebZoo.Data.BaseEntity";
-
-            SqlDialect mapper = new SqliteDialect();
-            IDbConnector dbConnector = new SqliteDbConnector(settings.ConnectionString);
-            IDbAccess db = new DbAccess(dbConnector);
-
-            using (ISchemaDescriptor schema = new SqliteSchemaDescriptor(db, dbConnector, mapper, settings))
-            {
-                schema.ProjectSettings = settings;
-                DataModelGenerator generator = new DataModelGenerator(schema, new NameTransformerFactory(settings), new DefaultTableNameAbbreviator());
-                ComplexType baseModel = new ComplexType("WebZoo.Data.BaseEntity");
-                baseModel.Properties.Add(new Property("Id", "Id", System.Data.DbType.Guid)
-                {
-                    ClrType = typeof(Guid),
-                    IsPrimaryKey = true,
-                    IsUnique = true,
-                });
-                MapConfig builder = generator.GenerateMap(settings, baseModel);
-                CreateFolderIfNotExist(workingFolder);
-                string mapfile = Path.Combine(workingFolder, MapFileName);
-                builder.Save(mapfile, true);
-            }
-        }
-
-        static void BuildSqlServer(string workingFolder)
-        {
-            ProjectSettings settings = new ProjectSettings();
-
-            settings.ConnectionString = "Data Source=localhost;Initial Catalog=DbZoo;Integrated Security=True";
-            settings.Namespace = "WebZoo.Data.SqlServer";
-            settings.Version = "1.0";
-            settings.AssemblyName = "WebZoo.Data";
-            settings.BaseModel = "WebZoo.Data.BaseEntity";
-            IDbConnector dbConnector = new MssqlDbConnector(settings.ConnectionString);
-            IDbAccess db = new DbAccess(dbConnector);
-
-            SqlDialect mapper = new Mssq2008Dialect();
-
-            using (ISchemaDescriptor schemaDescriptor = new MssqlSchemaDescriptor(db, dbConnector, mapper, settings))
-            {
-                schemaDescriptor.ProjectSettings = settings;
-                DataModelGenerator generator = new DataModelGenerator(schemaDescriptor, new NameTransformerFactory(settings), new DefaultTableNameAbbreviator());
-                ComplexType baseModel = new ComplexType("WebZoo.Data.BaseEntity");
-                baseModel.Properties.Add(new Property("Id", "Id", System.Data.DbType.Guid)
-                {
-                    ClrType = typeof(Guid),
-                    IsPrimaryKey = true,
-                    IsUnique = true,
-                });
-
-                MapConfig builder = generator.GenerateMap(settings, baseModel);
-                CreateFolderIfNotExist(workingFolder);
-                string mapfile = Path.Combine(workingFolder, MapFileName);
-                builder.Save(mapfile, true);
-            }
-        }
-
-        static void CreateFolderIfNotExist(string folderPath)
-        {
-            if (!Directory.Exists(folderPath))
-                Directory.CreateDirectory(folderPath);
-        }
-
         static void QueryTest(MapConfig mapConfig)
         {
             //string sf = "/Users/hamsman/development";
@@ -201,6 +78,7 @@ namespace WebZoo.Data
             //string dbfile = Path.Combine(pdir, "Data", "WebZoo.db");
             //string cs = string.Format("Data Source={0}; Version=3", dbfile);
 
+            MapConfig map = mapConfig;
 
             var sessionFactory = new Database().Configure(mapConfig)
                 .RegisterProvider(new SqliteProvider()).Init();
@@ -218,6 +96,12 @@ namespace WebZoo.Data
             MappedStatementRunner runner = new MappedStatementRunner();
             var verify = runner.RunStatement<Zoo>(sess, statName, null, sdZoo);
 
+            Employee empl = new Employee { AssignedToZooId = 1, EmailAddress = "mail@com", FirstName = "Joe", HiredOn = DateTime.Now, LastName = "Smith", Title = "some edm", Telephone = "125699555" };
+            var employeeMap = map.EntityConfigs.FirstOrDefault(c => string.Equals(c.Name, "Employee", StringComparison.Ordinal));
+
+            InsertSqlBuilder insertBuild = new InsertSqlBuilder();
+            var builtInst = insertBuild.Build(empl, sess, employeeMap);
+            var insertsqlValue = builtInst.ToString(sess.SessionFactory.DbSettings.SqlDialect);
 
 
             var zoodapter = sess.CreateDataAccessAdapter<Zoo>();
@@ -322,7 +206,7 @@ namespace WebZoo.Data
             long total;
             var top5Zoo = zoodapter.FindAll(5, 0, out total);
 
-            MapConfig map = mapConfig;
+
 
             //var dbConnector = new Providers.SqlServer.MssqlDbConnector("Data Source=localhost;Initial Catalog=DbZoo;Integrated Security=True");
             var dbConnector = new Goliath.Data.Providers.Sqlite.SqliteDbConnector(mapConfig.Settings.ConnectionString);
@@ -337,14 +221,11 @@ namespace WebZoo.Data
                 //                string sqlQuery = @"select ani1.ZooId as ani1_ZooId, ani1.Id as ani1_Id, ani1.Name as ani1_Name, ani1.Age as ani1_Age, ani1.Location as ani1_Location, ani1.ReceivedOn as ani1_ReceivedOn  from animals ani1";
                 SqliteDialect mapper = new SqliteDialect();
 
-                var animalEntMap = map.EntityConfigs.Where(c => string.Equals(c.Name, "Animal", StringComparison.Ordinal))
-                    .FirstOrDefault();
+                var animalEntMap = map.EntityConfigs.FirstOrDefault(c => string.Equals(c.Name, "Animal", StringComparison.Ordinal));
 
-                var zooEntMap = map.EntityConfigs.Where(c => string.Equals(c.Name, "Zoo", StringComparison.Ordinal))
-                    .FirstOrDefault();
+                var zooEntMap = map.EntityConfigs.FirstOrDefault(c => string.Equals(c.Name, "Zoo", StringComparison.Ordinal));
 
-                var employeeMap = map.EntityConfigs.Where(c => string.Equals(c.Name, "Employee", StringComparison.Ordinal))
-                    .FirstOrDefault();
+
 
                 var wst = new WhereStatement("Id");
 

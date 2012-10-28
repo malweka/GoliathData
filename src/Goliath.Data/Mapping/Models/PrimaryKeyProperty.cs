@@ -26,7 +26,17 @@ namespace Goliath.Data.Mapping
         /// </summary>
         /// <value>The unsaved value.</value>
         [DataMember]
-        public string UnsavedValue { get; set; }
+        public string UnsavedValueString { get; set; }
+
+        /// <summary>
+        /// Gets the unsaved value.
+        /// </summary>
+        /// <value>
+        /// The unsaved value.
+        /// </value>
+        public object UnsavedValue { get; internal set; }
+
+        internal bool UnsavedValueProcessed { get; set; }
 
         /// <summary>
         /// Gets or sets the key generator.
