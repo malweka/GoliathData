@@ -159,10 +159,10 @@ namespace Goliath.Data.Mapping
             {
                 xmlWriter.WriteStartElement("key");
                 WriteTransformations(xmlWriter, key.Key, "key", false);
-                if (!string.IsNullOrWhiteSpace(key.UnsavedValue))
+                if (!string.IsNullOrWhiteSpace(key.UnsavedValueString))
                 {
                     xmlWriter.WriteStartAttribute("unsaved_value");
-                    xmlWriter.WriteString(key.UnsavedValue);
+                    xmlWriter.WriteString(key.UnsavedValueString);
                     xmlWriter.WriteEndAttribute();
                 }
                 if (!string.IsNullOrWhiteSpace(key.KeyGenerationStrategy))

@@ -92,12 +92,12 @@ namespace Goliath.Data.Mapping
                         if(pk.Key.DbType == System.Data.DbType.Guid)
                         {
                             pk.KeyGenerationStrategy = Generators.GuidCombGenerator.GeneratorName;
-                            pk.UnsavedValue = Guid.Empty.ToString();
+                            pk.UnsavedValueString = Guid.Empty.ToString();
                         }
                         else if (pk.Key.IsIdentity)
                         {
-                            pk.KeyGenerationStrategy = Goliath.Data.Generators.AutoIncrementGenerator.GeneratorName;
-                            pk.UnsavedValue = "-1";
+                            pk.KeyGenerationStrategy = Generators.AutoIncrementGenerator.GeneratorName;
+                            pk.UnsavedValueString = "-1";
                         }
                     }
                 }

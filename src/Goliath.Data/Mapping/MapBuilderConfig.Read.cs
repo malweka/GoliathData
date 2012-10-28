@@ -499,7 +499,7 @@ namespace Goliath.Data.Mapping
                         && pk != null)
                     {
                         pk.KeyGenerationStrategy = keyGen;
-                        pk.UnsavedValue = unsavedValue;
+                        pk.UnsavedValueString = unsavedValue;
                     }
 
                     if (rel != null)

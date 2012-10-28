@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Goliath.Data.Mapping;
-using Goliath.Data.Utils;
 
 namespace Goliath.Data.DataAccess
 {
@@ -11,7 +9,7 @@ namespace Goliath.Data.DataAccess
     [Serializable]
     public class TypeConverterStore : ITypeConverterStore
     {
-        Dictionary<Type, Func<Object, Object>> converters = new Dictionary<Type, Func<Object, Object>>();
+        readonly Dictionary<Type, Func<Object, Object>> converters = new Dictionary<Type, Func<Object, Object>>();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TypeConverterStore"/> class.
@@ -381,46 +379,5 @@ namespace Goliath.Data.DataAccess
         }
 
         #endregion
-    }
-
-    internal static class TypeConversionExtensions
-    {
-        /// <summary>
-        /// Determines whether this instance [can generate key] the specified pk.
-        /// </summary>
-        /// <param name="pk">The pk.</param>
-        /// <param name="pInfo">The p info.</param>
-        /// <param name="entity">The entity.</param>
-        /// <param name="typeConverterStore">The type converter store.</param>
-        /// <returns>
-        /// 	<c>true</c> if this instance [can generate key] the specified pk; otherwise, <c>false</c>.
-        /// </returns>
-        public static bool CanGenerateKey(this PrimaryKeyProperty pk, PropertyAccessor pInfo, object entity, ITypeConverterStore typeConverterStore)
-        {
-            if (pk.KeyGenerator == null)
-                return false;
-
-            //now let's  check the value
-            var idValue = pInfo.GetMethod(entity);
-            
-            if (idValue == null)
-                return true;
-
-            var converter = typeConverterStore.GetConverterFactoryMethod(idValue.GetType());
-
-            try
-            {
-                object unsavedVal = converter.Invoke(pk.UnsavedValue);
-                if (idValue.Equals(unsavedVal))
-                    return true;
-
-                return false;
-            }
-            catch (Exception ex)
-            {
-                throw new MappingException(string.Format("Could not convert '{0}' to {1} for property {2}", pk.UnsavedValue, idValue.GetType().FullName, pk.Key.PropertyName), ex);
-            }
-
-        }
     }
 }
