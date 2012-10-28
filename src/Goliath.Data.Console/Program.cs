@@ -31,6 +31,8 @@ namespace WebZoo.Data
             string template = "select @{col:a.Id}, @{sel:a.Name}, @{sel:a.City}, @{sel:a.AcceptNewAnimals} from  @{a.TableName} where @{prop:a.Id} = @{prop:b.Id}";
             string template2 = @"INSERT INTO @{TableName}(@{sel:Name},@{col:City},@{col:AcceptNewAnimals}) VALUES(@{prop:Name},@{prop:City},@{prop:AcceptNewAnimals})";
 
+            var t = typeof (int);
+            var t2 = typeof (int?);
 
             //si.Select<Animal>("Id", "some", "Xoe")
             //    .InnerJoin<Zoo>()

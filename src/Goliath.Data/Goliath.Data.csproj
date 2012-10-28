@@ -181,6 +181,7 @@
     <Compile Include="Sql\Fluent\SortBuilder.cs" />
     <Compile Include="Sql\Fluent\SqlSelectColumnFormatter.cs" />
     <Compile Include="Sql\InsertSqlBuilder.cs" />
+    <Compile Include="Sql\InsertSqlInfo.cs" />
     <Compile Include="Sql\ISqlWorker.cs" />
     <Compile Include="Sql\Fluent\JoinBuilder.cs" />
     <Compile Include="Sql\Fluent\QueryBuilder.cs" />
