@@ -1,4 +1,5 @@
 using System;
+using Goliath.Data.Sql;
 
 namespace Goliath.Data
 {
@@ -14,7 +15,7 @@ namespace Goliath.Data
         /// <value>
         /// The comparison operator.
         /// </value>
-        public Sql.ComparisonOperator ComparisonOperator { get; set; }
+        public ComparisonOperator ComparisonOperator { get; set; }
 
         /// <summary>
         /// Gets or sets the post operator.
@@ -22,7 +23,7 @@ namespace Goliath.Data
         /// <value>
         /// The post operator.
         /// </value>
-        public Sql.SqlOperator PostOperator { get; set; }
+        public SqlOperator PostOperator { get; set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PropertyQueryParam"/> class.

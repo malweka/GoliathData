@@ -98,12 +98,31 @@ namespace WebZoo.Data
             MappedStatementRunner runner = new MappedStatementRunner();
             var verify = runner.RunStatement<Zoo>(sess, statName, null, sdZoo);
 
-            Employee empl = new Employee { AssignedToZooId = 1, EmailAddress = "mail@com", FirstName = "Joe", HiredOn = DateTime.Now, LastName = "Smith", Title = "some edm", Telephone = "125699555" };
+            //Employee empl = new Employee { AssignedToZooId = 1, EmailAddress = "mail@com", FirstName = "Joe", HiredOn = DateTime.Now, LastName = "Smith", Title = "some edm", Telephone = "125699555" };
+            Monkey mnk1 = new Monkey()
+                                {
+                                    Age = 12,
+                                    CanDoTricks = true,
+                                    Family = "Singe",
+                                    Location = "somecage",
+                                    Name = "joemonkey",
+                                    ReceivedOn = DateTime.Now,
+                                    ZooId = 1
+                                };
             var employeeMap = map.EntityConfigs.FirstOrDefault(c => string.Equals(c.Name, "Employee", StringComparison.Ordinal));
+            var animalEntMap = map.EntityConfigs.FirstOrDefault(c => string.Equals(c.Name, "Animal", StringComparison.Ordinal));
+            var zooEntMap = map.EntityConfigs.FirstOrDefault(c => string.Equals(c.Name, "Zoo", StringComparison.Ordinal));
+            var monkeyMap = map.EntityConfigs.FirstOrDefault(c => string.Equals(c.Name, "Monkey", StringComparison.Ordinal));
 
             InsertSqlBuilder insertBuild = new InsertSqlBuilder();
-            var builtInst = insertBuild.Build(empl, sess, employeeMap);
-            var insertsqlValue = builtInst.ToString(sess.SessionFactory.DbSettings.SqlDialect);
+            var builtInst = insertBuild.Build(mnk1, monkeyMap, sess);
+
+            foreach (var insertSqlInfo in builtInst.Statements)
+            {
+                var sql = insertSqlInfo.ToString(sess.SessionFactory.DbSettings.SqlDialect);
+                Console.WriteLine(sql);
+            }
+            //var insertsqlValue = builtInst.ToString(sess.SessionFactory.DbSettings.SqlDialect);
 
 
             var zoodapter = sess.CreateDataAccessAdapter<Zoo>();
@@ -223,9 +242,7 @@ namespace WebZoo.Data
                 //                string sqlQuery = @"select ani1.ZooId as ani1_ZooId, ani1.Id as ani1_Id, ani1.Name as ani1_Name, ani1.Age as ani1_Age, ani1.Location as ani1_Location, ani1.ReceivedOn as ani1_ReceivedOn  from animals ani1";
                 SqliteDialect mapper = new SqliteDialect();
 
-                var animalEntMap = map.EntityConfigs.FirstOrDefault(c => string.Equals(c.Name, "Animal", StringComparison.Ordinal));
-
-                var zooEntMap = map.EntityConfigs.FirstOrDefault(c => string.Equals(c.Name, "Zoo", StringComparison.Ordinal));
+                
 
 
 

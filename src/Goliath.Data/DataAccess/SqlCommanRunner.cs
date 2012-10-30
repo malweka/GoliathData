@@ -21,6 +21,15 @@ namespace Goliath.Data.DataAccess
             logger = Logger.GetLogger(typeof(SqlCommandRunner));
         }
 
+        /// <summary>
+        /// Executes the scalar.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="dbConn">The db conn.</param>
+        /// <param name="session">The session.</param>
+        /// <param name="sql">The SQL.</param>
+        /// <param name="paramArray">The param array.</param>
+        /// <returns></returns>
         internal T ExecuteScalar<T>(DbConnection dbConn, ISession session, string sql, params QueryParam[] paramArray)
         {
             var result = session.DataAccess.ExecuteScalar(dbConn, session.CurrentTransaction, sql, paramArray);
@@ -28,7 +37,7 @@ namespace Goliath.Data.DataAccess
             if (result != null)
             {
                 var converter = session.SessionFactory.DbSettings.ConverterStore.GetConverterFactoryMethod(typeof(T));
-                var res = converter.Invoke(result);
+                var res = converter(result);
                 if (res != null)
                     return (T)res;
             }
@@ -151,6 +160,42 @@ namespace Goliath.Data.DataAccess
             return entities;
         }
 
+        public object ExecuteScalar(ISession session, string sql, Type resultType, params QueryParam[] paramArray)
+        {
+            bool ownTransaction = false;
+            
+            try
+            {
+                var dbConn = session.ConnectionManager.OpenConnection();
+                object value = null;
+
+                if ((session.CurrentTransaction == null) || !session.CurrentTransaction.IsStarted)
+                {
+                    session.BeginTransaction();
+                    ownTransaction = true;
+                }
+
+                var result = session.DataAccess.ExecuteScalar(dbConn, session.CurrentTransaction, sql, paramArray);
+                var converter = session.SessionFactory.DbSettings.ConverterStore.GetConverterFactoryMethod(resultType);
+                value = converter(result);
+
+                if (ownTransaction)
+                    session.CommitTransaction();
+
+                return value;
+            }
+            catch (GoliathDataException ex)
+            {
+                logger.Log(LogLevel.Debug, string.Format("Goliath Exception found {0} ", ex.Message));
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new GoliathDataException(string.Format("Exception while running sql command: {0}", sql), ex);
+            }
+
+           
+        }
         /// <summary>
         /// Runs the statement.
         /// </summary>
@@ -270,6 +315,7 @@ namespace Goliath.Data.DataAccess
         /// <param name="offset">The offset.</param>
         /// <param name="paramArray">The param array.</param>
         /// <returns></returns>
+        /// <exception cref="GoliathDataException"></exception>
         public IList<T> RunList<T>(ISession session, SqlQueryBody sql, int limit, int offset, params QueryParam[] paramArray)
         {
             Type instanceType = typeof(T);
