@@ -7,8 +7,10 @@ namespace Goliath.Data.Sql
     public class InsertSqlInfo
     {
         public Dictionary<string, QueryParam> Parameters { get; private set; }
-        public List<string> Columns { get; private set; }
+        public Dictionary<string, string> Columns { get; private set; }
         public List<string> DbKeyGenerateSql { get; set; }
+        public bool Processed { get; set; }
+        public bool DelayExecute { get; set; }
         public string TableName { get; set; }
 
         /// <summary>
@@ -17,7 +19,7 @@ namespace Goliath.Data.Sql
         public InsertSqlInfo()
         {
             Parameters = new Dictionary<string, QueryParam>();
-            Columns = new List<string>();
+            Columns = new Dictionary<string, string>();
             DbKeyGenerateSql = new List<string>();
         }
 
@@ -30,19 +32,21 @@ namespace Goliath.Data.Sql
         public string ToString(SqlDialect dialect)
         {
             var sb = new StringBuilder("INSERT INTO ");
-            sb.AppendFormat("{0} (", TableName);
+            sb.AppendFormat("{0} (", dialect.Escape(TableName));
             int countChecker = Columns.Count - 1;
-            for (int i = 0; i < Columns.Count; i++)
+            int counter = 0;
+            foreach(var column in Columns.Values)
             {
-                sb.Append(dialect.Escape(Columns[i]));
-                if (i < countChecker)
+                sb.Append(dialect.Escape(column));
+                if (counter < countChecker)
                 {
                     sb.Append(", ");
                 }
+                counter++;
             }
             sb.Append(") VALUES(");
 
-            int counter = 0;
+            counter = 0;
             foreach (var param in Parameters.Values)
             {
                 sb.Append(dialect.CreateParameterName(param.Name));
