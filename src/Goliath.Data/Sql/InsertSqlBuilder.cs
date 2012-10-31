@@ -8,6 +8,9 @@ using Goliath.Data.Utils;
 
 namespace Goliath.Data.Sql
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class InsertSqlBuilder
     {
         readonly EntityAccessorStore entityAccessorStore = new EntityAccessorStore();
