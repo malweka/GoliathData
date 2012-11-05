@@ -118,6 +118,7 @@
     <Content Include="Scripts\Sqlite3\WebZooAutoIncrement\02_employees.sql" />
     <Content Include="Scripts\Sqlite3\WebZooAutoIncrement\03_animals_handlers.sql" />
     <Content Include="Scripts\Sqlite3\WebZooAutoIncrement\04_monkeys.sql" />
+    <Content Include="Scripts\Sqlite3\WebZooAutoIncrement\05_data_insert.sql" />
     <Content Include="Scripts\Sqlite3\WebZooGuid\00_zoos.sql" />
     <Content Include="Scripts\Sqlite3\WebZooGuid\01_animals.sql" />
     <Content Include="Scripts\Sqlite3\WebZooGuid\02_employees.sql" />
