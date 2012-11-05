@@ -101,7 +101,8 @@ namespace WebZoo.Data
             MappedStatementRunner runner = new MappedStatementRunner();
             var verify = runner.RunStatement<Zoo>(sess, statName, null, sdZoo);
 
-            //Employee empl = new Employee { AssignedToZooId = 1, EmailAddress = "mail@com", FirstName = "Joe", HiredOn = DateTime.Now, LastName = "Smith", Title = "some edm", Telephone = "125699555" };
+            Employee empl = new Employee { AssignedToZooId = 1, EmailAddress = "mail@com", FirstName = "Joe", HiredOn = DateTime.Now, LastName = "Smith", Title = "some edm", Telephone = "125699555" };
+            empl.AssignedToZoo = new Zoo() {Name = "Kjowieoi", AcceptNewAnimals = false, City = "kilimanjaro"};
             Monkey mnk1 = new Monkey()
                                 {
                                     Age = 12,
@@ -125,8 +126,14 @@ namespace WebZoo.Data
                 var sql = insertSqlInfo.ToString(sess.SessionFactory.DbSettings.SqlDialect);
                 Console.WriteLine(sql);
             }
-            //var insertsqlValue = builtInst.ToString(sess.SessionFactory.DbSettings.SqlDialect);
 
+            //var insertsqlValue = builtInst.ToString(sess.SessionFactory.DbSettings.SqlDialect);
+            var relInsBuild = insertBuild.Build(empl, employeeMap, sess);
+            foreach (var insertSqlInfo in relInsBuild.Statements)
+            {
+                var sql = insertSqlInfo.ToString(sess.SessionFactory.DbSettings.SqlDialect);
+                Console.WriteLine(sql);
+            }
 
             var zoodapter = sess.CreateDataAccessAdapter<Zoo>();
             var animalapter = sess.CreateDataAccessAdapter<Animal>();

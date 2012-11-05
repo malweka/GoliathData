@@ -63,11 +63,11 @@ namespace Goliath.Data.DataAccess
 
                     if ((type == typeof(int)) || (type == typeof(int?)) || (type == typeof(long)) ||
                         (type == typeof(long?)) || (type == typeof(short)) || (type == typeof(short?)))
-                        return -1;
+                        return 0;
 
                     if ((type == typeof(double)) || (type == typeof(double?)) || (type == typeof(float)) ||
                         (type == typeof(float?)))
-                        return -1.0;
+                        return 0.0;
 
                     if ((type == typeof(Guid)) || (type == typeof(Guid?)))
                         return Guid.Empty;
