@@ -57,9 +57,10 @@ namespace Goliath.Data.Sql
             var dialect = session.SessionFactory.DbSettings.SqlDialect;
             var converterStore = session.SessionFactory.DbSettings.ConverterStore;
 
+            Tuple<string, PropertyAccessor> pkTuple = null;
             if (entityMap.PrimaryKey != null)
             {
-                ProcessPrimaryKey(entity, entityType, entityMap, info, entityAccessor, executionList, session);
+                pkTuple = ProcessPrimaryKey(entity, entityType, entityMap, info, entityAccessor, executionList, session);
             }
 
             foreach (var prop in entityMap)
@@ -84,38 +85,63 @@ namespace Goliath.Data.Sql
                 }
             }
 
-            executionList.ExcuteStatement(session,info);
+            if ((pkTuple != null) && (pkTuple.Item2 != null))
+            {
+                var resultType = pkTuple.Item2.PropertyType;
+                var pkValue = executionList.ExcuteStatement(session, info, resultType);
+
+                if (!info.DelayExecute)
+                {
+                    QueryParam pkQueryParam;
+                    if (!info.Parameters.TryGetValue(pkTuple.Item1, out pkQueryParam))
+                    {
+                        pkQueryParam = new QueryParam(pkTuple.Item1);
+                    }
+
+                    pkQueryParam.Value = pkValue;
+                    pkTuple.Item2.SetMethod(entity, pkValue);
+                    executionList.GeneratedKeys.Add(pkTuple.Item1, pkQueryParam);
+                }
+            }
+            else
+            {
+                executionList.ExcuteStatement(session, info, typeof(object));
+            }
+
         }
 
-        void ProcessPrimaryKey(object entity, Type entityType, EntityMap entityMap, InsertSqlInfo info, EntityAccessor entityAccessor, InsertSqlExecutionList executionList, ISession session)
+        Tuple<string, PropertyAccessor> ProcessPrimaryKey(object entity, Type entityType, EntityMap entityMap, InsertSqlInfo info, EntityAccessor entityAccessor, InsertSqlExecutionList executionList, ISession session)
         {
             var dialect = session.SessionFactory.DbSettings.SqlDialect;
             var converterStore = session.SessionFactory.DbSettings.ConverterStore;
+            PropertyAccessor pinf = null;
+            string paramName = null;
 
             foreach (var pk in entityMap.PrimaryKey.Keys)
             {
                 var rel = pk.Key as Relation;
-                if(rel != null)
+                if (rel != null)
                 {
                     var relEntMap = session.SessionFactory.DbSettings.Map.GetEntityMap(rel.ReferenceEntityName);
-                    var paramName = ParameterNameBuilderHelper.QueryParamName(relEntMap, rel.ReferenceProperty);
+                    paramName = ParameterNameBuilderHelper.QueryParamName(relEntMap, rel.ReferenceProperty);
                     var pkQueryParam = new QueryParam(paramName);
                     info.Parameters.Add(paramName, pkQueryParam);
                     info.Columns.Add(paramName, pk.Key.ColumnName);
                     Build(entity, entityType, relEntMap, executionList, session);
+
                     continue;
                 }
 
                 SqlOperationPriority priority;
+                paramName = ParameterNameBuilderHelper.QueryParamName(entityMap, pk.Key.Name);
+                if (!entityAccessor.Properties.TryGetValue(pk.Key.Name, out pinf))
+                    throw new GoliathDataException("Property " + pk.Key.Name + " not found in entity.");
+
                 if (!pk.KeyGenerator.IsDatabaseGenerated)
                 {
                     info.DelayExecute = true;
-                    string paramName = ParameterNameBuilderHelper.QueryParamName(entityMap, pk.Key.Name);
-                    PropertyAccessor pinf;
-                    var pkQueryParam = new QueryParam(paramName);
 
-                    if (!entityAccessor.Properties.TryGetValue(pk.Key.Name, out pinf))
-                        throw new GoliathDataException("Property " + pk.Key.Name + " not found in entity.");
+                    var pkQueryParam = new QueryParam(paramName);
 
                     if (!pk.UnsavedValueProcessed)
                     {
@@ -147,6 +173,8 @@ namespace Goliath.Data.Sql
                         info.DbKeyGenerateSql.Add(keyGenSql);
                 }
             }
+
+            return Tuple.Create(paramName, pinf);
         }
     }
 
@@ -156,14 +184,35 @@ namespace Goliath.Data.Sql
     public class InsertSqlExecutionList
     {
         readonly List<InsertSqlInfo> statements = new List<InsertSqlInfo>();
+        readonly Dictionary<string,QueryParam> generatedKeys = new Dictionary<string, QueryParam>();
+
+        /// <summary>
+        /// Gets the statements.
+        /// </summary>
+        /// <value>
+        /// The statements.
+        /// </value>
         public List<InsertSqlInfo> Statements { get { return statements; } }
+
+        /// <summary>
+        /// Gets the generated keys.
+        /// </summary>
+        /// <value>
+        /// The generated keys.
+        /// </value>
+        public Dictionary<string, QueryParam> GeneratedKeys
+        {
+            get { return generatedKeys; }
+        }
 
         /// <summary>
         /// Excutes the statement.
         /// </summary>
         /// <param name="session">The session.</param>
         /// <param name="statement">The statement.</param>
-        internal object ExcuteStatement(ISession session, InsertSqlInfo statement)
+        /// <param name="resultType">Type of the result.</param>
+        /// <returns></returns>
+        internal object ExcuteStatement(ISession session, InsertSqlInfo statement, Type resultType)
         {
             object value = null;
 
@@ -171,13 +220,23 @@ namespace Goliath.Data.Sql
             {
                 //execute all
                 var sql = statement.ToString(session.SessionFactory.DbSettings.SqlDialect);
-                //TODO: execution code here
+                var cmdr = new SqlCommandRunner();
+                var parameters = new List<QueryParam>();
+                parameters.AddRange(GeneratedKeys.Values);
+
+                foreach (var queryParam in statement.Parameters)
+                {
+                    if(!GeneratedKeys.ContainsKey(queryParam.Key))
+                        parameters.Add(queryParam.Value);
+                }
+
+                value = cmdr.ExecuteScalar(session, sql, resultType, parameters.ToArray());
                 statement.Processed = true;
             }
 
             Statements.Add(statement);
 
-            return null;
+            return value;
         }
 
         public void Execute(ISession session)

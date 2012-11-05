@@ -176,8 +176,15 @@ namespace Goliath.Data.DataAccess
                 }
 
                 var result = session.DataAccess.ExecuteScalar(dbConn, session.CurrentTransaction, sql, paramArray);
-                var converter = session.SessionFactory.DbSettings.ConverterStore.GetConverterFactoryMethod(resultType);
-                value = converter(result);
+
+                if (resultType == typeof(object))
+                    value = result;
+                else
+                {
+                    var converter = session.SessionFactory.DbSettings.ConverterStore.GetConverterFactoryMethod(resultType);
+                    value = converter(result);
+                }
+                
 
                 if (ownTransaction)
                     session.CommitTransaction();

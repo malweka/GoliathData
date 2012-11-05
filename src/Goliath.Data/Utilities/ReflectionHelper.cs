@@ -19,7 +19,7 @@ namespace Goliath.Data.Utils
             //mTypeHash[typeof(byte)] = OpCodes.Ldind_U1;
             //mTypeHash[typeof(char)] = OpCodes.Ldind_U2;
             //mTypeHash[typeof(short)] = OpCodes.Ldind_I2;
-            //mTypeHash[typeof(ushort)] = OpCodes.Ldind_U2;
+            //mTypeHash[typeof(ushort)] = OpCodes.Ldind_U2;0
             //mTypeHash[typeof(int)] = OpCodes.Ldind_I4;
             //mTypeHash[typeof(uint)] = OpCodes.Ldind_U4;
             //mTypeHash[typeof(long)] = OpCodes.Ldind_I8;
@@ -27,6 +27,23 @@ namespace Goliath.Data.Utils
             //mTypeHash[typeof(bool)] = OpCodes.Ldind_I1;
             //mTypeHash[typeof(double)] = OpCodes.Ldind_R8;
             //mTypeHash[typeof(float)] = OpCodes.Ldind_R4;
+        }
+
+        public static bool IsGoliathValueType(this Type type)
+        {
+            if (type.IsPrimitive || type.IsEnum || (type == typeof(string)) || (type == typeof(byte[])) ||
+                (type == typeof(DateTime)) || (type == typeof(decimal))
+                || (type == typeof(DateTimeOffset)) || (type == typeof(Guid)))
+                return true;
+
+            if (type.IsGenericType && (type.GetGenericTypeDefinition() == typeof(Nullable<>)))
+            {
+                var genTypeArgs = type.GetGenericArguments();
+                if (genTypeArgs.Length > 0)
+                    return IsGoliathValueType(genTypeArgs[0]);
+            }
+
+            return false;
         }
 
         static string GetMethodName(PropertyInfo property)
@@ -91,7 +108,7 @@ namespace Goliath.Data.Utils
             if (setMethod == null)
                 return null;
 
-            var arguments = new Type[] {typeof (object), typeof (object)};
+            var arguments = new Type[] { typeof(object), typeof(object) };
 
             Debug.Assert(property.DeclaringType != null, "property.DeclaringType != null");
             var setter = new DynamicMethod(methodName, typeof(void), arguments, property.DeclaringType);
