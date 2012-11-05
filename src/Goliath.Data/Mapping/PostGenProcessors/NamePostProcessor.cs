@@ -97,7 +97,7 @@ namespace Goliath.Data.Mapping
                         else if (pk.Key.IsIdentity)
                         {
                             pk.KeyGenerationStrategy = Generators.AutoIncrementGenerator.GeneratorName;
-                            pk.UnsavedValueString = "-1";
+                            pk.UnsavedValueString = "0";
                         }
                     }
                 }
