@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data;
 using System.Xml;
 using Goliath.Data.Diagnostics;
 
@@ -87,6 +88,37 @@ namespace Goliath.Data.Mapping
                 return true;
             }
             return false;
+        }
+
+        internal static string PrintUnsavedValue(this PrimaryKeyProperty property)
+        {
+            string rVal = null;
+            if(!string.IsNullOrWhiteSpace(property.UnsavedValueString))
+            {
+                var dbType = property.Key.DbType;
+                switch (dbType)
+                {
+                    case DbType.Decimal:
+                    case DbType.Double:
+                    case DbType.Int16:
+                    case DbType.Int32:
+                    case DbType.Int64:
+                    case DbType.VarNumeric:
+                    case DbType.UInt64:
+                    case DbType.UInt32:
+                    case DbType.UInt16:
+                        rVal = property.UnsavedValueString;
+                        break;
+                    case DbType.Guid:
+                        rVal = string.Format("new Guid(\"{0}\")", property.UnsavedValueString);
+                        break;
+                    default:
+                        rVal = string.Format("\"{0}\"", property.UnsavedValueString);
+                        break;
+                }
+            }
+
+            return rVal;
         }
 
         internal static bool HasReachedEndOfElement(this XmlReader reader, string elementName)

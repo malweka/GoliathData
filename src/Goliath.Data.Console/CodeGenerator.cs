@@ -75,7 +75,7 @@ namespace Goliath.Data.CodeGen
 
             MapConfig builder = generator.GenerateMap(settings, baseModel);
             CreateFolderIfNotExist(workingFolder);
-            string mapfile = Path.Combine(workingFolder, Constants.MapFileName);
+            string mapfile = Path.Combine(workingFolder, Constants.GeneratedMapFileName);
             builder.Save(mapfile, true);
 			return builder;
 
@@ -91,6 +91,7 @@ namespace Goliath.Data.CodeGen
 
     public class Constants
     {
+        public const string GeneratedMapFileName = "Generated_GoData.Map.xml";
         public const string MapFileName = "GoData.Map.xml";
     }
 }
