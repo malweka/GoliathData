@@ -131,6 +131,15 @@ namespace Goliath.Data.Mapping
         public string MapReferenceColumn { get; set; }
 
         /// <summary>
+        /// Gets or sets the name of the property.
+        /// </summary>
+        /// <value>
+        /// The name of the property.
+        /// </value>
+        [DataMember]
+        public string MapPropertyName { get; set; }
+
+        /// <summary>
         /// Gets or sets the type of the collection.
         /// </summary>
         /// <value>The type of the collection.</value>

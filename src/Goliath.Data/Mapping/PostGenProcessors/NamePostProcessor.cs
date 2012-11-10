@@ -58,6 +58,12 @@ namespace Goliath.Data.Mapping
                         }
 
                         string name = relNamer.Transform(rel, rel.ColumnName);
+                        if(!string.IsNullOrWhiteSpace(rel.MapPropertyName))
+                        {
+                            string mapPropName = propNamer.Transform(rel, rel.MapPropertyName);
+                            rel.MapPropertyName = mapPropName;
+                        }
+
                         if (!string.Equals(rel.ColumnName, name) && !rel.IsPrimaryKey)
                         {
                             //rel.PropertyName = name;

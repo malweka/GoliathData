@@ -54,8 +54,6 @@ namespace Goliath.Data.Sql
 
             var info = new InsertSqlInfo { TableName = entityMap.TableName };
             var entityAccessor = entityAccessorStore.GetEntityAccessor(entityType, entityMap);
-
-            var dialect = session.SessionFactory.DbSettings.SqlDialect;
             var converterStore = session.SessionFactory.DbSettings.ConverterStore;
 
             Tuple<string, PropertyAccessor> pkTuple = null;
@@ -72,7 +70,7 @@ namespace Goliath.Data.Sql
                 var rel = prop as Relation;
                 if (rel != null)
                 {
-                    ProcessRelation(rel, entity, entityType, entityMap, info, entityAccessor, executionList, converterStore, session);
+                    ProcessRelation(rel, entity, entityMap, info, entityAccessor, executionList, converterStore, session);
                 }
                 else
                 {
@@ -93,10 +91,10 @@ namespace Goliath.Data.Sql
             if ((pkTuple != null) && (pkTuple.Item2 != null))
             {
                 var resultType = pkTuple.Item2.PropertyType;
-                var pkValue = executionList.ExcuteStatement(session, info, resultType);
 
                 if (!info.DelayExecute)
                 {
+                    var pkValue = executionList.ExcuteStatement(session, info, resultType);
                     QueryParam pkQueryParam;
                     if (!info.Parameters.TryGetValue(pkTuple.Item1, out pkQueryParam))
                     {
@@ -107,10 +105,23 @@ namespace Goliath.Data.Sql
                     pkTuple.Item2.SetMethod(entity, pkValue);
                     executionList.GeneratedKeys.Add(pkTuple.Item1, pkQueryParam);
                 }
+                else
+                {
+                    executionList.ExcuteStatement(session, info, typeof(object));
+                }
             }
             else
             {
                 executionList.ExcuteStatement(session, info, typeof(object));
+            }
+
+            //check many to many relations and process them.
+            foreach (var rel in entityMap.Relations)
+            {
+                if (rel.RelationType == RelationshipType.ManyToMany)
+                {
+                    ProcessManyToManyRelation(rel, entity, entityMap, info, entityAccessor, executionList, converterStore, session);
+                }
             }
 
         }
@@ -164,7 +175,6 @@ namespace Goliath.Data.Sql
 
                     info.Parameters.Add(paramName, pkQueryParam);
                     info.Columns.Add(paramName, pk.Key.ColumnName);
-
                 }
                 else
                 {
@@ -192,7 +202,72 @@ namespace Goliath.Data.Sql
             return rlt;
         }
 
-        void ProcessRelation(Relation rel, object entity, Type entityType, EntityMap entityMap, InsertSqlInfo info, EntityAccessor entityAccessor, InsertSqlExecutionList executionList, ITypeConverterStore converterStore, ISession session)
+        void ProcessManyToManyRelation(Relation rel, object entity, EntityMap entityMap, InsertSqlInfo info, EntityAccessor entityAccessor, InsertSqlExecutionList executionList, ITypeConverterStore converterStore, ISession session)
+        {
+            if ((rel.RelationType != RelationshipType.ManyToMany) && rel.Inverse)
+                return;
+
+            PropertyAccessor pinf;
+            if (!entityAccessor.Properties.TryGetValue(rel.Name, out pinf))
+                throw new GoliathDataException("Property " + rel.Name + " not found in entity.");
+
+            var collection = pinf.GetMethod(entity) as System.Collections.IEnumerable;
+            int counter = 1;
+
+            if (collection != null)
+            {
+                foreach (var relObj in collection)
+                {
+                    if (relObj == null)
+                        continue;
+
+                    var relEntityType = relObj.GetType();
+                    var relEntityMap = session.SessionFactory.DbSettings.Map.GetEntityMap(relEntityType.FullName);
+                    var relEntAccessor = entityAccessorStore.GetEntityAccessor(relEntityType, relEntityMap);
+                    var paramName = ParameterNameBuilderHelper.QueryParamName(entityMap, rel.MapColumn + counter);
+                    string mapParamName = ParameterNameBuilderHelper.QueryParamName(entityMap, rel.MapReferenceColumn + counter);
+
+                    PropertyAccessor relPinf;
+                    if (!relEntAccessor.Properties.TryGetValue(rel.ReferenceProperty, out relPinf))
+                        throw new GoliathDataException("Reference " + rel.ReferenceProperty + " not found in entity.");
+
+                    if (relEntityMap.PrimaryKey != null)
+                    {
+                        foreach (var pk in relEntityMap.PrimaryKey.Keys)
+                        {
+                            object pkValue;
+                            if (HasUnsavedValue(pk, relPinf, collection, converterStore, out pkValue))
+                            {
+                                Build(collection, relEntityType, relEntityMap, executionList, session);
+                            }
+
+                            var manyToManyInfo = new InsertSqlInfo { DelayExecute = true, TableName = rel.MapTableName };
+
+                            var param1 = new QueryParam(mapParamName) {Value = relPinf.GetMethod(relObj)};
+                            manyToManyInfo.Columns.Add(mapParamName, rel.MapReferenceColumn);
+                            manyToManyInfo.Parameters.Add(mapParamName, param1);
+
+                            PropertyAccessor mappedPinf;
+                            if (!entityAccessor.Properties.TryGetValue(rel.MapPropertyName, out mappedPinf))
+                                throw new GoliathDataException("Property " + rel.MapPropertyName + " not found in entity" + entityMap.FullName + ".");
+
+                            var param2 = new QueryParam(paramName) {Value = mappedPinf.GetMethod(entity)};
+                            manyToManyInfo.Columns.Add(paramName, rel.ReferenceColumn);
+                            manyToManyInfo.Parameters.Add(paramName, param2);
+
+                            executionList.ExcuteStatement(session, manyToManyInfo, typeof (object));
+                        }
+                    }
+
+                    counter++;
+                }
+            }
+
+
+        }
+
+
+        void ProcessRelation(Relation rel, object entity, EntityMap entityMap, InsertSqlInfo info, EntityAccessor entityAccessor, InsertSqlExecutionList executionList, ITypeConverterStore converterStore, ISession session)
         {
             if ((rel.RelationType != RelationshipType.ManyToOne) || rel.IsAutoGenerated)
                 return;
@@ -207,12 +282,12 @@ namespace Goliath.Data.Sql
             if (relValue != null)
             {
                 //now we need to get unsaved value;
-                var relEntityMap = session.SessionFactory.DbSettings.Map.GetEntityMap(rel.ReferenceEntityName);
                 var relEntityType = relValue.GetType();
+                var relEntityMap = session.SessionFactory.DbSettings.Map.GetEntityMap(relEntityType.FullName);
                 var relEntAccessor = entityAccessorStore.GetEntityAccessor(relEntityType, relEntityMap);
 
                 PropertyAccessor relPinf;
-                if (!entityAccessor.Properties.TryGetValue(rel.ReferenceProperty, out relPinf))
+                if (!relEntAccessor.Properties.TryGetValue(rel.ReferenceProperty, out relPinf))
                     throw new GoliathDataException("Reference " + rel.ReferenceProperty + " not found in entity.");
 
                 if (relEntityMap.PrimaryKey != null)
@@ -240,6 +315,7 @@ namespace Goliath.Data.Sql
 
 
         }
+
     }
 
     /// <summary>

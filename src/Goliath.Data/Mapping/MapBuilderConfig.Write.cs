@@ -397,13 +397,6 @@ namespace Goliath.Data.Mapping
                 xmlWriter.WriteEndAttribute();
             }
 
-            //if (!string.IsNullOrWhiteSpace(transformation.Errors))
-            //{
-            //    xmlWriter.WriteStartElement("errors");
-            //    xmlWriter.WriteCData(transformation.Errors);
-            //    xmlWriter.WriteEndElement();//end errors
-            //}
-
             if (closeElement)
                 xmlWriter.WriteEndElement();//end property
         }
@@ -459,6 +452,13 @@ namespace Goliath.Data.Mapping
                 {
                     xmlWriter.WriteStartAttribute("mapColumn");
                     xmlWriter.WriteString(relation.MapColumn);
+                    xmlWriter.WriteEndAttribute();
+                }
+
+                if (!string.IsNullOrWhiteSpace(relation.MapPropertyName))
+                {
+                    xmlWriter.WriteStartAttribute("propertyName");
+                    xmlWriter.WriteString(relation.MapPropertyName);
                     xmlWriter.WriteEndAttribute();
                 }
 

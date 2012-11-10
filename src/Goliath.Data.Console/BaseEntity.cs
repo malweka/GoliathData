@@ -19,5 +19,10 @@ namespace WebZoo.Data
     public abstract class BaseEntityInt
     {
         public virtual int Id { get; set; }
+
+        protected BaseEntityInt()
+        {
+            Id = 0;
+        }
     }
 }

@@ -42,7 +42,7 @@
         <property name="ReceivedOn" column="ReceivedOn" clrType="System.DateTime" sqlType="datetime" nullable="False" dbType="DateTime" />
         <property name="ZooId" column="ZooId" clrType="System.Int32" sqlType="int" precision="10" scale="0" constraint="FK__animals__ZooId__16E43C86" nullable="False" dbType="Int32" />
         <reference name="Zoo" column="ZooId" clrType="System.Int32" sqlType="int" precision="10" scale="0" constraint="FK__animals__ZooId__16E43C86" nullable="False" relation="ManyToOne" referenceProperty="Id" refConstraint="FK__animals__ZooId__16E43C86" refEntity="WebZoo.Data.Zoo" dbType="Int32" />
-        <list name="EmployeesOnAnimalsHandler_AnimalId" column="Id" scale="0" type="" lazy="True" relation="ManyToMany" referenceProperty="Id" refEntity="WebZoo.Data.Employee" inverse="True" mapTable="animals_handlers" mapColumn="AnimalId" mapReferenceColumn="EmployeeId" />
+        <list name="EmployeesOnAnimalsHandler_AnimalId" column="Id" scale="0" type="" lazy="True" relation="ManyToMany" referenceProperty="Id" refEntity="WebZoo.Data.Employee" inverse="True" mapTable="animals_handlers" mapColumn="AnimalId" propertyName="Id" mapReferenceColumn="EmployeeId" />
       </properties>
     </entity>
     <entity name="Employee" extends="WebZoo.Data.BaseEntityInt" assembly="WebZoo.Data" entityNamespace="WebZoo.Data" table="employees" schema="dbo" alias="empl">
@@ -58,7 +58,7 @@
         <property name="HiredOn" column="HiredOn" clrType="System.DateTime" sqlType="datetime" nullable="False" dbType="DateTime" />
         <property name="AssignedToZooId" column="AssignedToZooId" clrType="System.Nullable`1[System.Int32]" sqlType="int" precision="10" scale="0" constraint="FK__employees__Assig__1BA8F1A3" dbType="Int32" />
         <reference name="AssignedToZoo" column="AssignedToZooId" clrType="System.Nullable`1[System.Int32]" sqlType="int" precision="10" scale="0" constraint="FK__employees__Assig__1BA8F1A3" relation="ManyToOne" referenceProperty="Id" refConstraint="FK__employees__Assig__1BA8F1A3" refEntity="WebZoo.Data.Zoo" dbType="Int32" />
-        <list name="AnimalsOnAnimalsHandler_EmployeeId" column="Id" scale="0" type="" lazy="True" relation="ManyToMany" referenceProperty="Id" refEntity="WebZoo.Data.Animal" mapTable="animals_handlers" mapColumn="EmployeeId" mapReferenceColumn="AnimalId" />
+        <list name="AnimalsOnAnimalsHandler_EmployeeId" column="Id" scale="0" type="" lazy="True" relation="ManyToMany" referenceProperty="Id" refEntity="WebZoo.Data.Animal" mapTable="animals_handlers" mapColumn="EmployeeId" propertyName="Id" mapReferenceColumn="AnimalId" />
       </properties>
     </entity>
     <entity name="AnimalsHandler" extends="WebZoo.Data.BaseEntityInt" linkTable="True" assembly="WebZoo.Data" entityNamespace="WebZoo.Data" table="animals_handlers" schema="dbo" alias="ani1">

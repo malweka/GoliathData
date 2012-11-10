@@ -479,6 +479,10 @@ namespace Goliath.Data.Mapping
                                 InitializeRelObject(ref rel, property);
                                 rel.MapReferenceColumn = reader.Value;
                                 break;
+                            case "propertyName":
+                                InitializeRelObject(ref rel, property);
+                                rel.MapPropertyName = reader.Value;
+                                break;
                             case "mapTable":
                                 InitializeRelObject(ref rel, property);
                                 rel.MapTableName = reader.Value;

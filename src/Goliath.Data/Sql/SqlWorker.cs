@@ -250,7 +250,7 @@ namespace Goliath.Data.Sql
                         if (entGetSets.Properties.TryGetValue(rel.PropertyName, out pInfo))
                         {
                             var colGetter = pInfo.GetMethod(entity);
-                            if ((colGetter != null) && (colGetter is System.Collections.IEnumerable))
+                            if (colGetter is System.Collections.IEnumerable)
                             {
                                 var list = (System.Collections.IEnumerable)colGetter;
                                 foreach (var mappedObject in list)
