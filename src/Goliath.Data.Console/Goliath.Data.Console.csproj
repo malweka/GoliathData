@@ -58,14 +58,9 @@
     <Compile Include="Generated\Monkey.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Generated\Mssql2008\Animal.cs" />
-    <Compile Include="Generated\Mssql2008\Employee.cs" />
-    <Compile Include="Generated\Mssql2008\Monkey.cs" />
-    <Compile Include="Generated\Mssql2008\Zoo.cs" />
-    <Compile Include="Generated\Sqlite\Animal.cs" />
-    <Compile Include="Generated\Sqlite\Employee.cs" />
-    <Compile Include="Generated\Sqlite\Monkey.cs" />
-    <Compile Include="Generated\Sqlite\Zoo.cs" />
+    <Compile Include="Generated\Role.cs" />
+    <Compile Include="Generated\Task.cs" />
+    <Compile Include="Generated\UserAccount.cs" />
     <Compile Include="Generated\Zoo.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -99,8 +94,6 @@
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
-    <Content Include="Generated\Mssql2008\GoData.Map.xml" />
-    <Content Include="Generated\Sqlite\GoData.Map.xml" />
     <Content Include="Scripts\05_data_insert.sql" />
     <Content Include="Scripts\Mssql2008\WebZooAutoIncrement\01_animals.sql" />
     <Content Include="Scripts\Mssql2008\WebZooAutoIncrement\00_zoos.sql" />

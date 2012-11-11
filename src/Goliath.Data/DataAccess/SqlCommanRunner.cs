@@ -160,10 +160,19 @@ namespace Goliath.Data.DataAccess
             return entities;
         }
 
+        /// <summary>
+        /// Executes the scalar.
+        /// </summary>
+        /// <param name="session">The session.</param>
+        /// <param name="sql">The SQL.</param>
+        /// <param name="resultType">Type of the result.</param>
+        /// <param name="paramArray">The param array.</param>
+        /// <returns></returns>
+        /// <exception cref="GoliathDataException"></exception>
         public object ExecuteScalar(ISession session, string sql, Type resultType, params QueryParam[] paramArray)
         {
             bool ownTransaction = false;
-            
+
             try
             {
                 var dbConn = session.ConnectionManager.OpenConnection();
@@ -184,7 +193,7 @@ namespace Goliath.Data.DataAccess
                     var converter = session.SessionFactory.DbSettings.ConverterStore.GetConverterFactoryMethod(resultType);
                     value = converter(result);
                 }
-                
+
 
                 if (ownTransaction)
                     session.CommitTransaction();
@@ -200,9 +209,48 @@ namespace Goliath.Data.DataAccess
             {
                 throw new GoliathDataException(string.Format("Exception while running sql command: {0}", sql), ex);
             }
-
-           
         }
+
+        /// <summary>
+        /// Executes the non query.
+        /// </summary>
+        /// <param name="session">The session.</param>
+        /// <param name="sql">The SQL.</param>
+        /// <param name="paramArray">The param array.</param>
+        /// <returns></returns>
+        /// <exception cref="GoliathDataException"></exception>
+        public int ExecuteNonQuery(ISession session, string sql, params QueryParam[] paramArray)
+        {
+            var ownTransaction = false;
+            try
+            {
+                var dbConn = session.ConnectionManager.OpenConnection();
+                var value = 0;
+
+                if ((session.CurrentTransaction == null) || !session.CurrentTransaction.IsStarted)
+                {
+                    session.BeginTransaction();
+                    ownTransaction = true;
+                }
+
+                value = session.DataAccess.ExecuteNonQuery(dbConn, session.CurrentTransaction, sql, paramArray);
+
+                if (ownTransaction)
+                    session.CommitTransaction();
+
+                return value;
+            }
+            catch (GoliathDataException ex)
+            {
+                logger.Log(LogLevel.Debug, string.Format("Goliath Exception found {0} ", ex.Message));
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new GoliathDataException(string.Format("Exception while running sql command: {0}", sql), ex);
+            }
+        }
+
         /// <summary>
         /// Runs the statement.
         /// </summary>

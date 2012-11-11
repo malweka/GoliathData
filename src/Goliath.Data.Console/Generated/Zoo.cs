@@ -25,9 +25,9 @@ namespace WebZoo.Data
 
 		#region relations
 
-		IList<WebZoo.Data.Animal> animalsOnZooId = new Goliath.Data.Collections.TrackableList<WebZoo.Data.Animal>();
+		IList<WebZoo.Data.Animal> animalsOnZooId = new List<WebZoo.Data.Animal>();
 		public virtual IList<WebZoo.Data.Animal> AnimalsOnZooId { get { return animalsOnZooId; } set { animalsOnZooId = value; } }
-		IList<WebZoo.Data.Employee> employeesOnAssignedToZooId = new Goliath.Data.Collections.TrackableList<WebZoo.Data.Employee>();
+		IList<WebZoo.Data.Employee> employeesOnAssignedToZooId = new List<WebZoo.Data.Employee>();
 		public virtual IList<WebZoo.Data.Employee> EmployeesOnAssignedToZooId { get { return employeesOnAssignedToZooId; } set { employeesOnAssignedToZooId = value; } }
 
 		#endregion
