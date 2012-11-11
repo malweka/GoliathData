@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using Goliath.Data;
 using Goliath.Data.Mapping;
 using Goliath.Data.DataAccess;
@@ -20,13 +18,26 @@ namespace Goliath.Data.Sql
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="entity">The entity.</param>
+        /// <param name="session">The session.</param>
+        /// <returns></returns>
+        public InsertSqlExecutionList Build<T>(T entity, ISession session) where T : class
+        {
+            var entMap = session.SessionFactory.DbSettings.Map.GetEntityMap(typeof(T).FullName);
+            return Build(entity, entMap, session);
+        }
+
+        /// <summary>
+        /// Builds the specified entity.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="entity">The entity.</param>
         /// <param name="entityMap">The entity map.</param>
         /// <param name="session">The session.</param>
         /// <returns></returns>
         public InsertSqlExecutionList Build<T>(T entity, EntityMap entityMap, ISession session) where T : class
         {
             var executionList = new InsertSqlExecutionList();
-            Type entityType = typeof(T);
+            var entityType = typeof(T);
             Build(entity, entityType, entityMap, executionList, session);
             return executionList;
         }
@@ -204,7 +215,7 @@ namespace Goliath.Data.Sql
 
         void ProcessManyToManyRelation(Relation rel, object entity, EntityMap entityMap, InsertSqlInfo info, EntityAccessor entityAccessor, InsertSqlExecutionList executionList, ITypeConverterStore converterStore, ISession session)
         {
-            if ((rel.RelationType != RelationshipType.ManyToMany) && rel.Inverse)
+            if ((rel.RelationType != RelationshipType.ManyToMany) || !rel.Inverse)
                 return;
 
             PropertyAccessor pinf;
@@ -225,7 +236,7 @@ namespace Goliath.Data.Sql
                     var relEntityMap = session.SessionFactory.DbSettings.Map.GetEntityMap(relEntityType.FullName);
                     var relEntAccessor = entityAccessorStore.GetEntityAccessor(relEntityType, relEntityMap);
                     var paramName = ParameterNameBuilderHelper.QueryParamName(entityMap, rel.MapColumn + counter);
-                    string mapParamName = ParameterNameBuilderHelper.QueryParamName(entityMap, rel.MapReferenceColumn + counter);
+                    var mapParamName = ParameterNameBuilderHelper.QueryParamName(entityMap, rel.MapReferenceColumn + counter);
 
                     PropertyAccessor relPinf;
                     if (!relEntAccessor.Properties.TryGetValue(rel.ReferenceProperty, out relPinf))
@@ -236,14 +247,14 @@ namespace Goliath.Data.Sql
                         foreach (var pk in relEntityMap.PrimaryKey.Keys)
                         {
                             object pkValue;
-                            if (HasUnsavedValue(pk, relPinf, collection, converterStore, out pkValue))
+                            if (HasUnsavedValue(pk, relPinf, relObj, converterStore, out pkValue))
                             {
-                                Build(collection, relEntityType, relEntityMap, executionList, session);
+                                Build(relObj, relEntityType, relEntityMap, executionList, session);
                             }
 
                             var manyToManyInfo = new InsertSqlInfo { DelayExecute = true, TableName = rel.MapTableName };
 
-                            var param1 = new QueryParam(mapParamName) {Value = relPinf.GetMethod(relObj)};
+                            var param1 = new QueryParam(mapParamName) { Value = relPinf.GetMethod(relObj) };
                             manyToManyInfo.Columns.Add(mapParamName, rel.MapReferenceColumn);
                             manyToManyInfo.Parameters.Add(mapParamName, param1);
 
@@ -251,21 +262,18 @@ namespace Goliath.Data.Sql
                             if (!entityAccessor.Properties.TryGetValue(rel.MapPropertyName, out mappedPinf))
                                 throw new GoliathDataException("Property " + rel.MapPropertyName + " not found in entity" + entityMap.FullName + ".");
 
-                            var param2 = new QueryParam(paramName) {Value = mappedPinf.GetMethod(entity)};
+                            var param2 = new QueryParam(paramName) { Value = mappedPinf.GetMethod(entity) };
                             manyToManyInfo.Columns.Add(paramName, rel.ReferenceColumn);
                             manyToManyInfo.Parameters.Add(paramName, param2);
 
-                            executionList.ExcuteStatement(session, manyToManyInfo, typeof (object));
+                            executionList.ExcuteStatement(session, manyToManyInfo, typeof(object));
                         }
                     }
 
                     counter++;
                 }
             }
-
-
         }
-
 
         void ProcessRelation(Relation rel, object entity, EntityMap entityMap, InsertSqlInfo info, EntityAccessor entityAccessor, InsertSqlExecutionList executionList, ITypeConverterStore converterStore, ISession session)
         {
@@ -312,76 +320,7 @@ namespace Goliath.Data.Sql
                     }
                 }
             }
-
-
         }
 
-    }
-
-    /// <summary>
-    /// 
-    /// </summary>
-    public class InsertSqlExecutionList
-    {
-        readonly List<InsertSqlInfo> statements = new List<InsertSqlInfo>();
-        readonly Dictionary<string, QueryParam> generatedKeys = new Dictionary<string, QueryParam>();
-
-        /// <summary>
-        /// Gets the statements.
-        /// </summary>
-        /// <value>
-        /// The statements.
-        /// </value>
-        public List<InsertSqlInfo> Statements { get { return statements; } }
-
-        /// <summary>
-        /// Gets the generated keys.
-        /// </summary>
-        /// <value>
-        /// The generated keys.
-        /// </value>
-        public Dictionary<string, QueryParam> GeneratedKeys
-        {
-            get { return generatedKeys; }
-        }
-
-        /// <summary>
-        /// Excutes the statement.
-        /// </summary>
-        /// <param name="session">The session.</param>
-        /// <param name="statement">The statement.</param>
-        /// <param name="resultType">Type of the result.</param>
-        /// <returns></returns>
-        internal object ExcuteStatement(ISession session, InsertSqlInfo statement, Type resultType)
-        {
-            object value = null;
-
-            if (!statement.DelayExecute)
-            {
-                //execute all
-                var sql = statement.ToString(session.SessionFactory.DbSettings.SqlDialect);
-                var cmdr = new SqlCommandRunner();
-                var parameters = new List<QueryParam>();
-                parameters.AddRange(GeneratedKeys.Values);
-
-                foreach (var queryParam in statement.Parameters)
-                {
-                    if (!GeneratedKeys.ContainsKey(queryParam.Key))
-                        parameters.Add(queryParam.Value);
-                }
-
-                value = cmdr.ExecuteScalar(session, sql, resultType, parameters.ToArray());
-                statement.Processed = true;
-            }
-
-            Statements.Add(statement);
-
-            return value;
-        }
-
-        public void Execute(ISession session)
-        {
-            //TODO: execute all statements here
-        }
     }
 }
