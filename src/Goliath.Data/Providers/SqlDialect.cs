@@ -447,6 +447,17 @@ namespace Goliath.Data.Providers
         /// <returns></returns>
         public virtual string Escape(string value)
         {
+            return Escape(value, EscapeValueType.GenericString);
+        }
+
+        /// <summary>
+        /// Escapes the specified value.
+        /// </summary>
+        /// <param name="value">The value.</param>
+        /// <param name="escapeValueType">Type of the escape value.</param>
+        /// <returns></returns>
+        public virtual string Escape(string value, EscapeValueType escapeValueType)
+        {
             return string.Format("[{0}]", value);
         }
 

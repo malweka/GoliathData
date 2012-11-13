@@ -42,10 +42,7 @@ namespace WebZoo.Data
         /// </returns>
 		public bool Equals(Task other)
 		{
-			if(other == null)
-				return false;
-			
-			return other.Id.Equals(Id);
+			return other != null && other.Id.Equals(Id);
 		}
 		
 		/// <summary>
@@ -68,11 +65,10 @@ namespace WebZoo.Data
         /// </returns>
 		public override bool Equals(object obj)
         {
-            if (obj is Task)
-                return Equals((Task)obj);
-		
-            return base.Equals(obj);
+        	var entObj = obj as Task;
+        	return entObj != null && Equals(entObj);
 		}
+		
 		#endregion
 		
 	}

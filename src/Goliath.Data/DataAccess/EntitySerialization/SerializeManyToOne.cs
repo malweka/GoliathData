@@ -22,7 +22,7 @@ namespace Goliath.Data.DataAccess
             if (!rel.LazyLoad)
             {
                 var relEntMap = entityMap.Parent.GetEntityMap(rel.ReferenceEntityName);
-                var relColumns = EntitySerializer.GetColumnNames(dbReader, relEntMap.TableAlias);
+                var relColumns = EntitySerializer.GetColumnNames(dbReader, relEntMap.TableAlias + rel.InternalIndex);
                 Type relType = pInfo.PropertyType;
                 var relEntAccessor = store.GetEntityAccessor(relType, relEntMap);
                 object relIstance = Activator.CreateInstance(relType);
@@ -40,10 +40,10 @@ namespace Goliath.Data.DataAccess
                     var val = dbReader[ordinal];
                     if (val != null)
                     {
-                        QueryParam qp = new QueryParam(ParameterNameBuilderHelper.ColumnQueryName(relEntMap.TableAlias, rel.ReferenceColumn)) { Value = val };
+                        QueryParam qp = new QueryParam(ParameterNameBuilderHelper.ColumnQueryName(relEntMap.TableAlias + rel.InternalIndex, rel.ReferenceColumn)) { Value = val };
 
                         SelectSqlBuilder sqlBuilder = new SelectSqlBuilder(sqlDialect, relEntMap)
-                           .Where(new WhereStatement(ParameterNameBuilderHelper.ColumnWithTableAlias(relEntMap.TableAlias, rel.ReferenceColumn))
+                           .Where(new WhereStatement(ParameterNameBuilderHelper.ColumnWithTableAlias(relEntMap.TableAlias + rel.InternalIndex, rel.ReferenceColumn))
                                     .Equals(sqlDialect.CreateParameterName(qp.Name)));
 
                         SqlOperationInfo qInfo = new SqlOperationInfo() { CommandType = SqlStatementType.Select };
@@ -54,7 +54,7 @@ namespace Goliath.Data.DataAccess
                         var proxyType = pbuilder.CreateProxy(pInfo.PropertyType, relEntMap);
                         object proxyobj = Activator.CreateInstance(proxyType, new object[] { pInfo.PropertyType, hydrator });
                         pInfo.SetMethod(instanceEntity, proxyobj);
-                        
+
                     }
                 }
             }

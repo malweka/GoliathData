@@ -263,7 +263,7 @@ namespace Goliath.Data.Sql
                                 throw new GoliathDataException("Property " + rel.MapPropertyName + " not found in entity" + entityMap.FullName + ".");
 
                             var param2 = new QueryParam(paramName) { Value = mappedPinf.GetMethod(entity) };
-                            manyToManyInfo.Columns.Add(paramName, rel.ReferenceColumn);
+                            manyToManyInfo.Columns.Add(paramName, rel.MapColumn);
                             manyToManyInfo.Parameters.Add(paramName, param2);
 
                             executionList.ExcuteStatement(session, manyToManyInfo, typeof(object));

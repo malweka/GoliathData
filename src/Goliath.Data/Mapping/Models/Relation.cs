@@ -140,6 +140,14 @@ namespace Goliath.Data.Mapping
         public string MapPropertyName { get; set; }
 
         /// <summary>
+        /// Gets or sets the index of the internal.
+        /// </summary>
+        /// <value>
+        /// The index of the internal.
+        /// </value>
+        internal int InternalIndex { get; set; }
+
+        /// <summary>
         /// Gets or sets the type of the collection.
         /// </summary>
         /// <value>The type of the collection.</value>

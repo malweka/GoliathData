@@ -32,12 +32,14 @@ namespace Goliath.Data.Sql
         public string ToString(SqlDialect dialect)
         {
             var sb = new StringBuilder("INSERT INTO ");
-            sb.AppendFormat("{0} (", dialect.Escape(TableName));
+            sb.AppendFormat("{0} (", dialect.Escape(TableName, EscapeValueType.TableName));
             int countChecker = Columns.Count - 1;
             int counter = 0;
+
             foreach(var column in Columns.Values)
             {
-                sb.Append(dialect.Escape(column));
+                sb.Append(dialect.Escape(column, EscapeValueType.Column));
+
                 if (counter < countChecker)
                 {
                     sb.Append(", ");
