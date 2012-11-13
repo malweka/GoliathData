@@ -146,7 +146,7 @@
         <param name="p1"/>
         <param name="p2"/>
       </dbParameters>
-      <body>select  * from zoos where Name = @{p1} and AcceptAnimals = @{p2};</body>
+      <body>select * from zoos where Name = @{p1} and AcceptAnimals = @{p2};</body>
     </statement>
   </statements>
   <complexTypes>

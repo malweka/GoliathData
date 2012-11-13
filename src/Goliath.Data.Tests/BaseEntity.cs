@@ -14,6 +14,12 @@ namespace WebZoo.Data
         /// The id.
         /// </value>
         public virtual Guid Id { get; set; }
+
+
+        protected BaseEntity()
+        {
+            Id = Guid.Empty;
+        }
     }
 
     public abstract class BaseEntityInt

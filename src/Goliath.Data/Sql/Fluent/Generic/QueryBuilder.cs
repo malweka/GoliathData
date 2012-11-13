@@ -13,7 +13,7 @@ namespace Goliath.Data.Sql
     {
         ISession session;
         QueryBuilder innerBuilder;
-        public EntityMap Table { get; private set; } 
+        public EntityMap Table { get; private set; }
         public EntityMap Extends { get; private set; }
         public QueryBuilder InnerBuilder { get { return innerBuilder; } }
 
@@ -51,8 +51,19 @@ namespace Goliath.Data.Sql
                 if (!rel.LazyLoad)
                 {
                     var relEntity = session.SessionFactory.DbSettings.Map.GetEntityMap(rel.ReferenceEntityName);
-                    if (!innerBuilder.Joins.ContainsKey(relEntity.TableAlias))
-                        innerBuilder.LeftJoin(relEntity.TableName, relEntity.TableAlias).On(Table.TableAlias, prop.ColumnName).EqualTo(rel.ReferenceColumn);
+                    JoinBuilder jn;
+                    if (!innerBuilder.Joins.TryGetValue(relEntity.TableAlias, out jn))
+                    {
+                        innerBuilder.LeftJoin(relEntity.TableName, relEntity.TableAlias + rel.InternalIndex).On(Table.TableAlias, prop.ColumnName).EqualTo(rel.ReferenceColumn);
+                    }
+                    //else
+                    //{
+                    //    if(!prop.ColumnName.Equals(jn.JoinLeftColumn))
+                    //    {
+
+                    //    }
+
+                    //}
                 }
             }
 
@@ -64,7 +75,7 @@ namespace Goliath.Data.Sql
             return string.Format("{2}.{0} AS {1}", columnName, ParameterNameBuilderHelper.ColumnQueryName(columnName, tableAbbreviation), tableAbbreviation);
         }
 
-        void LoadColumns(EntityMap entityMap, List<string> propertyNames)
+        void LoadColumns(EntityMap entityMap, string tableAlias, List<string> propertyNames)
         {
             Dictionary<string, string> cols = new Dictionary<string, string>();
 
@@ -76,22 +87,23 @@ namespace Goliath.Data.Sql
                     if (rel.RelationType == RelationshipType.ManyToOne)
                     {
                         if (!cols.ContainsKey(rel.ColumnName))
-                            cols.Add(rel.ColumnName, BuildColumnSelectString(rel.ColumnName, entityMap.TableAlias));
+                            cols.Add(rel.ColumnName, BuildColumnSelectString(rel.ColumnName, tableAlias));
 
                         if (!rel.LazyLoad)
                         {
                             var relEnt = session.SessionFactory.DbSettings.Map.GetEntityMap(rel.ReferenceEntityName);
                             if (!innerBuilder.Joins.ContainsKey(relEnt.TableAlias))
                             {
-                                innerBuilder.LeftJoin(relEnt.TableName, relEnt.TableAlias).On(entityMap.TableAlias, rel.ReferenceColumn).EqualTo(prop.ColumnName);
+                                innerBuilder.LeftJoin(relEnt.TableName, relEnt.TableAlias + rel.InternalIndex).On(entityMap.TableAlias, rel.ReferenceColumn).EqualTo(prop.ColumnName);
                             }
-                            LoadColumns(relEnt, propertyNames);
-                            
+
+                            LoadColumns(relEnt, relEnt.TableAlias+rel.InternalIndex, propertyNames);
+
                         }
                     }
                 }
                 else
-                    cols.Add(prop.ColumnName, BuildColumnSelectString(prop.ColumnName, entityMap.TableAlias));
+                    cols.Add(prop.ColumnName, BuildColumnSelectString(prop.ColumnName, tableAlias));
             }
 
             propertyNames.AddRange(cols.Values);
@@ -109,8 +121,8 @@ namespace Goliath.Data.Sql
 
             if (propertyNames.Count == 0)
             {
-                LoadColumns(Table, propertyNames);
-            }            
+                LoadColumns(Table, Table.TableAlias, propertyNames);
+            }
 
             if (Table.IsSubClass)
             {

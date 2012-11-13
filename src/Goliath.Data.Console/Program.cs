@@ -52,7 +52,7 @@ namespace WebZoo.Data
             SupportedRdbms rdbms = SupportedRdbms.Mssql2008;
             WebZooRunner zoorunner = new WebZooRunner(rdbms, new CodeGenerator(), AppDomain.CurrentDomain.BaseDirectory, true);
             //mapConfig = zoorunner.CreateMap();
-            zoorunner.GenerateCode();
+            //zoorunner.GenerateCode();
 
 
             string mapfile = Path.Combine(zoorunner.WorkingFolder, Goliath.Data.CodeGen.Constants.MapFileName);
@@ -263,9 +263,9 @@ namespace WebZoo.Data
                 .Where(wst.NotNull());
                 string sstring = selectBuilder.ToSqlString();
 
-                UpdateSqlBuilder updateBuilder = new UpdateSqlBuilder(mapper, animalEntMap);
-                var wheres = UpdateSqlBuilder.BuildWhereStatementFromPrimaryKey(animalEntMap, mapper, 0);
-                string updateString = updateBuilder.Where(wheres).ToSqlString();
+                UpdateSqlBuilderOld updateBuilderOld = new UpdateSqlBuilderOld(mapper, animalEntMap);
+                var wheres = UpdateSqlBuilderOld.BuildWhereStatementFromPrimaryKey(animalEntMap, mapper, 0);
+                string updateString = updateBuilderOld.Where(wheres).ToSqlString();
 
                 DeleteSqlBuilder deleteBuilder = new DeleteSqlBuilder(mapper, animalEntMap);
                 string deleteString = deleteBuilder.Where(wheres).ToSqlString();

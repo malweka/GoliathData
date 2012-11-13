@@ -156,6 +156,7 @@
     <Compile Include="ParamHolder.cs" />
     <Compile Include="PropertyQueryParam.cs" />
     <Compile Include="Providers\DbConnector.cs" />
+    <Compile Include="Providers\Enums.cs" />
     <Compile Include="Providers\ISchemaDescriptor.cs" />
     <Compile Include="Mapping\Models\Relation.cs" />
     <Compile Include="Mapping\PostGenProcessors\RelationshipProcessor.cs" />
@@ -206,7 +207,7 @@
     <Compile Include="Sql\SqlQueryBody.cs" />
     <Compile Include="Sql\SqlStatement.cs" />
     <Compile Include="Sql\SqlWorker.cs" />
-    <Compile Include="Sql\UpdateSqlBuilder.cs" />
+    <Compile Include="Sql\UpdateSqlBuilderOld.cs" />
     <Compile Include="Sql\Fluent\WhereClauseBuilder.cs" />
     <Compile Include="Sql\WhereStatement.cs" />
     <Compile Include="Utilities\EntityAccessor.cs" />

@@ -44,10 +44,7 @@ namespace WebZoo.Data
         /// </returns>
 		public bool Equals(Animal other)
 		{
-			if(other == null)
-				return false;
-			
-			return other.Id.Equals(Id);
+			return other != null && other.Id.Equals(Id);
 		}
 		
 		/// <summary>
@@ -70,11 +67,10 @@ namespace WebZoo.Data
         /// </returns>
 		public override bool Equals(object obj)
         {
-            if (obj is Animal)
-                return Equals((Animal)obj);
-		
-            return base.Equals(obj);
+        	var entObj = obj as Animal;
+        	return entObj != null && Equals(entObj);
 		}
+		
 		#endregion
 		
 	}

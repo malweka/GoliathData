@@ -96,10 +96,7 @@ namespace @Model.Namespace
         @:/// </returns>
 		@:public bool Equals(@(Model.Name) other)
 		@:{
-		@:	if(other == null)
-		@:		return false;
-		@:	
-		@:	return other.@(Model.PrimaryKey.Keys[0].Key.PropertyName).Equals(@(Model.PrimaryKey.Keys[0].Key.PropertyName));
+		@:	return other != null && other.@(Model.PrimaryKey.Keys[0].Key.PropertyName).Equals(@(Model.PrimaryKey.Keys[0].Key.PropertyName));
 		@:}
 		@:
 		@:/// <summary>
@@ -122,11 +119,10 @@ namespace @Model.Namespace
         @:/// </returns>
 		@:public override bool Equals(object obj)
         @:{
-        @:    if (obj is @(Model.Name))
-        @:        return Equals((@(Model.Name))obj);
-		@:
-        @:    return base.Equals(obj);
+        @:	var entObj = obj as @(Model.Name);
+        @:	return entObj != null && Equals(entObj);
 		@:}
+		@:
 		@:#endregion
 			}
 		}

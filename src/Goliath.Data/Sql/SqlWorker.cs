@@ -326,7 +326,7 @@ namespace Goliath.Data.Sql
         )
         {
             EntityMap baseEntMap = null;
-            UpdateSqlBuilder baseUpdateBuilder = null;
+            UpdateSqlBuilderOld baseUpdateBuilderOld = null;
             BatchSqlOperation operation = null;
             bool isSubclass = entityMap.IsSubClass;
 
@@ -335,13 +335,13 @@ namespace Goliath.Data.Sql
             if (isSubclass)
             {
                 baseEntMap = entityMap.Parent.GetEntityMap(entityMap.Extends);
-                baseUpdateBuilder = new UpdateSqlBuilder(dialect, baseEntMap, recursionLevel, rootRecursionLevel);
+                baseUpdateBuilderOld = new UpdateSqlBuilderOld(dialect, baseEntMap, recursionLevel, rootRecursionLevel);
 
-                var baseParamDictionary = UpdateSqlBuilder.BuildUpdateQueryParams(entity, entGetSets, baseEntMap, EntityAccessorStore, recursionLevel, rootRecursionLevel);
+                var baseParamDictionary = UpdateSqlBuilderOld.BuildUpdateQueryParams(entity, entGetSets, baseEntMap, EntityAccessorStore, recursionLevel, rootRecursionLevel);
                 SqlOperationInfo baseSqlOp = new SqlOperationInfo() { CommandType = SqlStatementType.Update };
 
-                var whereCollection = UpdateSqlBuilder.BuildWhereStatementFromPrimaryKey(baseEntMap, dialect, recursionLevel);
-                baseSqlOp.SqlText = baseUpdateBuilder.Where(whereCollection).ToSqlString();
+                var whereCollection = UpdateSqlBuilderOld.BuildWhereStatementFromPrimaryKey(baseEntMap, dialect, recursionLevel);
+                baseSqlOp.SqlText = baseUpdateBuilderOld.Where(whereCollection).ToSqlString();
                 List<QueryParam> baseParameters = new List<QueryParam>();
                 baseParameters.AddRange(baseParamDictionary.Values);
                 baseSqlOp.Parameters = baseParameters;
@@ -357,11 +357,11 @@ namespace Goliath.Data.Sql
                 operation.Priority = SqlOperationPriority.Medium;
             }
 
-            var wheres = UpdateSqlBuilder.BuildWhereStatementFromPrimaryKey(entityMap, dialect, recursionLevel);
-            UpdateSqlBuilder entUpdateSqlBuilder = new UpdateSqlBuilder(dialect, entityMap, recursionLevel, rootRecursionLevel);
-            var paramDictionary = UpdateSqlBuilder.BuildUpdateQueryParams(entity, entGetSets, entityMap, EntityAccessorStore, recursionLevel, rootRecursionLevel);
+            var wheres = UpdateSqlBuilderOld.BuildWhereStatementFromPrimaryKey(entityMap, dialect, recursionLevel);
+            UpdateSqlBuilderOld entUpdateSqlBuilderOld = new UpdateSqlBuilderOld(dialect, entityMap, recursionLevel, rootRecursionLevel);
+            var paramDictionary = UpdateSqlBuilderOld.BuildUpdateQueryParams(entity, entGetSets, entityMap, EntityAccessorStore, recursionLevel, rootRecursionLevel);
             SqlOperationInfo operationInfo = new SqlOperationInfo { CommandType = SqlStatementType.Update };
-            operationInfo.SqlText = entUpdateSqlBuilder.Where(wheres).ToSqlString();
+            operationInfo.SqlText = entUpdateSqlBuilderOld.Where(wheres).ToSqlString();
 
             List<QueryParam> parameters = new List<QueryParam>();
             parameters.AddRange(paramDictionary.Values);
@@ -476,7 +476,7 @@ namespace Goliath.Data.Sql
 
             bool isSubclass = entityMap.IsSubClass;
 
-            var wheres = UpdateSqlBuilder.BuildWhereStatementFromPrimaryKey(entityMap, dialect, 0);
+            var wheres = UpdateSqlBuilderOld.BuildWhereStatementFromPrimaryKey(entityMap, dialect, 0);
             DeleteSqlBuilder entDeleteSqlBuilder = new DeleteSqlBuilder(dialect, entityMap);
             var paramDictionary = DeleteSqlBuilder.BuildDeleteQueryParams(entity, entGetSets, entityMap, EntityAccessorStore);
             SqlOperationInfo operationInfo = new SqlOperationInfo { CommandType = SqlStatementType.Delete };
@@ -496,7 +496,7 @@ namespace Goliath.Data.Sql
                 var baseParamDictionary = DeleteSqlBuilder.BuildDeleteQueryParams(entity, entGetSets, baseEntMap, EntityAccessorStore);
                 SqlOperationInfo baseSqlOp = new SqlOperationInfo() { CommandType = SqlStatementType.Delete };
 
-                var whereCollection = UpdateSqlBuilder.BuildWhereStatementFromPrimaryKey(baseEntMap, dialect, 0);
+                var whereCollection = UpdateSqlBuilderOld.BuildWhereStatementFromPrimaryKey(baseEntMap, dialect, 0);
                 baseSqlOp.SqlText = baseDeleteBuilder.Where(whereCollection).ToSqlString();
                 List<QueryParam> baseParameters = new List<QueryParam>();
                 baseParameters.AddRange(baseParamDictionary.Values);

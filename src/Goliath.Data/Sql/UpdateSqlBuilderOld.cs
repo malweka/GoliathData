@@ -7,20 +7,20 @@ using Goliath.Data.Utils;
 
 namespace Goliath.Data.Sql
 {
-    class UpdateSqlBuilder : SqlBuilder
+    class UpdateSqlBuilderOld : SqlBuilder
     {
 
         int level;
         int rootLevel;
 
-        public UpdateSqlBuilder(SqlDialect dialect, EntityMap entMap)
+        public UpdateSqlBuilderOld(SqlDialect dialect, EntityMap entMap)
             : this(dialect, entMap, 0, 0)
         {
 
         }
 
 
-        public UpdateSqlBuilder(SqlDialect dialect, EntityMap entMap, int level, int rootLevel)
+        public UpdateSqlBuilderOld(SqlDialect dialect, EntityMap entMap, int level, int rootLevel)
             : base(dialect, entMap)
         {
             this.level = level;
@@ -50,7 +50,7 @@ namespace Goliath.Data.Sql
             }
         }
 
-        public UpdateSqlBuilder Where(params WhereStatement[] whereCollection)
+        public UpdateSqlBuilderOld Where(params WhereStatement[] whereCollection)
         {
             if (whereCollection != null)
             {

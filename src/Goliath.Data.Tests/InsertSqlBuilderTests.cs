@@ -12,7 +12,7 @@ namespace Goliath.Data.Tests
     public class InsertSqlBuilderTests
     {
         [Test]
-        public void Build_insert_statements_for_simple_entity_without_relation_should_create_one_insert_statement()
+        public void AutoIncrement_Build_insert_statements_for_simple_entity_without_relation_should_create_one_insert_statement()
         {
             //insert a zoo
             var zooEntMap = SessionHelper.Factory.DbSettings.Map.EntityConfigs.FirstOrDefault(c => string.Equals(c.Name, "Zoo", StringComparison.Ordinal));
@@ -29,7 +29,7 @@ namespace Goliath.Data.Tests
         }
 
         [Test]
-        public void Build_insert_entity_check_that_it_generate_parent_sql_first_inheritance()
+        public void AutoIncrement_Build_insert_entity_check_that_it_generate_parent_sql_first_inheritance()
         {
             var monkEntMap = SessionHelper.Factory.DbSettings.Map.EntityConfigs.FirstOrDefault(c => string.Equals(c.Name, "Monkey", StringComparison.Ordinal));
 
@@ -55,7 +55,7 @@ namespace Goliath.Data.Tests
         }
 
         [Test]
-        public void Build_insert_entity_with_new_entity_in_many2one_relation()
+        public void AutoIncrement_Build_insert_entity_with_new_entity_in_many2one_relation()
         {
             var monkEntMap = SessionHelper.Factory.DbSettings.Map.EntityConfigs.FirstOrDefault(c => string.Equals(c.Name, "Monkey", StringComparison.Ordinal));
 
@@ -83,7 +83,7 @@ namespace Goliath.Data.Tests
 
         //TODO" use NUnit TestCase to test with both sqlite and sql server
         [Test]
-        public void Build_insert_entity_with_existing_entity_in_many2one_relation()
+        public void AutoIncrement_Build_insert_entity_with_existing_entity_in_many2one_relation()
         {
             var monkEntMap = SessionHelper.Factory.DbSettings.Map.EntityConfigs.FirstOrDefault(c => string.Equals(c.Name, "Monkey", StringComparison.Ordinal));
             var zooEntMap = SessionHelper.Factory.DbSettings.Map.EntityConfigs.FirstOrDefault(c => string.Equals(c.Name, "Zoo", StringComparison.Ordinal));
@@ -115,9 +115,9 @@ namespace Goliath.Data.Tests
             Assert.IsTrue(monkey.Id > 0);
             Assert.AreEqual(zoo, monkey.Zoo);
         }
-        
+
         [Test]
-        public void Build_many_to_many_relation_should_save_new_entities()
+        public void AutoIncrement_Build_many_to_many_relation_should_save_new_entities()
         {
             var session = SessionHelper.Factory.OpenSession();
             InsertSqlBuilder builder = new InsertSqlBuilder();
@@ -141,7 +141,7 @@ namespace Goliath.Data.Tests
         }
 
         [Test]
-        public void Build_many_to_many_inverse_is_false_should_not_create_inserts_for_relations()
+        public void AutoIncrement_Build_many_to_many_inverse_is_false_should_not_create_inserts_for_relations()
         {
             var session = SessionHelper.Factory.OpenSession();
             InsertSqlBuilder builder = new InsertSqlBuilder();
@@ -150,10 +150,10 @@ namespace Goliath.Data.Tests
 
             Animal marsu = new Animal()
             {
-                Name = "marsupilami",
+                Name = "marsupilami 5",
                 Age = 4,
                 ReceivedOn = DateTime.Now,
-                Location = "marsu L23",
+                Location = "marsu L24",
                 ZooId = 1
             };
 
@@ -161,6 +161,75 @@ namespace Goliath.Data.Tests
 
             var execList = builder.Build(marsu, session);
             Assert.AreEqual(1, execList.Statements.Count);
+        }
+
+        [Test]
+        public void Guid_build_sql_insert()
+        {
+            var session = SessionHelper.Factory.OpenSession();
+            var builder = new InsertSqlBuilder();
+
+            Role role = new Role { Description = "test", Name = "Fake Role 1" };
+            var execList = builder.Build(role, session);
+
+            Assert.AreEqual(1, execList.Statements.Count);
+            Assert.IsFalse(execList.Statements[0].Processed);
+
+            Assert.AreEqual(1, execList.Execute(session));
+            Assert.IsFalse(role.Id.Equals(Guid.Empty));
+        }
+
+        [Test]
+        public void Guid_build_insert_entity_with_many_to_one_relationship()
+        {
+            var session = SessionHelper.Factory.OpenSession();
+            var builder = new InsertSqlBuilder();
+            UserAccount account = new UserAccount()
+                                      {
+                                          AccountCreatedOn = DateTime.Now,
+                                          EmailAddress = "email.address@mail.com",
+                                          UserName = "fakeuser23"
+                                      };
+            Task task = new Task()
+                            {
+                                AssignedTo = account,
+                                CreatedOn = DateTime.Now,
+                                Title = "fake task 133",
+                                TaskDescription = "fake fake fake... ldjlkj ljljlk jlj"
+                            };
+
+            var execList = builder.Build(task, session);
+            Assert.AreEqual(2, execList.Statements.Count);
+            Assert.IsFalse(task.Id.Equals(Guid.Empty));
+            Assert.IsFalse(account.Id.Equals(Guid.Empty));
+            Assert.AreEqual(2, execList.Execute(session));
+
+            var x = session.SelectAll<Task>().Where(c => c.Id).EqualToValue(task.Id).FetchAll().FirstOrDefault();
+            Assert.AreEqual(task, x);
+        }
+
+        [Test]
+        public void Guid_build_insert_entity_with_many_to_many_create()
+        {
+            var session = SessionHelper.Factory.OpenSession();
+            var builder = new InsertSqlBuilder();
+
+            var role = new Role { Description = "test", Name = "Fake Role 2" };
+
+            var account = new UserAccount()
+            {
+                AccountCreatedOn = DateTime.Now,
+                EmailAddress = "fake.address@mail.com",
+                UserName = "fakeuser22"
+            };
+
+            account.RolesOnUserRole_UserId.Add(role);
+
+            var execList = builder.Build(account, session);
+            Assert.AreEqual(3, execList.Statements.Count);
+            Assert.IsFalse(account.Id.Equals(Guid.Empty));
+            Assert.IsFalse(role.Id.Equals(Guid.Empty));
+            Assert.AreEqual(3, execList.Execute(session));
         }
     }
 }
