@@ -34,7 +34,7 @@ namespace Goliath.Data.Tests
                     .On("ftb", "jcol2").EqualTo("j2id");
 
             QueryBuilder builder = query as QueryBuilder;
-            string sql = builder.BuildSql().ToString();
+            string sql = builder.Build().ToString();
             Console.WriteLine(sql);
             Assert.AreEqual(statement, sql.Trim());
         }
@@ -51,7 +51,7 @@ namespace Goliath.Data.Tests
                 .Or("location").EqualToValue("NoWhere");
 
             QueryBuilder builder = query as QueryBuilder;
-            string sql = builder.BuildSql().ToString();
+            string sql = builder.Build().ToString();
             Console.WriteLine(sql);
 
             Assert.AreEqual(3, builder.Parameters.Count);
@@ -75,7 +75,7 @@ namespace Goliath.Data.Tests
                 .OrderBy("Id");
 
             QueryBuilder builder = query as QueryBuilder;
-            string sql = builder.BuildSql().ToString();
+            string sql = builder.Build().ToString();
 
             Console.WriteLine(sql);
 

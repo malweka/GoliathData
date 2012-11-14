@@ -80,6 +80,7 @@
     <Compile Include="SqlProcedureCollectionTests.cs" />
     <Compile Include="SqlWorkerTests.cs" />
     <Compile Include="StatementMapParserTests.cs" />
+    <Compile Include="UpdateSqlBuilderTests.cs" />
     <Compile Include="UserProvidedConnectionProviderTests.cs" />
   </ItemGroup>
   <ItemGroup>
