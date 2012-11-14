@@ -12,12 +12,12 @@ namespace Goliath.Data.Sql
 
     partial class QueryBuilder : IQueryBuilder, ITableNameBuilder
     {
-        List<string> columnNames = new List<string>();
-        List<QueryParam> parameters = new List<QueryParam>();
-        Dictionary<string, JoinBuilder> joins = new Dictionary<string, JoinBuilder>();
+        readonly List<string> columnNames = new List<string>();
+        readonly List<QueryParam> parameters = new List<QueryParam>();
+        readonly Dictionary<string, JoinBuilder> joins = new Dictionary<string, JoinBuilder>();
         SqlSelectColumnFormatter columnFormatter = new SqlSelectColumnFormatter();
-        MapConfig mapping;
-        SqlDialect dialect;
+
+        readonly SqlDialect dialect;
         string tableName;
         string alias;
         int limit=-1;
@@ -55,7 +55,6 @@ namespace Goliath.Data.Sql
 
             this.session = session;
             dialect = session.SessionFactory.DataSerializer.SqlDialect;
-            this.mapping = session.SessionFactory.DbSettings.Map;
 
         }
 
@@ -100,14 +99,14 @@ namespace Goliath.Data.Sql
                 offset = 0;
 
             SqlCommandRunner runner = new SqlCommandRunner();
-            var query = BuildSql();
+            var query = Build();
             return runner.RunList<T>(session, query, limit, offset, Parameters.ToArray());
         }
 
         ICollection<T> RunQueryAndHydrate<T>()
         {
             SqlCommandRunner runner = new SqlCommandRunner();
-            var query = BuildSql();
+            var query = Build();
             return runner.RunList<T>(session, query, Parameters.ToArray());
         }
 
@@ -124,7 +123,7 @@ namespace Goliath.Data.Sql
         public T FetchOne<T>()
         {
             SqlCommandRunner runner = new SqlCommandRunner();
-            var query = BuildSql();
+            var query = Build();
             return runner.Run<T>(session, query, Parameters.ToArray());
         }
 
@@ -138,7 +137,7 @@ namespace Goliath.Data.Sql
             }
         }
 
-        public SqlQueryBody BuildSql()
+        public SqlQueryBody Build()
         {
             SqlQueryBody queryBody = new SqlQueryBody();
 
