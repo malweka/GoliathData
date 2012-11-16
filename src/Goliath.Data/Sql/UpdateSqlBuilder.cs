@@ -64,16 +64,11 @@ namespace Goliath.Data.Sql
             return whereBuilder;
         }
 
-        public UpdateSqlBody Build()
+        public UpdateSqlBodyInfo Build()
         {
-            var columnFormatter = new SqlSelectColumnFormatter();
-            var paramNames = Parameters.Select(queryParam => dialect.CreateParameterName(queryParam.Name)).ToList();
-
-            var sqlBody = new UpdateSqlBody
+            var sqlBody = new UpdateSqlBodyInfo
                               {
-                                  Into = TableName,
-                                  ColumnEnumeration = columnFormatter.Format(columnNames, null),
-                                  ValuesEnumeration = columnFormatter.Format(paramNames, null)
+                                  TableName = TableName
                               };
 
             if (whereClauses.Count > 0)
@@ -99,6 +94,8 @@ namespace Goliath.Data.Sql
                     }
                 }
 
+                sqlBody.ColumnList = columnNames;
+                sqlBody.Parameters = Parameters.ToList();
                 sqlBody.WhereExpression = wherebuilder.ToString().Trim();
             }
             else
@@ -135,21 +132,25 @@ namespace Goliath.Data.Sql
         #endregion
     }
 
-    public struct UpdateSqlBody
+    /// <summary>
+    /// 
+    /// </summary>
+    public class UpdateSqlBodyInfo
     {
+
         /// <summary>
         /// Gets or sets the column enumeration.
         /// </summary>
         /// <value>The column enumeration.</value>
-        public string ColumnEnumeration { get; set; }
+        public List<string> ColumnList { get; set; }
 
         /// <summary>
-        /// Gets or sets the values enumeration.
+        /// Gets the parameters.
         /// </summary>
         /// <value>
-        /// The values enumeration.
+        /// The parameters.
         /// </value>
-        public string ValuesEnumeration { get; set; }
+        public List<QueryParam> Parameters { get; set; }
 
         /// <summary>
         /// Gets or sets the into.
@@ -157,7 +158,7 @@ namespace Goliath.Data.Sql
         /// <value>
         /// The into.
         /// </value>
-        public string Into { get; set; }
+        public string TableName { get; set; }
 
         /// <summary>
         /// Gets or sets the where expression.
@@ -174,11 +175,23 @@ namespace Goliath.Data.Sql
         /// </returns>
         public string ToString(SqlDialect dialect)
         {
-            var sb = new StringBuilder("INSERT INTO ");
-            sb.Append(Into);
-            sb.AppendFormat("({0}) ", ColumnEnumeration);
-            sb.AppendFormat("VALUES ({0}) ", ValuesEnumeration);
-            sb.AppendFormat("WHERE {0}", WhereExpression);
+            var sb = new StringBuilder("UPDATE ");
+            sb.AppendFormat("{0} SET ", dialect.Escape(TableName, EscapeValueType.TableName));
+            try
+            {
+                for (int i = 0; i < ColumnList.Count; i++)
+                {
+                    sb.AppendFormat("{0} = {1}", dialect.Escape(ColumnList[i], EscapeValueType.Column), dialect.CreateParameterName(Parameters[i].Name));
+                    if(i < (ColumnList.Count - 1))
+                        sb.Append(", ");
+                }
+            }
+            catch (Exception exception)
+            {
+                throw new GoliathDataException("Couldn't not build update statement. Please verify that you have matchin parameters for all your columns.", exception);
+            }
+
+            sb.AppendFormat(" WHERE {0}", WhereExpression);
             return sb.ToString();
         }
     }

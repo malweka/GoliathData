@@ -21,7 +21,7 @@ namespace Goliath.Data.Tests
         [Test]
         public void Build_statement_with_only_one_where_statement()
         {
-            string verify = "INSERT INTO faketable(col1, col2, col3) VALUES ($col1, $col2, $col3) WHERE col1 = $qPm0";
+            string verify = "UPDATE [faketable] SET [col1] = $col1, [col2] = $col2, [col3] = $col3 WHERE [col1] = $qPm0";
             var columns = new List<string>() {"col1", "col2", "col3"};
             var parameters = new List<QueryParam>
                                  {
@@ -57,7 +57,7 @@ namespace Goliath.Data.Tests
         [Test]
         public void Build_update_statment_with_several_where()
         {
-            string verify = "INSERT INTO faketable(col1, col2, col3) VALUES ($col1, $col2, $col3) WHERE col1 = $qPm0 AND col2 >= $qPm1 OR col3 = col1";
+            string verify = "UPDATE [faketable] SET [col1] = $col1, [col2] = $col2, [col3] = $col3 WHERE [col1] = $qPm0 AND [col2] >= $qPm1 OR [col3] = [col1]";
             var columns = new List<string>() { "col1", "col2", "col3" };
             var parameters = new List<QueryParam>
                                  {
