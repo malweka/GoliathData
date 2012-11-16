@@ -51,7 +51,7 @@ namespace Goliath.Data.Sql
         {
             QueryParam parameter = null;
             StringBuilder sql = new StringBuilder();
-            sql.AppendFormat("{0} ", LeftColumn);
+            sql.AppendFormat("{0} ", dialect.Escape(LeftColumn, EscapeValueType.Column));
 
             string op = null;
 
@@ -95,7 +95,7 @@ namespace Goliath.Data.Sql
             sql.AppendFormat("{0} ", op);
             if (!string.IsNullOrWhiteSpace(RightColumn))
             {
-                    sql.AppendFormat("{0} ", RightColumn);
+                sql.AppendFormat("{0} ", dialect.Escape(RightColumn, EscapeValueType.Column));
             }
             else if (ParamValue != null)
             {

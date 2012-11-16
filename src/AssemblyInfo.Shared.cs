@@ -5,6 +5,6 @@
 [assembly: AssemblyCopyright("Copyright © Emmanuel Hameyie 2012")]
 [assembly: AssemblyTrademark("")]
 
-[assembly: AssemblyVersion("1.0.1.15")]
-[assembly: AssemblyFileVersion("1.0.1.15")]
+[assembly: AssemblyVersion("1.1.0.0")]
+[assembly: AssemblyFileVersion("1.1.0.0")]
 
