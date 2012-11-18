@@ -33,46 +33,46 @@ namespace Goliath.Data.Sql
         IFilterClause<T, TProperty> Or<TProperty>(Expression<Func<T, TProperty>> property);
     }
 
-    public interface IFilterClause<T, VType>
+    public interface IFilterClause<T, TValue>
     {
-        IBinaryOperation<T> EqualToValue(VType value);
-        IBinaryOperation<T> EqualTo(Expression<Func<T, VType>> property);
+        IBinaryOperation<T> EqualToValue(TValue value);
+        IBinaryOperation<T> EqualTo(Expression<Func<T, TValue>> property);
 
-        IBinaryOperation<T> GreaterThanValue(VType value);
-        IBinaryOperation<T> GreaterThan(Expression<Func<T, VType>> property);
+        IBinaryOperation<T> GreaterThanValue(TValue value);
+        IBinaryOperation<T> GreaterThan(Expression<Func<T, TValue>> property);
 
-        IBinaryOperation<T> GreaterOrEqualToValue(VType value);
-        IBinaryOperation<T> GreaterOrEqualTo(Expression<Func<T, VType>> property);
+        IBinaryOperation<T> GreaterOrEqualToValue(TValue value);
+        IBinaryOperation<T> GreaterOrEqualTo(Expression<Func<T, TValue>> property);
 
-        IBinaryOperation<T> LowerOrEqualToValue(VType value);
-        IBinaryOperation<T> LowerOrEqualTo(Expression<Func<T, VType>> property);
+        IBinaryOperation<T> LowerOrEqualToValue(TValue value);
+        IBinaryOperation<T> LowerOrEqualTo(Expression<Func<T, TValue>> property);
 
-        IBinaryOperation<T> LowerThanValue(VType value);
-        IBinaryOperation<T> LowerThan(Expression<Func<T, VType>> property);
+        IBinaryOperation<T> LowerThanValue(TValue value);
+        IBinaryOperation<T> LowerThan(Expression<Func<T, TValue>> property);
 
-        IBinaryOperation<T> LikeValue(VType value);
-        IBinaryOperation<T> Like(Expression<Func<T, VType>> property);
+        IBinaryOperation<T> LikeValue(TValue value);
+        IBinaryOperation<T> Like(Expression<Func<T, TValue>> property);
     }
 
-    public interface IJoinFilterClause<T, TRelation, VType>
+    public interface IJoinFilterClause<T, TRelation, TValue>
     {
-        IJoinBinaryOperation<T, TRelation> EqualTo(VType value);
-        IJoinBinaryOperation<T, TRelation> EqualTo(Expression<Func<TRelation, VType>> property);
+        IJoinBinaryOperation<T, TRelation> EqualTo(TValue value);
+        IJoinBinaryOperation<T, TRelation> EqualTo(Expression<Func<TRelation, TValue>> property);
 
-        IJoinBinaryOperation<T, TRelation> GreaterThan(VType value);
-        IJoinBinaryOperation<T, TRelation> GreaterThan(Expression<Func<TRelation, VType>> property);
+        IJoinBinaryOperation<T, TRelation> GreaterThan(TValue value);
+        IJoinBinaryOperation<T, TRelation> GreaterThan(Expression<Func<TRelation, TValue>> property);
 
-        IJoinBinaryOperation<T, TRelation> GreaterOrEqualTo(VType value);
-        IJoinBinaryOperation<T, TRelation> GreaterOrEqualTo(Expression<Func<TRelation, VType>> property);
+        IJoinBinaryOperation<T, TRelation> GreaterOrEqualTo(TValue value);
+        IJoinBinaryOperation<T, TRelation> GreaterOrEqualTo(Expression<Func<TRelation, TValue>> property);
 
-        IJoinBinaryOperation<T, TRelation> LowerOrEqualTo(VType value);
-        IJoinBinaryOperation<T, TRelation> LowerOrEqualTo(Expression<Func<TRelation, VType>> property);
+        IJoinBinaryOperation<T, TRelation> LowerOrEqualTo(TValue value);
+        IJoinBinaryOperation<T, TRelation> LowerOrEqualTo(Expression<Func<TRelation, TValue>> property);
 
-        IJoinBinaryOperation<T, TRelation> LowerThan(VType value);
-        IJoinBinaryOperation<T, TRelation> LowerThan(Expression<Func<TRelation, VType>> property);
+        IJoinBinaryOperation<T, TRelation> LowerThan(TValue value);
+        IJoinBinaryOperation<T, TRelation> LowerThan(Expression<Func<TRelation, TValue>> property);
 
-        IJoinBinaryOperation<T, TRelation> Like(VType value);
-        IJoinBinaryOperation<T, TRelation> Like(Expression<Func<TRelation, VType>> property);
+        IJoinBinaryOperation<T, TRelation> Like(TValue value);
+        IJoinBinaryOperation<T, TRelation> Like(Expression<Func<TRelation, TValue>> property);
     }
 
     public interface IJoinBinaryOperation<T, TRelation> : IBinaryOperation<T>

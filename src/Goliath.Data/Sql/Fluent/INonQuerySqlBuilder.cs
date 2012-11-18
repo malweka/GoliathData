@@ -14,8 +14,8 @@ namespace Goliath.Data.Sql
     {
         IFilterNonQueryClause And(string propertyName);
         IFilterNonQueryClause Or(string propertyName);
-        //string Build();
-        //int Execute();
+        UpdateSqlBodyInfo Build();
+        int Execute();
     }
 
     public interface  IFilterNonQueryClause
