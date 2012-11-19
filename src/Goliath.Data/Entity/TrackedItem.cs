@@ -6,7 +6,7 @@ namespace Goliath.Data.Entity
     /// 
     /// </summary>
     [Serializable]
-    public class ChangeItem
+    public class TrackedItem : ITrackedItem
     {
         /// <summary>
         /// Gets the name of the item.
@@ -35,11 +35,11 @@ namespace Goliath.Data.Entity
         public long Version { get; internal set; }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ChangeItem"/> class.
+        /// Initializes a new instance of the <see cref="TrackedItem"/> class.
         /// </summary>
         /// <param name="itemName">Name of the item.</param>
         /// <param name="initialValue">The initial value.</param>
-        public ChangeItem(string itemName, object initialValue)
+        public TrackedItem(string itemName, object initialValue)
         {
             ItemName = itemName;
             InitialValue = initialValue;

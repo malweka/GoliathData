@@ -10,15 +10,16 @@ namespace Goliath.Data.Entity
     /// 
     /// </summary>
     [Serializable]
-    public class ChangeSet
+    public class ChangeSet : IChangeSet
     {
-        Dictionary<string, ChangeItem> changeList = new Dictionary<string, ChangeItem>();
+        readonly Dictionary<string, TrackedItem> changeList = new Dictionary<string, TrackedItem>();
 
         /// <summary>
         /// Gets the version.
         /// </summary>
         public long Version { get; private set; }
-        object stateObject = new object();
+
+        readonly object stateObject = new object();
         List<string> changes = new List<string>();
 
         bool tracking;
@@ -70,9 +71,9 @@ namespace Goliath.Data.Entity
         /// Gets the changed items.
         /// </summary>
         /// <returns></returns>
-        public ICollection<ChangeItem> GetChangedItems()
+        public ICollection<ITrackedItem> GetChangedItems()
         {
-            ChangeItem[] items;
+            TrackedItem[] items;
             lock (stateObject)
             {
                 items = changeList.Values.Where(c => c.Version > Version).ToArray();
@@ -121,7 +122,7 @@ namespace Goliath.Data.Entity
 
             lock (stateObject)
             {
-                ChangeItem item;
+                TrackedItem item;
                 if (changeList.TryGetValue(propertyName, out item))
                 {
                     if (item.Value.Equals(value))
@@ -145,7 +146,7 @@ namespace Goliath.Data.Entity
                 }
                 else
                 {
-                    item = new ChangeItem(propertyName, value) { Version = Version };
+                    item = new TrackedItem(propertyName, value) { Version = Version };
                     changeList.Add(propertyName, item);
                 }
             }
