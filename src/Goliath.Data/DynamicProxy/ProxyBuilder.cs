@@ -5,7 +5,7 @@ using Goliath.Data.Mapping;
 
 namespace Goliath.Data.DynamicProxy
 {
-    class ProxyBuilder
+    public class ProxyBuilder : IProxyBuilder
     {
 
         const string LazyObjectTriggerFieldName = "_lazyObjectLoaded";
@@ -16,15 +16,20 @@ namespace Goliath.Data.DynamicProxy
 
         static ProxyBuilder()
         {
-            AssemblyName proxyAssemblyName = new AssemblyName("goliathData_Proxy");
+            var proxyAssemblyName = new AssemblyName("goliathData_Proxy");
             var asmBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly(proxyAssemblyName, AssemblyBuilderAccess.RunAndSave);
             moduleBuilder = asmBuilder.DefineDynamicModule("GoliathDataProxies");
         }
 
-        public Type CreateProxy(Type typeToProxy, EntityMap entityMap)
+        protected  virtual  void AddInterfaceImplementation(TypeBuilder typeBuilder)
+        {
+            typeBuilder.AddInterfaceImplementation(typeof(ILazyObject));
+        }
+
+        public virtual Type CreateProxy(Type typeToProxy, EntityMap entityMap)
         {
             Type proxyType;
-            ProxyCache pcache = new ProxyCache();
+            var pcache = new ProxyCache();
             if (!pcache.TryGetProxyType(typeToProxy, out proxyType))
             {
                 var typeBuilder = moduleBuilder.DefineType(string.Format("LazyObject_{0}{1}", typeToProxy.Name, Guid.NewGuid().ToString("N")), TypeAttributes.Public);
@@ -36,7 +41,7 @@ namespace Goliath.Data.DynamicProxy
                 var properties = typeToProxy.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.NonPublic);
 
                 typeBuilder.SetParent(typeToProxy);
-                typeBuilder.AddInterfaceImplementation(typeof(ILazyObject));
+                AddInterfaceImplementation(typeBuilder);
 
                 var ctorBuilder = BuildConstructor(typeBuilder, typeToProxy, fieldBuilderProxyOf, fieldBuilderIsLoaded, fieldBuilderHydrator);
                 var loadMeMethodBuilder = BuildLoadMeMethod(typeBuilder, fieldBuilderProxyOf, fieldBuilderIsLoaded, fieldBuilderHydrator);
@@ -52,7 +57,6 @@ namespace Goliath.Data.DynamicProxy
                     }
                 }
 
-
                 proxyType = typeBuilder.CreateType();
                 pcache.Add(typeToProxy, proxyType);
             }
@@ -61,7 +65,7 @@ namespace Goliath.Data.DynamicProxy
                
         }
 
-        public MethodBuilder BuildConstructor(TypeBuilder typeBuilder, Type baseClass, FieldBuilder typeProxy,
+        protected virtual MethodBuilder BuildConstructor(TypeBuilder typeBuilder, Type baseClass, FieldBuilder typeProxy,
             FieldBuilder isloaded, FieldBuilder proxyHydra)
         {
             MethodAttributes methodAttributes = MethodAttributes.Public | MethodAttributes.HideBySig;
@@ -106,7 +110,7 @@ namespace Goliath.Data.DynamicProxy
 
         }
 
-        public MethodBuilder BuildLoadMeMethod(TypeBuilder type, FieldBuilder typeProxy,
+        protected virtual MethodBuilder BuildLoadMeMethod(TypeBuilder type, Type baseClass, FieldBuilder typeProxy,
             FieldBuilder isloaded, FieldBuilder proxyHydra)
         {
             // Declaring method builder
@@ -164,7 +168,7 @@ namespace Goliath.Data.DynamicProxy
 
         }
 
-        public void CreateILazyObjectProperties(TypeBuilder typeBuilder, FieldBuilder typeProxy, FieldBuilder isloaded)
+        protected virtual void CreateILazyObjectProperties(TypeBuilder typeBuilder, Type baseClass, FieldBuilder typeProxy, FieldBuilder isloaded)
         {
             MethodAttributes methodAttributes = MethodAttributes.Public
                 | MethodAttributes.Virtual
@@ -207,7 +211,7 @@ namespace Goliath.Data.DynamicProxy
             
         }
 
-        public MethodBuilder OverrideGetProperty(PropertyInfo PropertyAccessor, Type baseType, TypeBuilder type, MethodBuilder loadMeMethodBuilder)
+        protected virtual MethodBuilder OverrideGetProperty(PropertyInfo PropertyAccessor, Type baseType, TypeBuilder type, MethodBuilder loadMeMethodBuilder)
         {
             System.Reflection.MethodAttributes methodAttributes = MethodAttributes.Public
                 | MethodAttributes.Virtual
@@ -249,7 +253,7 @@ namespace Goliath.Data.DynamicProxy
 
         }
 
-        public MethodBuilder OverrideSetProperty(PropertyInfo PropertyAccessor, Type baseType, TypeBuilder type, MethodBuilder loadMeMethodBuilder)
+        protected virtual MethodBuilder OverrideSetProperty(PropertyInfo PropertyAccessor, Type baseType, TypeBuilder type, MethodBuilder loadMeMethodBuilder)
         {
             System.Reflection.MethodAttributes methodAttributes = MethodAttributes.Public
                 | MethodAttributes.Virtual
@@ -284,80 +288,4 @@ namespace Goliath.Data.DynamicProxy
 
 
     }
-
-
-
-    /* example
-public class FakeBaseProxy
-{
-    public virtual string Name { get; set; }
-    public virtual double Age { get; set; }
-}
-
-public class FakeProxyClass : FakeBaseProxy, ILazyObject
-{
-    Type _typeToProxy;
-    bool _isLoaded;
-    IProxyHydrator _proxyHydrator;
-
-    public FakeProxyClass(Type typeToProxy, IProxyHydrator proxyHydrator)
-    {
-        _typeToProxy = typeToProxy;
-        _isLoaded = false;
-        _proxyHydrator = proxyHydrator;
-    }
-
-    public override string Name
-    {
-        get
-        {
-            LoadMe();
-            return base.Name;
-        }
-        set
-        {
-            base.Name = value;
-        }
-    }
-
-    public override double Age
-    {
-        get
-        {
-            LoadMe();
-            return base.Age;
-        }
-        set
-        {
-            LoadMe();
-            base.Age = value;
-        }
-    }
-
-    void LoadMe()
-    {
-        if (!_isLoaded)
-        {
-            //load me here
-            _proxyHydrator.Hydrate(this, _typeToProxy);
-            _isLoaded = true;
-            _proxyHydrator.Dispose();
-        }
-    }
-
-    #region ILazyObject Members
-
-    public Type ProxyOf
-    {
-        get { return _typeToProxy; }
-    }
-
-    public bool IsProxyLoaded
-    {
-        get { return _isLoaded; }
-    }
-
-    #endregion
-}
-  */
 }

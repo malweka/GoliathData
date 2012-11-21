@@ -10,32 +10,29 @@ namespace Goliath.Data.Entity
     /// 
     /// </summary>
     [Serializable]
-    public class ChangeSet : IChangeSet
+    public class ChangeTracker : IChangeTracker
     {
         readonly Dictionary<string, TrackedItem> changeList = new Dictionary<string, TrackedItem>();
+        readonly List<string> changes = new List<string>();
+        bool tracking;
 
         /// <summary>
         /// Gets the version.
         /// </summary>
         public long Version { get; private set; }
 
-        readonly object stateObject = new object();
-        List<string> changes = new List<string>();
-
-        bool tracking;
-
         /// <summary>
         /// Starts the tracking.
         /// </summary>
-        public void StartTracking()
+        public void Start()
         {
             tracking = true;
         }
 
         /// <summary>
-        /// Stops the tracking.
+        /// Pauses the tracking.
         /// </summary>
-        public void StopTracking()
+        public void Pause()
         {
             tracking = false;
         }
@@ -50,21 +47,35 @@ namespace Goliath.Data.Entity
         {
             get
             {
-                bool hasChanges;
-                lock (stateObject)
-                {
-                    hasChanges = (changes.Count > 0);
-                }
+                var hasChanges = (changes.Count > 0);
                 return hasChanges;
             }
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ChangeSet"/> class.
+        /// Initializes a new instance of the <see cref="ChangeTracker" /> class.
         /// </summary>
-        public ChangeSet()
+        public ChangeTracker()
         {
             Version = DateTime.Now.Ticks;
+        }
+
+        /// <summary>
+        /// Loads the intial values.
+        /// </summary>
+        /// <param name="initialValues">The initial values.</param>
+        public void LoadIntialValues(Tuple<string, object>[] initialValues)
+        {
+            if (tracking)
+                return;
+
+            foreach (var tuple in initialValues)
+            {
+                if (!string.IsNullOrWhiteSpace(tuple.Item1))
+                {
+                    changeList.Add(tuple.Item1, new TrackedItem(tuple.Item1, tuple.Item2));
+                }
+            }
         }
 
         /// <summary>
@@ -73,41 +84,32 @@ namespace Goliath.Data.Entity
         /// <returns></returns>
         public ICollection<ITrackedItem> GetChangedItems()
         {
-            TrackedItem[] items;
-            lock (stateObject)
-            {
-                items = changeList.Values.Where(c => c.Version > Version).ToArray();
-            }
+            var items = changeList.Values.Where(c => c.Version > Version).ToArray();
             return items;
         }
 
         /// <summary>
-        /// Resets this instance.
+        /// Resets all the changes.
         /// </summary>
         public void Reset()
         {
-            lock (stateObject)
+            Version = DateTime.Now.Ticks;
+            foreach (var item in changeList.Values)
             {
-                Version = DateTime.Now.Ticks;
-                foreach (var item in changeList.Values)
-                {
-                    item.InitialValue = item.Value;
-                    item.Version = Version;
-                }
-                changes.Clear();
+                item.InitialValue = item.Value;
+                item.Version = Version;
             }
+            changes.Clear();
+
         }
 
         /// <summary>
-        /// Clears this instance.
+        /// Clears changes.
         /// </summary>
         public void Clear()
         {
-            lock (stateObject)
-            {
-                changes.Clear();
-                changeList.Clear();
-            }
+            changes.Clear();
+            changeList.Clear();
         }
 
         /// <summary>
@@ -120,35 +122,32 @@ namespace Goliath.Data.Entity
             if (!tracking)
                 return;
 
-            lock (stateObject)
+            TrackedItem item;
+            if (changeList.TryGetValue(propertyName, out item))
             {
-                TrackedItem item;
-                if (changeList.TryGetValue(propertyName, out item))
+                if (item.Value.Equals(value))
                 {
-                    if (item.Value.Equals(value))
-                    {
-                        return;
-                    }
+                    return;
+                }
 
-                    item.Value = value;
-                    if (item.InitialValue.Equals(value))
-                    {
-                        item.Version = Version;
-                        if (changes.Contains(propertyName))
-                            changes.Remove(propertyName);
-                    }
-                    else
-                    {
-                        item.Version = DateTime.Now.Ticks;
-                        if (!changes.Contains(propertyName))
-                            changes.Add(propertyName);
-                    }
+                item.Value = value;
+                if (((item.InitialValue != null) && item.InitialValue.Equals(value)) || ((item.InitialValue == null) && (value == null)))
+                {
+                    item.Version = Version;
+                    if (changes.Contains(propertyName))
+                        changes.Remove(propertyName);
                 }
                 else
                 {
-                    item = new TrackedItem(propertyName, value) { Version = Version };
-                    changeList.Add(propertyName, item);
+                    item.Version = DateTime.Now.Ticks;
+                    if (!changes.Contains(propertyName))
+                        changes.Add(propertyName);
                 }
+            }
+            else
+            {
+                item = new TrackedItem(propertyName, value) { Version = Version };
+                changeList.Add(propertyName, item);
             }
         }
 

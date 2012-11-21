@@ -4,7 +4,7 @@ using System.Linq.Expressions;
 
 namespace Goliath.Data.Entity
 {
-    public interface IChangeSet
+    public interface IChangeTracker
     {
         /// <summary>
         /// Gets the version.
@@ -22,12 +22,12 @@ namespace Goliath.Data.Entity
         /// <summary>
         /// Starts the tracking.
         /// </summary>
-        void StartTracking();
+        void Start();
 
         /// <summary>
         /// Stops the tracking.
         /// </summary>
-        void StopTracking();
+        void Pause();
 
         /// <summary>
         /// Gets the changed items.
