@@ -84,7 +84,6 @@ namespace Goliath.Data.DynamicProxy
             var getChangeTrackerMethod = CreateChangeTrackerProperty(typeBuilder, changeTrackField);
             BuildNotifyMethod(typeBuilder, getChangeTrackerMethod, propertyChangedField);
 
-            // finished
             return method;
         }
 
@@ -100,13 +99,6 @@ namespace Goliath.Data.DynamicProxy
             var methodAttributes = MethodAttributes.Private | MethodAttributes.HideBySig;
             MethodBuilder method = type.DefineMethod("NotifyChange", methodAttributes);
 
-            //// Preparing Reflection instances
-            //MethodInfo method1 = baseClass.GetMethod("get_ChangeTracker",
-            //    BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic,
-            //    null,
-            //    new Type[] { },
-            //    null
-            //    );
 
             MethodInfo method2 = typeof(IChangeTracker).GetMethod("Track",
                 BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic,
