@@ -28,7 +28,7 @@ namespace Goliath.Data.Entity
         /// <value>
         /// The change set.
         /// </value>
-        IChangeSet ChangeSet { get; }
+        IChangeTracker ChangeTracker { get; }
 
     }
 }

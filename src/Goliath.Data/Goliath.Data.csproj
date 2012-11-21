@@ -68,11 +68,14 @@
     <Compile Include="DataAccess\MappedStatementRunner.cs" />
     <Compile Include="DataAccess\SqlCommanRunner.cs" />
     <Compile Include="DataAccess\TypeConversionExtensions.cs" />
+    <Compile Include="DynamicProxy\TrackableProxyBuilder.cs" />
+    <Compile Include="DynamicProxy\FakeProxyClass.cs" />
     <Compile Include="DynamicProxy\ILazyObject.cs" />
-    <Compile Include="Entity\IChangeSet.cs" />
+    <Compile Include="DynamicProxy\IProxyBuilder.cs" />
+    <Compile Include="Entity\IChangeTracker.cs" />
     <Compile Include="Entity\ITrackedItem.cs" />
     <Compile Include="Entity\TrackedItem.cs" />
-    <Compile Include="Entity\ChangeSet.cs" />
+    <Compile Include="Entity\ChangeTracker.cs" />
     <Compile Include="Collections\ILazyList.cs" />
     <Compile Include="Config\ConfigManager.cs" />
     <Compile Include="Config\IConfigurationManager.cs" />
