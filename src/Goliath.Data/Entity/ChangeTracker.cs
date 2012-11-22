@@ -57,7 +57,7 @@ namespace Goliath.Data.Entity
         /// </summary>
         public ChangeTracker()
         {
-            Version = DateTime.Now.Ticks;
+            Version = DateTime.UtcNow.Ticks;
         }
 
         /// <summary>
@@ -93,7 +93,7 @@ namespace Goliath.Data.Entity
         /// </summary>
         public void Reset()
         {
-            Version = DateTime.Now.Ticks;
+            Version = DateTime.UtcNow.Ticks;
             foreach (var item in changeList.Values)
             {
                 item.InitialValue = item.Value;
@@ -139,7 +139,7 @@ namespace Goliath.Data.Entity
                 }
                 else
                 {
-                    item.Version = DateTime.Now.Ticks;
+                    item.Version = DateTime.UtcNow.Ticks;
                     if (!changes.Contains(propertyName))
                         changes.Add(propertyName);
                 }

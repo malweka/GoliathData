@@ -5,6 +5,7 @@ using System.Data.Common;
 using System.Linq;
 using Goliath.Data.Collections;
 using Goliath.Data.Diagnostics;
+using Goliath.Data.Entity;
 using Goliath.Data.Mapping;
 using Goliath.Data.Providers;
 using Goliath.Data.Sql;
@@ -158,10 +159,22 @@ namespace Goliath.Data.DataAccess
         {
             if (dataReader.HasRows)
             {
+                var trackable = instanceToHydrate as ITrackable;
+                if (trackable != null)
+                {
+                    trackable.ChangeTracker.Pause();
+                }
+
                 Dictionary<string, int> columns = GetColumnNames(dataReader, entityMap.TableAlias);
                 var entityAccessor = EntityAccessorStore.GetEntityAccessor(typeOfInstance, entityMap);
                 dataReader.Read();
                 SerializeSingle(instanceToHydrate, typeOfInstance, entityMap, entityAccessor, columns, dataReader);
+
+                if (trackable != null)
+                {
+                    trackable.Version = trackable.ChangeTracker.Version;
+                    trackable.ChangeTracker.Start();
+                }
             }
         }
 
@@ -298,8 +311,8 @@ namespace Goliath.Data.DataAccess
                         var instanceEntity = Activator.CreateInstance(type);
                         SerializeSingle(instanceEntity, type, entityMap, entityAccessor, columns, dbReader);
                         list.Add((TEntity)instanceEntity);
-                    }  
-                                      
+                    }
+
                 }
                 else if (model is ComplexType)
                 {
@@ -312,7 +325,7 @@ namespace Goliath.Data.DataAccess
                         var instanceEntity = Activator.CreateInstance(type);
                         SerializeSingle(instanceEntity, type, complexType, entityAccessor, columns, dbReader);
                         list.Add((TEntity)instanceEntity);
-                    }  
+                    }
                 }
 
                 return list;
