@@ -42,7 +42,7 @@ namespace Goliath.Data.DynamicProxy
         public virtual Type CreateProxyType(Type typeToProxy, EntityMap entityMap)
         {
             Type proxyType;
-            var pcache = new ProxyCache();
+            var pcache = ProxyCache.GetProxyCache(GetType());
             if (!pcache.TryGetProxyType(typeToProxy, out proxyType))
             {
                 var typeBuilder = moduleBuilder.DefineType(string.Format("LazyObject_{0}{1}", typeToProxy.Name, Guid.NewGuid().ToString("N")), TypeAttributes.Public);

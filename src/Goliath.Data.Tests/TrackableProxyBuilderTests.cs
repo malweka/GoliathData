@@ -29,7 +29,7 @@ namespace Goliath.Data.Tests
         [Test]
         public void Create_proxy_with_valid_entity_map_and_null_proxyhadrator_with_implement_ITrackable_true_should_return_trackable_entity()
         {
-            Type fakeType = typeof(ProxyFakeClassTest2);
+            Type fakeType = typeof(ProxyFakeClassTest);
             var entMap = new DynamicEntityMap("faket", "faketable", fakeType);
             var obj = fakeType.CreateProxy(entMap, true);
             Assert.IsNotNull(obj);
@@ -47,10 +47,4 @@ namespace Goliath.Data.Tests
         public virtual DateTime FakeDate { get; set; }
     }
 
-    public class ProxyFakeClassTest2
-    {
-        public virtual long FakeId { get; set; }
-        public virtual string FakeName { get; set; }
-        public virtual DateTime FakeDate { get; set; }
-    }
 }

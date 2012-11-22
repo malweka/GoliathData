@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Reflection;
 using System.Reflection.Emit;
 using Goliath.Data.DynamicProxy;
+using Goliath.Data.Entity;
 using Goliath.Data.Mapping;
 
 namespace Goliath.Data.Utils
@@ -175,6 +176,13 @@ namespace Goliath.Data.Utils
             IProxyBuilder proxyBuilder = implementITrackable ? new TrackableProxyBuilder() : new ProxyBuilder();
             var proxyType = proxyBuilder.CreateProxyType(type, entityMap);
             var instance = Activator.CreateInstance(proxyType, type, proxyHydrator);
+
+            if(implementITrackable && (proxyHydrator == null))
+            {
+                var trackable = (ITrackable) instance;
+                trackable.ChangeTracker.Start();
+                trackable.Version = trackable.ChangeTracker.Version;
+            }
 
             return instance;
         }
