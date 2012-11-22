@@ -3,6 +3,8 @@ using System.Collections;
 using System.Diagnostics;
 using System.Reflection;
 using System.Reflection.Emit;
+using Goliath.Data.DynamicProxy;
+using Goliath.Data.Mapping;
 
 namespace Goliath.Data.Utils
 {
@@ -147,5 +149,34 @@ namespace Goliath.Data.Utils
 
         }
 
+        /// <summary>
+        /// Creates the proxy.
+        /// </summary>
+        /// <param name="type">The type.</param>
+        /// <param name="entityMap">The entity map.</param>
+        /// <param name="implementITrackable">if set to <c>true</c> implement ITrackable.</param>
+        /// <returns></returns>
+        public static object CreateProxy(this Type type, EntityMap entityMap, bool implementITrackable = false)
+        {
+            return CreateProxy(type, entityMap, null, implementITrackable);
+        }
+
+        /// <summary>
+        /// Creates the proxy.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="type">The type.</param>
+        /// <param name="entityMap">The entity map.</param>
+        /// <param name="proxyHydrator">The proxy hydrator.</param>
+        /// <param name="implementITrackable">if set to <c>true</c> implement ITrackable.</param>
+        /// <returns></returns>
+        public static object CreateProxy(this Type type, EntityMap entityMap, IProxyHydrator proxyHydrator, bool implementITrackable = false)
+        {
+            IProxyBuilder proxyBuilder = implementITrackable ? new TrackableProxyBuilder() : new ProxyBuilder();
+            var proxyType = proxyBuilder.CreateProxyType(type, entityMap);
+            var instance = Activator.CreateInstance(proxyType, type, proxyHydrator);
+
+            return instance;
+        }
     }
 }

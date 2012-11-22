@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Reflection;
 using System.Reflection.Emit;
+using System.Threading;
 using Goliath.Data.Entity;
 using Goliath.Data.Mapping;
 
@@ -27,7 +28,7 @@ namespace Goliath.Data.DynamicProxy
             FieldBuilder isloaded, FieldBuilder proxyHydra)
         {
             FieldBuilder changeTrackField = typeBuilder.DefineField("_changeTracker", typeof(IChangeTracker), FieldAttributes.Private);
-            FieldBuilder propertyChangedField = typeBuilder.DefineField("PropertyChanged", typeof(PropertyChangedEventHandler), FieldAttributes.Private);
+            FieldBuilder propertyChangedField = CreatePropertyChangedEvent(typeBuilder); //typeBuilder.DefineField("PropertyChanged", typeof(PropertyChangedEventHandler), FieldAttributes.Private);
 
             MethodAttributes methodAttributes = MethodAttributes.Public | MethodAttributes.HideBySig;
             MethodBuilder method = typeBuilder.DefineMethod(".ctor", methodAttributes);
@@ -80,33 +81,20 @@ namespace Goliath.Data.DynamicProxy
             gen.Emit(OpCodes.Nop);
             gen.Emit(OpCodes.Ret);
 
-            
+
             var getChangeTrackerMethod = CreateChangeTrackerProperty(typeBuilder, changeTrackField);
             BuildNotifyMethod(typeBuilder, getChangeTrackerMethod, propertyChangedField);
+            CreateIsDirtyProperty(typeBuilder, getChangeTrackerMethod);
+            CreateVersionProperty(typeBuilder, propertyChangedField);
 
-            // finished
             return method;
         }
 
-        //protected override MethodBuilder BuildLoadMeMethod(TypeBuilder type, Type baseClass, FieldBuilder typeProxy,
-        //    FieldBuilder isloaded, FieldBuilder proxyHydra)
-        //{
-        //    BuildNotifyMethod(type, baseClass);
-        //    return base.BuildLoadMeMethod(type, baseClass, typeProxy, isloaded, proxyHydra);
-        //}
-
+        private MethodBuilder notifyChangeMethod;
         void BuildNotifyMethod(TypeBuilder type, MethodInfo getChangeTracker, FieldInfo propertyChangedField)
         {
             var methodAttributes = MethodAttributes.Private | MethodAttributes.HideBySig;
-            MethodBuilder method = type.DefineMethod("NotifyChange", methodAttributes);
-
-            //// Preparing Reflection instances
-            //MethodInfo method1 = baseClass.GetMethod("get_ChangeTracker",
-            //    BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic,
-            //    null,
-            //    new Type[] { },
-            //    null
-            //    );
+            notifyChangeMethod = type.DefineMethod("NotifyChange", methodAttributes);
 
             MethodInfo method2 = typeof(IChangeTracker).GetMethod("Track",
                 BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic,
@@ -115,7 +103,6 @@ namespace Goliath.Data.DynamicProxy
                 null
                 );
 
-            //FieldInfo field3 = baseClass.GetField("PropertyChanged", BindingFlags.Public | BindingFlags.NonPublic);
             ConstructorInfo ctor4 = typeof(PropertyChangedEventArgs).GetConstructor(
                 BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic,
                 null,
@@ -130,14 +117,14 @@ namespace Goliath.Data.DynamicProxy
                 null
                 );
             // Setting return type
-            method.SetReturnType(typeof(void));
+            notifyChangeMethod.SetReturnType(typeof(void));
             // Adding parameters
-            method.SetParameters(typeof(String), typeof(Object));
+            notifyChangeMethod.SetParameters(typeof(String), typeof(Object));
             // Parameter propName
-            ParameterBuilder propName = method.DefineParameter(1, ParameterAttributes.None, "propName");
+            ParameterBuilder propName = notifyChangeMethod.DefineParameter(1, ParameterAttributes.None, "propName");
             // Parameter value
-            ParameterBuilder value = method.DefineParameter(2, ParameterAttributes.None, "value");
-            ILGenerator gen = method.GetILGenerator();
+            ParameterBuilder value = notifyChangeMethod.DefineParameter(2, ParameterAttributes.None, "value");
+            ILGenerator gen = notifyChangeMethod.GetILGenerator();
             // Preparing locals
             LocalBuilder csLocalBool = gen.DeclareLocal(typeof(Boolean));
             // Preparing labels
@@ -179,20 +166,15 @@ namespace Goliath.Data.DynamicProxy
 
         }
 
-
         MethodBuilder CreateChangeTrackerProperty(TypeBuilder type, FieldInfo changeTrackerField)
         {
             var methodAttributes = MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.Final | MethodAttributes.HideBySig | MethodAttributes.NewSlot;
             MethodBuilder method = type.DefineMethod("get_ChangeTracker", methodAttributes);
-            
+
             method.SetReturnType(typeof(IChangeTracker));
-            // Adding parameters
             ILGenerator gen = method.GetILGenerator();
-            // Preparing locals
             LocalBuilder localBuilder = gen.DeclareLocal(typeof(IChangeTracker));
-            // Preparing labels
             Label label10 = gen.DefineLabel();
-            // Writing body
             gen.Emit(OpCodes.Nop);
             gen.Emit(OpCodes.Ldarg_0);
             gen.Emit(OpCodes.Ldfld, changeTrackerField);
@@ -201,21 +183,13 @@ namespace Goliath.Data.DynamicProxy
             gen.MarkLabel(label10);
             gen.Emit(OpCodes.Ldloc_0);
             gen.Emit(OpCodes.Ret);
-            // finished
             return method;
-
         }
 
-        void CreateIsDirtyProperty(TypeBuilder type, Type baseClass)
+        void CreateIsDirtyProperty(TypeBuilder type, MethodInfo getChangeTrackerMethod)
         {
             var methodAttributes = MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.Final | MethodAttributes.HideBySig | MethodAttributes.NewSlot;
             MethodBuilder method = type.DefineMethod("get_IsDirty", methodAttributes);
-            // Preparing Reflection instances
-            MethodInfo method1 = baseClass.GetMethod("get_ChangeTracker", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic,
-                null,
-                new Type[] { },
-                null
-                );
 
             MethodInfo method2 = typeof(IChangeTracker).GetMethod(
                 "get_HasChanges",
@@ -238,7 +212,7 @@ namespace Goliath.Data.DynamicProxy
             // Writing body
             gen.Emit(OpCodes.Nop);
             gen.Emit(OpCodes.Ldarg_0);
-            gen.Emit(OpCodes.Call, method1);
+            gen.Emit(OpCodes.Call, getChangeTrackerMethod);
             gen.Emit(OpCodes.Ldnull);
             gen.Emit(OpCodes.Ceq);
             gen.Emit(OpCodes.Stloc_1);
@@ -246,7 +220,7 @@ namespace Goliath.Data.DynamicProxy
             gen.Emit(OpCodes.Brtrue_S, label29);
             gen.Emit(OpCodes.Nop);
             gen.Emit(OpCodes.Ldarg_0);
-            gen.Emit(OpCodes.Call, method1);
+            gen.Emit(OpCodes.Call, getChangeTrackerMethod);
             gen.Emit(OpCodes.Callvirt, method2);
             gen.Emit(OpCodes.Stloc_0);
             gen.Emit(OpCodes.Br_S, label34);
@@ -261,7 +235,7 @@ namespace Goliath.Data.DynamicProxy
 
         }
 
-        void CreateVersionProperty(TypeBuilder type, Type baseClass)
+        void CreateVersionProperty(TypeBuilder type, FieldInfo propertyChangedField)
         {
             FieldBuilder versionField = type.DefineField("version", typeof(IChangeTracker), FieldAttributes.Private);
 
@@ -282,41 +256,28 @@ namespace Goliath.Data.DynamicProxy
             getGenerator.Emit(OpCodes.Ret);
 
             //set_Version
-
             MethodBuilder setMethod = type.DefineMethod("set_Version", methodAttributes);
-            // Preparing Reflection instances
-
-            FieldInfo field2 = baseClass.GetField("PropertyChanged", BindingFlags.Public | BindingFlags.NonPublic);
             ConstructorInfo ctor3 = typeof(PropertyChangedEventArgs).GetConstructor(
                 BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic,
                 null,
-                new Type[]{
-            typeof(String)
-            },
+                new Type[] { typeof(String) },
                 null
                 );
-            MethodInfo method4 = typeof(PropertyChangedEventHandler).GetMethod(
-                "Invoke",
+            MethodInfo method4 = typeof(PropertyChangedEventHandler).GetMethod("Invoke",
                 BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic,
                 null,
-                new Type[]{
-            typeof(Object),
-            typeof(PropertyChangedEventArgs)
-            },
+                new Type[] { typeof(Object), typeof(PropertyChangedEventArgs) },
                 null
                 );
             // Setting return type
-            setMethod.SetReturnType(typeof(Void));
+            setMethod.SetReturnType(typeof(void));
             // Adding parameters
             setMethod.SetParameters(
                 typeof(Int64)
                 );
-            // Parameter value
             ParameterBuilder value = setMethod.DefineParameter(1, ParameterAttributes.None, "value");
             ILGenerator gen = setMethod.GetILGenerator();
-            // Preparing locals
-            LocalBuilder cs404 = gen.DeclareLocal(typeof(Boolean));
-            // Preparing labels
+            LocalBuilder flag = gen.DeclareLocal(typeof(Boolean));
             Label label46 = gen.DefineLabel();
             // Writing body
             gen.Emit(OpCodes.Nop);
@@ -324,7 +285,7 @@ namespace Goliath.Data.DynamicProxy
             gen.Emit(OpCodes.Ldarg_1);
             gen.Emit(OpCodes.Stfld, versionField);
             gen.Emit(OpCodes.Ldarg_0);
-            gen.Emit(OpCodes.Ldfld, field2);
+            gen.Emit(OpCodes.Ldfld, propertyChangedField);
             gen.Emit(OpCodes.Ldnull);
             gen.Emit(OpCodes.Ceq);
             gen.Emit(OpCodes.Stloc_0);
@@ -332,7 +293,7 @@ namespace Goliath.Data.DynamicProxy
             gen.Emit(OpCodes.Brtrue_S, label46);
             gen.Emit(OpCodes.Nop);
             gen.Emit(OpCodes.Ldarg_0);
-            gen.Emit(OpCodes.Ldfld, field2);
+            gen.Emit(OpCodes.Ldfld, propertyChangedField);
             gen.Emit(OpCodes.Ldarg_0);
             gen.Emit(OpCodes.Ldstr, "Version");
             gen.Emit(OpCodes.Newobj, ctor3);
@@ -344,76 +305,115 @@ namespace Goliath.Data.DynamicProxy
 
         }
 
-        protected override MethodBuilder OverrideGetProperty(PropertyInfo PropertyAccessor, Type baseType, TypeBuilder type, MethodBuilder loadMeMethodBuilder)
+        //create add remove method from http://grahammurray.wordpress.com/tag/reflection-emit/
+        FieldBuilder CreatePropertyChangedEvent(TypeBuilder type)
         {
-            System.Reflection.MethodAttributes methodAttributes = MethodAttributes.Public
-                | MethodAttributes.Virtual
-                | MethodAttributes.HideBySig;
+            FieldBuilder eventField = type.DefineField("PropertyChanged", typeof(PropertyChangedEventHandler), FieldAttributes.Private);
+            EventBuilder eventBuilder = type.DefineEvent("PropertyChanged", EventAttributes.None, typeof(PropertyChangedEventHandler));
+            eventBuilder.SetAddOnMethod(CreateAddRemoveMethod(type, eventField, true));
+            eventBuilder.SetRemoveOnMethod(CreateAddRemoveMethod(type, eventField, false));
 
-            string methodName = "get_" + PropertyAccessor.Name;
-            MethodBuilder method = type.DefineMethod(methodName, methodAttributes);
-            // Preparing Reflection instances
-
-            MethodInfo baseMethod = baseType.GetMethod(
-                methodName,
-                BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic,
-                null,
-                new Type[] { },
-                null
-                );
-            // Setting return type
-            method.SetReturnType(PropertyAccessor.PropertyType);
-            // Adding parameters
-            ILGenerator gen = method.GetILGenerator();
-            // Preparing locals
-            LocalBuilder localBuilder = gen.DeclareLocal(PropertyAccessor.PropertyType);
-            // Preparing labels
-            Label label17 = gen.DefineLabel();
-            // Writing body
-            gen.Emit(OpCodes.Nop);
-            gen.Emit(OpCodes.Ldarg_0);
-            gen.Emit(OpCodes.Call, loadMeMethodBuilder);
-            gen.Emit(OpCodes.Nop);
-            gen.Emit(OpCodes.Ldarg_0);
-            gen.Emit(OpCodes.Call, baseMethod);
-            gen.Emit(OpCodes.Stloc_0);
-            gen.Emit(OpCodes.Br_S, label17);
-            gen.MarkLabel(label17);
-            gen.Emit(OpCodes.Ldloc_0);
-            gen.Emit(OpCodes.Ret);
-
-            return method;
-
+            return eventField;
         }
 
-        protected override MethodBuilder OverrideSetProperty(PropertyInfo PropertyAccessor, Type baseType, TypeBuilder type, MethodBuilder loadMeMethodBuilder)
+        //create add remove method from http://grahammurray.wordpress.com/tag/reflection-emit/
+        MethodBuilder CreateAddRemoveMethod(TypeBuilder type, FieldBuilder propertyChangedField, bool isAdd)
         {
-            System.Reflection.MethodAttributes methodAttributes = MethodAttributes.Public
-                | MethodAttributes.Virtual
-                | MethodAttributes.HideBySig;
+            var methodAttributes = MethodAttributes.Public | MethodAttributes.SpecialName | MethodAttributes.NewSlot | MethodAttributes.HideBySig | MethodAttributes.Virtual |
+                                   MethodAttributes.Final;
+            string prefix = "remove_";
+            string delegateAction = "Remove";
 
-            string methodName = "set_" + PropertyAccessor.Name;
-            MethodBuilder method = type.DefineMethod(methodName, methodAttributes);
+            if (isAdd)
+            {
+                prefix = "add_";
+                delegateAction = "Combine";
+            }
+
+            MethodBuilder addremoveMethod = type.DefineMethod(prefix + "PropertyChanged", methodAttributes, null, new[] { typeof(PropertyChangedEventHandler) });
+            MethodImplAttributes eventMethodFlags = MethodImplAttributes.Managed | MethodImplAttributes.Synchronized;
+            addremoveMethod.SetImplementationFlags(eventMethodFlags);
+
+            ILGenerator gen = addremoveMethod.GetILGenerator();
+            gen.Emit(OpCodes.Ldarg_0);
+            gen.Emit(OpCodes.Ldarg_0);
+            gen.Emit(OpCodes.Ldfld, propertyChangedField);
+            gen.Emit(OpCodes.Ldarg_1);
+            gen.EmitCall(OpCodes.Call, typeof(Delegate).GetMethod(delegateAction, new[] { typeof(Delegate), typeof(Delegate) }), null);
+            gen.Emit(OpCodes.Castclass, typeof(PropertyChangedEventHandler));
+            gen.Emit(OpCodes.Stfld, propertyChangedField);
+            gen.Emit(OpCodes.Ret);
+
+            MethodInfo intAddRemoveMethod = typeof(INotifyPropertyChanged).GetMethod(prefix + "PropertyChanged"); type.DefineMethodOverride(
+            addremoveMethod, intAddRemoveMethod);
+
+            return addremoveMethod;
+        }
+
+        /// <summary>
+        /// Overrides the set property.
+        /// </summary>
+        /// <param name="propertyAccessor">The property accessor.</param>
+        /// <param name="baseType">Type of the base.</param>
+        /// <param name="type">The type.</param>
+        /// <param name="loadMeMethodBuilder">The load me method builder.</param>
+        /// <returns></returns>
+        /// <exception cref="System.InvalidOperationException">NotifyChange method not yet build</exception>
+        protected override MethodBuilder OverrideSetProperty(PropertyInfo propertyAccessor, Type baseType, TypeBuilder type, MethodBuilder loadMeMethodBuilder)
+        {
+            if (notifyChangeMethod == null)
+                throw new InvalidOperationException("NotifyChange method not yet build");
+
+            var methodAttributes = MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.HideBySig;
+
+            string setMethodName = "set_" + propertyAccessor.Name;
+            string getMethodName = "get_" + propertyAccessor.Name;
+
+            MethodBuilder method = type.DefineMethod(setMethodName, methodAttributes);
             // Preparing Reflection instances
 
-            MethodInfo baseMethod = baseType.GetMethod(methodName);
+            MethodInfo baseSetMethod = baseType.GetMethod(setMethodName);
+            MethodInfo baseGetMethod = baseType.GetMethod(getMethodName);
 
-            // Setting return type
+            MethodInfo objectEqualsMethod = typeof(Object).GetMethod( "Equals",
+                BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic,
+                null,
+                new Type[]{typeof(Object),typeof(Object)},
+                null
+                );
+
             method.SetReturnType(typeof(void));
             // Adding parameters
-            method.SetParameters(PropertyAccessor.PropertyType);
+            method.SetParameters(propertyAccessor.PropertyType);
             // Parameter value
             ParameterBuilder value = method.DefineParameter(1, ParameterAttributes.None, "value");
             ILGenerator gen = method.GetILGenerator();
+            LocalBuilder flag1 = gen.DeclareLocal(typeof(Boolean));
+            Label label47 = gen.DefineLabel();
             // Writing body
             //gen.Emit(OpCodes.Nop);
             //gen.Emit(OpCodes.Ldarg_0);
             //gen.Emit(OpCodes.Call, loadMeMethodBuilder);
             gen.Emit(OpCodes.Nop);
+            gen.Emit(OpCodes.Ldarg_1);
+            gen.Emit(OpCodes.Ldarg_0);
+            gen.Emit(OpCodes.Call, baseGetMethod);
+            gen.Emit(OpCodes.Call, objectEqualsMethod);
+            gen.Emit(OpCodes.Stloc_0);
+            gen.Emit(OpCodes.Ldloc_0);
+            gen.Emit(OpCodes.Brtrue_S, label47);
+            gen.Emit(OpCodes.Nop);
             gen.Emit(OpCodes.Ldarg_0);
             gen.Emit(OpCodes.Ldarg_1);
-            gen.Emit(OpCodes.Call, baseMethod);
+            gen.Emit(OpCodes.Call, baseSetMethod);
             gen.Emit(OpCodes.Nop);
+            gen.Emit(OpCodes.Ldarg_0);
+            gen.Emit(OpCodes.Ldstr, propertyAccessor.Name);
+            gen.Emit(OpCodes.Ldarg_1);
+            gen.Emit(OpCodes.Call, notifyChangeMethod);
+            gen.Emit(OpCodes.Nop);
+            gen.Emit(OpCodes.Nop);
+            gen.MarkLabel(label47);
             gen.Emit(OpCodes.Ret);
 
             return method;

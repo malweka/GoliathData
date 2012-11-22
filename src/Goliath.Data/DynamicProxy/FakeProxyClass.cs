@@ -4,6 +4,7 @@ using Goliath.Data.Entity;
 
 namespace Goliath.Data.DynamicProxy
 {
+    /*
     public class FakeProxyClass : FakeBaseProxy, ILazyObject
     {
         Type _typeToProxy;
@@ -13,7 +14,7 @@ namespace Goliath.Data.DynamicProxy
         public FakeProxyClass(Type typeToProxy, IProxyHydrator proxyHydrator)
         {
             _typeToProxy = typeToProxy;
-            _isLoaded = false;
+            _isLoaded = (proxyHydrator == null);
             _proxyHydrator = proxyHydrator;
         }
 
@@ -39,7 +40,7 @@ namespace Goliath.Data.DynamicProxy
             }
             set
             {
-                LoadMe();
+                //LoadMe();
                 base.Age = value;
             }
         }
@@ -94,7 +95,7 @@ namespace Goliath.Data.DynamicProxy
             }
             set
             {
-                LoadMe();
+                //LoadMe();
                 if (!object.Equals(value, base.Name))
                 {
                     base.Name = value;
@@ -112,7 +113,7 @@ namespace Goliath.Data.DynamicProxy
             }
             set
             {
-                LoadMe();
+                //LoadMe();
                 if (!object.Equals(value, base.Age))
                 {
                     base.Age = value;
@@ -209,4 +210,5 @@ namespace Goliath.Data.DynamicProxy
         public virtual string Name { get; set; }
         public virtual double Age { get; set; }
     }
+     /* */
 }

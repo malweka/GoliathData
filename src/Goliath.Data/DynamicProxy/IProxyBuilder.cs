@@ -5,6 +5,6 @@ namespace Goliath.Data.DynamicProxy
 {
     public interface IProxyBuilder
     {
-        Type CreateProxy(Type typeToProxy, EntityMap entityMap);
+        Type CreateProxyType(Type typeToProxy, EntityMap entityMap);
     }
 }

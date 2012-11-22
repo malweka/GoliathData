@@ -5,6 +5,9 @@ using Goliath.Data.Mapping;
 
 namespace Goliath.Data.DynamicProxy
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class ProxyBuilder : IProxyBuilder
     {
 
@@ -21,12 +24,22 @@ namespace Goliath.Data.DynamicProxy
             moduleBuilder = asmBuilder.DefineDynamicModule("GoliathDataProxies");
         }
 
-        protected  virtual  void AddInterfaceImplementation(TypeBuilder typeBuilder)
+        /// <summary>
+        /// Adds  interface implementations.
+        /// </summary>
+        /// <param name="typeBuilder">The type builder.</param>
+        protected virtual void AddInterfaceImplementation(TypeBuilder typeBuilder)
         {
             typeBuilder.AddInterfaceImplementation(typeof(ILazyObject));
         }
 
-        public virtual Type CreateProxy(Type typeToProxy, EntityMap entityMap)
+        /// <summary>
+        /// Creates the proxy.
+        /// </summary>
+        /// <param name="typeToProxy">The type to proxy.</param>
+        /// <param name="entityMap">The entity map.</param>
+        /// <returns></returns> 
+        public virtual Type CreateProxyType(Type typeToProxy, EntityMap entityMap)
         {
             Type proxyType;
             var pcache = new ProxyCache();
@@ -62,9 +75,17 @@ namespace Goliath.Data.DynamicProxy
             }
 
             return proxyType;
-               
         }
 
+        /// <summary>
+        /// Builds the constructor.
+        /// </summary>
+        /// <param name="typeBuilder">The type builder.</param>
+        /// <param name="baseClass">The base class.</param>
+        /// <param name="typeProxy">The type proxy.</param>
+        /// <param name="isloaded">The isloaded.</param>
+        /// <param name="proxyHydra">The proxy hydra.</param>
+        /// <returns></returns>
         protected virtual MethodBuilder BuildConstructor(TypeBuilder typeBuilder, Type baseClass, FieldBuilder typeProxy,
             FieldBuilder isloaded, FieldBuilder proxyHydra)
         {
@@ -74,7 +95,7 @@ namespace Goliath.Data.DynamicProxy
             ConstructorInfo ctor1 = baseClass.GetConstructor(
                 BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic,
                 null,
-                new Type[]{},
+                new Type[] { },
                 null
                 );
 
@@ -98,19 +119,30 @@ namespace Goliath.Data.DynamicProxy
             gen.Emit(OpCodes.Ldarg_1);
             gen.Emit(OpCodes.Stfld, typeProxy);
             gen.Emit(OpCodes.Ldarg_0);
-            gen.Emit(OpCodes.Ldc_I4_0);
+            gen.Emit(OpCodes.Ldarg_2);
+            gen.Emit(OpCodes.Ldnull);
+            gen.Emit(OpCodes.Ceq);
             gen.Emit(OpCodes.Stfld, isloaded);
             gen.Emit(OpCodes.Ldarg_0);
             gen.Emit(OpCodes.Ldarg_2);
             gen.Emit(OpCodes.Stfld, proxyHydra);
             gen.Emit(OpCodes.Nop);
             gen.Emit(OpCodes.Ret);
+
             // finished
             return method;
 
         }
 
-        protected virtual MethodBuilder BuildLoadMeMethod(TypeBuilder type, Type baseClass, FieldBuilder typeProxy,
+        /// <summary>
+        /// Builds the load me method.
+        /// </summary>
+        /// <param name="type">The type.</param>
+        /// <param name="typeProxy">The type proxy.</param>
+        /// <param name="isloaded">The isloaded.</param>
+        /// <param name="proxyHydra">The proxy hydra.</param>
+        /// <returns></returns>
+        protected virtual MethodBuilder BuildLoadMeMethod(TypeBuilder type, FieldBuilder typeProxy,
             FieldBuilder isloaded, FieldBuilder proxyHydra)
         {
             // Declaring method builder
@@ -123,12 +155,12 @@ namespace Goliath.Data.DynamicProxy
                 "Hydrate",
                 BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic,
                 null,
-                new Type[]{typeof(Object),typeof(Type)},
+                new Type[] { typeof(Object), typeof(Type) },
                 null);
 
             MethodInfo disposeMethod = typeof(IDisposable).GetMethod("Dispose", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic,
                 null,
-                new Type[]{},
+                new Type[] { },
                 null);
 
             // Setting return type
@@ -168,7 +200,13 @@ namespace Goliath.Data.DynamicProxy
 
         }
 
-        protected virtual void CreateILazyObjectProperties(TypeBuilder typeBuilder, Type baseClass, FieldBuilder typeProxy, FieldBuilder isloaded)
+        /// <summary>
+        /// Creates the ILazyObject properties.
+        /// </summary>
+        /// <param name="typeBuilder">The type builder.</param>
+        /// <param name="typeProxy">The type proxy.</param>
+        /// <param name="isloaded">The isloaded.</param>
+        protected virtual void CreateILazyObjectProperties(TypeBuilder typeBuilder, FieldBuilder typeProxy, FieldBuilder isloaded)
         {
             MethodAttributes methodAttributes = MethodAttributes.Public
                 | MethodAttributes.Virtual
@@ -208,16 +246,24 @@ namespace Goliath.Data.DynamicProxy
             proxyOfgen.Emit(OpCodes.Ret);
             proxyPropBuilder.SetGetMethod(proxyOfGetMethod);
 
-            
+
         }
 
-        protected virtual MethodBuilder OverrideGetProperty(PropertyInfo PropertyAccessor, Type baseType, TypeBuilder type, MethodBuilder loadMeMethodBuilder)
+        /// <summary>
+        /// Overrides the get property.
+        /// </summary>
+        /// <param name="propertyAccessor">The property accessor.</param>
+        /// <param name="baseType">Type of the base.</param>
+        /// <param name="type">The type.</param>
+        /// <param name="loadMeMethodBuilder">The load me method builder.</param>
+        /// <returns></returns>
+        protected virtual MethodBuilder OverrideGetProperty(PropertyInfo propertyAccessor, Type baseType, TypeBuilder type, MethodBuilder loadMeMethodBuilder)
         {
             System.Reflection.MethodAttributes methodAttributes = MethodAttributes.Public
                 | MethodAttributes.Virtual
                 | MethodAttributes.HideBySig;
 
-            string methodName = "get_" + PropertyAccessor.Name;
+            string methodName = "get_" + propertyAccessor.Name;
             MethodBuilder method = type.DefineMethod(methodName, methodAttributes);
             // Preparing Reflection instances
 
@@ -225,15 +271,15 @@ namespace Goliath.Data.DynamicProxy
                 methodName,
                 BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic,
                 null,
-                new Type[]{},
+                new Type[] { },
                 null
                 );
             // Setting return type
-            method.SetReturnType(PropertyAccessor.PropertyType);
+            method.SetReturnType(propertyAccessor.PropertyType);
             // Adding parameters
             ILGenerator gen = method.GetILGenerator();
             // Preparing locals
-            LocalBuilder localBuilder = gen.DeclareLocal(PropertyAccessor.PropertyType);
+            LocalBuilder localBuilder = gen.DeclareLocal(propertyAccessor.PropertyType);
             // Preparing labels
             Label label17 = gen.DefineLabel();
             // Writing body
@@ -253,13 +299,21 @@ namespace Goliath.Data.DynamicProxy
 
         }
 
-        protected virtual MethodBuilder OverrideSetProperty(PropertyInfo PropertyAccessor, Type baseType, TypeBuilder type, MethodBuilder loadMeMethodBuilder)
+        /// <summary>
+        /// Overrides the set property.
+        /// </summary>
+        /// <param name="propertyAccessor">The property accessor.</param>
+        /// <param name="baseType">Type of the base.</param>
+        /// <param name="type">The type.</param>
+        /// <param name="loadMeMethodBuilder">The load me method builder.</param>
+        /// <returns></returns>
+        protected virtual MethodBuilder OverrideSetProperty(PropertyInfo propertyAccessor, Type baseType, TypeBuilder type, MethodBuilder loadMeMethodBuilder)
         {
             System.Reflection.MethodAttributes methodAttributes = MethodAttributes.Public
                 | MethodAttributes.Virtual
                 | MethodAttributes.HideBySig;
 
-            string methodName = "set_" + PropertyAccessor.Name;
+            string methodName = "set_" + propertyAccessor.Name;
             MethodBuilder method = type.DefineMethod(methodName, methodAttributes);
             // Preparing Reflection instances
 
@@ -268,7 +322,7 @@ namespace Goliath.Data.DynamicProxy
             // Setting return type
             method.SetReturnType(typeof(void));
             // Adding parameters
-            method.SetParameters(PropertyAccessor.PropertyType);
+            method.SetParameters(propertyAccessor.PropertyType);
             // Parameter value
             ParameterBuilder value = method.DefineParameter(1, ParameterAttributes.None, "value");
             ILGenerator gen = method.GetILGenerator();
