@@ -1,0 +1,126 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>10.0.0</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{19367FA3-091D-4638-BFD7-0EA9A28524BB}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>Goliath.Data.Tests</RootNamespace>
+    <AssemblyName>Goliath.Data.Tests</AssemblyName>
+    <SccProjectName>&lt;Project Location In Database&gt;</SccProjectName>
+    <SccLocalPath>&lt;Local Binding Root of Project&gt;</SccLocalPath>
+    <SccAuxPath>&lt;Source Control Database&gt;</SccAuxPath>
+    <SccProvider>Mercurial Source Control Package</SccProvider>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug</OutputPath>
+    <DefineConstants>DEBUG;</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>none</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Release</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="nunit.framework">
+      <HintPath>..\..\Tools\nunit\nunit.framework.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Data" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\Goliath.Data.Console\Generated\Animal.cs">
+      <Link>Entities\WebZoo\Animal.cs</Link>
+    </Compile>
+    <Compile Include="..\Goliath.Data.Console\Generated\Employee.cs">
+      <Link>Entities\WebZoo\Employee.cs</Link>
+    </Compile>
+    <Compile Include="..\Goliath.Data.Console\Generated\Monkey.cs">
+      <Link>Entities\WebZoo\Monkey.cs</Link>
+    </Compile>
+    <Compile Include="..\Goliath.Data.Console\Generated\Role.cs">
+      <Link>Entities\WebZoo\Role.cs</Link>
+    </Compile>
+    <Compile Include="..\Goliath.Data.Console\Generated\Task.cs">
+      <Link>Entities\WebZoo\Task.cs</Link>
+    </Compile>
+    <Compile Include="..\Goliath.Data.Console\Generated\UserAccount.cs">
+      <Link>Entities\WebZoo\UserAccount.cs</Link>
+    </Compile>
+    <Compile Include="..\Goliath.Data.Console\Generated\Zoo.cs">
+      <Link>Entities\WebZoo\Zoo.cs</Link>
+    </Compile>
+    <Compile Include="AdoTransactionTests.cs" />
+    <Compile Include="AssemblySetupTestFixture.cs" />
+    <Compile Include="BaseEntity.cs" />
+    <Compile Include="ConnectionProviderTests.cs" />
+    <Compile Include="DatabaseInit.cs" />
+    <Compile Include="DynamicEntityMapTests.cs" />
+    <Compile Include="EntityAccessorStoreTests.cs" />
+    <Compile Include="EntityAccessorTests.cs" />
+    <Compile Include="EntitySerializerTests.cs" />
+    <Compile Include="InsertSqlBuilderTests.cs" />
+    <Compile Include="MapConfigTests.cs" />
+    <Compile Include="MappedStatementRunnerTests.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="QueryBuilderGenericTests.cs" />
+    <Compile Include="QueryBuilderTests.cs" />
+    <Compile Include="SqlCommandRunnerTests.cs" />
+    <Compile Include="SqlProcedureCollectionTests.cs" />
+    <Compile Include="SqlWorkerTests.cs" />
+    <Compile Include="StatementMapParserTests.cs" />
+    <Compile Include="TrackableProxyBuilderTests.cs" />
+    <Compile Include="UpdateSqlBuilderTests.cs" />
+    <Compile Include="UserProvidedConnectionProviderTests.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Entities\WebZoo\GoData.Map.xml" />
+    <Content Include="Scripts\Sqlite\AutoIncrement\00_zoos.sql" />
+    <Content Include="Scripts\Sqlite\AutoIncrement\01_animals.sql" />
+    <Content Include="Scripts\Sqlite\AutoIncrement\02_employees.sql" />
+    <Content Include="Scripts\Sqlite\AutoIncrement\03_animals_handlers.sql" />
+    <Content Include="Scripts\Sqlite\AutoIncrement\04_monkeys.sql" />
+    <Content Include="Scripts\Sqlite\AutoIncrement\05_roles.sql" />
+    <Content Include="Scripts\Sqlite\AutoIncrement\09_insert_data.sql" />
+    <Content Include="Scripts\Sqlite\AutoIncrement\06_user_accounts.sql" />
+    <Content Include="Scripts\Sqlite\AutoIncrement\07_tasks.sql" />
+    <Content Include="Scripts\Sqlite\AutoIncrement\08_user_roles.sql" />
+    <Content Include="Scripts\Sqlite\Guid\00_zoos.sql" />
+    <Content Include="Scripts\Sqlite\Guid\01_animals.sql" />
+    <Content Include="Scripts\Sqlite\Guid\02_employees.sql" />
+    <Content Include="Scripts\Sqlite\Guid\03_animals_handlers.sql" />
+    <Content Include="Scripts\Sqlite\Guid\04_monkeys.sql" />
+    <Content Include="TestFiles\MapConfigTests\Test001.data.xml" />
+    <Content Include="TestFiles\MapConfigTests\Test002.data.xml" />
+    <Content Include="TestFiles\MapConfigTests\TestFullMap.xml" />
+    <Content Include="TestFiles\MapConfigTests\Test_statement_invalid_missing_name.xml" />
+    <Content Include="TestFiles\MapConfigTests\Test_statement_invalid_param_missing_prop.xml" />
+    <Content Include="TestFiles\MapConfigTests\Test_statement_invalid_statement_operationType.xml" />
+    <Content Include="TestFiles\MapConfigTests\Test_statement_valid.xml" />
+    <Content Include="TestFiles\MapConfigTests\Test_valid_statements.xml" />
+    <Content Include="TestFiles\MappedStatementTests\TestFullMap.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Goliath.Data.Providers.Sqlite\Goliath.Data.Providers.Sqlite.csproj">
+      <Project>{CA4F51B8-40C8-4FF8-934F-8213126EBAA2}</Project>
+      <Name>Goliath.Data.Providers.Sqlite</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Goliath.Data\Goliath.Data.csproj">
+      <Project>{B3FC3122-EF38-45D1-8019-4D889283B4DC}</Project>
+      <Name>Goliath.Data</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+</Project>
