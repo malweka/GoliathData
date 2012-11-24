@@ -4,7 +4,7 @@ using Goliath.Data.Entity;
 
 namespace Goliath.Data.DynamicProxy
 {
-    /* */
+    /*
     public class FakeProxyClass : FakeBaseProxy, ILazyObject
     {
         Type _typeToProxy;

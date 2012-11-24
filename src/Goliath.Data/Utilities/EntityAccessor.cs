@@ -58,39 +58,34 @@ namespace Goliath.Data.Utils
         /// Loads the specified entity map.
         /// </summary>
         /// <param name="entityMap">The entity map.</param>
+        /// <param name="propertiesInfo">The properties info.</param>
         /// <exception cref="System.ArgumentNullException">entityMap</exception>
-        public void Load(IEntityMap entityMap)
+        public void Load(IEntityMap entityMap, PropertyInfo[] propertiesInfo = null)
         {
-            if(entityMap == null)
+            if (entityMap == null)
                 throw new ArgumentNullException("entityMap");
 
             if (IsReady)
                 return;
 
-            var propertiesInfo = EntityType.GetProperties(BindingFlags.Public | BindingFlags.SetProperty | BindingFlags.Instance);
+            if (propertiesInfo == null)
+                propertiesInfo = EntityType.GetProperties(BindingFlags.Public | BindingFlags.SetProperty | BindingFlags.GetProperty | BindingFlags.Instance);
 
-            EntityMap superEntityMap = null;
+            //EntityMap superEntityMap = null;
             if ((entityMap is EntityMap) && ((EntityMap)entityMap).IsSubClass)
             {
-                superEntityMap = entityMap.Parent.GetEntityMap(entityMap.Extends);
+                var superEntityMap = entityMap.Parent.GetEntityMap(entityMap.Extends);
+                Load(superEntityMap, propertiesInfo);
             }
 
             lock (padLock)
             {
                 foreach (var pinfo in propertiesInfo)
                 {
-                    /* NOTE: Intentionally going only 1 level up the inheritance. something like :
-                     *  SuperSuperClass
-                     *      SuperClass
-                     *          Class
-                     *          
-                     *  SuperSuperClass if is a mapped entity its properties will be ignored. May be implement this later on. 
-                     *  For now too ugly don't want to touch.
-                     */
                     var prop = entityMap.GetProperty(pinfo.Name);
 
-                    if ((prop == null) && (superEntityMap != null))
-                        prop = superEntityMap[pinfo.Name];
+                    //if ((prop == null) && (superEntityMap != null))
+                    //    prop = superEntityMap[pinfo.Name];
 
                     if (prop != null)
                     {
