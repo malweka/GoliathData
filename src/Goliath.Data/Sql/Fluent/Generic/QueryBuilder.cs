@@ -77,7 +77,7 @@ namespace Goliath.Data.Sql
 
         void LoadColumns(EntityMap entityMap, string tableAlias, List<string> propertyNames)
         {
-            Dictionary<string, string> cols = new Dictionary<string, string>();
+            var cols = new Dictionary<string, string>();
 
             foreach (var prop in entityMap)
             {
