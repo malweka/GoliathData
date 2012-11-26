@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
+using Goliath.Data.Entity;
 using Goliath.Data.Mapping;
 using Goliath.Data.Utils;
 
@@ -25,25 +26,48 @@ namespace Goliath.Data.Sql
             EntityAccessorStore store = new EntityAccessorStore();
             var accessor = store.GetEntityAccessor(type, entityMap);
             
-            LoadColumns(entityMap, accessor, entity);
+            LoadColumns(entityMap, accessor);
         }
 
-        void LoadColumns(EntityMap entityMap, EntityAccessor accessor, T entity)
+        void LoadColumns(EntityMap entityMap, EntityAccessor accessor)
         {
             if(entityMap.IsSubClass)
             {
                 var parentMap = session.SessionFactory.DbSettings.Map.GetEntityMap(entityMap.Extends);
-                LoadColumns(parentMap, accessor, entity);
+                LoadColumns(parentMap, accessor);
             }
 
-            foreach (var prop in entityMap.Properties)
+            var trackable = entity as ITrackable;
+            if (trackable != null)
             {
-                var propInfo = accessor.Properties[prop.Name];
-                if(propInfo == null)
-                    throw new MappingException("Could not find mapped property " + prop.Name + " inside " + entityMap.FullName);
+                var changes = trackable.ChangeTracker.GetChangedItems();
+                foreach (var item in changes)
+                {
+                    var prop = entityMap.GetProperty(item.ItemName);
+                    if(prop.IgnoreOnUpdate)
+                        continue;
+                    var propInfo = accessor.Properties[prop.Name];
+                    if (propInfo == null)
+                        throw new MappingException("Could not find mapped property " + prop.Name + " inside " + entityMap.FullName);
 
-                executionList.AddColumn(entityMap.FullName, prop, propInfo.GetMethod(entity));
+                    executionList.AddColumn(entityMap.FullName, prop, propInfo.GetMethod(entity));
+                }
             }
+            else
+            {
+                foreach (var prop in entityMap.Properties)
+                {
+                    if (prop.IgnoreOnUpdate)
+                        continue;
+
+                    var propInfo = accessor.Properties[prop.Name];
+                    if (propInfo == null)
+                        throw new MappingException("Could not find mapped property " + prop.Name + " inside " + entityMap.FullName);
+
+                    executionList.AddColumn(entityMap.FullName, prop, propInfo.GetMethod(entity));
+                }
+            }
+            
         }
 
         #region INonQuerySqlBuilder<T> Members
@@ -57,14 +81,12 @@ namespace Goliath.Data.Sql
 
         #region IBinaryNonQueryOperation<T> Members
 
-        public IFilterNonQueryClause<T, TProperty> And<TProperty>(
-            Expression<Func<T, TProperty>> property)
+        public IFilterNonQueryClause<T, TProperty> And<TProperty>(Expression<Func<T, TProperty>> property)
         {
             throw new NotImplementedException();
         }
 
-        public IFilterNonQueryClause<T, TProperty> Or<TProperty>(
-            Expression<Func<T, TProperty>> property)
+        public IFilterNonQueryClause<T, TProperty> Or<TProperty>(Expression<Func<T, TProperty>> property)
         {
             throw new NotImplementedException();
         }
@@ -86,18 +108,30 @@ namespace Goliath.Data.Sql
 
         private readonly Dictionary<string, Tuple<string, string, object>> columnsTableMap = new Dictionary<string, Tuple<string, string, object>>();
 
+        /// <summary>
+        /// Gets the statements.
+        /// </summary>
+        /// <value>
+        /// The statements.
+        /// </value>
         public Dictionary<string, UpdateSqlBodyInfo> Statements
         {
             get { return statements; }
         }
 
+        /// <summary>
+        /// Adds the column.
+        /// </summary>
+        /// <param name="entityMapName">Name of the entity map.</param>
+        /// <param name="property">The property.</param>
+        /// <param name="value">The value.</param>
+        /// <exception cref="MappingException">Entity  + entityMapName +  contains more than one property named  + property.PropertyName</exception>
         public void AddColumn(string entityMapName, Property property, object value)
         {
             if (columnsTableMap.ContainsKey(property.Name))
                 throw new MappingException("Entity " + entityMapName + " contains more than one property named " + property.PropertyName);
 
             columnsTableMap.Add(property.Name, Tuple.Create(entityMapName, property.ColumnName, value));
-
         }
     }
 
