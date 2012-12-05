@@ -13,9 +13,10 @@ namespace Goliath.Data.Sql
     {
         UpdateSqlExecutionList executionList = new UpdateSqlExecutionList();
         private ISession session;
-        //private List<string> columns;
         private T entity;
 
+
+        internal UpdateSqlExecutionList ExecutionList { get { return executionList; } }
 
         public UpdateSqlBuilder(ISession session, T entity)
         {
@@ -37,35 +38,34 @@ namespace Goliath.Data.Sql
                 LoadColumns(parentMap, accessor);
             }
 
-            var trackable = entity as ITrackable;
-            if (trackable != null)
+            //var trackable = entity as ITrackable;
+            //if (trackable != null)
+            //{
+            //    var changes = trackable.ChangeTracker.GetChangedItems();
+            //    foreach (var item in changes)
+            //    {
+            //        var prop = entityMap.GetProperty(item.ItemName);
+            //        if(prop.IgnoreOnUpdate)
+            //            continue;
+
+            //        var propInfo = accessor.Properties[prop.Name];
+            //        if (propInfo == null)
+            //            throw new MappingException("Could not find mapped property " + prop.Name + " inside " + entityMap.FullName);
+
+            //        executionList.AddColumn(entityMap.FullName, prop, propInfo.GetMethod(entity));
+            //    }
+            //}
+
+            foreach (var prop in entityMap.Properties)
             {
-                var changes = trackable.ChangeTracker.GetChangedItems();
-                foreach (var item in changes)
-                {
-                    var prop = entityMap.GetProperty(item.ItemName);
-                    if(prop.IgnoreOnUpdate)
-                        continue;
-                    var propInfo = accessor.Properties[prop.Name];
-                    if (propInfo == null)
-                        throw new MappingException("Could not find mapped property " + prop.Name + " inside " + entityMap.FullName);
+                if (prop.IgnoreOnUpdate)
+                    continue;
 
-                    executionList.AddColumn(entityMap.FullName, prop, propInfo.GetMethod(entity));
-                }
-            }
-            else
-            {
-                foreach (var prop in entityMap.Properties)
-                {
-                    if (prop.IgnoreOnUpdate)
-                        continue;
+                var propInfo = accessor.Properties[prop.Name];
+                if (propInfo == null)
+                    throw new MappingException("Could not find mapped property " + prop.Name + " inside " + entityMap.FullName);
 
-                    var propInfo = accessor.Properties[prop.Name];
-                    if (propInfo == null)
-                        throw new MappingException("Could not find mapped property " + prop.Name + " inside " + entityMap.FullName);
-
-                    executionList.AddColumn(entityMap.FullName, prop, propInfo.GetMethod(entity));
-                }
+                executionList.AddColumn(entityMap.FullName, prop, propInfo.GetMethod(entity));
             }
             
         }
