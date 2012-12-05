@@ -84,9 +84,6 @@ namespace Goliath.Data.Utils
                 {
                     var prop = entityMap.GetProperty(pinfo.Name);
 
-                    //if ((prop == null) && (superEntityMap != null))
-                    //    prop = superEntityMap[pinfo.Name];
-
                     if (prop != null)
                     {
                         prop.ClrType = pinfo.PropertyType;
@@ -98,7 +95,9 @@ namespace Goliath.Data.Utils
                                                GetMethod = pinfo.CreateDynamicGetMethodDelegate(),
                                                SetMethod = pinfo.CreateDynamicSetMethodDelegate(),
                                            };
-                        Properties.Add(property.PropertyName, property);
+
+                        if (!Properties.ContainsKey(property.PropertyName))
+                            Properties.Add(property.PropertyName, property);
                     }
                 }
 

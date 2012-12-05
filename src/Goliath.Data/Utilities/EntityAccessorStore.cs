@@ -40,6 +40,9 @@ namespace Goliath.Data.Utils
         /// <exception cref="System.ArgumentNullException">entityType</exception>
         public EntityAccessor GetEntityAccessor(Type entityType)
         {
+            if (entityType == null)
+                throw new ArgumentNullException("entityType");
+
             return GetEntityAccessor(entityType, new DynamicEntityMap(entityType));
         }
 
