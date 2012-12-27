@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
@@ -26,13 +25,13 @@ namespace Goliath.Data.Sql
             EntityMap entityMap = session.SessionFactory.DbSettings.Map.GetEntityMap(type.FullName);
             EntityAccessorStore store = new EntityAccessorStore();
             var accessor = store.GetEntityAccessor(type, entityMap);
-            
+
             LoadColumns(entityMap, accessor);
         }
 
         void LoadColumns(EntityMap entityMap, EntityAccessor accessor)
         {
-            if(entityMap.IsSubClass)
+            if (entityMap.IsSubClass)
             {
                 var parentMap = session.SessionFactory.DbSettings.Map.GetEntityMap(entityMap.Extends);
                 LoadColumns(parentMap, accessor);
@@ -67,7 +66,7 @@ namespace Goliath.Data.Sql
 
                 executionList.AddColumn(entityMap.FullName, prop, propInfo.GetMethod(entity));
             }
-            
+
         }
 
         #region INonQuerySqlBuilder<T> Members
@@ -99,40 +98,107 @@ namespace Goliath.Data.Sql
         #endregion
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
-    public class UpdateSqlExecutionList
+    class NonQueryFilterClause<T, TProperty> : IFilterNonQueryClause<T, TProperty>
     {
-        readonly Dictionary<string, UpdateSqlBodyInfo> statements = new Dictionary<string, UpdateSqlBodyInfo>();
+        private readonly IBinaryNonQueryOperation<T> nonQueryBuilder;
+        public Property LeftColumn { get; private set; }
+        public string RightColumnName { get; private set; }
+        public TProperty RightValue { get; private set; }
+        public ComparisonOperator BinaryOp { get; private set; }
+        public SqlOperator PreOperator { get; set; }
 
-        private readonly Dictionary<string, Tuple<string, string, object>> columnsTableMap = new Dictionary<string, Tuple<string, string, object>>();
-
-        /// <summary>
-        /// Gets the statements.
-        /// </summary>
-        /// <value>
-        /// The statements.
-        /// </value>
-        public Dictionary<string, UpdateSqlBodyInfo> Statements
+        public NonQueryFilterClause(Property property, IBinaryNonQueryOperation<T> nonQueryBuilder)
         {
-            get { return statements; }
+            LeftColumn = property;
+            this.nonQueryBuilder = nonQueryBuilder;
         }
 
-        /// <summary>
-        /// Adds the column.
-        /// </summary>
-        /// <param name="entityMapName">Name of the entity map.</param>
-        /// <param name="property">The property.</param>
-        /// <param name="value">The value.</param>
-        /// <exception cref="MappingException">Entity  + entityMapName +  contains more than one property named  + property.PropertyName</exception>
-        public void AddColumn(string entityMapName, Property property, object value)
-        {
-            if (columnsTableMap.ContainsKey(property.Name))
-                throw new MappingException("Entity " + entityMapName + " contains more than one property named " + property.PropertyName);
+        #region IFilterNonQueryClause<T,TProperty> Members
 
-            columnsTableMap.Add(property.Name, Tuple.Create(entityMapName, property.ColumnName, value));
+        public IBinaryNonQueryOperation<T> EqualToValue(TProperty value)
+        {
+            RightValue = value;
+            BinaryOp = ComparisonOperator.Equal;
+            return nonQueryBuilder;
         }
+
+        public IBinaryNonQueryOperation<T> EqualTo(Expression<Func<T, TProperty>> property)
+        {
+            RightColumnName = property.GetMemberName();
+            BinaryOp = ComparisonOperator.Equal;
+            return nonQueryBuilder;
+        }
+
+        public IBinaryNonQueryOperation<T> GreaterThanValue(TProperty value)
+        {
+            RightValue = value;
+            BinaryOp = ComparisonOperator.GreaterThan;
+            return nonQueryBuilder;
+        }
+
+        public IBinaryNonQueryOperation<T> GreaterThan(Expression<Func<T, TProperty>> property)
+        {
+            RightColumnName = property.GetMemberName();
+            BinaryOp = ComparisonOperator.GreaterThan;
+            return nonQueryBuilder;
+        }
+
+        public IBinaryNonQueryOperation<T> GreaterOrEqualToValue(TProperty value)
+        {
+            RightValue = value;
+            BinaryOp = ComparisonOperator.GreaterOrEquals;
+            return nonQueryBuilder;
+        }
+
+        public IBinaryNonQueryOperation<T> GreaterOrEqualTo(Expression<Func<T, TProperty>> property)
+        {
+            RightColumnName = property.GetMemberName();
+            BinaryOp = ComparisonOperator.GreaterOrEquals;
+            return nonQueryBuilder;
+        }
+
+        public IBinaryNonQueryOperation<T> LowerOrEqualToValue(TProperty value)
+        {
+            RightValue = value;
+            BinaryOp = ComparisonOperator.LowerOrEquals;
+            return nonQueryBuilder;
+        }
+
+        public IBinaryNonQueryOperation<T> LowerOrEqualTo(Expression<Func<T, TProperty>> property)
+        {
+            RightColumnName = property.GetMemberName();
+            BinaryOp = ComparisonOperator.LowerOrEquals;
+            return nonQueryBuilder;
+        }
+
+        public IBinaryNonQueryOperation<T> LowerThanValue(TProperty value)
+        {
+            RightValue = value;
+            BinaryOp = ComparisonOperator.LowerThan;
+            return nonQueryBuilder;
+        }
+
+        public IBinaryNonQueryOperation<T> LowerThan(Expression<Func<T, TProperty>> property)
+        {
+            RightColumnName = property.GetMemberName();
+            BinaryOp = ComparisonOperator.LowerThan;
+            return nonQueryBuilder;
+        }
+
+        public IBinaryNonQueryOperation<T> LikeValue(TProperty value)
+        {
+            RightValue = value;
+            BinaryOp = ComparisonOperator.Like;
+            return nonQueryBuilder;
+        }
+
+        public IBinaryNonQueryOperation<T> Like(Expression<Func<T, TProperty>> property)
+        {
+            RightColumnName = property.GetMemberName();
+            BinaryOp = ComparisonOperator.Like;
+            return nonQueryBuilder;
+        }
+
+        #endregion
     }
-
 }

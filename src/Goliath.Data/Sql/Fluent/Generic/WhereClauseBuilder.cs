@@ -3,12 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Linq.Expressions;
+using Goliath.Data.Mapping;
 
 namespace Goliath.Data.Sql
 {
-    using Mapping;
-    using Utils;
-
     class WhereClauseBuilderWrapper<T, TProperty> : IFilterClause<T, TProperty>
     {
 
@@ -23,7 +21,7 @@ namespace Goliath.Data.Sql
             this.queryBuilder = queryBuilder;
         }
 
-        IBinaryOperation<T> BuildBinaryOperation(ComparisonOperator binaryOp, System.Linq.Expressions.Expression<Func<T, TProperty>> property)
+        IBinaryOperation<T> BuildBinaryOperation(ComparisonOperator binaryOp, Expression<Func<T, TProperty>> property)
         {
             var prop = queryBuilder.ExtractProperty(property);
             string columnName = string.Empty;
