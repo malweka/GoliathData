@@ -185,6 +185,7 @@
     <Compile Include="Sql\Fluent\Generic\QueryBuilder.cs" />
     <Compile Include="Sql\Fluent\Generic\SortBuilder.cs" />
     <Compile Include="Sql\Fluent\Generic\UpdateSqlBuilder.cs" />
+    <Compile Include="Sql\Fluent\Generic\UpdateSqlExecutionList.cs" />
     <Compile Include="Sql\Fluent\Generic\WhereClauseBuilder.cs" />
     <Compile Include="Sql\Fluent\INonQuerySqlBuilder.cs" />
     <Compile Include="Sql\Fluent\QueryBuilder.FilterBuilder.cs" />

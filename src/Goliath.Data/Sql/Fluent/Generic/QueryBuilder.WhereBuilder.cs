@@ -6,9 +6,6 @@ using System.Linq.Expressions;
 
 namespace Goliath.Data.Sql
 {
-    using Mapping;
-    using Utils;
-
 	partial class QueryBuilder<T>
 	{
         WhereClauseBuilderWrapper<T, TProperty> BuildWhereClause<TProperty>(SqlOperator preOperator, Expression<Func<T, TProperty>> property)
