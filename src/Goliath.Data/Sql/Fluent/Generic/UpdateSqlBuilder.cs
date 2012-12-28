@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
@@ -10,84 +11,202 @@ namespace Goliath.Data.Sql
 {
     class UpdateSqlBuilder<T> : INonQuerySqlBuilder<T>, IBinaryNonQueryOperation<T>
     {
-        UpdateSqlExecutionList executionList = new UpdateSqlExecutionList();
         private ISession session;
         private T entity;
 
-
-        internal UpdateSqlExecutionList ExecutionList { get { return executionList; } }
+        private EntityMap Table { get; set; }
+        public List<NonQueryFilterClause<T>> Filters { get; private set; }
 
         public UpdateSqlBuilder(ISession session, T entity)
         {
             this.session = session;
             this.entity = entity;
             var type = typeof(T);
-            EntityMap entityMap = session.SessionFactory.DbSettings.Map.GetEntityMap(type.FullName);
-            EntityAccessorStore store = new EntityAccessorStore();
-            var accessor = store.GetEntityAccessor(type, entityMap);
+            Filters = new List<NonQueryFilterClause<T>>();
+            Table = session.SessionFactory.DbSettings.Map.GetEntityMap(type.FullName);
 
-            LoadColumns(entityMap, accessor);
         }
 
-        void LoadColumns(EntityMap entityMap, EntityAccessor accessor)
+        void LoadColumns(UpdateSqlExecutionList execList, EntityMap entityMap, EntityAccessor accessor)
         {
-            if (entityMap.IsSubClass)
+            var updateBodyInfo = new UpdateSqlBodyInfo();
+
+            var trackable = entity as ITrackable;
+            if (trackable != null)
             {
-                var parentMap = session.SessionFactory.DbSettings.Map.GetEntityMap(entityMap.Extends);
-                LoadColumns(parentMap, accessor);
+                var changes = trackable.ChangeTracker.GetChangedItems();
+                foreach (var item in changes)
+                {
+                    var prop = entityMap.GetProperty(item.ItemName);
+                    if (prop == null)
+                    {
+                        if (entityMap.IsSubClass && !execList.Statements.ContainsKey(entityMap.Extends))
+                        {
+                            var parentMap = session.SessionFactory.DbSettings.Map.GetEntityMap(entityMap.Extends);
+                            LoadColumns(execList, parentMap, accessor);
+                        }
+                        else
+                            continue;
+                    }
+
+                    if (prop == null || prop.IgnoreOnUpdate || prop.IsPrimaryKey)
+                        continue;
+
+                    var propInfo = accessor.Properties[prop.Name];
+                    if (propInfo == null)
+                        throw new MappingException("Could not find mapped property " + prop.Name + " inside " + entityMap.FullName);
+
+                    AddColumnAndParameterToUpdateInfo(updateBodyInfo, entityMap, prop, propInfo);
+                }
+            }
+            else
+            {
+                foreach (var pInfo in accessor.Properties)
+                {
+                    var prop = entityMap.GetProperty(pInfo.Value.PropertyName);
+                    if (prop == null)
+                    {
+                        if (entityMap.IsSubClass && !execList.Statements.ContainsKey(entityMap.Extends))
+                        {
+                            var parentMap = session.SessionFactory.DbSettings.Map.GetEntityMap(entityMap.Extends);
+                            LoadColumns(execList, parentMap, accessor);
+                        }
+                        else
+                            continue; //throw new MappingException("Could not find mapped property " + pInfo.Value.PropertyName + " inside " + entityMap.FullName);
+                    }
+
+                    if (prop == null || prop.IgnoreOnUpdate || prop.IsPrimaryKey)
+                        continue;
+
+                    AddColumnAndParameterToUpdateInfo(updateBodyInfo, entityMap, prop, pInfo.Value);
+                }
             }
 
-            //var trackable = entity as ITrackable;
-            //if (trackable != null)
-            //{
-            //    var changes = trackable.ChangeTracker.GetChangedItems();
-            //    foreach (var item in changes)
-            //    {
-            //        var prop = entityMap.GetProperty(item.ItemName);
-            //        if(prop.IgnoreOnUpdate)
-            //            continue;
+            execList.Statements.Add(entityMap.FullName, updateBodyInfo);
 
-            //        var propInfo = accessor.Properties[prop.Name];
-            //        if (propInfo == null)
-            //            throw new MappingException("Could not find mapped property " + prop.Name + " inside " + entityMap.FullName);
+        }
 
-            //        executionList.AddColumn(entityMap.FullName, prop, propInfo.GetMethod(entity));
-            //    }
-            //}
-
-            foreach (var prop in entityMap.Properties)
+        void AddColumnAndParameterToUpdateInfo(UpdateSqlBodyInfo updateBodyInfo, EntityMap entityMap, Property prop, PropertyAccessor propInfo)
+        {
+            object val = propInfo.GetMethod(entity);
+            bool isRel = false;
+            if (prop is Relation)
             {
-                if (prop.IgnoreOnUpdate)
-                    continue;
+                var rel = (Relation)prop;
+                if (updateBodyInfo.Columns.ContainsKey(prop.ColumnName))
+                    return;
 
-                var propInfo = accessor.Properties[prop.Name];
-                if (propInfo == null)
-                    throw new MappingException("Could not find mapped property " + prop.Name + " inside " + entityMap.FullName);
+                isRel = true;
+                if (val != null)
+                {
+                    if (rel.RelationType == RelationshipType.ManyToOne)
+                    {
+                        var store = new EntityAccessorStore();
+                        var relMap = session.SessionFactory.DbSettings.Map.GetEntityMap(rel.ReferenceEntityName);
+                        var accessor = store.GetEntityAccessor(val.GetType(), relMap);
 
-                executionList.AddColumn(entityMap.FullName, prop, propInfo.GetMethod(entity));
+                        var relPinfo = accessor.Properties[rel.ReferenceProperty];
+                        if (relPinfo == null)
+                            throw new MappingException(string.Format("could not find property {0} in mapped entity {1}", rel.ReferenceProperty, relMap.FullName));
+                        else
+                        {
+                            val = relPinfo.GetMethod(val);
+                        }
+                    }
+                    else if (rel.RelationType == RelationshipType.ManyToMany)
+                    {
+
+                    }
+                    else return;
+                }
+            }
+            else
+            {
+                Tuple<QueryParam, bool> etuple;
+                if (updateBodyInfo.Columns.TryGetValue(prop.ColumnName, out etuple))
+                {
+                    if(etuple.Item2)
+                    {
+                        updateBodyInfo.Columns.Remove(prop.ColumnName);
+                    }
+                    else return;
+                }
             }
 
+            Tuple<QueryParam, bool> tuple = Tuple.Create(new QueryParam(ParameterNameBuilderHelper.ColumnWithTableAlias(entityMap.TableAlias, prop.ColumnName)) { Value = val }, isRel);
+            updateBodyInfo.Columns.Add(prop.ColumnName, tuple);
+        }
+
+        internal UpdateSqlExecutionList Build()
+        {
+            var execList = new UpdateSqlExecutionList();
+            var type = typeof(T);
+            var store = new EntityAccessorStore();
+            var accessor = store.GetEntityAccessor(type, Table);
+
+            LoadColumns(execList, Table, accessor);
+
+            return execList;
+        }
+
+        NonQueryFilterClause<T> CreateFilter(EntityMap map, SqlOperator preOperator, string propertyName)
+        {
+            var prop = map.GetProperty(propertyName);
+
+            //NOTE: we're not supporting this yet. so we shouldn't really be going down to the parent class yet.
+            if (prop == null)
+            {
+                if (map.IsSubClass)
+                {
+                    var parent = session.SessionFactory.DbSettings.Map.GetEntityMap(map.Extends);
+                    return CreateFilter(parent, preOperator, propertyName);
+                }
+                else
+                {
+                    throw new MappingException(string.Format("Could not find property {0} on mapped entity {1}", propertyName, map.FullName));
+                }
+
+            }
+
+            var filter = new NonQueryFilterClause<T>(prop, this) { PreOperator = preOperator };
+            Filters.Add(filter);
+            return filter;
         }
 
         #region INonQuerySqlBuilder<T> Members
 
-        public IFilterNonQueryClause<T, TProperty> Where<TProperty>(string propertyName)
+        public IFilterNonQueryClause<T> Where<TProperty>(string propertyName)
         {
-            throw new NotImplementedException();
+            return CreateFilter(Table, SqlOperator.AND, propertyName);
+        }
+
+        public IFilterNonQueryClause<T> Where<TProperty>(Expression<Func<T, TProperty>> property)
+        {
+            return CreateFilter(Table, SqlOperator.AND, property.GetMemberName());
         }
 
         #endregion
 
         #region IBinaryNonQueryOperation<T> Members
 
-        public IFilterNonQueryClause<T, TProperty> And<TProperty>(Expression<Func<T, TProperty>> property)
+        public IFilterNonQueryClause<T> And<TProperty>(Expression<Func<T, TProperty>> property)
         {
-            throw new NotImplementedException();
+            return CreateFilter(Table, SqlOperator.AND, property.GetMemberName());
         }
 
-        public IFilterNonQueryClause<T, TProperty> Or<TProperty>(Expression<Func<T, TProperty>> property)
+        public IFilterNonQueryClause<T> And<TProperty>(string propertyName)
         {
-            throw new NotImplementedException();
+            return CreateFilter(Table, SqlOperator.AND, propertyName);
+        }
+
+        public IFilterNonQueryClause<T> Or<TProperty>(Expression<Func<T, TProperty>> property)
+        {
+            return CreateFilter(Table, SqlOperator.OR, property.GetMemberName());
+        }
+
+        public IFilterNonQueryClause<T> Or<TProperty>(string propertyName)
+        {
+            return CreateFilter(Table, SqlOperator.OR, propertyName);
         }
 
         public int Execute()
@@ -98,12 +217,12 @@ namespace Goliath.Data.Sql
         #endregion
     }
 
-    class NonQueryFilterClause<T, TProperty> : IFilterNonQueryClause<T, TProperty>
+    class NonQueryFilterClause<T> : IFilterNonQueryClause<T>
     {
         private readonly IBinaryNonQueryOperation<T> nonQueryBuilder;
         public Property LeftColumn { get; private set; }
         public string RightColumnName { get; private set; }
-        public TProperty RightValue { get; private set; }
+        public object RightValue { get; private set; }
         public ComparisonOperator BinaryOp { get; private set; }
         public SqlOperator PreOperator { get; set; }
 
@@ -115,84 +234,84 @@ namespace Goliath.Data.Sql
 
         #region IFilterNonQueryClause<T,TProperty> Members
 
-        public IBinaryNonQueryOperation<T> EqualToValue(TProperty value)
+        public IBinaryNonQueryOperation<T> EqualToValue<TProperty>(TProperty value)
         {
             RightValue = value;
             BinaryOp = ComparisonOperator.Equal;
             return nonQueryBuilder;
         }
 
-        public IBinaryNonQueryOperation<T> EqualTo(Expression<Func<T, TProperty>> property)
+        public IBinaryNonQueryOperation<T> EqualTo<TProperty>(Expression<Func<T, TProperty>> property)
         {
             RightColumnName = property.GetMemberName();
             BinaryOp = ComparisonOperator.Equal;
             return nonQueryBuilder;
         }
 
-        public IBinaryNonQueryOperation<T> GreaterThanValue(TProperty value)
+        public IBinaryNonQueryOperation<T> GreaterThanValue<TProperty>(TProperty value)
         {
             RightValue = value;
             BinaryOp = ComparisonOperator.GreaterThan;
             return nonQueryBuilder;
         }
 
-        public IBinaryNonQueryOperation<T> GreaterThan(Expression<Func<T, TProperty>> property)
+        public IBinaryNonQueryOperation<T> GreaterThan<TProperty>(Expression<Func<T, TProperty>> property)
         {
             RightColumnName = property.GetMemberName();
             BinaryOp = ComparisonOperator.GreaterThan;
             return nonQueryBuilder;
         }
 
-        public IBinaryNonQueryOperation<T> GreaterOrEqualToValue(TProperty value)
+        public IBinaryNonQueryOperation<T> GreaterOrEqualToValue<TProperty>(TProperty value)
         {
             RightValue = value;
             BinaryOp = ComparisonOperator.GreaterOrEquals;
             return nonQueryBuilder;
         }
 
-        public IBinaryNonQueryOperation<T> GreaterOrEqualTo(Expression<Func<T, TProperty>> property)
+        public IBinaryNonQueryOperation<T> GreaterOrEqualTo<TProperty>(Expression<Func<T, TProperty>> property)
         {
             RightColumnName = property.GetMemberName();
             BinaryOp = ComparisonOperator.GreaterOrEquals;
             return nonQueryBuilder;
         }
 
-        public IBinaryNonQueryOperation<T> LowerOrEqualToValue(TProperty value)
+        public IBinaryNonQueryOperation<T> LowerOrEqualToValue<TProperty>(TProperty value)
         {
             RightValue = value;
             BinaryOp = ComparisonOperator.LowerOrEquals;
             return nonQueryBuilder;
         }
 
-        public IBinaryNonQueryOperation<T> LowerOrEqualTo(Expression<Func<T, TProperty>> property)
+        public IBinaryNonQueryOperation<T> LowerOrEqualTo<TProperty>(Expression<Func<T, TProperty>> property)
         {
             RightColumnName = property.GetMemberName();
             BinaryOp = ComparisonOperator.LowerOrEquals;
             return nonQueryBuilder;
         }
 
-        public IBinaryNonQueryOperation<T> LowerThanValue(TProperty value)
+        public IBinaryNonQueryOperation<T> LowerThanValue<TProperty>(TProperty value)
         {
             RightValue = value;
             BinaryOp = ComparisonOperator.LowerThan;
             return nonQueryBuilder;
         }
 
-        public IBinaryNonQueryOperation<T> LowerThan(Expression<Func<T, TProperty>> property)
+        public IBinaryNonQueryOperation<T> LowerThan<TProperty>(Expression<Func<T, TProperty>> property)
         {
             RightColumnName = property.GetMemberName();
             BinaryOp = ComparisonOperator.LowerThan;
             return nonQueryBuilder;
         }
 
-        public IBinaryNonQueryOperation<T> LikeValue(TProperty value)
+        public IBinaryNonQueryOperation<T> LikeValue<TProperty>(TProperty value)
         {
             RightValue = value;
             BinaryOp = ComparisonOperator.Like;
             return nonQueryBuilder;
         }
 
-        public IBinaryNonQueryOperation<T> Like(Expression<Func<T, TProperty>> property)
+        public IBinaryNonQueryOperation<T> Like<TProperty>(Expression<Func<T, TProperty>> property)
         {
             RightColumnName = property.GetMemberName();
             BinaryOp = ComparisonOperator.Like;
