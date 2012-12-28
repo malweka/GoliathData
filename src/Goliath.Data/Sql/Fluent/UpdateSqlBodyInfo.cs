@@ -10,19 +10,8 @@ namespace Goliath.Data.Sql
     /// </summary>
     public class UpdateSqlBodyInfo
     {
-        /// <summary>
-        /// Gets or sets the column enumeration.
-        /// </summary>
-        /// <value>The column enumeration.</value>
-        public List<string> ColumnList { get; set; }
-
-        /// <summary>
-        /// Gets the parameters.
-        /// </summary>
-        /// <value>
-        /// The parameters.
-        /// </value>
-        public List<QueryParam> Parameters { get; set; }
+        readonly Dictionary<string, Tuple<QueryParam,bool>> columns = new Dictionary<string, Tuple<QueryParam, bool>>();
+        public Dictionary<string, Tuple<QueryParam, bool>> Columns { get { return columns; } }
 
         /// <summary>
         /// Gets or sets the into.
@@ -51,11 +40,14 @@ namespace Goliath.Data.Sql
             sb.AppendFormat("{0} SET ", dialect.Escape(TableName, EscapeValueType.TableName));
             try
             {
-                for (int i = 0; i < ColumnList.Count; i++)
+                int counter = 0;
+                foreach(var col in Columns)
                 {
-                    sb.AppendFormat("{0} = {1}", dialect.Escape(ColumnList[i], EscapeValueType.Column), dialect.CreateParameterName(Parameters[i].Name));
-                    if(i < (ColumnList.Count - 1))
+                    sb.AppendFormat("{0} = {1}", dialect.Escape(col.Key, EscapeValueType.Column), dialect.CreateParameterName(col.Value.Item1.Name));
+                    if(counter < (Columns.Count - 1))
                         sb.Append(", ");
+
+                    counter = counter + 1;
                 }
             }
             catch (Exception exception)

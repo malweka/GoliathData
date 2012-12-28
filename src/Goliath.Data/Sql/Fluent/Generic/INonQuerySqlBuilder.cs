@@ -8,35 +8,38 @@ namespace Goliath.Data.Sql
 {
     public interface INonQuerySqlBuilder<T>
     {
-        IFilterNonQueryClause<T, TProperty> Where<TProperty>(string propertyName);
+        IFilterNonQueryClause<T> Where<TProperty>(string propertyName);
+        IFilterNonQueryClause<T> Where<TProperty>(Expression<Func<T, TProperty>> property);
     }
 
     public interface IBinaryNonQueryOperation<T>
     {
-        IFilterNonQueryClause<T, TProperty> And<TProperty>(Expression<Func<T, TProperty>> property);
-        IFilterNonQueryClause<T, TProperty> Or<TProperty>(Expression<Func<T, TProperty>> property);
-        
+        IFilterNonQueryClause<T> And<TProperty>(Expression<Func<T, TProperty>> property);
+        IFilterNonQueryClause<T> And<TProperty>(string propertyName);
+        IFilterNonQueryClause<T> Or<TProperty>(Expression<Func<T, TProperty>> property);
+        IFilterNonQueryClause<T> Or<TProperty>(string propertyName);
+
         int Execute();
     }
 
-    public interface IFilterNonQueryClause<T, TValue>
+    public interface IFilterNonQueryClause<T>
     {
-        IBinaryNonQueryOperation<T> EqualToValue(TValue value);
-        IBinaryNonQueryOperation<T> EqualTo(Expression<Func<T, TValue>> property);
+        IBinaryNonQueryOperation<T> EqualToValue<TValue>(TValue value);
+        IBinaryNonQueryOperation<T> EqualTo<TValue>(Expression<Func<T, TValue>> property);
 
-        IBinaryNonQueryOperation<T> GreaterThanValue(TValue value);
-        IBinaryNonQueryOperation<T> GreaterThan(Expression<Func<T, TValue>> property);
+        IBinaryNonQueryOperation<T> GreaterThanValue<TValue>(TValue value);
+        IBinaryNonQueryOperation<T> GreaterThan<TValue>(Expression<Func<T, TValue>> property);
 
-        IBinaryNonQueryOperation<T> GreaterOrEqualToValue(TValue value);
-        IBinaryNonQueryOperation<T> GreaterOrEqualTo(Expression<Func<T, TValue>> property);
+        IBinaryNonQueryOperation<T> GreaterOrEqualToValue<TValue>(TValue value);
+        IBinaryNonQueryOperation<T> GreaterOrEqualTo<TValue>(Expression<Func<T, TValue>> property);
 
-        IBinaryNonQueryOperation<T> LowerOrEqualToValue(TValue value);
-        IBinaryNonQueryOperation<T> LowerOrEqualTo(Expression<Func<T, TValue>> property);
+        IBinaryNonQueryOperation<T> LowerOrEqualToValue<TValue>(TValue value);
+        IBinaryNonQueryOperation<T> LowerOrEqualTo<TValue>(Expression<Func<T, TValue>> property);
 
-        IBinaryNonQueryOperation<T> LowerThanValue(TValue value);
-        IBinaryNonQueryOperation<T> LowerThan(Expression<Func<T, TValue>> property);
+        IBinaryNonQueryOperation<T> LowerThanValue<TValue>(TValue value);
+        IBinaryNonQueryOperation<T> LowerThan<TValue>(Expression<Func<T, TValue>> property);
 
-        IBinaryNonQueryOperation<T> LikeValue(TValue value);
-        IBinaryNonQueryOperation<T> Like(Expression<Func<T, TValue>> property);
+        IBinaryNonQueryOperation<T> LikeValue<TValue>(TValue value);
+        IBinaryNonQueryOperation<T> Like<TValue>(Expression<Func<T, TValue>> property);
     }
 }

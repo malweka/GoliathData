@@ -36,7 +36,7 @@ namespace Goliath.Data.Tests
                                 };
 
             UpdateSqlBuilder<Monkey> builder = new UpdateSqlBuilder<Monkey>(session, monkey);
-            Assert.AreEqual(2, builder.ExecutionList.Statements.Count);
+            Assert.AreEqual(2, builder.Build().Statements.Count);
         }
     }
 }

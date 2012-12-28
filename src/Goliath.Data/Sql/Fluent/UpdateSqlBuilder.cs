@@ -95,8 +95,10 @@ namespace Goliath.Data.Sql
                     }
                 }
 
-                sqlBody.ColumnList = columnNames;
-                sqlBody.Parameters = Parameters.ToList();
+                for (int i = 0; i < columnNames.Count;i++ )
+                {
+                    sqlBody.Columns.Add(columnNames[i], Tuple.Create(Parameters[i],false));
+                }
                 sqlBody.WhereExpression = wherebuilder.ToString().Trim();
             }
             else
@@ -111,7 +113,12 @@ namespace Goliath.Data.Sql
         {
             var updateBody = Build();
             var runner = new SqlCommandRunner();
-            return runner.ExecuteNonQuery(session, updateBody.ToString(dialect), updateBody.Parameters.ToArray());
+            List<QueryParam> parameters = new List<QueryParam>();
+            foreach (var p in updateBody.Columns.Values)
+            {
+                parameters.Add(p.Item1);
+            }
+            return runner.ExecuteNonQuery(session, updateBody.ToString(dialect), parameters.ToArray());
         }
 
         #region INonQuerySqlBuilder Members
