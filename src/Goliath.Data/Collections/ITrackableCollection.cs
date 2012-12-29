@@ -9,6 +9,24 @@ namespace Goliath.Data.Collections
     public interface ITrackableCollection<T> : ITrackableCollection, ICollection<T>
     {
         /// <summary>
+        /// Gets the deleted items.
+        /// </summary>
+        /// <value>The deleted items.</value>
+        ICollection<T> DeletedItems { get; }
+
+        /// <summary>
+        /// Gets the inserted items.
+        /// </summary>
+        /// <value>The inserted items.</value>
+        ICollection<T> InsertedItems { get; }
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public interface ITrackableCollection: System.Collections.IEnumerable
+    {
+        /// <summary>
         /// Starts the tracking.
         /// </summary>
         void StartTracking();
@@ -29,25 +47,8 @@ namespace Goliath.Data.Collections
         /// <summary>
         /// Gets the deleted items.
         /// </summary>
-        /// <value>The deleted items.</value>
-        ICollection<T> DeletedItems { get; }
-
-        /// <summary>
-        /// Gets the inserted items.
-        /// </summary>
-        /// <value>The inserted items.</value>
-        ICollection<T> InsertedItems { get; }
-    }
-
-    /// <summary>
-    /// 
-    /// </summary>
-    public interface ITrackableCollection: System.Collections.IEnumerable
-    {
-        /// <summary>
-        /// Gets the deleted items.
-        /// </summary>
         IEnumerable DeletedItems { get; }
+
         /// <summary>
         /// Gets the inserted items.
         /// </summary>
