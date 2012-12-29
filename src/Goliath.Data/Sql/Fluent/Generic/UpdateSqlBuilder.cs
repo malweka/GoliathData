@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
+using Goliath.Data.Collections;
 using Goliath.Data.Entity;
 using Goliath.Data.Mapping;
 using Goliath.Data.Utils;
@@ -56,7 +58,7 @@ namespace Goliath.Data.Sql
                     if (propInfo == null)
                         throw new MappingException("Could not find mapped property " + prop.Name + " inside " + entityMap.FullName);
 
-                    AddColumnAndParameterToUpdateInfo(updateBodyInfo, entityMap, prop, propInfo);
+                    AddColumnAndParameterToUpdateInfo(execList, updateBodyInfo, entityMap, prop, propInfo, accessor);
                 }
             }
             else
@@ -78,7 +80,7 @@ namespace Goliath.Data.Sql
                     if (prop == null || prop.IgnoreOnUpdate || prop.IsPrimaryKey)
                         continue;
 
-                    AddColumnAndParameterToUpdateInfo(updateBodyInfo, entityMap, prop, pInfo.Value);
+                    AddColumnAndParameterToUpdateInfo(execList, updateBodyInfo, entityMap, prop, pInfo.Value, accessor);
                 }
             }
 
@@ -86,7 +88,7 @@ namespace Goliath.Data.Sql
 
         }
 
-        void AddColumnAndParameterToUpdateInfo(UpdateSqlBodyInfo updateBodyInfo, EntityMap entityMap, Property prop, PropertyAccessor propInfo)
+        void AddColumnAndParameterToUpdateInfo(UpdateSqlExecutionList execList, UpdateSqlBodyInfo updateBodyInfo, EntityMap entityMap, Property prop, PropertyAccessor propInfo, EntityAccessor accessor)
         {
             object val = propInfo.GetMethod(entity);
             bool isRel = false;
@@ -103,9 +105,9 @@ namespace Goliath.Data.Sql
                     {
                         var store = new EntityAccessorStore();
                         var relMap = session.SessionFactory.DbSettings.Map.GetEntityMap(rel.ReferenceEntityName);
-                        var accessor = store.GetEntityAccessor(val.GetType(), relMap);
+                        var relAccessor = store.GetEntityAccessor(val.GetType(), relMap);
 
-                        var relPinfo = accessor.Properties[rel.ReferenceProperty];
+                        var relPinfo = relAccessor.Properties[rel.ReferenceProperty];
                         if (relPinfo == null)
                             throw new MappingException(string.Format("could not find property {0} in mapped entity {1}", rel.ReferenceProperty, relMap.FullName));
                         else
@@ -115,7 +117,14 @@ namespace Goliath.Data.Sql
                     }
                     else if (rel.RelationType == RelationshipType.ManyToMany)
                     {
+                        var trackableCollection = val as ITrackableCollection;
+                        if (trackableCollection != null)
+                        {
+                            AddInsertManyToManyOperation(execList, trackableCollection.InsertedItems, rel, accessor, true);
+                            AddInsertManyToManyOperation(execList, trackableCollection.DeletedItems, rel, accessor, false);
+                        }
 
+                        //NOTE: if not trackable collection used mapped statement to add or remove many to many associations
                     }
                     else return;
                 }
@@ -125,7 +134,7 @@ namespace Goliath.Data.Sql
                 Tuple<QueryParam, bool> etuple;
                 if (updateBodyInfo.Columns.TryGetValue(prop.ColumnName, out etuple))
                 {
-                    if(etuple.Item2)
+                    if (etuple.Item2)
                     {
                         updateBodyInfo.Columns.Remove(prop.ColumnName);
                     }
@@ -135,6 +144,52 @@ namespace Goliath.Data.Sql
 
             Tuple<QueryParam, bool> tuple = Tuple.Create(new QueryParam(ParameterNameBuilderHelper.ColumnWithTableAlias(entityMap.TableAlias, prop.ColumnName)) { Value = val }, isRel);
             updateBodyInfo.Columns.Add(prop.ColumnName, tuple);
+        }
+
+        void AddInsertManyToManyOperation(UpdateSqlExecutionList execList, IEnumerable insertedItems, Relation rel, EntityAccessor accessor, bool isInsertStatement)
+        {
+            if (insertedItems != null)
+            {
+                var relMap = session.SessionFactory.DbSettings.Map.GetEntityMap(rel.ReferenceEntityName);
+                var store = new EntityAccessorStore();
+
+                var propInfo = accessor.Properties[rel.MapPropertyName];
+                if(propInfo == null)
+                    throw new GoliathDataException(string.Format("Could not retrieve value of property {0} in mapped entity {1} with clr type {2}.",
+                                rel.MapPropertyName, Table.FullName, typeof(T).FullName));
+
+                var propValue = propInfo.GetMethod(entity);
+                 
+                PropertyAccessor relPropInfo = null;
+                foreach (var item in insertedItems)
+                {
+                    if (relPropInfo == null)
+                    {
+                        var relAccessor = store.GetEntityAccessor(item.GetType(), relMap);
+                        if (!relAccessor.Properties.TryGetValue(rel.ReferenceProperty, out relPropInfo))
+                            throw new GoliathDataException(string.Format("Could not retrieve value of property {0} in mapped entity {1} with clr type {2}.", 
+                                rel.ReferenceProperty, relMap.FullName, item.GetType().FullName));
+                    }
+
+                    var relParam = new QueryParam(rel.MapReferenceColumn) {Value = relPropInfo.GetMethod(item)};
+                    var propParm = new QueryParam(rel.MapColumn) {Value = propValue};
+                    var dialect = session.SessionFactory.DbSettings.SqlDialect;
+                    if(isInsertStatement)
+                    {
+                        var sql = string.Format("INSERT INTO {0} ({1}, {2}) VALUES({3},{4})",
+                                                rel.MapTableName, rel.MapColumn, rel.MapReferenceColumn, dialect.CreateParameterName(propParm.Name), dialect.CreateParameterName(relParam.Name));
+
+                        execList.ManyToManyStatements.Add(Tuple.Create(sql, new List<QueryParam>(){propParm, relParam}));
+                    }
+                    else
+                    {
+                        var sql = string.Format("DELETE FROM {0} WHERE {1} = {3} AND {2} = {4}",
+                                                rel.MapTableName, rel.MapColumn, rel.MapReferenceColumn, dialect.CreateParameterName(propParm.Name), dialect.CreateParameterName(relParam.Name));
+
+                        execList.ManyToManyStatements.Add(Tuple.Create(sql, new List<QueryParam>() { propParm, relParam }));
+                    }
+                }
+            }
         }
 
         internal UpdateSqlExecutionList Build()
@@ -156,15 +211,15 @@ namespace Goliath.Data.Sql
             //NOTE: we're not supporting this yet. so we shouldn't really be going down to the parent class yet.
             if (prop == null)
             {
-                if (map.IsSubClass)
-                {
-                    var parent = session.SessionFactory.DbSettings.Map.GetEntityMap(map.Extends);
-                    return CreateFilter(parent, preOperator, propertyName);
-                }
-                else
-                {
-                    throw new MappingException(string.Format("Could not find property {0} on mapped entity {1}", propertyName, map.FullName));
-                }
+                //if (map.IsSubClass)
+                //{
+                //    var parent = session.SessionFactory.DbSettings.Map.GetEntityMap(map.Extends);
+                //    return CreateFilter(parent, preOperator, propertyName);
+                //}
+                //else
+                //{
+                throw new MappingException(string.Format("Could not find property {0} on mapped entity {1}", propertyName, map.FullName));
+                //}
 
             }
 

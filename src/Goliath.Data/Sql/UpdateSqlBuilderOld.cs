@@ -93,7 +93,7 @@ namespace Goliath.Data.Sql
         }
 
         public static Dictionary<string, ParamHolder> BuildUpdateQueryParams(object entity, EntityAccessor entityAccessor,
-             EntityMap entityMap, EntityAccessorStore EntityAccessorStore, int level, int rootLevel)
+             EntityMap entityMap, EntityAccessorStore entityAccessorStore, int level, int rootLevel)
         {
             Dictionary<string, ParamHolder> parameters = new Dictionary<string, ParamHolder>();
 
@@ -114,7 +114,7 @@ namespace Goliath.Data.Sql
                         var relInstance = pInfo.GetMethod(entity);
                         if (relInstance != null)
                         {
-                            EntityAccessor relGetSet = EntityAccessorStore.GetEntityAccessor(pInfo.PropertyType, entityMap);
+                            EntityAccessor relGetSet = entityAccessorStore.GetEntityAccessor(pInfo.PropertyType, entityMap);
                             PropertyAccessor referenceProp;
                             if (relGetSet.Properties.TryGetValue(rel.ReferenceProperty, out referenceProp))
                             {

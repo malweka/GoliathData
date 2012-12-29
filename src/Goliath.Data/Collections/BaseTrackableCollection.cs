@@ -1,9 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
-using Goliath.Data.DataAccess;
-using Goliath.Data.Diagnostics;
-using Goliath.Data.Mapping;
-using Goliath.Data.Sql;
+using System.Text;
 
 namespace Goliath.Data.Collections
 {
@@ -11,128 +9,21 @@ namespace Goliath.Data.Collections
     /// 
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    class LazyList<T> : ILazyList<T>, ITrackableCollection<T>
+    public abstract class BaseTrackableCollection<T> : IList<T>, ITrackableCollection<T>
     {
-        IList<T> list;
-        bool isLoaded;
-        SqlOperationInfo query;
-        EntityMap entityMap;
-        IEntitySerializer factory;
-        static ILogger logger;
-        IDatabaseSettings settings;
-
-        //create list for tracking that will be helpful for updates of one to many and many to many relations
-        List<T> deletedItems = new List<T>();
-        List<T> insertedItems = new List<T>();
-
-        public bool IsTracking { get; private set; }
-
-        public ICollection<T> DeletedItems
-        {
-            get { return deletedItems; }
-        }
-
-        public ICollection<T> InsertedItems
-        {
-            get { return insertedItems; }
-        }
-
-        
-        static LazyList()
-        {
-            logger = Logger.GetLogger(typeof(LazyList<T>));
-        }
-
-        //public LazyList()
-        //{
-        //    list = new List<T>();
-        //    isLoaded = true;
-        //    IsTracking = true;
-        //}
+        protected List<T> deletedItems;
+        protected List<T> insertedItems;
+        protected List<T> list;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="LazyList&lt;T&gt;"/> class.
+        /// Initializes a new instance of the <see cref="BaseTrackableCollection{T}" /> class.
         /// </summary>
-        /// <param name="query">The query.</param>
-        /// <param name="entityMap">The entity map.</param>
-        /// <param name="factory">The factory.</param>
-        /// <param name="settings">The settings.</param>
-        public LazyList(SqlOperationInfo query, EntityMap entityMap, IEntitySerializer factory, IDatabaseSettings settings)
+        protected BaseTrackableCollection()
         {
-            this.query = query;
-            this.entityMap = entityMap;
-            this.factory = factory;
-            this.settings = settings;
-            IsTracking = true;
+            deletedItems = new List<T>();
+            insertedItems = new List<T>();
             list = new List<T>();
         }
-
-        /// <summary>
-        /// Gets a value indicating whether this instance is loaded.
-        /// </summary>
-        /// <value>
-        ///   <c>true</c> if this instance is loaded; otherwise, <c>false</c>.
-        /// </value>
-        public bool IsLoaded
-        {
-            get { return isLoaded; }
-        }
-
-        /// <summary>
-        /// Starts the tracking.
-        /// </summary>
-        public void StartTracking()
-        {
-            IsTracking = true;
-        }
-
-        /// <summary>
-        /// Stops the tracking.
-        /// </summary>
-        public void StopTracking()
-        {
-            IsTracking = false;
-        }
-
-        void LoadMe()
-        {
-            if (!isLoaded)
-            {
-                logger.Log(LogLevel.Debug, "Opening connection for lazy collection query");
-                var dbAccess = settings.CreateAccessor();
-                using (var connManager = new ConnectionManager(new ConnectionProvider(settings.Connector), !settings.Connector.AllowMultipleConnections))
-                {
-                    QueryParam[] parameters = null;
-
-                    if (query.Parameters == null)
-                    {
-                        query.Parameters = new QueryParam[] { };
-                    }
-                    else
-                        parameters = query.Parameters.ToArray();
-
-                    logger.Log(LogLevel.Debug, string.Format("Executing query {0}", query.SqlText));
-                    var dataReader = dbAccess.ExecuteReader(connManager.OpenConnection(), query.SqlText, parameters);
-                    list = factory.SerializeAll<T>(dataReader, entityMap);
-                   
-                    connManager.CloseConnection();
-                }
-                isLoaded = true;
-                CleanUp();
-            }
-        }
-
-        void CleanUp()
-        {
-            EntityMap entMapRef = entityMap;
-            entityMap = null;
-            IEntitySerializer serializerRef = factory;
-            factory = null;
-            IDatabaseSettings settingsRef = settings;
-            settings = null;
-        }
-
-        
 
         #region IList<T> Members
 
@@ -145,21 +36,17 @@ namespace Goliath.Data.Collections
         /// </returns>
         public int IndexOf(T item)
         {
-            LoadMe();
             return list.IndexOf(item);
         }
 
+
         /// <summary>
-        /// Inserts an item to the <see cref="T:System.Collections.Generic.IList`1"></see> at the specified index.
+        /// Inserts the specified index.
         /// </summary>
-        /// <param name="index">The zero-based index at which item should be inserted.</param>
-        /// <param name="item">The object to insert into the <see cref="T:System.Collections.Generic.IList`1"></see>.</param>
-        /// <exception cref="T:System.NotSupportedException">The <see cref="T:System.Collections.Generic.IList`1"></see> is read-only.</exception>
-        ///   
-        /// <exception cref="T:System.ArgumentOutOfRangeException">index is not a valid index in the <see cref="T:System.Collections.Generic.IList`1"></see>.</exception>
+        /// <param name="index">The index.</param>
+        /// <param name="item">The item.</param>
         public void Insert(int index, T item)
         {
-            LoadMe();
             list.Insert(index, item);
         }
 
@@ -172,7 +59,6 @@ namespace Goliath.Data.Collections
         /// <exception cref="T:System.ArgumentOutOfRangeException">index is not a valid index in the <see cref="T:System.Collections.Generic.IList`1"></see>.</exception>
         public void RemoveAt(int index)
         {
-            LoadMe();
             list.RemoveAt(index);
         }
 
@@ -188,12 +74,10 @@ namespace Goliath.Data.Collections
         {
             get
             {
-                LoadMe();
                 return list[index];
             }
             set
             {
-                LoadMe();
                 list[index] = value;
             }
         }
@@ -209,7 +93,6 @@ namespace Goliath.Data.Collections
         /// <exception cref="T:System.NotSupportedException">The <see cref="T:System.Collections.Generic.ICollection`1"></see> is read-only.</exception>
         public void Add(T item)
         {
-            LoadMe();
             list.Add(item);
 
             if (IsTracking)
@@ -241,7 +124,7 @@ namespace Goliath.Data.Collections
                 }
             }
 
-            list.Clear();            
+            list.Clear();
         }
 
         /// <summary>
@@ -253,7 +136,6 @@ namespace Goliath.Data.Collections
         /// </returns>
         public bool Contains(T item)
         {
-            LoadMe();
             return list.Contains(item);
         }
 
@@ -264,7 +146,6 @@ namespace Goliath.Data.Collections
         /// <param name="arrayIndex">Index of the array.</param>
         public void CopyTo(T[] array, int arrayIndex)
         {
-            LoadMe();
             list.CopyTo(array, arrayIndex);
         }
 
@@ -274,13 +155,13 @@ namespace Goliath.Data.Collections
         /// <returns>The number of elements contained in the <see cref="T:System.Collections.Generic.ICollection`1"></see>.</returns>
         public int Count
         {
-            get
-            {
-                LoadMe();
-                return list.Count;
-            }
+            get { return list.Count; }
         }
 
+        /// <summary>
+        /// Gets a value indicating whether the <see cref="T:System.Collections.Generic.ICollection`1"></see> is read-only.
+        /// </summary>
+        /// <returns>true if the <see cref="T:System.Collections.Generic.ICollection`1"></see> is read-only; otherwise, false.</returns>
         public bool IsReadOnly
         {
             get { return false; }
@@ -296,8 +177,6 @@ namespace Goliath.Data.Collections
         /// <exception cref="T:System.NotSupportedException">The <see cref="T:System.Collections.Generic.ICollection`1"></see> is read-only.</exception>
         public bool Remove(T item)
         {
-            LoadMe();
-
             if (IsTracking)
             {
                 if (!deletedItems.Contains(item))
@@ -326,7 +205,6 @@ namespace Goliath.Data.Collections
         /// </returns>
         public IEnumerator<T> GetEnumerator()
         {
-            LoadMe();
             return list.GetEnumerator();
         }
 
@@ -334,16 +212,55 @@ namespace Goliath.Data.Collections
 
         #region IEnumerable Members
 
-        /// <summary>
-        /// Returns an enumerator that iterates through a collection.
-        /// </summary>
-        /// <returns>
-        /// An <see cref="T:System.Collections.IEnumerator"/> object that can be used to iterate through the collection.
-        /// </returns>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
         {
-            LoadMe();
             return list.GetEnumerator();
+        }
+
+        #endregion
+
+        #region ITrackableCollection<T> Members
+
+        /// <summary>
+        /// Starts the tracking.
+        /// </summary>
+        public void StartTracking()
+        {
+            IsTracking = true;
+        }
+
+        /// <summary>
+        /// Stops the tracking.
+        /// </summary>
+        public void StopTracking()
+        {
+            IsTracking = false;
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether this instance is tracking.
+        /// </summary>
+        /// <value>
+        /// 	<c>true</c> if this instance is tracking; otherwise, <c>false</c>.
+        /// </value>
+        public bool IsTracking { get; protected set; }
+
+        /// <summary>
+        /// Gets the deleted items.
+        /// </summary>
+        /// <value>The deleted items.</value>
+        public ICollection<T> DeletedItems
+        {
+            get { return deletedItems; }
+        }
+
+        /// <summary>
+        /// Gets the inserted items.
+        /// </summary>
+        /// <value>The inserted items.</value>
+        public ICollection<T> InsertedItems
+        {
+            get { return insertedItems; }
         }
 
         #endregion
