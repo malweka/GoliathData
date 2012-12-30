@@ -31,38 +31,7 @@ namespace Goliath.Data.Sql
         /// </returns>
         public string ToString(SqlDialect dialect)
         {
-            var sb = new StringBuilder("INSERT INTO ");
-            sb.AppendFormat("{0} (", dialect.Escape(TableName, EscapeValueType.TableName));
-            int countChecker = Columns.Count - 1;
-            int counter = 0;
-
-            foreach(var column in Columns.Values)
-            {
-                sb.Append(dialect.Escape(column, EscapeValueType.Column));
-
-                if (counter < countChecker)
-                {
-                    sb.Append(", ");
-                }
-                counter++;
-            }
-            sb.Append(") VALUES(");
-
-            counter = 0;
-            foreach (var param in Parameters.Values)
-            {
-                sb.Append(dialect.CreateParameterName(param.Name));
-                if (counter < countChecker)
-                    sb.Append(", ");
-                counter++;
-            }
-            sb.Append(");\n");
-            foreach (var keygen in DbKeyGenerateSql)
-            {
-                sb.AppendFormat("{0};\n", keygen);
-            }
-
-            return sb.ToString();
+            return dialect.BuildInsertStatement(this);
         }
     }
 }

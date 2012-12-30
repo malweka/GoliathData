@@ -440,6 +440,42 @@ namespace Goliath.Data.Providers
 
         #endregion
 
+        public virtual string BuildInsertStatement(InsertSqlInfo insertStatement)
+        {
+            var sb = new StringBuilder("INSERT INTO ");
+            sb.AppendFormat("{0} (", this.Escape(insertStatement.TableName, EscapeValueType.TableName));
+            int countChecker = insertStatement.Columns.Count - 1;
+            int counter = 0;
+
+            foreach (var column in insertStatement.Columns.Values)
+            {
+                sb.Append(Escape(column, EscapeValueType.Column));
+
+                if (counter < countChecker)
+                {
+                    sb.Append(", ");
+                }
+                counter++;
+            }
+            sb.Append(") VALUES(");
+
+            counter = 0;
+            foreach (var param in insertStatement.Parameters.Values)
+            {
+                sb.Append(CreateParameterName(param.Name));
+                if (counter < countChecker)
+                    sb.Append(", ");
+                counter++;
+            }
+            sb.Append(")");
+            foreach (var keygen in insertStatement.DbKeyGenerateSql)
+            {
+                sb.AppendFormat("{0};\n", keygen);
+            }
+
+            return sb.ToString();
+        }
+
         /// <summary>
         /// Escapes the specified value.
         /// </summary>
