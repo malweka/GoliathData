@@ -50,7 +50,7 @@ namespace Goliath.Data.Providers.Sqlite
         /// <returns></returns>
         public override string SelectLastInsertRowIdSql()
         {
-            return "SELECT last_insert_rowid()";
+            return ";\nSELECT last_insert_rowid()";
         }
 
         public override string CreateParameterName(string variableName)
