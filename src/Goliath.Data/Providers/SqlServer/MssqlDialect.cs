@@ -109,7 +109,7 @@ namespace Goliath.Data.Providers.SqlServer
             //mysql SELECT LAST_INSERT_ID();
             //postgresql SELECT lastval();
             //sqlite SELECT last_insert_rowid()
-            return "SELECT SCOPE_IDENTITY()";
+            return ";\nSELECT SCOPE_IDENTITY()";
         }
 
         /// <summary>
