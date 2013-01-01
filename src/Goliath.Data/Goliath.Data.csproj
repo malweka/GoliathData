@@ -183,6 +183,8 @@
     <Compile Include="Sql\Fluent\FilterUpdateBuilder.cs" />
     <Compile Include="Sql\Fluent\Generic\INonQuerySqlBuilder.cs" />
     <Compile Include="Sql\Fluent\Generic\JoinBuilder.cs" />
+    <Compile Include="Sql\Fluent\Generic\NonQueryFilterClause.cs" />
+    <Compile Include="Sql\Fluent\Generic\NonQueryFilterClauseBase.cs" />
     <Compile Include="Sql\Fluent\Generic\QueryBuilder.cs" />
     <Compile Include="Sql\Fluent\Generic\SortBuilder.cs" />
     <Compile Include="Sql\Fluent\Generic\UpdateSqlBuilder.cs" />

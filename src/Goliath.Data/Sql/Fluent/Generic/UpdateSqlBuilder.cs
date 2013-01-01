@@ -5,6 +5,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using Goliath.Data.Collections;
+using Goliath.Data.DataAccess;
 using Goliath.Data.Entity;
 using Goliath.Data.Mapping;
 using Goliath.Data.Utils;
@@ -18,6 +19,7 @@ namespace Goliath.Data.Sql
 
         private EntityMap Table { get; set; }
         public List<NonQueryFilterClause<T>> Filters { get; private set; }
+        readonly List<QueryParam> whereParameters = new List<QueryParam>();
 
         public UpdateSqlBuilder(ISession session, T entity)
         {
@@ -74,7 +76,7 @@ namespace Goliath.Data.Sql
                             LoadColumns(execList, parentMap, accessor);
                         }
                         else
-                            continue; //throw new MappingException("Could not find mapped property " + pInfo.Value.PropertyName + " inside " + entityMap.FullName);
+                            continue;
                     }
 
                     if (prop == null || prop.IgnoreOnUpdate || prop.IsPrimaryKey)
@@ -108,12 +110,11 @@ namespace Goliath.Data.Sql
                         var relAccessor = store.GetEntityAccessor(val.GetType(), relMap);
 
                         var relPinfo = relAccessor.Properties[rel.ReferenceProperty];
+
                         if (relPinfo == null)
                             throw new MappingException(string.Format("could not find property {0} in mapped entity {1}", rel.ReferenceProperty, relMap.FullName));
-                        else
-                        {
-                            val = relPinfo.GetMethod(val);
-                        }
+
+                        val = relPinfo.GetMethod(val);
                     }
                     else if (rel.RelationType == RelationshipType.ManyToMany)
                     {
@@ -154,12 +155,12 @@ namespace Goliath.Data.Sql
                 var store = new EntityAccessorStore();
 
                 var propInfo = accessor.Properties[rel.MapPropertyName];
-                if(propInfo == null)
+                if (propInfo == null)
                     throw new GoliathDataException(string.Format("Could not retrieve value of property {0} in mapped entity {1} with clr type {2}.",
                                 rel.MapPropertyName, Table.FullName, typeof(T).FullName));
 
                 var propValue = propInfo.GetMethod(entity);
-                 
+
                 PropertyAccessor relPropInfo = null;
                 foreach (var item in insertedItems)
                 {
@@ -167,26 +168,26 @@ namespace Goliath.Data.Sql
                     {
                         var relAccessor = store.GetEntityAccessor(item.GetType(), relMap);
                         if (!relAccessor.Properties.TryGetValue(rel.ReferenceProperty, out relPropInfo))
-                            throw new GoliathDataException(string.Format("Could not retrieve value of property {0} in mapped entity {1} with clr type {2}.", 
+                            throw new GoliathDataException(string.Format("Could not retrieve value of property {0} in mapped entity {1} with clr type {2}.",
                                 rel.ReferenceProperty, relMap.FullName, item.GetType().FullName));
                     }
 
-                    var relParam = new QueryParam(rel.MapReferenceColumn) {Value = relPropInfo.GetMethod(item)};
-                    var propParm = new QueryParam(rel.MapColumn) {Value = propValue};
+                    var relParam = new QueryParam(rel.MapReferenceColumn) { Value = relPropInfo.GetMethod(item) };
+                    var propParm = new QueryParam(rel.MapColumn) { Value = propValue };
                     var dialect = session.SessionFactory.DbSettings.SqlDialect;
-                    if(isInsertStatement)
+                    if (isInsertStatement)
                     {
                         var sql = string.Format("INSERT INTO {0} ({1}, {2}) VALUES({3},{4})",
                                                 rel.MapTableName, rel.MapColumn, rel.MapReferenceColumn, dialect.CreateParameterName(propParm.Name), dialect.CreateParameterName(relParam.Name));
 
-                        execList.ManyToManyStatements.Add(Tuple.Create(sql, new List<QueryParam>(){propParm, relParam}));
+                        execList.ManyToManyStatements.Add(Tuple.Create(sql, new List<QueryParam>{ propParm, relParam }));
                     }
                     else
                     {
                         var sql = string.Format("DELETE FROM {0} WHERE {1} = {3} AND {2} = {4}",
                                                 rel.MapTableName, rel.MapColumn, rel.MapReferenceColumn, dialect.CreateParameterName(propParm.Name), dialect.CreateParameterName(relParam.Name));
 
-                        execList.ManyToManyStatements.Add(Tuple.Create(sql, new List<QueryParam>() { propParm, relParam }));
+                        execList.ManyToManyStatements.Add(Tuple.Create(sql, new List<QueryParam>{ propParm, relParam }));
                     }
                 }
             }
@@ -198,8 +199,45 @@ namespace Goliath.Data.Sql
             var type = typeof(T);
             var store = new EntityAccessorStore();
             var accessor = store.GetEntityAccessor(type, Table);
-
+            var dialect = session.SessionFactory.DbSettings.SqlDialect;
             LoadColumns(execList, Table, accessor);
+
+            if (Filters.Count > 0)
+            {
+                var firstWhere = Filters[0];
+                var sql = firstWhere.BuildSqlString(dialect);
+
+
+                var wherebuilder = new StringBuilder(sql.Item1 + " ");
+                if (sql.Item2 != null)
+                {
+                    whereParameters.Add(sql.Item2);
+                }
+
+                if (Filters.Count > 1)
+                {
+                    for (var i = 1; i < Filters.Count; i++)
+                    {
+                        var where = Filters[i].BuildSqlString(dialect, i);
+                        if (where.Item2 != null)
+                            whereParameters.Add(where.Item2);
+
+                        var prep = "AND";
+                        if (Filters[i].PreOperator != SqlOperator.AND)
+                            prep = "OR";
+
+                        wherebuilder.AppendFormat("{0} {1} ", prep, where.Item1);
+                    }
+                }
+
+                string whereExpression = wherebuilder.ToString();
+
+                foreach (var stat in execList.Statements)
+                {
+                    stat.Value.WhereExpression = whereExpression;
+                }
+            }
+            else throw new DataAccessException("Update missing where statement. Goliath cannot run an update without filters");
 
             return execList;
         }
@@ -266,111 +304,25 @@ namespace Goliath.Data.Sql
 
         public int Execute()
         {
-            throw new NotImplementedException();
-        }
+            var execList = Build();
+            int total = 0;
+            var runner = new SqlCommandRunner();
+            foreach (var update in execList.Statements.Values)
+            {
 
-        #endregion
-    }
+                var parameters = new List<QueryParam>();
+                parameters.AddRange(whereParameters);
+                parameters.AddRange(update.Columns.Values.Select(p => p.Item1));
+                total += runner.ExecuteNonQuery(session, update.ToString(session.SessionFactory.DbSettings.SqlDialect), parameters.ToArray());
 
-    class NonQueryFilterClause<T> : IFilterNonQueryClause<T>
-    {
-        private readonly IBinaryNonQueryOperation<T> nonQueryBuilder;
-        public Property LeftColumn { get; private set; }
-        public string RightColumnName { get; private set; }
-        public object RightValue { get; private set; }
-        public ComparisonOperator BinaryOp { get; private set; }
-        public SqlOperator PreOperator { get; set; }
+            }
 
-        public NonQueryFilterClause(Property property, IBinaryNonQueryOperation<T> nonQueryBuilder)
-        {
-            LeftColumn = property;
-            this.nonQueryBuilder = nonQueryBuilder;
-        }
+            foreach (var manyToManyOp in execList.ManyToManyStatements)
+            {
+                total += runner.ExecuteNonQuery(session, manyToManyOp.Item1, manyToManyOp.Item2.ToArray());
+            }
 
-        #region IFilterNonQueryClause<T,TProperty> Members
-
-        public IBinaryNonQueryOperation<T> EqualToValue<TProperty>(TProperty value)
-        {
-            RightValue = value;
-            BinaryOp = ComparisonOperator.Equal;
-            return nonQueryBuilder;
-        }
-
-        public IBinaryNonQueryOperation<T> EqualTo<TProperty>(Expression<Func<T, TProperty>> property)
-        {
-            RightColumnName = property.GetMemberName();
-            BinaryOp = ComparisonOperator.Equal;
-            return nonQueryBuilder;
-        }
-
-        public IBinaryNonQueryOperation<T> GreaterThanValue<TProperty>(TProperty value)
-        {
-            RightValue = value;
-            BinaryOp = ComparisonOperator.GreaterThan;
-            return nonQueryBuilder;
-        }
-
-        public IBinaryNonQueryOperation<T> GreaterThan<TProperty>(Expression<Func<T, TProperty>> property)
-        {
-            RightColumnName = property.GetMemberName();
-            BinaryOp = ComparisonOperator.GreaterThan;
-            return nonQueryBuilder;
-        }
-
-        public IBinaryNonQueryOperation<T> GreaterOrEqualToValue<TProperty>(TProperty value)
-        {
-            RightValue = value;
-            BinaryOp = ComparisonOperator.GreaterOrEquals;
-            return nonQueryBuilder;
-        }
-
-        public IBinaryNonQueryOperation<T> GreaterOrEqualTo<TProperty>(Expression<Func<T, TProperty>> property)
-        {
-            RightColumnName = property.GetMemberName();
-            BinaryOp = ComparisonOperator.GreaterOrEquals;
-            return nonQueryBuilder;
-        }
-
-        public IBinaryNonQueryOperation<T> LowerOrEqualToValue<TProperty>(TProperty value)
-        {
-            RightValue = value;
-            BinaryOp = ComparisonOperator.LowerOrEquals;
-            return nonQueryBuilder;
-        }
-
-        public IBinaryNonQueryOperation<T> LowerOrEqualTo<TProperty>(Expression<Func<T, TProperty>> property)
-        {
-            RightColumnName = property.GetMemberName();
-            BinaryOp = ComparisonOperator.LowerOrEquals;
-            return nonQueryBuilder;
-        }
-
-        public IBinaryNonQueryOperation<T> LowerThanValue<TProperty>(TProperty value)
-        {
-            RightValue = value;
-            BinaryOp = ComparisonOperator.LowerThan;
-            return nonQueryBuilder;
-        }
-
-        public IBinaryNonQueryOperation<T> LowerThan<TProperty>(Expression<Func<T, TProperty>> property)
-        {
-            RightColumnName = property.GetMemberName();
-            BinaryOp = ComparisonOperator.LowerThan;
-            return nonQueryBuilder;
-        }
-
-        public IBinaryNonQueryOperation<T> LikeValue<TProperty>(TProperty value)
-        {
-            RightValue = value;
-            BinaryOp = ComparisonOperator.Like;
-            return nonQueryBuilder;
-        }
-
-        public IBinaryNonQueryOperation<T> Like<TProperty>(Expression<Func<T, TProperty>> property)
-        {
-            RightColumnName = property.GetMemberName();
-            BinaryOp = ComparisonOperator.Like;
-            return nonQueryBuilder;
+            return total;
         }
 
         #endregion

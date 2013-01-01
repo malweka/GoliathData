@@ -6,18 +6,9 @@ using Goliath.Data.Providers;
 
 namespace Goliath.Data.Sql
 {
-    class FilterUpdateBuilder : IFilterNonQueryClause
+    class FilterUpdateBuilder : NonQueryFilterClauseBase, IFilterNonQueryClause
     {
         private readonly IBinaryNonQueryOperation builder;
-        public string LeftColumn { get; private set; }
-
-        public object ParamValue { get; set; }
-
-        public string RightColumn { get; set; }
-
-        public SqlOperator PreOperator { get; set; }
-
-        public ComparisonOperator BinaryOperation { get; set; }
 
         bool isRightOperandSet;
 
@@ -31,7 +22,7 @@ namespace Goliath.Data.Sql
         {
             if (!isRightOperandSet)
             {
-                ParamValue = value;
+                RightParamValue = value;
                 BinaryOperation = binOp;
                 isRightOperandSet = true;
             }
@@ -41,70 +32,10 @@ namespace Goliath.Data.Sql
         {
             if (!isRightOperandSet)
             {
-                RightColumn = rightColumn;
+                RightColumnName = rightColumn;
                 BinaryOperation = binOp;
                 isRightOperandSet = true;
             }
-        }
-
-        public Tuple<string, QueryParam> BuildSqlString(SqlDialect dialect, int seed)
-        {
-            QueryParam parameter = null;
-            StringBuilder sql = new StringBuilder();
-            sql.AppendFormat("{0} ", dialect.Escape(LeftColumn, EscapeValueType.Column));
-
-            string op = null;
-
-            switch (BinaryOperation)
-            {
-                case ComparisonOperator.Equal:
-                    op = "=";
-                    break;
-                case ComparisonOperator.GreaterOrEquals:
-                    op = ">=";
-                    break;
-                case ComparisonOperator.GreaterThan:
-                    op = ">";
-                    break;
-                case ComparisonOperator.In:
-                    op = "IN";
-                    break;
-                case ComparisonOperator.IsNotNull:
-                    op = "IS NOT NULL";
-                    break;
-                case ComparisonOperator.IsNull:
-                    op = "IS NULL";
-                    break;
-                case ComparisonOperator.Like:
-                    op = "LIKE";
-                    break;
-                case ComparisonOperator.LowerOrEquals:
-                    op = "<=";
-                    break;
-                case ComparisonOperator.LowerThan:
-                    op = "<";
-                    break;
-                case ComparisonOperator.NotEqual:
-                    op = "<>";
-                    break;
-                case ComparisonOperator.NotLike:
-                    op = "NOT LIKE";
-                    break;
-            }
-
-            sql.AppendFormat("{0} ", op);
-            if (!string.IsNullOrWhiteSpace(RightColumn))
-            {
-                sql.AppendFormat("{0} ", dialect.Escape(RightColumn, EscapeValueType.Column));
-            }
-            else if (ParamValue != null)
-            {
-                string paramName = string.Format("qPm{0}", seed);
-                parameter = new QueryParam(paramName) { Value = ParamValue };
-                sql.Append(dialect.CreateParameterName(paramName));
-            }
-
-            return Tuple.Create<string, QueryParam>(sql.ToString(), parameter);
         }
 
         #region IFilterNonQueryClause Members

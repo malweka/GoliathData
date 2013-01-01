@@ -16,7 +16,7 @@ namespace Goliath.Data
     /// </summary>
     /// <typeparam name="TEntity">The type of the entity.</typeparam>
     [Serializable]
-    public class DataAccessAdapter<TEntity> : IDataAccessAdapter<TEntity>, IDisposable
+    public class DataAccessAdapter<TEntity> : IDataAccessAdapter<TEntity>
     {
         /// <summary>
         /// current session
