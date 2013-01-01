@@ -6,7 +6,7 @@ using System.Text;
 namespace Goliath.Data
 {
     [System.Diagnostics.DebuggerDisplay("{Body}")]
-    class CompiledStatement
+    public class CompiledStatement
     {
         public string Body { get; set; }
 

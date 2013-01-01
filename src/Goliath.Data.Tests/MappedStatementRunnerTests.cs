@@ -50,7 +50,7 @@ namespace Goliath.Data.Tests
         public void RunStatement_Query_entity_mapped_statement()
         {
             var session = SessionHelper.Factory.OpenSession();
-            string statName = StatementStore.BuildProcedureName(typeof(Zoo), MappedStatementType.Query);
+            string statName = StatementStore.BuildMappedStatementName(typeof(Zoo), MappedStatementType.Query);
             Console.WriteLine("Statement name {0}", statName);
             Zoo sdZoo = new Zoo() { Name = "SD Zoo", City = "San Diego", AcceptNewAnimals = true };
 

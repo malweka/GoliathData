@@ -15,6 +15,7 @@ namespace Goliath.Data.Generators
       /// <param name="outputStream">The output stream.</param>
       /// <param name="mapfile">The mapfile.</param>
       void Generate<TModel>(Stream template, Stream outputStream, TModel mapfile);
+
       /// <summary>
       /// Generates the specified template text.
       /// </summary>
@@ -23,6 +24,7 @@ namespace Goliath.Data.Generators
       /// <param name="outputStream">The output stream.</param>
       /// <param name="mapfile">The mapfile.</param>
       void Generate<TModel>(string templateText, Stream outputStream, TModel mapfile);
+
       /// <summary>
       /// Generates the specified template.
       /// </summary>

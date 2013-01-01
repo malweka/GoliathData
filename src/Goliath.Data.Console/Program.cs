@@ -51,7 +51,7 @@ namespace WebZoo.Data
             MapConfig mapConfig = null;
             SupportedRdbms rdbms = SupportedRdbms.Mssql2008;
             WebZooRunner zoorunner = new WebZooRunner(rdbms, new CodeGenerator(), AppDomain.CurrentDomain.BaseDirectory, true);
-            //mapConfig = zoorunner.CreateMap();
+            mapConfig = zoorunner.CreateMap();
             //zoorunner.GenerateCode();
 
 
@@ -94,7 +94,7 @@ namespace WebZoo.Data
 
             int countZooStatement = mapStatRunner.RunStatement<int>(sess, "countZooStatement");
 
-            string statName = StatementStore.BuildProcedureName(typeof(Zoo), MappedStatementType.Query);
+            string statName = StatementStore.BuildMappedStatementName(typeof(Zoo), MappedStatementType.Query);
             Console.WriteLine("Statement name {0}", statName);
             Zoo sdZoo = new Zoo() { Name = "SD Zoo", City = "San Diego", AcceptNewAnimals = true };
 

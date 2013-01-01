@@ -31,19 +31,6 @@ namespace Goliath.Data.Mapping
         /// </value>
         public bool IsParsingRequired { get; set; }
 
-        //internal bool IsParsingRequired
-        //{
-        //    get
-        //    {
-        //        if ((parameters.Count > 0) || (inputParams.Count > 0))
-        //        {
-        //            return true;
-        //        }
-        //        else
-        //            return false;
-        //    }
-        //}
-
         internal Dictionary<string, StatementInputParam> ParamPropertyMap
         {
             get { return paramPropertyMap; }
@@ -149,6 +136,54 @@ namespace Goliath.Data.Mapping
             Name = name;
             DbName = dbName;
             OperationType = operationType;
+        }
+
+        /// <summary>
+        /// Builds the prop tag.
+        /// </summary>
+        /// <param name="inputParamName">Name of the input param.</param>
+        /// <param name="propertyName">Name of the property.</param>
+        /// <returns></returns>
+        public static string BuildPropTag(string inputParamName, string propertyName)
+        {
+            return BuildTag(inputParamName, propertyName, "prop");
+        }
+
+        /// <summary>
+        /// Builds the col tag.
+        /// </summary>
+        /// <param name="inputParamName">Name of the input param.</param>
+        /// <param name="propertyName">Name of the property.</param>
+        /// <returns></returns>
+        public static string BuildColTag(string inputParamName, string propertyName)
+        {
+            return BuildTag(inputParamName, propertyName, "col");
+        }
+
+        /// <summary>
+        /// Builds the sel tag.
+        /// </summary>
+        /// <param name="inputParamName">Name of the input param.</param>
+        /// <param name="propertyName">Name of the property.</param>
+        /// <returns></returns>
+        public static string BuildSelTag(string inputParamName, string propertyName)
+        {
+            return BuildTag(inputParamName, propertyName, "sel");
+        }
+
+        /// <summary>
+        /// Builds the tag.
+        /// </summary>
+        /// <param name="inputParamName">Name of the input param.</param>
+        /// <param name="propertyName">Name of the property.</param>
+        /// <param name="tag">The tag.</param>
+        /// <returns></returns>
+        public static string BuildTag(string inputParamName, string propertyName, string tag)
+        {
+            if (!string.IsNullOrWhiteSpace(inputParamName))
+                return "@{" + tag + ":" + inputParamName + "." + propertyName + "}";
+            else
+                return "@{" + tag + ":" + propertyName + "}";
         }
 
     }
