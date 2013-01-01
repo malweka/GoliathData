@@ -75,7 +75,7 @@ namespace Goliath.Data.Sql
             if (whereClauses.Count > 0)
             {
                 var firstWhere = whereClauses[0];
-                var sql = firstWhere.BuildSqlString(dialect, 0);
+                var sql = firstWhere.BuildSqlString(dialect);
                 AddToParameterList(sql.Item2);
                 var wherebuilder = new StringBuilder();
                 wherebuilder.AppendFormat("{0} ", sql.Item1);
@@ -113,12 +113,10 @@ namespace Goliath.Data.Sql
         {
             var updateBody = Build();
             var runner = new SqlCommandRunner();
-            List<QueryParam> parameters = new List<QueryParam>();
-            foreach (var p in updateBody.Columns.Values)
-            {
-                parameters.Add(p.Item1);
-            }
-            return runner.ExecuteNonQuery(session, updateBody.ToString(dialect), parameters.ToArray());
+            var localParameters = new List<QueryParam>();
+            localParameters.AddRange(Parameters);
+            localParameters.AddRange(updateBody.Columns.Values.Select(p => p.Item1));
+            return runner.ExecuteNonQuery(session, updateBody.ToString(dialect), localParameters.ToArray());
         }
 
         #region INonQuerySqlBuilder Members

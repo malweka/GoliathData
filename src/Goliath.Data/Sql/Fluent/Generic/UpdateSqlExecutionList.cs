@@ -33,19 +33,5 @@ namespace Goliath.Data.Sql
         /// </value>
         public List<Tuple<string, List<QueryParam>>> ManyToManyStatements { get { return manyToManyStatements; } }
 
-        ///// <summary>
-        ///// Adds the column.
-        ///// </summary>
-        ///// <param name="entityMapName">Name of the entity map.</param>
-        ///// <param name="property">The property.</param>
-        ///// <param name="value">The value.</param>
-        ///// <exception cref="MappingException">Entity  + entityMapName +  contains more than one property named  + property.PropertyName</exception>
-        //public void AddColumn(string entityMapName, Property property, object value)
-        //{
-        //    if (columnsTableMap.ContainsKey(property.Name))
-        //        throw new MappingException("Entity " + entityMapName + " contains more than one property named " + property.PropertyName);
-
-        //    columnsTableMap.Add(property.Name, Tuple.Create(entityMapName, property.ColumnName, value));
-        //}
     }
 }

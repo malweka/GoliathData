@@ -293,10 +293,9 @@ namespace Goliath.Data.Providers
         /// <param name="sqlText">The SQL text.</param>
         protected void RegisterType(DbType type, int capacity, string sqlText)
         {
-            DbTypeInfo tinfo;
-
             lock (lockTypeMap)
             {
+                DbTypeInfo tinfo;
                 if (!typeMap.TryGetValue(sqlText, out tinfo))
                 {
                     tinfo = new DbTypeInfo(type, sqlText) { Length = capacity };
@@ -440,6 +439,11 @@ namespace Goliath.Data.Providers
 
         #endregion
 
+        /// <summary>
+        /// Builds the insert statement.
+        /// </summary>
+        /// <param name="insertStatement">The insert statement.</param>
+        /// <returns></returns>
         public virtual string BuildInsertStatement(InsertSqlInfo insertStatement)
         {
             var sb = new StringBuilder("INSERT INTO ");
@@ -473,6 +477,37 @@ namespace Goliath.Data.Providers
                 sb.AppendFormat("{0};\n", keygen);
             }
 
+            return sb.ToString();
+        }
+
+        /// <summary>
+        /// Builds the update statement.
+        /// </summary>
+        /// <param name="updateStatement">The update statement.</param>
+        /// <returns></returns>
+        /// <exception cref="GoliathDataException">Couldn't not build update statement. Please verify that you have matchin parameters for all your columns.</exception>
+        public virtual string BuildUpdateStatement(UpdateSqlBodyInfo updateStatement)
+        {
+            var sb = new StringBuilder("UPDATE ");
+            sb.AppendFormat("{0} SET ", Escape(updateStatement.TableName, EscapeValueType.TableName));
+            try
+            {
+                int counter = 0;
+                foreach (var col in updateStatement.Columns)
+                {
+                    sb.AppendFormat("{0} = {1}", Escape(col.Key, EscapeValueType.Column), CreateParameterName(col.Value.Item1.Name));
+                    if (counter < (updateStatement.Columns.Count - 1))
+                        sb.Append(", ");
+
+                    counter = counter + 1;
+                }
+            }
+            catch (Exception exception)
+            {
+                throw new GoliathDataException("Couldn't not build update statement. Please verify that you have matchin parameters for all your columns.", exception);
+            }
+
+            sb.AppendFormat(" WHERE {0}", updateStatement.WhereExpression);
             return sb.ToString();
         }
 
