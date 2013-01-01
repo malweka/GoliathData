@@ -1,6 +1,8 @@
 ﻿using System.IO;
 using System.Text;
 using System.Xml;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Goliath.Data.Mapping
 {
@@ -126,6 +128,16 @@ namespace Goliath.Data.Mapping
 
                     WriteTransformations(xmlWriter, entity);
 
+                    var statements = MappedStatements.InnerProcedureList.Values.Where(s => string.Equals(s.DependsOnEntity, entity.FullName)).ToList();
+                    if(statements.Count>0)
+                    {
+                        xmlWriter.WriteStartElement("statements");
+                        foreach (var statementMap in statements)
+                        {
+                            WriteTransformations(xmlWriter, entity, statementMap);
+                        }
+                        xmlWriter.WriteEndElement();
+                    }
                     xmlWriter.WriteEndElement();//entity
                 }
                 xmlWriter.WriteEndElement();//end entities
@@ -173,6 +185,104 @@ namespace Goliath.Data.Mapping
                 }
                 xmlWriter.WriteEndElement();
             }
+        }
+
+        void WriteTransformations(XmlTextWriter xmlWriter,EntityMap entity,  StatementMap statement)
+        {
+            string elementName;
+            bool writeOperation = false;
+            switch (statement.OperationType)
+            {
+                case MappedStatementType.Insert:
+                    elementName = "insert";
+                    break;
+                case MappedStatementType.Delete:
+                    elementName = "delete";
+                    break;
+                case MappedStatementType.Query:
+                    elementName = "query";
+                    break;
+                case MappedStatementType.Update:
+                    elementName = "update";
+                    break;
+                default:
+                    elementName = "statement";
+                    writeOperation = true;
+                    break;
+            }
+
+            xmlWriter.WriteStartElement(elementName);
+            if(!string.IsNullOrWhiteSpace(statement.Name))
+            {
+                xmlWriter.WriteStartAttribute("name");
+                xmlWriter.WriteString(statement.Name.Replace(entity.FullName + "_", string.Empty));
+                xmlWriter.WriteEndAttribute();
+            }
+
+            if (!string.IsNullOrWhiteSpace(statement.DbName))
+            {
+                xmlWriter.WriteStartAttribute("dbName");
+                xmlWriter.WriteString(statement.DbName);
+                xmlWriter.WriteEndAttribute();
+            }
+
+            if(writeOperation)
+            {
+                xmlWriter.WriteStartAttribute("operationType");
+                xmlWriter.WriteString(statement.OperationType.ToString());
+                xmlWriter.WriteEndAttribute();
+            }
+
+            bool writeBodyElement = false;
+
+            if(statement.DBParametersMap.Count>0)
+            {
+                writeBodyElement = true;
+                xmlWriter.WriteStartElement("dbParameters");
+                foreach (var dbParam in statement.DBParametersMap)
+                {
+                    xmlWriter.WriteStartElement("param");
+                    xmlWriter.WriteStartAttribute("name");
+                    xmlWriter.WriteString(dbParam.Key);
+                    xmlWriter.WriteEndAttribute();
+                    xmlWriter.WriteEndElement();
+                }
+                xmlWriter.WriteEndElement();
+            }
+
+            if (statement.InputParametersMap.Count > 0)
+            {
+                writeBodyElement = true;
+                xmlWriter.WriteStartElement("inputParameters");
+                foreach (var input in statement.InputParametersMap)
+                {
+                    xmlWriter.WriteStartElement("input");
+
+                    xmlWriter.WriteStartAttribute("name");
+                    xmlWriter.WriteString(input.Key);
+                    xmlWriter.WriteEndAttribute();
+
+                    xmlWriter.WriteStartAttribute("type");
+                    xmlWriter.WriteString(input.Value);
+                    xmlWriter.WriteEndAttribute();
+
+                    xmlWriter.WriteEndElement();
+                }
+                xmlWriter.WriteEndElement();
+            }
+
+            if(!string.IsNullOrWhiteSpace(statement.Body))
+            {
+                if(writeBodyElement)
+                    xmlWriter.WriteStartElement("body");
+
+                xmlWriter.WriteCData(statement.Body);
+
+                if(writeBodyElement)
+                    xmlWriter.WriteEndElement();
+            }
+
+            xmlWriter.WriteEndElement();
         }
 
         void WriteTransformations(XmlTextWriter xmlWriter, Property transformation, string elementName = "property", bool closeElement = true)

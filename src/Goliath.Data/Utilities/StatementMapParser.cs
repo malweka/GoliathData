@@ -7,19 +7,16 @@ using System.Linq;
 
 namespace Goliath.Data.Utils
 {
-    class StatementMapParser
+    class StatementMapParser : IMappedStatementParser
     {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="StatementMapParser"/> class.
-        /// </summary>
-        public StatementMapParser() { }
-
         /// <summary>
         /// Parses the specified text.
         /// </summary>
         /// <param name="dialect">The mapper.</param>
         /// <param name="entMap">The ent map.</param>
         /// <param name="text">The text.</param>
+        /// <param name="inputParam">The input param.</param>
+        /// <param name="dbParameters">The db parameters.</param>
         /// <returns></returns>
         public CompiledStatement Parse(SqlDialect dialect, EntityMap entMap, string text, StatementInputParam inputParam, params QueryParam[] dbParameters)
         {
@@ -38,6 +35,7 @@ namespace Goliath.Data.Utils
         /// <param name="config">The config.</param>
         /// <param name="inputParams">The input params.</param>
         /// <param name="text">The text.</param>
+        /// <param name="dbParameters">The db parameters.</param>
         /// <returns></returns>
         public CompiledStatement Parse(SqlDialect dialect, MapConfig config, IDictionary<string, StatementInputParam> inputParams, string text, params QueryParam[] dbParameters)
         {
@@ -345,7 +343,31 @@ namespace Goliath.Data.Utils
 
             return values;
         }
-
     }
-    
+
+    public interface IMappedStatementParser
+    {
+        /// <summary>
+        /// Parses the specified text.
+        /// </summary>
+        /// <param name="dialect">The mapper.</param>
+        /// <param name="entMap">The ent map.</param>
+        /// <param name="text">The text.</param>
+        /// <param name="inputParam">The input param.</param>
+        /// <param name="dbParameters">The db parameters.</param>
+        /// <returns></returns>
+        CompiledStatement Parse(SqlDialect dialect, EntityMap entMap, string text, StatementInputParam inputParam, params QueryParam[] dbParameters);
+
+        /// <summary>
+        /// Parses the specified text.
+        /// </summary>
+        /// <param name="dialect">The mapper.</param>
+        /// <param name="config">The config.</param>
+        /// <param name="inputParams">The input params.</param>
+        /// <param name="text">The text.</param>
+        /// <param name="dbParameters">The db parameters.</param>
+        /// <returns></returns>
+        CompiledStatement Parse(SqlDialect dialect, MapConfig config, IDictionary<string, StatementInputParam> inputParams, string text, params QueryParam[] dbParameters);
+    }
+
 }

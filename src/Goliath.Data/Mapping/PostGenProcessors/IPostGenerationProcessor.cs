@@ -11,6 +11,7 @@ namespace Goliath.Data.Mapping
         /// Processes the specified entities.
         /// </summary>
         /// <param name="entities">The entities.</param>
-        void Process(IDictionary<string, EntityMap> entities);
+        /// <param name="mappedStatementStore">The mapped statement store.</param>
+        void Process(IDictionary<string, EntityMap> entities, StatementStore mappedStatementStore);
     }
 }

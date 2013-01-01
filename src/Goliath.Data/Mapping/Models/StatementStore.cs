@@ -61,7 +61,7 @@ namespace Goliath.Data.Mapping
             }
             else
             {
-                string[] supportedDbs = item.CanRunOn.Split(new string[] { ", ", ";", " " }, StringSplitOptions.RemoveEmptyEntries);
+                var supportedDbs = item.CanRunOn.Split(new string[] { ", ", ";", " " }, StringSplitOptions.RemoveEmptyEntries);
 
                 foreach (var rdbms in supportedDbs)
                 {
@@ -82,7 +82,7 @@ namespace Goliath.Data.Mapping
         /// <param name="body">The body.</param>
         public StatementMap Add(EntityMap map, MappedStatementType type, string body)
         {
-            string procName = BuildProcedureName(map, type);
+            string procName = BuildMappedStatementName(map, type);
             return Add(procName, procName, type, body, Platform.Id);
         }
 
@@ -109,8 +109,8 @@ namespace Goliath.Data.Mapping
         /// <returns></returns>
         public StatementMap Add(EntityMap map, string dbName, MappedStatementType type, string body, string supportedRdbms)
         {
-            string procName = BuildProcedureName(map, type);
-            StatementMap proc = new StatementMap(procName, dbName, type) { Body = body, CanRunOn = supportedRdbms, DependsOnEntity = map.FullName };
+            string procName = BuildMappedStatementName(map, type);
+            var proc = new StatementMap(procName, dbName, type) { Body = body, CanRunOn = supportedRdbms, DependsOnEntity = map.FullName };
            Add(proc);
            return proc;
         }
@@ -126,7 +126,7 @@ namespace Goliath.Data.Mapping
         /// <returns></returns>
         public StatementMap Add(string procedureName, string dbName, MappedStatementType type, string body, string supportedRdbms)
         {
-            StatementMap proc = new StatementMap(procedureName, dbName, type) { Body = body, CanRunOn = supportedRdbms };
+            var proc = new StatementMap(procedureName, dbName, type) { Body = body, CanRunOn = supportedRdbms };
             Add(proc);
             return proc;
         }
@@ -140,7 +140,7 @@ namespace Goliath.Data.Mapping
         /// <returns></returns>
         public bool TryGetValue(Type type, MappedStatementType procType, out StatementMap val)
         {
-            var procName = BuildProcedureName(type, procType);
+            var procName = BuildMappedStatementName(type, procType);
             return TryGetValue(procName, out val);
         }
 
@@ -153,7 +153,7 @@ namespace Goliath.Data.Mapping
         /// <returns></returns>
         public bool TryGetValue(EntityMap map, MappedStatementType procType, out StatementMap val)
         {
-            var procName = BuildProcedureName(map, procType);
+            var procName = BuildMappedStatementName(map, procType);
             return TryGetValue(procName, out val);
         }
 
@@ -168,17 +168,27 @@ namespace Goliath.Data.Mapping
             return InnerProcedureList.TryGetValue(key, out val);
         }
 
-        public  static string BuildProcedureName(EntityMap map, MappedStatementType type)
+        /// <summary>
+        /// Builds the name of the procedure.
+        /// </summary>
+        /// <param name="map">The map.</param>
+        /// <param name="type">The type.</param>
+        /// <returns></returns>
+        public  static string BuildMappedStatementName(EntityMap map, MappedStatementType type)
         {
-            return string.Format("{0}_{1}", map.FullName, type); ;
+            return string.Format("{0}_{1}", map.FullName, type);
         }
 
-        public static string BuildProcedureName(Type type, MappedStatementType procType)
+        /// <summary>
+        /// Builds the name of the procedure.
+        /// </summary>
+        /// <param name="type">The type.</param>
+        /// <param name="procType">Type of the proc.</param>
+        /// <returns></returns>
+        public static string BuildMappedStatementName(Type type, MappedStatementType procType)
         {
-            return string.Format("{0}_{1}", type.FullName, procType); ;
+            return string.Format("{0}_{1}", type.FullName, procType);
         }
-
-
 
         #region IEnumerable<SqlProcedure> Members
 
@@ -210,67 +220,4 @@ namespace Goliath.Data.Mapping
 
         #endregion
     }
-
-    //class SqlProcSet
-    //{
-    //    //NOTE: using integer instead of the enum as dictionary key, better performance.
-    //    Dictionary<string, SqlProcedure> procedures = new Dictionary<string, SqlProcedure>();
-
-    //    public string Name { get; private set; }
-
-    //    public Dictionary<string, SqlProcedure> Procedures
-    //    {
-    //        get { return procedures; }
-    //    }
-
-    //    public SqlProcSet(string name)
-    //    {
-    //        Name = name;
-    //    }
-
-    //    #region Access methods
-
-    //    public void Add(SqlProcedure proc)
-    //    {
-    //        if (proc == null)
-    //            throw new ArgumentNullException("proc");
-
-    //        string id = proc.CanRunOn;
-    //        Add(id, proc);
-    //    }
-
-    //    public void Add(string id, SqlProcedure proc)
-    //    {
-    //        if (procedures.ContainsKey(id))
-    //            throw new GoliathDataException(string.Format("Procedure already exists {0} - {1} - {2}. Could not add.", proc.Name, proc.OperationType, proc.CanRunOn));
-
-    //        procedures.Add(id, proc);
-    //    }
-
-    //    public bool Remove(string platform)
-    //    {
-    //        return procedures.Remove(platform);
-    //    }
-
-    //    public bool Remove(SqlProcedure proc)
-    //    {
-    //        if (proc == null)
-    //            throw new ArgumentNullException("proc");
-
-    //        return Remove(proc.CanRunOn);
-    //    }
-
-    //    public bool Contains(string id)
-    //    {
-    //        return procedures.ContainsKey(id);
-    //    }
-
-    //    #endregion
-
-    //    public bool TryGetValue(string platform, out SqlProcedure proc)
-    //    {
-    //        return procedures.TryGetValue(platform, out proc);
-    //    }
-
-    //}
 }

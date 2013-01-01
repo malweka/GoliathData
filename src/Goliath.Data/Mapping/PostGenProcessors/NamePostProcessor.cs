@@ -24,7 +24,7 @@ namespace Goliath.Data.Mapping
 
         #region IPostGenerationProcessor Members
 
-        public void Process(IDictionary<string, EntityMap> entities)
+        public void Process(IDictionary<string, EntityMap> entities, StatementStore mappedStatementStore)
         {
             ProcessTableNames(entities);
         }

@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using Goliath.Data.Diagnostics;
 
 namespace Goliath.Data.Mapping
 {
@@ -6,7 +8,14 @@ namespace Goliath.Data.Mapping
 
     class RelationshipProcessor : IPostGenerationProcessor
     {
-        public virtual void Process(IDictionary<string, EntityMap> entityList)
+        static readonly ILogger logger;
+
+        static RelationshipProcessor()
+        {
+            logger = Logger.GetLogger(typeof(RelationshipProcessor));
+        }
+
+        public virtual void Process(IDictionary<string, EntityMap> entityList, StatementStore mappedStatementStore)
         {
             foreach (var ent in entityList.Values)
             {
@@ -26,9 +35,9 @@ namespace Goliath.Data.Mapping
                         ent.IsLinkTable = true;
 
                         EntityMap aEnt;
-                        EntityMap bEnt;
                         if (entityList.TryGetValue(aRel.ReferenceTable, out aEnt))
                         {
+                            EntityMap bEnt;
                             if (entityList.TryGetValue(bRel.ReferenceTable, out bEnt))
                             {
                                 aEnt.Relations.Add(new Relation()
@@ -50,6 +59,33 @@ namespace Goliath.Data.Mapping
                                     Inverse = true,
                                 });
 
+                                string aColCamel = aRel.ColumnName.Camelize();
+                                string bColCamel = bRel.ColumnName.Camelize();
+
+                                //build mapped statement for ease of adding and removing association
+                                var aInsertStatement = new StatementMap
+                                                           {
+                                                               Name = string.Format("{0}_AddLinkFor_{1}", aEnt.FullName, ent.TableName),
+                                                               OperationType = MappedStatementType.Insert,
+                                                               Body = string.Format("INSERT INTO {0} ({1}, {2}) VALUES({3}, {4});", ent.TableName, aRel.ColumnName, bRel.ColumnName, StatementMap.BuildPropTag(aColCamel, aRel.ReferenceProperty), StatementMap.BuildPropTag(bColCamel, bRel.ReferenceProperty)),
+                                                               DependsOnEntity = aEnt.FullName
+                                                           };
+                                aInsertStatement.InputParametersMap.Add(aColCamel, aEnt.FullName);
+                                aInsertStatement.InputParametersMap.Add(bColCamel, bEnt.FullName);
+
+                                var aDeleteStatement = new StatementMap
+                                {
+                                    Name = string.Format("{0}_RemoveLinkFor_{1}", aEnt.FullName, ent.TableName),
+                                    OperationType = MappedStatementType.Delete,
+                                    Body = string.Format("DELETE FROM {0} WHERE {1} = {3} AND {2} = {4};", ent.TableName, aRel.ColumnName, bRel.ColumnName, StatementMap.BuildPropTag(aColCamel, aRel.ReferenceProperty), StatementMap.BuildPropTag(bColCamel, bRel.ReferenceProperty)),
+                                    DependsOnEntity = aEnt.FullName
+                                };
+                                aDeleteStatement.InputParametersMap.Add(aColCamel, aEnt.FullName);
+                                aDeleteStatement.InputParametersMap.Add(bColCamel, bEnt.FullName);
+
+                                mappedStatementStore.Add(aInsertStatement);
+                                mappedStatementStore.Add(aDeleteStatement);
+
                                 bEnt.Relations.Add(new Relation()
                                 {
                                     IsComplexType = true,
@@ -67,6 +103,29 @@ namespace Goliath.Data.Mapping
                                     ReferenceTable = aEnt.TableName,
                                     RelationType = RelationshipType.ManyToMany,
                                 });
+
+                                var bInsertStatement = new StatementMap
+                                {
+                                    Name = string.Format("{0}_AddLinkFor_{1}", bEnt.FullName, ent.TableName),
+                                    OperationType = MappedStatementType.Insert,
+                                    Body = string.Format("INSERT INTO {0} ({1}, {2}) VALUES({3}, {4});", ent.TableName, aRel.ColumnName, bRel.ColumnName, StatementMap.BuildPropTag(aColCamel, aRel.ReferenceProperty), StatementMap.BuildPropTag(bColCamel, bRel.ReferenceProperty)),
+                                    DependsOnEntity = bEnt.FullName
+                                };
+                                bInsertStatement.InputParametersMap.Add(aColCamel, aEnt.FullName);
+                                bInsertStatement.InputParametersMap.Add(bColCamel, bEnt.FullName);
+
+                                var bDeleteStatement = new StatementMap
+                                {
+                                    Name = string.Format("{0}_RemoveLinkFor_{1}", bEnt.FullName, ent.TableName),
+                                    OperationType = MappedStatementType.Delete,
+                                    Body = string.Format("DELETE FROM {0} WHERE {1} = {3} AND {2} = {4};", ent.TableName, aRel.ColumnName, bRel.ColumnName, StatementMap.BuildPropTag(aColCamel, aRel.ReferenceProperty), StatementMap.BuildPropTag(bColCamel, bRel.ReferenceProperty)),
+                                    DependsOnEntity = bEnt.FullName
+                                };
+                                bDeleteStatement.InputParametersMap.Add(aColCamel, aEnt.FullName);
+                                bDeleteStatement.InputParametersMap.Add(bColCamel, bEnt.FullName);
+
+                                mappedStatementStore.Add(bInsertStatement);
+                                mappedStatementStore.Add(bDeleteStatement);
                             }
                         }
                     }
@@ -111,7 +170,10 @@ namespace Goliath.Data.Mapping
                         }
                     }
                 }
-                catch { }
+                catch (Exception ex)
+                {
+                    logger.LogException("Processing exception", ex);
+                }
             }
         }
     }

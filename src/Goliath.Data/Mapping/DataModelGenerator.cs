@@ -36,16 +36,17 @@ namespace Goliath.Data.Mapping
         /// <returns></returns>
         public MapConfig GenerateMap(ProjectSettings settings, params ComplexType[] additionalTypes)
         {
+            MapConfig builder = new MapConfig();
             schemaDescriptor.ProjectSettings = settings;
             var tables = schemaDescriptor.GetTables();
 
             IPostGenerationProcessor nameProcessor = new NamePostProcessor(transfactory, tableAbbreviator);
             IPostGenerationProcessor relationshipProcessor = new RelationshipProcessor();
 
-            nameProcessor.Process(tables);
-            relationshipProcessor.Process(tables);
+            nameProcessor.Process(tables, builder.MappedStatements);
+            relationshipProcessor.Process(tables, builder.MappedStatements);
 
-            MapConfig builder = new MapConfig();
+            
             builder.Settings = settings;
             builder.Settings.GeneratedBy = schemaDescriptor.ToString();
             builder.Settings.Platform = schemaDescriptor.DatabaseProviderName;
