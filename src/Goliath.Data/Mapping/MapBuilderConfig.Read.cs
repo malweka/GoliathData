@@ -178,7 +178,7 @@ namespace Goliath.Data.Mapping
                         if (string.IsNullOrEmpty(statement.Name))
                         {
                             if (dependsOnEntity)
-                                statement.Name = StatementStore.BuildProcedureName(entMap, statement.OperationType);
+                                statement.Name = StatementStore.BuildMappedStatementName(entMap, statement.OperationType);
                             else
                                 throw new MappingSerializationException(typeof(StatementMap), "A statement in goliath.data/statements does not have name defined. A name cannot be infered.");
 
