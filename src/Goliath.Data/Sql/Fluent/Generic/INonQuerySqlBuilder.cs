@@ -8,16 +8,16 @@ namespace Goliath.Data.Sql
 {
     public interface INonQuerySqlBuilder<T>
     {
-        IFilterNonQueryClause<T> Where<TProperty>(string propertyName);
+        IFilterNonQueryClause<T> Where(string propertyName);
         IFilterNonQueryClause<T> Where<TProperty>(Expression<Func<T, TProperty>> property);
     }
 
     public interface IBinaryNonQueryOperation<T>
     {
         IFilterNonQueryClause<T> And<TProperty>(Expression<Func<T, TProperty>> property);
-        IFilterNonQueryClause<T> And<TProperty>(string propertyName);
+        IFilterNonQueryClause<T> And(string propertyName);
         IFilterNonQueryClause<T> Or<TProperty>(Expression<Func<T, TProperty>> property);
-        IFilterNonQueryClause<T> Or<TProperty>(string propertyName);
+        IFilterNonQueryClause<T> Or(string propertyName);
 
         int Execute();
     }

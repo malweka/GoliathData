@@ -9,7 +9,7 @@ namespace Goliath.Data.Sql
     using Mapping;
     using Utils;
 
-    partial class QueryBuilder<T> : IQueryBuilder<T>, IBinaryOperation<T>
+    partial class QueryBuilder<T> : IQueryBuilder<T>, IBinaryOperation<T>, IFetchableWithOutput<T>
     {
         ISession session;
         QueryBuilder innerBuilder;
@@ -183,21 +183,20 @@ namespace Goliath.Data.Sql
 
         #region IQueryFetchable<T> Members
 
-        public IQueryFetchable<T> Limit(int i)
+        public IFetchableWithOutput<T> Take(int limit, int offset)
         {
-            innerBuilder.Limit(1);
-            return this;
-        }
-
-        public IQueryFetchable<T> Offset(int i)
-        {
-            innerBuilder.Offset(i);
+            innerBuilder.Take(limit,offset);
             return this;
         }
 
         #endregion
 
         #region IFetchable<T> Members
+
+        public ICollection<T> FetchAll(out long total)
+        {
+            return innerBuilder.FetchAll<T>(out total);
+        }
 
         public ICollection<T> FetchAll()
         {

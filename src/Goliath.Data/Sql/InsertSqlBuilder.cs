@@ -20,7 +20,7 @@ namespace Goliath.Data.Sql
         /// <param name="entity">The entity.</param>
         /// <param name="session">The session.</param>
         /// <returns></returns>
-        public InsertSqlExecutionList Build<T>(T entity, ISession session) where T : class
+        public InsertSqlExecutionList Build<T>(T entity, ISession session) //where T : class
         {
             var entMap = session.SessionFactory.DbSettings.Map.GetEntityMap(typeof(T).FullName);
             return Build(entity, entMap, session);
@@ -34,7 +34,7 @@ namespace Goliath.Data.Sql
         /// <param name="entityMap">The entity map.</param>
         /// <param name="session">The session.</param>
         /// <returns></returns>
-        public InsertSqlExecutionList Build<T>(T entity, EntityMap entityMap, ISession session) where T : class
+        public InsertSqlExecutionList Build<T>(T entity, EntityMap entityMap, ISession session) //where T : class
         {
             var executionList = new InsertSqlExecutionList();
             var entityType = typeof(T);
