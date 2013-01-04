@@ -104,5 +104,14 @@ namespace Goliath.Data.Utils
                 IsReady = true;
             }
         }
+
+        public PropertyAccessor GetPropertyAccessor(string propertyName)
+        {
+            PropertyAccessor propertyAccessor;
+            if (properties.TryGetValue(propertyName, out propertyAccessor))
+                return propertyAccessor;
+
+            throw new GoliathDataException(string.Format("Could not find property named {0} in object {1}", propertyName, EntityType.FullName));
+        }
     }
 }

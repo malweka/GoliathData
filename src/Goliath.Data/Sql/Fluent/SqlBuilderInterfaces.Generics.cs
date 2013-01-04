@@ -104,9 +104,14 @@ namespace Goliath.Data.Sql
         T FetchOne();
     }
 
+    public interface IFetchableWithOutput<T>
+    {
+        ICollection<T> FetchAll(out long total);
+        ICollection<T> FetchAll();
+    }
+
     public interface IQueryFetchable<T> : IFetchable<T>
     {
-        IQueryFetchable<T> Limit(int i);
-        IQueryFetchable<T> Offset(int i);
+        IFetchableWithOutput<T> Take(int limit, int offset);
     }
 }

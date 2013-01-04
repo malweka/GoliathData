@@ -1,13 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using Goliath.Data.Sql;
 
 namespace Goliath.Data
 {
-    /// <summary>
-    /// 
-    /// </summary>
-    public interface IDataAccessAdapter { }
-
     /// <summary>
     /// 
     /// </summary>
@@ -15,7 +11,47 @@ namespace Goliath.Data
     public interface IDataAccessAdapter<TEntity> : IDataAccessAdapter, IDisposable
     {
 
-        #region Updates
+        #region queries
+
+        /// <summary>
+        /// Finds all.
+        /// </summary>
+        /// <returns></returns>
+        IQueryBuilder<TEntity> Select();
+
+        /// <summary>
+        /// Fetches all.
+        /// </summary>
+        /// <returns></returns>
+        ICollection<TEntity> FetchAll();
+
+        /// <summary>
+        /// Fetches all.
+        /// </summary>
+        /// <param name="limit">The limit.</param>
+        /// <param name="offset">The offset.</param>
+        /// <returns></returns>
+        ICollection<TEntity> FetchAll(int limit, int offset);
+
+        /// <summary>
+        /// Fetches all.
+        /// </summary>
+        /// <param name="limit">The limit.</param>
+        /// <param name="offset">The offset.</param>
+        /// <param name="total">The total.</param>
+        /// <returns></returns>
+        ICollection<TEntity> FetchAll(int limit, int offset, out long total);
+
+        ///// <summary>
+        ///// Selects the specified column.
+        ///// </summary>
+        ///// <typeparam name="T"></typeparam>
+        ///// <param name="propertyName">Name of the property.</param>
+        ///// <param name="propertyNames">The property names.</param>
+        ///// <returns></returns>
+        //IQueryBuilder<T> Select<T>(string propertyName, params string[] propertyNames);
+
+        #endregion
 
         /// <summary>
         /// Updates the specified entity.
@@ -23,18 +59,6 @@ namespace Goliath.Data
         /// <param name="entity">The entity.</param>
         /// <returns></returns>
         int Update(TEntity entity);
-
-        ///// <summary>
-        ///// Updates the specified entity.
-        ///// </summary>
-        ///// <param name="entity">The entity.</param>
-        ///// <param name="filters">The filters.</param>
-        ///// <returns></returns>
-        //int Update(TEntity entity, QueryParam[] filters);
-
-        #endregion
-
-        #region Inserts
 
         /// <summary>
         /// Inserts the specified entity.
@@ -44,62 +68,17 @@ namespace Goliath.Data
         /// <returns></returns>
         int Insert(TEntity entity, bool recursive = false);
 
-        #endregion
-
-        #region Queries
-
-        /// <summary>
-        /// Finds all.
-        /// </summary>
-        /// <param name="sqlQuery">The SQL query.</param>
-        /// <param name="parameters">The parameters.</param>
-        /// <returns></returns>
-        IList<TEntity> FindAll(string sqlQuery, params QueryParam[] parameters);
-
-        /// <summary>
-        /// Finds all.
-        /// </summary>
-        /// <param name="filters">The filters.</param>
-        /// <returns></returns>
-        IList<TEntity> FindAll(params PropertyQueryParam[] filters);
-
-        /// <summary>
-        /// Finds all.
-        /// </summary>
-        /// <param name="limit">The limit.</param>
-        /// <param name="offset">The offset.</param>
-        /// <param name="totalRecords">The total records.</param>
-        /// <param name="filters">The filters.</param>
-        /// <returns></returns>
-        IList<TEntity> FindAll(int limit, int offset, out long totalRecords, params PropertyQueryParam[] filters);
-
-        /// <summary>
-        /// Finds the one.
-        /// </summary>
-        /// <param name="filter">The filter.</param>
-        /// <param name="filters">The filters.</param>
-        /// <returns></returns>
-        TEntity FindOne(PropertyQueryParam filter, params PropertyQueryParam[] filters);
-
-        #endregion
-
-        #region Deletes
-
-        /// <summary>
-        /// Deletes the specified entity.
-        /// </summary>
-        /// <param name="entity">The entity.</param>
-        /// <returns></returns>
-        int Delete(TEntity entity);
-
         /// <summary>
         /// Deletes the specified entity.
         /// </summary>
         /// <param name="entity">The entity.</param>
         /// <param name="cascade">if set to <c>true</c> [cascade].</param>
         /// <returns></returns>
-        int Delete(TEntity entity, bool cascade);
-
-        #endregion
+        int Delete(TEntity entity, bool cascade = false);
     }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public interface IDataAccessAdapter { }
 }

@@ -71,14 +71,9 @@ namespace Goliath.Data.Sql
 
         #region IQueryFetchable Members
 
-        public IFetchable Limit(int i)
+        public IFetchableWithOutput Take(int limit, int offset)
         {
-            return builder.Limit(i);
-        }
-
-        public IFetchable Offset(int i)
-        {
-            return builder.Offset(i);
+            return builder.Take(limit, offset);
         }
 
         #endregion

@@ -10,7 +10,7 @@ namespace Goliath.Data.Sql
     using Mapping;
     using DataAccess;
 
-    partial class QueryBuilder : IQueryBuilder, ITableNameBuilder
+    partial class QueryBuilder : IQueryBuilder, ITableNameBuilder, IFetchableWithOutput
     {
         readonly List<string> columnNames = new List<string>();
         readonly List<QueryParam> parameters = new List<QueryParam>();
@@ -76,15 +76,10 @@ namespace Goliath.Data.Sql
 
         #region IQueryFetchable Members
 
-        public IFetchable Limit(int i)
+        public IFetchableWithOutput Take(int limit, int offset)
         {
-            this.limit = i;
-            return this;
-        }
-
-        public IFetchable Offset(int i)
-        {
-            this.offset = i;
+            this.limit = limit;
+            this.offset = offset;
             return this;
         }
 
@@ -103,6 +98,19 @@ namespace Goliath.Data.Sql
             return runner.RunList<T>(session, query, limit, offset, Parameters.ToArray());
         }
 
+        ICollection<T> RunQueryAndHydrateWithPaging<T>(out long total)
+        {
+            if (limit < 1)
+                limit = 0;
+
+            if (offset < 1)
+                offset = 0;
+
+            SqlCommandRunner runner = new SqlCommandRunner();
+            var query = Build();
+            return runner.RunList<T>(session, query, limit, offset, out total, Parameters.ToArray());
+        }
+
         ICollection<T> RunQueryAndHydrate<T>()
         {
             SqlCommandRunner runner = new SqlCommandRunner();
@@ -118,6 +126,11 @@ namespace Goliath.Data.Sql
                 return RunQueryAndHydrateWithPaging<T>();
             else
                 return RunQueryAndHydrate<T>();
+        }
+
+        public ICollection<T> FetchAll<T>(out long total)
+        {
+            return RunQueryAndHydrateWithPaging<T>(out total);
         }
 
         public T FetchOne<T>()

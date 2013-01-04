@@ -8,6 +8,7 @@ using Goliath.Data.DataAccess;
 using Goliath.Data.Diagnostics;
 using Goliath.Data.Mapping;
 using Goliath.Data.Sql;
+using Goliath.Data.Utils;
 
 namespace Goliath.Data
 {
@@ -22,11 +23,12 @@ namespace Goliath.Data
         /// current session
         /// </summary>
         protected ISession session;
-        IEntitySerializer serializer;
-        Type entityType;
+        readonly IEntitySerializer serializer;
+        readonly Type entityType;
         static ILogger logger;
-        EntityMap entityMap;
-
+        readonly EntityMap entityMap;
+        readonly SqlCommandRunner commandRunner = new SqlCommandRunner();
+        readonly EntityAccessorStore entityAccessorStore = new EntityAccessorStore();
         #region ctors
 
         static DataAccessAdapter()
@@ -69,370 +71,84 @@ namespace Goliath.Data
             this.entityMap = entityMap;
         }
 
-
-
-        void CheckConnection(DbConnection dbConnection)
-        {
-            if (dbConnection.State != ConnectionState.Open)
-                dbConnection.Open();
-        }
-
-        #endregion
-
-        #region Updates
-
-        /// <summary>
-        /// Updates the specified entity.
-        /// </summary>
-        /// <param name="entity">The entity.</param>
-        /// <returns></returns>
-        public int Update(TEntity entity)
-        {
-            var sqlWorker = serializer.CreateSqlWorker();
-            bool ownTransaction = false;
-            int result = 0;
-
-            var dbConn = session.ConnectionManager.OpenConnection();
-
-            if ((session.CurrentTransaction == null) || !session.CurrentTransaction.IsStarted)
-            {
-                session.BeginTransaction();
-                ownTransaction = true;
-            }
-
-            Dictionary<string, QueryParam> neededParams = new Dictionary<string, QueryParam>();
-            List<SqlOperationInfo> operations = new List<SqlOperationInfo>();
-
-            using (var batchOp = sqlWorker.BuildUpdateSql<TEntity>(entityMap, entity, true))
-            {
-                BuildUpdateOperations(batchOp, neededParams, operations);
-            }
-            var paramList = neededParams.Values.ToArray();
-            StringBuilder sqlUpdates = new StringBuilder();
-
-            for (int i = 0; i < operations.Count; i++)
-            {
-                sqlUpdates.Append(operations[i].SqlText);
-                sqlUpdates.Append(";\n");
-            }
-
-            string sql = sqlUpdates.ToString();
-
-            try
-            {
-                result = session.DataAccess.ExecuteNonQuery(dbConn, session.CurrentTransaction, sql, paramList);
-                if (ownTransaction)
-                    session.CommitTransaction();
-            }
-            catch (GoliathDataException ex)
-            {
-                Console.WriteLine("goliath exception: {0}", ex.Message);
-                throw;
-            }
-            catch (Exception ex)
-            {
-                throw new GoliathDataException(string.Format("Exception while updating: {0}", sql), ex);
-            }
-            finally
-            {
-                neededParams.Clear();
-            }
-
-            return result;
-        }
-
-        void BuildUpdateOperations(BatchSqlOperation batchOp, Dictionary<string, QueryParam> parameters, List<SqlOperationInfo> operations)
-        {
-            List<SqlOperationInfo> updates = new List<SqlOperationInfo>();
-
-
-            for (int i = 0; i < batchOp.Operations.Count; i++)
-            {
-                updates.Add(batchOp.Operations[i]);
-                foreach (var paramet in batchOp.Operations[i].Parameters)
-                {
-                    if (!parameters.ContainsKey(paramet.Name))
-                        parameters.Add(paramet.Name, paramet);
-                }
-            }
-
-            operations.AddRange(updates);
-            for (int i = 0; i < batchOp.SubOperations.Count; i++)
-            {
-                BuildUpdateOperations(batchOp.SubOperations[i], parameters, operations);
-            }
-        }
-
-        #endregion
-
-        #region Inserts
-
-        /// <summary>
-        /// Inserts the specified entity.
-        /// </summary>
-        /// <param name="entity">The entity.</param>
-        /// <param name="recursive">if set to <c>true</c> [recursive].</param>
-        /// <returns></returns>
-        public int Insert(TEntity entity, bool recursive = false)
-        {
-            var sqlWorker = serializer.CreateSqlWorker();
-
-            bool ownTransaction = false;
-            int result = 0;
-
-            var dbConn = session.ConnectionManager.OpenConnection();
-
-            if ((session.CurrentTransaction == null) || !session.CurrentTransaction.IsStarted)
-            {
-                session.BeginTransaction();
-                ownTransaction = true;
-            }
-
-            Dictionary<string, QueryParam> neededParams = new Dictionary<string, QueryParam>();
-            List<SqlOperationInfo> inserts = new List<SqlOperationInfo>();
-
-            using (var batchOp = sqlWorker.BuildInsertSql(entityMap, entity, recursive))
-            {
-                BuildOrExecuteInsertBatchOperation(session.CurrentTransaction, batchOp, neededParams, inserts);
-            }
-
-            var paramList = neededParams.Values.ToArray();
-
-            StringBuilder sqlInserts = new StringBuilder();
-            for (int i = 0; i < inserts.Count; i++)
-            {
-                sqlInserts.Append(inserts[i].SqlText);
-                sqlInserts.Append(";\n");
-            }
-
-            string sql = sqlInserts.ToString();
-            try
-            {
-                if (!string.IsNullOrEmpty(sql))
-                {
-                    result = session.DataAccess.ExecuteNonQuery(dbConn, session.CurrentTransaction, sql, paramList);
-                }
-
-                if (ownTransaction)
-                    session.CommitTransaction();
-            }
-            catch (GoliathDataException ex)
-            {
-                Console.WriteLine("Goliath exception: {0}", ex.Message);
-                throw;
-            }
-            catch (Exception ex)
-            {
-                throw new GoliathDataException(string.Format("Exception while inserting: {0}", sql), ex);
-            }
-            finally
-            {
-                neededParams.Clear();
-            }
-
-            return result;
-        }
-
-        void BuildOrExecuteInsertBatchOperation(ITransaction transaction, BatchSqlOperation batchOp, Dictionary<string, QueryParam> neededParams, List<SqlOperationInfo> batchOperations)
-        {
-            if (batchOp == null)
-                throw new ArgumentNullException("batchOp");
-
-
-            if (batchOp.KeyGenerationOperations.Count > 0)
-            {
-                var hasGreaterPriority = batchOp.KeyGenerationOperations.Where(op => op.Value.Priority > batchOp.Priority).ToList();
-                //execute these first
-                for (int i = 0; i < hasGreaterPriority.Count; i++)
-                {
-                    //we expects that this queries will be for generating ideas and that the ID will be the first column
-                    //returned and only 1 row of data. Therefore, we will reader column 1 row 1 ignore rest.
-                    ReadGeneratedId(hasGreaterPriority[i], neededParams, transaction);
-                    batchOp.KeyGenerationOperations.Remove(hasGreaterPriority[i].Key);
-                }
-            }
-
-            List<SqlOperationInfo> inserts = new List<SqlOperationInfo>();
-
-            List<QueryParam> insertParams = new List<QueryParam>();
-            insertParams.AddRange(neededParams.Values);
-
-            for (int i = 0; i < batchOp.Operations.Count; i++)
-            {
-                inserts.Add(batchOp.Operations[i]);
-                foreach (var paramet in batchOp.Operations[i].Parameters)
-                {
-                    insertParams.Add(paramet);
-                }
-            }
-
-            foreach (var param in insertParams)
-            {
-                if (!neededParams.ContainsKey(param.Name))
-                {
-                    neededParams.Add(param.Name, param);
-                }
-            }
-
-            if (batchOp.Priority < SqlOperationPriority.High)
-            {
-                batchOperations.AddRange(inserts);
-            }
-            else
-            {
-                var paramList = neededParams.Values.ToArray();
-
-                for (int i = 0; i < inserts.Count; i++)
-                {
-                    var sql = inserts[i].SqlText;
-                    var xt = session.DataAccess.ExecuteNonQuery(session.ConnectionManager.OpenConnection(), transaction, sql, paramList);
-                    if (batchOp.KeyGenerationOperations.Count > 0 && i == 0) // read resulting id that were created
-                    {
-                        //TODO: generated keys from database
-                        foreach (var kop in batchOp.KeyGenerationOperations)
-                        {
-                            //inserts.Add(kop.Value.Operation.SqlText);
-                            ReadGeneratedId(kop, neededParams, transaction);
-                        }
-                    }
-                }
-
-            }
-
-            for (int i = 0; i < batchOp.SubOperations.Count; i++)
-            {
-                BuildOrExecuteInsertBatchOperation(transaction, batchOp.SubOperations[i], neededParams, batchOperations);
-            }
-        }
-
-        void ReadGeneratedId(KeyValuePair<string, KeyGenOperationInfo> kpair, Dictionary<string, QueryParam> neededParams, ITransaction transaction)
-        {
-            var kgInfo = kpair.Value;
-            var paramName = kpair.Key;
-
-
-            var val = session.DataAccess.ExecuteScalar(session.ConnectionManager.OpenConnection(), transaction, kgInfo.Operation.SqlText);
-            if (val != null)
-            {
-                object id = serializer.ReadFieldData(kgInfo.PropertyType, val);
-                serializer.SetPropertyValue(kgInfo.Entity, kgInfo.PropertyName, id);
-
-                if (!neededParams.ContainsKey(paramName))
-                    neededParams.Add(paramName, new QueryParam(paramName, id));
-            }
-        }
-
         #endregion
 
         #region Queries
 
-        /// <summary>
-        /// Finds all.
-        /// </summary>
-        /// <param name="sqlQuery">The SQL query.</param>
-        /// <param name="parameters">The parameters.</param>
-        /// <returns></returns>
-        public IList<TEntity> FindAll(string sqlQuery, params QueryParam[] parameters)
+        public IQueryBuilder<TEntity> Select()
+        {
+            var queryBuilder = new QueryBuilder<TEntity>(session);
+            return queryBuilder;
+        }
+
+        public ICollection<TEntity> FetchAll()
+        {
+            return Select().FetchAll();
+        }
+
+        public ICollection<TEntity> FetchAll(int limit, int offset)
+        {
+            return Select().Take(limit, offset).FetchAll();
+        }
+
+        public ICollection<TEntity> FetchAll(int limit, int offset, out long total)
+        {
+            return Select().Take(limit, offset).FetchAll(out total);
+        }
+
+        public int Update(TEntity entity)
+        {
+            if (entityMap.PrimaryKey == null)
+                throw new GoliathDataException(string.Format("Cannot update entity {0} because no primary key has been defined for table {1}", entityMap.FullName, entityMap.TableName));
+            try
+            {
+                INonQuerySqlBuilder<TEntity> updateBuilder = new UpdateSqlBuilder<TEntity>(session, entity);
+                var pk = entityMap.PrimaryKey;
+                var entAccessor = entityAccessorStore.GetEntityAccessor(entityType, entityMap);
+                var firstKeyPropertyName = pk.Keys[0].Key.PropertyName;
+                var firstKey = entAccessor.GetPropertyAccessor(firstKeyPropertyName);
+
+                var filterBuilder = updateBuilder.Where(firstKeyPropertyName).EqualToValue(firstKey.GetMethod(entity));
+                if (pk.Keys.Count > 1)
+                {
+                    for (int i = 0; i < pk.Keys.Count; i++)
+                    {
+                        var propName = pk.Keys[i].Key.PropertyName;
+                        var propAccessor = entAccessor.GetPropertyAccessor(propName);
+                        filterBuilder.And(pk.Keys[i].Key.PropertyName).EqualToValue(propAccessor.GetMethod(entity));
+                    }
+                }
+
+                return filterBuilder.Execute();
+            }
+            catch (GoliathDataException)
+            {
+                throw;
+            }
+            catch (Exception exception)
+            {
+                throw new GoliathDataException(string.Format("Error while trying to update mapped entity {0} of type {1}", entityMap.FullName, entity.GetType()), exception);
+            }
+           
+        }
+
+        public int Insert(TEntity entity, bool recursive = false)  
         {
             try
             {
-                SqlCommandRunner runner = new SqlCommandRunner();
-                var entities = runner.RunList<TEntity>(session, sqlQuery, parameters);
-                return entities;
+                var insertBuilder = new InsertSqlBuilder();
+                var execList = insertBuilder.Build(entity, entityMap, session);
+                return execList.Execute(session);
             }
-            catch (GoliathDataException ex)
+            catch (GoliathDataException)
             {
-                Console.WriteLine("Encounter GoliathException. Exception rethrown. {0}", ex.Message);
                 throw;
             }
-            catch (Exception ex)
+            catch (Exception exception)
             {
-                throw new DataAccessException(string.Format("Error while trying to fetch all {0}", entityMap.FullName), ex);
+                throw new GoliathDataException(string.Format("Error while trying to insert mapped entity {0} of type {1}", entityMap.FullName, entity.GetType()), exception);
             }
-        }
-
-        /// <summary>
-        /// Finds all.
-        /// </summary>
-        /// <param name="filters">The filters.</param>
-        /// <returns></returns>
-        public IList<TEntity> FindAll(params PropertyQueryParam[] filters)
-        {
-            SelectSqlBuilder queryBuilder = SqlWorker.BuildSelectSql(entityMap, serializer.SqlDialect, session.DataAccess, filters);
-
-            var query = queryBuilder.ToSqlString();
-            try
-            {
-                SqlCommandRunner runner = new SqlCommandRunner();
-                var entities = runner.RunList<TEntity>(session, query, filters);
-                return entities;
-            }
-            catch (GoliathDataException ex)
-            {
-                Console.WriteLine("Encounter GoliathException. Exception rethrown. {0}", ex.Message);
-                throw;
-            }
-            catch (Exception ex)
-            {
-                throw new DataAccessException(string.Format("Error while trying to fetch all {0}", entityMap.FullName), ex);
-            }
-
-        }
-
-        /// <summary>
-        /// Finds all.
-        /// </summary>
-        /// <param name="limit">The limit.</param>
-        /// <param name="offset">The offset.</param>
-        /// <param name="totalRecords">The total records.</param>
-        /// <param name="filters">The filters.</param>
-        /// <returns></returns>
-        public IList<TEntity> FindAll(int limit, int offset, out long totalRecords, params PropertyQueryParam[] filters)
-        {
-            if (limit < 1)
-                throw new ArgumentException(" cannot have a pageIndex of less than or equal to 0");
-
-            if (offset < 0)
-                throw new ArgumentException(" cannot have a pageSize of less than or equal to 0");
-
-            SelectSqlBuilder queryBuilder = SqlWorker.BuildSelectSql(entityMap, serializer.SqlDialect, session.DataAccess, filters);
-            SqlCommandRunner runner = new SqlCommandRunner();
-            totalRecords = 0;
-
-            try
-            {
-                var entities = runner.RunList<TEntity>(session, queryBuilder.Build(), limit, offset, out totalRecords, filters);
-                return entities;
-            }
-            catch (GoliathDataException ex)
-            {
-                Console.WriteLine("Encounter GoliathException. Exception rethrown. {0}", ex.Message);
-                throw;
-            }
-            catch (Exception ex)
-            {
-                throw new DataAccessException(string.Format("Error while trying to fetch all {0}", entityMap.FullName), ex);
-            }
-        }
-
-        /// <summary>
-        /// Finds the one.
-        /// </summary>
-        /// <param name="filter">The filter.</param>
-        /// <param name="filters">The filters.</param>
-        /// <returns></returns>
-        public TEntity FindOne(PropertyQueryParam filter, params PropertyQueryParam[] filters)
-        {
-            List<PropertyQueryParam> parameters = new List<PropertyQueryParam>();
-            parameters.Add(filter);
-            parameters.AddRange(filters);
-
-            var paramArray = parameters.ToArray();
-            SqlCommandRunner runner = new SqlCommandRunner();
-            SelectSqlBuilder queryBuilder = SqlWorker.BuildSelectSql(entityMap, serializer.SqlDialect, session.DataAccess, paramArray);
-
-            var entity = runner.Run<TEntity>(session, queryBuilder.Build(), paramArray);
-            return entity;
+            
         }
 
         #endregion
@@ -443,19 +159,9 @@ namespace Goliath.Data
         /// Deletes the specified entity.
         /// </summary>
         /// <param name="entity">The entity.</param>
-        /// <returns></returns>
-        public int Delete(TEntity entity)
-        {
-            return Delete(entity, false);
-        }
-
-        /// <summary>
-        /// Deletes the specified entity.
-        /// </summary>
-        /// <param name="entity">The entity.</param>
         /// <param name="cascade">if set to <c>true</c> [cascade].</param>
         /// <returns></returns>
-        public int Delete(TEntity entity, bool cascade)
+        public int Delete(TEntity entity, bool cascade = false)
         {
             var sqlWorker = serializer.CreateSqlWorker();
             bool ownTransaction = false;

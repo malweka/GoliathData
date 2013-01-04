@@ -232,10 +232,10 @@ namespace WebZoo.Data
                 Console.WriteLine(ex.Message);
             }
 
-            var allzoos = zoodapter.FindAll();
-            var acceptingZoos = zoodapter.FindAll(new PropertyQueryParam("AcceptNewAnimals", true));
+            var allzoos = zoodapter.FetchAll();
+            var acceptingZoos = zoodapter.Select().Where(c => c.AcceptNewAnimals).EqualToValue(true); //zoodapter.FindAll(new PropertyQueryParam("AcceptNewAnimals", true));
             long total;
-            var top5Zoo = zoodapter.FindAll(5, 0, out total);
+            var top5Zoo = zoodapter.FetchAll(5, 0, out total);
 
 
 

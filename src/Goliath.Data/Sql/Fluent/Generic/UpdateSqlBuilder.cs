@@ -268,7 +268,7 @@ namespace Goliath.Data.Sql
 
         #region INonQuerySqlBuilder<T> Members
 
-        public IFilterNonQueryClause<T> Where<TProperty>(string propertyName)
+        public IFilterNonQueryClause<T> Where(string propertyName)
         {
             return CreateFilter(Table, SqlOperator.AND, propertyName);
         }
@@ -287,7 +287,7 @@ namespace Goliath.Data.Sql
             return CreateFilter(Table, SqlOperator.AND, property.GetMemberName());
         }
 
-        public IFilterNonQueryClause<T> And<TProperty>(string propertyName)
+        public IFilterNonQueryClause<T> And(string propertyName)
         {
             return CreateFilter(Table, SqlOperator.AND, propertyName);
         }
@@ -297,7 +297,7 @@ namespace Goliath.Data.Sql
             return CreateFilter(Table, SqlOperator.OR, property.GetMemberName());
         }
 
-        public IFilterNonQueryClause<T> Or<TProperty>(string propertyName)
+        public IFilterNonQueryClause<T> Or(string propertyName)
         {
             return CreateFilter(Table, SqlOperator.OR, propertyName);
         }
