@@ -29,11 +29,11 @@ namespace Goliath.Data
         /// <value>The id.</value>
         string Id { get; }
 
-        ///// <summary>
-        ///// Gets the connection.
-        ///// </summary>
-        ///// <value>The connection.</value>
-        //DbConnection Connection { get; }
+        /// <summary>
+        /// Gets the current transaction.
+        /// </summary>
+        /// <value>The current transaction.</value>
+        ITransaction CurrentTransaction { get; }
 
         /// <summary>
         /// Gets the data access.
@@ -41,26 +41,16 @@ namespace Goliath.Data
         /// <value>The data access.</value>
         IDbAccess DataAccess { get; }
 
-
         /// <summary>
-        /// Gets the current transaction.
+        /// Gets the data store.
         /// </summary>
-        /// <value>The current transaction.</value>
-        ITransaction CurrentTransaction { get; }
+        /// <value>
+        /// The data store.
+        /// </value>
+        IDataStoreController DataStore { get; }
 
         #endregion
 
-        #region Data Access
-
-
-        /// <summary>
-        /// Creates the data access adapter.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
-        IDataAccessAdapter<T> CreateDataAccessAdapter<T>();
-
-        #endregion
 
         #region Transactions
 

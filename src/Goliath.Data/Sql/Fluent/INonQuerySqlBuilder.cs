@@ -14,7 +14,7 @@ namespace Goliath.Data.Sql
     {
         IFilterNonQueryClause And(string propertyName);
         IFilterNonQueryClause Or(string propertyName);
-        UpdateSqlBodyInfo Build();
+        //UpdateSqlBodyInfo Build();
         int Execute();
     }
 

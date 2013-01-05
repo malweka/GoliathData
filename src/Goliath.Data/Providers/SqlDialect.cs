@@ -512,6 +512,19 @@ namespace Goliath.Data.Providers
         }
 
         /// <summary>
+        /// Builds the delete statement.
+        /// </summary>
+        /// <param name="deleteStatement">The delete statement.</param>
+        /// <returns></returns>
+        public virtual string BuildDeleteStatement(DeleteSqlBodyInfo deleteStatement)
+        {
+            var sb = new StringBuilder("DELETE FROM ");
+            sb.AppendFormat("{0} ", Escape(deleteStatement.TableName, EscapeValueType.TableName));
+            sb.AppendFormat("WHERE {0}", deleteStatement.WhereExpression);
+            return sb.ToString();
+        }
+
+        /// <summary>
         /// Escapes the specified value.
         /// </summary>
         /// <param name="value">The value.</param>

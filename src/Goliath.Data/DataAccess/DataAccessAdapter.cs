@@ -27,8 +27,8 @@ namespace Goliath.Data
         readonly Type entityType;
         static ILogger logger;
         readonly EntityMap entityMap;
-        readonly SqlCommandRunner commandRunner = new SqlCommandRunner();
         readonly EntityAccessorStore entityAccessorStore = new EntityAccessorStore();
+        
         #region ctors
 
         static DataAccessAdapter()
@@ -73,53 +73,85 @@ namespace Goliath.Data
 
         #endregion
 
-        #region Queries
+        #region CRUD operations
 
+        /// <summary>
+        /// Selects this instance.
+        /// </summary>
+        /// <returns></returns>
         public IQueryBuilder<TEntity> Select()
         {
             var queryBuilder = new QueryBuilder<TEntity>(session);
             return queryBuilder;
         }
 
+        /// <summary>
+        /// Fetches all.
+        /// </summary>
+        /// <returns></returns>
         public ICollection<TEntity> FetchAll()
         {
             return Select().FetchAll();
         }
 
+        /// <summary>
+        /// Fetches all.
+        /// </summary>
+        /// <param name="limit">The limit.</param>
+        /// <param name="offset">The offset.</param>
+        /// <returns></returns>
         public ICollection<TEntity> FetchAll(int limit, int offset)
         {
             return Select().Take(limit, offset).FetchAll();
         }
 
+        /// <summary>
+        /// Fetches all.
+        /// </summary>
+        /// <param name="limit">The limit.</param>
+        /// <param name="offset">The offset.</param>
+        /// <param name="total">The total.</param>
+        /// <returns></returns>
         public ICollection<TEntity> FetchAll(int limit, int offset, out long total)
         {
             return Select().Take(limit, offset).FetchAll(out total);
         }
 
+        int ExecuteUpdateOrDeleteEntity(INonQuerySqlBuilder<TEntity> sqlBuilder, TEntity entity)
+        {
+            var pk = entityMap.PrimaryKey;
+            var entAccessor = entityAccessorStore.GetEntityAccessor(entityType, entityMap);
+            var firstKeyPropertyName = pk.Keys[0].Key.PropertyName;
+            var firstKey = entAccessor.GetPropertyAccessor(firstKeyPropertyName);
+
+            var filterBuilder = sqlBuilder.Where(firstKeyPropertyName).EqualToValue(firstKey.GetMethod(entity));
+            if (pk.Keys.Count > 1)
+            {
+                for (int i = 0; i < pk.Keys.Count; i++)
+                {
+                    var propName = pk.Keys[i].Key.PropertyName;
+                    var propAccessor = entAccessor.GetPropertyAccessor(propName);
+                    filterBuilder.And(pk.Keys[i].Key.PropertyName).EqualToValue(propAccessor.GetMethod(entity));
+                }
+            }
+
+            return filterBuilder.Execute();
+        }
+
+        /// <summary>
+        /// Updates the specified entity.
+        /// </summary>
+        /// <param name="entity">The entity.</param>
+        /// <returns></returns>
+        /// <exception cref="GoliathDataException"></exception>
         public int Update(TEntity entity)
         {
             if (entityMap.PrimaryKey == null)
                 throw new GoliathDataException(string.Format("Cannot update entity {0} because no primary key has been defined for table {1}", entityMap.FullName, entityMap.TableName));
             try
             {
-                INonQuerySqlBuilder<TEntity> updateBuilder = new UpdateSqlBuilder<TEntity>(session, entity);
-                var pk = entityMap.PrimaryKey;
-                var entAccessor = entityAccessorStore.GetEntityAccessor(entityType, entityMap);
-                var firstKeyPropertyName = pk.Keys[0].Key.PropertyName;
-                var firstKey = entAccessor.GetPropertyAccessor(firstKeyPropertyName);
-
-                var filterBuilder = updateBuilder.Where(firstKeyPropertyName).EqualToValue(firstKey.GetMethod(entity));
-                if (pk.Keys.Count > 1)
-                {
-                    for (int i = 0; i < pk.Keys.Count; i++)
-                    {
-                        var propName = pk.Keys[i].Key.PropertyName;
-                        var propAccessor = entAccessor.GetPropertyAccessor(propName);
-                        filterBuilder.And(pk.Keys[i].Key.PropertyName).EqualToValue(propAccessor.GetMethod(entity));
-                    }
-                }
-
-                return filterBuilder.Execute();
+                INonQuerySqlBuilder<TEntity> updateBuilder = new UpdateSqlBuilder<TEntity>(session, entityMap, entity);
+                return ExecuteUpdateOrDeleteEntity(updateBuilder, entity);
             }
             catch (GoliathDataException)
             {
@@ -129,10 +161,40 @@ namespace Goliath.Data
             {
                 throw new GoliathDataException(string.Format("Error while trying to update mapped entity {0} of type {1}", entityMap.FullName, entity.GetType()), exception);
             }
-           
+
         }
 
-        public int Insert(TEntity entity, bool recursive = false)  
+        /// <summary>
+        /// Deletes the specified entity.
+        /// </summary>
+        /// <param name="entity">The entity.</param>
+        /// <returns></returns>
+        public int Delete(TEntity entity)
+        {
+            if (entityMap.PrimaryKey == null)
+                throw new GoliathDataException(string.Format("Cannot delete entity {0} because no primary key has been defined for table {1}", entityMap.FullName, entityMap.TableName));
+            try
+            {
+                INonQuerySqlBuilder<TEntity> deleteBuilder = new DeleteSqlBuilder<TEntity>(session, entityMap, entity);
+                return ExecuteUpdateOrDeleteEntity(deleteBuilder, entity);
+            }
+            catch (GoliathDataException)
+            {
+                throw;
+            }
+            catch (Exception exception)
+            {
+                throw new GoliathDataException(string.Format("Error while trying to update mapped entity {0} of type {1}", entityMap.FullName, entity.GetType()), exception);
+            }
+        }
+
+        /// <summary>
+        /// Inserts the specified entity.
+        /// </summary>
+        /// <param name="entity">The entity.</param>
+        /// <returns></returns>
+        /// <exception cref="GoliathDataException"></exception>
+        public int Insert(TEntity entity)
         {
             try
             {
@@ -148,95 +210,7 @@ namespace Goliath.Data
             {
                 throw new GoliathDataException(string.Format("Error while trying to insert mapped entity {0} of type {1}", entityMap.FullName, entity.GetType()), exception);
             }
-            
-        }
 
-        #endregion
-
-        #region Deletes
-
-        /// <summary>
-        /// Deletes the specified entity.
-        /// </summary>
-        /// <param name="entity">The entity.</param>
-        /// <param name="cascade">if set to <c>true</c> [cascade].</param>
-        /// <returns></returns>
-        public int Delete(TEntity entity, bool cascade = false)
-        {
-            var sqlWorker = serializer.CreateSqlWorker();
-            bool ownTransaction = false;
-            int result = 0;
-
-            var dbConn = session.ConnectionManager.OpenConnection();
-
-            if ((session.CurrentTransaction == null) || !session.CurrentTransaction.IsStarted)
-            {
-                session.BeginTransaction();
-                ownTransaction = true;
-            }
-
-            Dictionary<string, QueryParam> neededParams = new Dictionary<string, QueryParam>();
-            List<SqlOperationInfo> operations = new List<SqlOperationInfo>();
-
-            using (var batchOp = sqlWorker.BuildDeleteSql<TEntity>(entityMap, entity, cascade))
-            {
-                BuildDeleteOperations(batchOp, neededParams, operations);
-            }
-
-            var paramList = neededParams.Values.ToArray();
-            StringBuilder sqlDeletes = new StringBuilder();
-
-            for (int i = 0; i < operations.Count; i++)
-            {
-                sqlDeletes.Append(operations[i].SqlText);
-                sqlDeletes.Append(";\n");
-            }
-
-            string sql = sqlDeletes.ToString();
-
-            try
-            {
-                result = session.DataAccess.ExecuteNonQuery(dbConn, session.CurrentTransaction, sql, paramList);
-                if (ownTransaction)
-                    session.CommitTransaction();
-            }
-            catch (GoliathDataException ex)
-            {
-                Console.WriteLine("goliath exception: {0}", ex.Message);
-                throw;
-            }
-            catch (Exception ex)
-            {
-                throw new GoliathDataException(string.Format("Exception while deleting: {0}", sql), ex);
-            }
-            finally
-            {
-                neededParams.Clear();
-            }
-
-            return result;
-        }
-
-        void BuildDeleteOperations(BatchSqlOperation batchOp, Dictionary<string, QueryParam> parameters, List<SqlOperationInfo> operations)
-        {
-            List<SqlOperationInfo> deletes = new List<SqlOperationInfo>();
-
-            for (int i = 0; i < batchOp.Operations.Count; i++)
-            {
-                deletes.Add(batchOp.Operations[i]);
-                foreach (var paramet in batchOp.Operations[i].Parameters)
-                {
-                    if (!parameters.ContainsKey(paramet.Name))
-                        parameters.Add(paramet.Name, paramet);
-                }
-            }
-
-            operations.AddRange(deletes);
-
-            for (int i = 0; i < batchOp.SubOperations.Count; i++)
-            {
-                BuildDeleteOperations(batchOp.SubOperations[i], parameters, operations);
-            }
         }
 
         #endregion

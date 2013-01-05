@@ -4,7 +4,7 @@ using Goliath.Data.Providers;
 
 namespace Goliath.Data.Sql
 {
-    class NonQueryFilterClauseBase
+    public class NonQueryFilterClauseBase
     {
         public string LeftColumn { get; protected set; }
         public string RightColumnName { get; protected set; }

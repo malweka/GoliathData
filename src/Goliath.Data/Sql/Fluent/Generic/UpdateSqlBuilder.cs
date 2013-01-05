@@ -12,28 +12,15 @@ using Goliath.Data.Utils;
 
 namespace Goliath.Data.Sql
 {
-    class UpdateSqlBuilder<T> : INonQuerySqlBuilder<T>, IBinaryNonQueryOperation<T>
+    public class UpdateSqlBuilder<T> : NonQuerySqlBuilderBase<T>
     {
-        private ISession session;
-        private T entity;
+        public UpdateSqlBuilder(ISession session, EntityMap entityMap, T entity) : base(session, entityMap, entity) { }
 
-        private EntityMap Table { get; set; }
-        public List<NonQueryFilterClause<T>> Filters { get; private set; }
-        readonly List<QueryParam> whereParameters = new List<QueryParam>();
-
-        public UpdateSqlBuilder(ISession session, T entity)
-        {
-            this.session = session;
-            this.entity = entity;
-            var type = typeof(T);
-            Filters = new List<NonQueryFilterClause<T>>();
-            Table = session.SessionFactory.DbSettings.Map.GetEntityMap(type.FullName);
-
-        }
+        public UpdateSqlBuilder(ISession session, T entity) : base(session, entity) { }
 
         void LoadColumns(UpdateSqlExecutionList execList, EntityMap entityMap, EntityAccessor accessor)
         {
-            var updateBodyInfo = new UpdateSqlBodyInfo();
+            var updateBodyInfo = new UpdateSqlBodyInfo() { TableName = entityMap.TableName };
 
             var trackable = entity as ITrackable;
             if (trackable != null)
@@ -92,6 +79,7 @@ namespace Goliath.Data.Sql
 
         void AddColumnAndParameterToUpdateInfo(UpdateSqlExecutionList execList, UpdateSqlBodyInfo updateBodyInfo, EntityMap entityMap, Property prop, PropertyAccessor propInfo, EntityAccessor accessor)
         {
+
             object val = propInfo.GetMethod(entity);
             bool isRel = false;
             if (prop is Relation)
@@ -124,7 +112,7 @@ namespace Goliath.Data.Sql
                             AddInsertManyToManyOperation(execList, trackableCollection.InsertedItems, rel, accessor, true);
                             AddInsertManyToManyOperation(execList, trackableCollection.DeletedItems, rel, accessor, false);
                         }
-
+                        return;
                         //NOTE: if not trackable collection used mapped statement to add or remove many to many associations
                     }
                     else return;
@@ -143,7 +131,7 @@ namespace Goliath.Data.Sql
                 }
             }
 
-            Tuple<QueryParam, bool> tuple = Tuple.Create(new QueryParam(ParameterNameBuilderHelper.ColumnWithTableAlias(entityMap.TableAlias, prop.ColumnName)) { Value = val }, isRel);
+            Tuple<QueryParam, bool> tuple = Tuple.Create(new QueryParam(string.Format("{0}_{1}",entityMap.TableAlias, prop.ColumnName)) { Value = val }, isRel);
             updateBodyInfo.Columns.Add(prop.ColumnName, tuple);
         }
 
@@ -180,14 +168,14 @@ namespace Goliath.Data.Sql
                         var sql = string.Format("INSERT INTO {0} ({1}, {2}) VALUES({3},{4})",
                                                 rel.MapTableName, rel.MapColumn, rel.MapReferenceColumn, dialect.CreateParameterName(propParm.Name), dialect.CreateParameterName(relParam.Name));
 
-                        execList.ManyToManyStatements.Add(Tuple.Create(sql, new List<QueryParam>{ propParm, relParam }));
+                        execList.ManyToManyStatements.Add(Tuple.Create(sql, new List<QueryParam> { propParm, relParam }));
                     }
                     else
                     {
                         var sql = string.Format("DELETE FROM {0} WHERE {1} = {3} AND {2} = {4}",
                                                 rel.MapTableName, rel.MapColumn, rel.MapReferenceColumn, dialect.CreateParameterName(propParm.Name), dialect.CreateParameterName(relParam.Name));
 
-                        execList.ManyToManyStatements.Add(Tuple.Create(sql, new List<QueryParam>{ propParm, relParam }));
+                        execList.ManyToManyStatements.Add(Tuple.Create(sql, new List<QueryParam> { propParm, relParam }));
                     }
                 }
             }
@@ -196,124 +184,37 @@ namespace Goliath.Data.Sql
         internal UpdateSqlExecutionList Build()
         {
             var execList = new UpdateSqlExecutionList();
-            var type = typeof(T);
             var store = new EntityAccessorStore();
-            var accessor = store.GetEntityAccessor(type, Table);
+            var accessor = store.GetEntityAccessor(entityType, Table);
             var dialect = session.SessionFactory.DbSettings.SqlDialect;
             LoadColumns(execList, Table, accessor);
 
-            if (Filters.Count > 0)
+            var whereExpression = BuildWhereExpression(dialect);
+
+            foreach (var stat in execList.Statements)
             {
-                var firstWhere = Filters[0];
-                var sql = firstWhere.BuildSqlString(dialect);
-
-
-                var wherebuilder = new StringBuilder(sql.Item1 + " ");
-                if (sql.Item2 != null)
-                {
-                    whereParameters.Add(sql.Item2);
-                }
-
-                if (Filters.Count > 1)
-                {
-                    for (var i = 1; i < Filters.Count; i++)
-                    {
-                        var where = Filters[i].BuildSqlString(dialect, i);
-                        if (where.Item2 != null)
-                            whereParameters.Add(where.Item2);
-
-                        var prep = "AND";
-                        if (Filters[i].PreOperator != SqlOperator.AND)
-                            prep = "OR";
-
-                        wherebuilder.AppendFormat("{0} {1} ", prep, where.Item1);
-                    }
-                }
-
-                string whereExpression = wherebuilder.ToString();
-
-                foreach (var stat in execList.Statements)
-                {
-                    stat.Value.WhereExpression = whereExpression;
-                }
+                stat.Value.WhereExpression = whereExpression;
             }
-            else throw new DataAccessException("Update missing where statement. Goliath cannot run an update without filters");
 
             return execList;
         }
 
-        NonQueryFilterClause<T> CreateFilter(EntityMap map, SqlOperator preOperator, string propertyName)
-        {
-            var prop = map.GetProperty(propertyName);
-
-            //NOTE: we're not supporting this yet. so we shouldn't really be going down to the parent class yet.
-            if (prop == null)
-            {
-                //if (map.IsSubClass)
-                //{
-                //    var parent = session.SessionFactory.DbSettings.Map.GetEntityMap(map.Extends);
-                //    return CreateFilter(parent, preOperator, propertyName);
-                //}
-                //else
-                //{
-                throw new MappingException(string.Format("Could not find property {0} on mapped entity {1}", propertyName, map.FullName));
-                //}
-
-            }
-
-            var filter = new NonQueryFilterClause<T>(prop, this) { PreOperator = preOperator };
-            Filters.Add(filter);
-            return filter;
-        }
-
-        #region INonQuerySqlBuilder<T> Members
-
-        public IFilterNonQueryClause<T> Where(string propertyName)
-        {
-            return CreateFilter(Table, SqlOperator.AND, propertyName);
-        }
-
-        public IFilterNonQueryClause<T> Where<TProperty>(Expression<Func<T, TProperty>> property)
-        {
-            return CreateFilter(Table, SqlOperator.AND, property.GetMemberName());
-        }
-
-        #endregion
-
         #region IBinaryNonQueryOperation<T> Members
 
-        public IFilterNonQueryClause<T> And<TProperty>(Expression<Func<T, TProperty>> property)
-        {
-            return CreateFilter(Table, SqlOperator.AND, property.GetMemberName());
-        }
-
-        public IFilterNonQueryClause<T> And(string propertyName)
-        {
-            return CreateFilter(Table, SqlOperator.AND, propertyName);
-        }
-
-        public IFilterNonQueryClause<T> Or<TProperty>(Expression<Func<T, TProperty>> property)
-        {
-            return CreateFilter(Table, SqlOperator.OR, property.GetMemberName());
-        }
-
-        public IFilterNonQueryClause<T> Or(string propertyName)
-        {
-            return CreateFilter(Table, SqlOperator.OR, propertyName);
-        }
-
-        public int Execute()
+        public override int Execute()
         {
             var execList = Build();
             int total = 0;
             var runner = new SqlCommandRunner();
+            var dialect = session.SessionFactory.DbSettings.SqlDialect;
+
             foreach (var update in execList.Statements.Values)
             {
 
                 var parameters = new List<QueryParam>();
                 parameters.AddRange(whereParameters);
                 parameters.AddRange(update.Columns.Values.Select(p => p.Item1));
-                total += runner.ExecuteNonQuery(session, update.ToString(session.SessionFactory.DbSettings.SqlDialect), parameters.ToArray());
+                total += runner.ExecuteNonQuery(session, update.ToString(dialect), parameters.ToArray());
 
             }
 

@@ -78,7 +78,6 @@
     <Compile Include="QueryBuilderTests.cs" />
     <Compile Include="SqlCommandRunnerTests.cs" />
     <Compile Include="SqlProcedureCollectionTests.cs" />
-    <Compile Include="SqlWorkerTests.cs" />
     <Compile Include="StatementMapParserTests.cs" />
     <Compile Include="TrackableProxyBuilderTests.cs" />
     <Compile Include="UpdateSqlBuilderFluentTests.cs" />

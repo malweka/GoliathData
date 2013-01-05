@@ -5,7 +5,7 @@ using Goliath.Data.Utils;
 
 namespace Goliath.Data.Sql
 {
-    class NonQueryFilterClause<T> : NonQueryFilterClauseBase, IFilterNonQueryClause<T>
+    public class NonQueryFilterClause<T> : NonQueryFilterClauseBase, IFilterNonQueryClause<T>
     {
         private readonly IBinaryNonQueryOperation<T> nonQueryBuilder;
 

@@ -8,13 +8,8 @@ namespace Goliath.Data.DataAccess
     [Serializable]
     class DataAccessAdapterFactory : IDataAccessAdapterFactory
     {
-        //IDbAccess db;
-        //IDbConnector dbConnector;
+        readonly ConcurrentDictionary<Type, Delegate> factoryList = new ConcurrentDictionary<Type, Delegate>();
 
-        //static ConcurrentDictionary<Type, Delegate> factoryList = new ConcurrentDictionary<Type, Delegate>();
-        //static object lockFactoryList = new object();
-
-        ConcurrentDictionary<Type, Delegate> factoryList = new ConcurrentDictionary<Type, Delegate>();
         static ILogger logger;
         IEntitySerializer serializerFactory;
         bool isReady;
@@ -56,9 +51,8 @@ namespace Goliath.Data.DataAccess
             try
             {
                 Delegate dlgMethod;
-                IDataAccessAdapter<TEntity> adapter = null;
                 Type type = typeof(TEntity);
-                Func<IEntitySerializer, ISession, IDataAccessAdapter<TEntity>> factoryMethod = null;
+                Func<IEntitySerializer, ISession, IDataAccessAdapter<TEntity>> factoryMethod;
 
                 if (factoryList.TryGetValue(type, out dlgMethod))
                 {
@@ -76,19 +70,18 @@ namespace Goliath.Data.DataAccess
                 if (!isReady)
                     throw new DataAccessException("DataAccessAdapter not ready. EntitySerializer was not set.", new InvalidOperationException("serializerFactory is null and not set."));
 
-                adapter = factoryMethod.Invoke(serializerFactory, session);
+                IDataAccessAdapter<TEntity> adapter = factoryMethod(serializerFactory, session);
                 return adapter;
 
             }
-            catch (GoliathDataException ex)
+            catch (GoliathDataException)
             {
-                Console.WriteLine(ex.ToString());
                 throw;
             }
             catch (Exception ex)
             {
-                string errorMessage = string.Format("Error while trying to invoke DataAccessAdapter factory method for {0}", typeof(TEntity));
-                throw new GoliathDataException(errorMessage, ex); ;
+                var errorMessage = string.Format("Error while trying to invoke DataAccessAdapter factory method for {0}", typeof(TEntity));
+                throw new GoliathDataException(errorMessage, ex);
             }
         }
 
@@ -103,7 +96,7 @@ namespace Goliath.Data.DataAccess
                 EntityMap ent;
                 if (map.EntityConfigs.TryGetValue(type.FullName, out ent))
                 {
-                    Func<IEntitySerializer, ISession, IDataAccessAdapter<TEntity>> myfunc = (sfactory, sess) => { return new DataAccessAdapter<TEntity>(sfactory, sess); };
+                    Func<IEntitySerializer, ISession, IDataAccessAdapter<TEntity>> myfunc = (sfactory, sess) => new DataAccessAdapter<TEntity>(sfactory, sess);
                     return myfunc;
                 }
 

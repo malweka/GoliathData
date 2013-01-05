@@ -42,12 +42,6 @@ namespace Goliath.Data.DataAccess
         IList<TEntity> SerializeAll<TEntity>(DbDataReader dataReader, IEntityMap entityMap);
 
         /// <summary>
-        /// Creates the SQL worker.
-        /// </summary>
-        /// <returns></returns>
-        Sql.ISqlWorker CreateSqlWorker();
-
-        /// <summary>
         /// Reads the field data.
         /// </summary>
         /// <typeparam name="T"></typeparam>

@@ -7,7 +7,7 @@ using Goliath.Data.Sql;
 
 namespace Goliath.Data.DataAccess
 {
-    
+
 
     [Serializable]
     class Session : ISession
@@ -16,7 +16,7 @@ namespace Goliath.Data.DataAccess
         string id;
         ITransaction currentTransaction;
         public ConnectionManager ConnectionManager { get; private set; }
-        //IConnectionProvider connectionProvider;
+        public ISessionFactory SessionFactory { get; private set; }
 
         #region .Ctor
 
@@ -65,6 +65,11 @@ namespace Goliath.Data.DataAccess
         }
         #endregion
 
+        public IDataStoreController DataStore
+        {
+            get { return new DataStoreControllerController(this); }
+        }
+
         #region Data Access
 
         public IQueryBuilder<T> SelectAll<T>()
@@ -94,34 +99,7 @@ namespace Goliath.Data.DataAccess
             }
 
             return new QueryBuilder(this, columnNames);
-
         }
-
-        public IDataAccessAdapter<T> CreateDataAccessAdapter<T>()
-        {
-            var adapterFactory = SessionFactory.AdapterFactory;
-            return adapterFactory.Create<T>(SessionFactory.DbSettings.DbAccess, this);
-        }
-
-        public int Update<T>(T entity)
-        {
-            var adapter = CreateDataAccessAdapter<T>();
-            return adapter.Update(entity);
-        }
-
-        public int Insert<T>(T entity, bool recursive = false)
-        {
-            var adapter = CreateDataAccessAdapter<T>();
-            return adapter.Insert(entity, recursive);
-        }
-
-        public int Delete<T>(T entity, bool cascade = false)
-        {
-            var adapter = CreateDataAccessAdapter<T>();
-            return adapter.Delete(entity, cascade);
-        }
-
-        public ISessionFactory SessionFactory { get; private set; }
 
         #endregion
 
@@ -147,7 +125,7 @@ namespace Goliath.Data.DataAccess
         {
             return commandRunner.RunList<T>(this, sql, paramArray);
         }
- 
+
         public T Run<T>(string sql, params QueryParam[] paramArray)
         {
             return commandRunner.Run<T>(this, sql, paramArray);
@@ -191,6 +169,51 @@ namespace Goliath.Data.DataAccess
         }
 
         public int RunNonQueryMappedStatement(string statementName, QueryParam[] paramArray, params object[] inputParams)
+        {
+            throw new NotImplementedException();
+        }
+
+        #endregion
+
+        #region IDataStore Members
+
+        public IDataAccessAdapter<TEntity> GetEntityDataAdapter<TEntity>()
+        {
+            var adapterFactory = SessionFactory.AdapterFactory;
+            return adapterFactory.Create<TEntity>(SessionFactory.DbSettings.DbAccess, this);
+        }
+
+        #endregion
+
+        #region ISqlInterface Members
+
+
+        public InsertSqlBuilder Insert<T>(T entity)
+        {
+            throw new NotImplementedException();
+        }
+
+        public InsertSqlBuilder Insert<T>(Mapping.EntityMap entityMap, T entity)
+        {
+            throw new NotImplementedException();
+        }
+
+        public UpdateSqlBuilder<T> Update<T>(T entity)
+        {
+            throw new NotImplementedException();
+        }
+
+        public UpdateSqlBuilder<T> Update<T>(Mapping.EntityMap entityMap, T entity)
+        {
+            throw new NotImplementedException();
+        }
+
+        public DeleteSqlBuilder<T> Delete<T>(T entity)
+        {
+            throw new NotImplementedException();
+        }
+
+        public DeleteSqlBuilder<T> Delete<T>(Mapping.EntityMap entityMap, T entity)
         {
             throw new NotImplementedException();
         }
