@@ -65,6 +65,7 @@
     <Compile Include="Collections\TrackableList.cs" />
     <Compile Include="CompiledStatement.cs" />
     <Compile Include="DataAccess\EntitySerialization\IEntityFactory.cs" />
+    <Compile Include="DataAccess\IDataStoreController.cs" />
     <Compile Include="DataAccess\ISqlInterface.cs" />
     <Compile Include="DataAccess\MappedStatementRunner.cs" />
     <Compile Include="DataAccess\SqlCommanRunner.cs" />
@@ -179,12 +180,15 @@
     <Compile Include="SqliteBackend.cs" />
     <Compile Include="SqlServerRdbmsBackend.cs" />
     <Compile Include="Rdbms.cs" />
-    <Compile Include="Sql\DeleteSqlBuilder.cs" />
     <Compile Include="Sql\Fluent\FilterUpdateBuilder.cs" />
+    <Compile Include="Sql\Fluent\Generic\DeleteSqlBodyInfo.cs" />
+    <Compile Include="Sql\Fluent\Generic\DeleteSqlBuilder.cs" />
+    <Compile Include="Sql\Fluent\Generic\DeleteSqlExecutionList.cs" />
     <Compile Include="Sql\Fluent\Generic\INonQuerySqlBuilder.cs" />
     <Compile Include="Sql\Fluent\Generic\JoinBuilder.cs" />
     <Compile Include="Sql\Fluent\Generic\NonQueryFilterClause.cs" />
     <Compile Include="Sql\Fluent\Generic\NonQueryFilterClauseBase.cs" />
+    <Compile Include="Sql\Fluent\Generic\NonQuerySqlBuilderBase.cs" />
     <Compile Include="Sql\Fluent\Generic\QueryBuilder.cs" />
     <Compile Include="Sql\Fluent\Generic\SortBuilder.cs" />
     <Compile Include="Sql\Fluent\Generic\UpdateSqlBuilder.cs" />
@@ -209,7 +213,6 @@
     <Compile Include="Providers\SqlDialect.cs" />
     <Compile Include="Sql\Enums.cs" />
     <Compile Include="Sql\GroupBy.cs" />
-    <Compile Include="Sql\InsertSqlBuilderOld.cs" />
     <Compile Include="Sql\ISqlFunction.cs" />
     <Compile Include="Sql\OrderBy.cs" />
     <Compile Include="Sql\ParameterNameBuilderHelper.cs" />
@@ -220,9 +223,7 @@
     <Compile Include="Sql\SqlJoin.cs" />
     <Compile Include="Sql\SqlQueryBody.cs" />
     <Compile Include="Sql\SqlStatement.cs" />
-    <Compile Include="Sql\SqlWorker.cs" />
     <Compile Include="Sql\Fluent\UpdateSqlBuilder.cs" />
-    <Compile Include="Sql\UpdateSqlBuilderOld.cs" />
     <Compile Include="Sql\Fluent\WhereClauseBuilder.cs" />
     <Compile Include="Sql\WhereStatement.cs" />
     <Compile Include="Utilities\EntityAccessor.cs" />

@@ -51,7 +51,7 @@ namespace WebZoo.Data
             MapConfig mapConfig = null;
             SupportedRdbms rdbms = SupportedRdbms.Mssql2008;
             WebZooRunner zoorunner = new WebZooRunner(rdbms, new CodeGenerator(), AppDomain.CurrentDomain.BaseDirectory, true);
-            mapConfig = zoorunner.CreateMap();
+            //mapConfig = zoorunner.CreateMap();
             //zoorunner.GenerateCode();
 
 
@@ -135,8 +135,8 @@ namespace WebZoo.Data
                 Console.WriteLine(sql);
             }
 
-            var zoodapter = sess.CreateDataAccessAdapter<Zoo>();
-            var animalapter = sess.CreateDataAccessAdapter<Animal>();
+            var zoodapter = sess.GetEntityDataAdapter<Zoo>();
+            var animalapter = sess.GetEntityDataAdapter<Animal>();
 
             var entFactory = sessionFactory.DataSerializer as Goliath.Data.DataAccess.IEntityFactory;
             var zobo = entFactory.CreateInstance<Zoo>();
@@ -219,7 +219,7 @@ namespace WebZoo.Data
             emp1.AnimalsOnAnimalsHandler_EmployeeId.Add(an1);
             an1.EmployeesOnAnimalsHandler_AnimalId.Add(emp1);
 
-            zoodapter.Insert(zooM, true);
+            zoodapter.Insert(zooM);
             try
             {
 
@@ -251,30 +251,6 @@ namespace WebZoo.Data
 
                 //                string sqlQuery = @"select ani1.ZooId as ani1_ZooId, ani1.Id as ani1_Id, ani1.Name as ani1_Name, ani1.Age as ani1_Age, ani1.Location as ani1_Location, ani1.ReceivedOn as ani1_ReceivedOn  from animals ani1";
                 SqliteDialect mapper = new SqliteDialect();
-
-                
-
-
-
-                var wst = new WhereStatement("Id");
-
-                SelectSqlBuilder selectBuilder = new SelectSqlBuilder(mapper, animalEntMap)
-                .Where(new WhereStatement("Name") { PostOperator = SqlOperator.OR }.Equals("@Name"))
-                .Where(wst.NotNull());
-                string sstring = selectBuilder.ToSqlString();
-
-                UpdateSqlBuilderOld updateBuilderOld = new UpdateSqlBuilderOld(mapper, animalEntMap);
-                var wheres = UpdateSqlBuilderOld.BuildWhereStatementFromPrimaryKey(animalEntMap, mapper, 0);
-                string updateString = updateBuilderOld.Where(wheres).ToSqlString();
-
-                DeleteSqlBuilder deleteBuilder = new DeleteSqlBuilder(mapper, animalEntMap);
-                string deleteString = deleteBuilder.Where(wheres).ToSqlString();
-
-                Console.WriteLine(sstring);
-                Console.WriteLine(updateString);
-                //dataReader.Read();
-                //Providers.SqlServer.Mssq2008SqlMapper mapper = new Mssq2008SqlMapper();
-
 
                 var leftColumn1 = new Relation() { ColumnName = "EmployeeId", PropertyName = "EmployeeId" };
                 var leftcolumn2 = new Relation() { ColumnName = "AnimalId", PropertyName = "AnimalId" };
@@ -312,7 +288,7 @@ namespace WebZoo.Data
                 m1.Location = "UP345";
 
                 Console.WriteLine(m1.EmployeesOnAnimalsHandler_AnimalId.Count);
-                var aniAdapter = sess.CreateDataAccessAdapter<Animal>();
+                var aniAdapter = sess.GetEntityDataAdapter<Animal>();
                 aniAdapter.Update(m1);
 
             }

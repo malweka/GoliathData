@@ -64,17 +64,15 @@ namespace Goliath.Data
         /// Inserts the specified entity.
         /// </summary>
         /// <param name="entity">The entity.</param>
-        /// <param name="recursive">if set to <c>true</c> [recursive].</param>
         /// <returns></returns>
-        int Insert(TEntity entity, bool recursive = false);
+        int Insert(TEntity entity);
 
         /// <summary>
         /// Deletes the specified entity.
         /// </summary>
         /// <param name="entity">The entity.</param>
-        /// <param name="cascade">if set to <c>true</c> [cascade].</param>
         /// <returns></returns>
-        int Delete(TEntity entity, bool cascade = false);
+        int Delete(TEntity entity);
     }
 
     /// <summary>

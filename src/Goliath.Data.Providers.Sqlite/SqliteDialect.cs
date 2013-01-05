@@ -23,7 +23,6 @@ namespace Goliath.Data.Providers.Sqlite
         /// </summary>
         protected override void OnRegisterTypes()
         {
-
             RegisterType(DbType.Byte, "tinyint");
             RegisterType(DbType.Int16, "smallint");
             RegisterType(DbType.Int64, "bigint");

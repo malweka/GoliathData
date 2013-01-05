@@ -7,7 +7,7 @@ using Goliath.Data.Providers;
 
 namespace Goliath.Data.Sql
 {
-    class UpdateSqlBuilder : INonQuerySqlBuilder, IBinaryNonQueryOperation
+    public class UpdateSqlBuilder : INonQuerySqlBuilder, IBinaryNonQueryOperation
     {
         readonly List<string> columnNames = new List<string>();
         private readonly List<QueryParam> parameters = new List<QueryParam>();
@@ -65,7 +65,7 @@ namespace Goliath.Data.Sql
             return whereBuilder;
         }
 
-        public UpdateSqlBodyInfo Build()
+        internal UpdateSqlBodyInfo Build()
         {
             var sqlBody = new UpdateSqlBodyInfo
                               {

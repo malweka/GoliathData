@@ -6,7 +6,7 @@ namespace Goliath.Data.Sql
     class WhereStatement : Operand
     {
         public ComparisonOperator Operator { get;  set; }
-        public Sql.SqlOperator PostOperator { get; set; }
+        public SqlOperator PostOperator { get; set; }
         public Operand LeftOperand { get; private set; }
         public Operand RightOperand { get;  set; }
 

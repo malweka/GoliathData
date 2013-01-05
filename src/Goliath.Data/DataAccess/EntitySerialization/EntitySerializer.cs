@@ -197,15 +197,6 @@ namespace Goliath.Data.DataAccess
         }
 
         /// <summary>
-        /// Creates the SQL worker.
-        /// </summary>
-        /// <returns></returns>
-        public ISqlWorker CreateSqlWorker()
-        {
-            return new SqlWorker(SqlDialect, EntityAccessorStore, settings.ConverterStore);
-        }
-
-        /// <summary>
         /// Reads the field data.
         /// </summary>
         /// <typeparam name="T"></typeparam>

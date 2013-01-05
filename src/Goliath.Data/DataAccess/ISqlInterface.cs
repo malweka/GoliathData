@@ -1,7 +1,8 @@
 ﻿using System.Collections.Generic;
+using Goliath.Data.Mapping;
 using Goliath.Data.Sql;
 
-namespace Goliath.Data 
+namespace Goliath.Data.DataAccess 
 {
     /// <summary>
     /// 
@@ -23,14 +24,14 @@ namespace Goliath.Data
         /// <returns></returns>
         ITableNameBuilder SelectAll();
 
-        /// <summary>
-        /// Selects the specified column.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="propertyName">Name of the property.</param>
-        /// <param name="propertyNames">The property names.</param>
-        /// <returns></returns>
-        IQueryBuilder<T> Select<T>(string propertyName, params string[] propertyNames);
+        ///// <summary>
+        ///// Selects the specified column.
+        ///// </summary>
+        ///// <typeparam name="T"></typeparam>
+        ///// <param name="propertyName">Name of the property.</param>
+        ///// <param name="propertyNames">The property names.</param>
+        ///// <returns></returns>
+        //IQueryBuilder<T> Select<T>(string propertyName, params string[] propertyNames);
 
         /// <summary>
         /// Selects the specified column.
@@ -41,32 +42,20 @@ namespace Goliath.Data
         ITableNameBuilder Select(string column, params string[] columns);
 
         #endregion
-        
-        /// <summary>
-        /// Updates the specified entity.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="entity">The entity.</param>
-        /// <returns></returns>
-        int Update<T>(T entity);
 
-        /// <summary>
-        /// Inserts the specified entity.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="entity">The entity.</param>
-        /// <param name="recursive">if set to <c>true</c> [recursive].</param>
-        /// <returns></returns>
-        int Insert<T>(T entity, bool recursive = false);
+        IDataAccessAdapter<TEntity> GetEntityDataAdapter<TEntity>();
 
-        /// <summary>
-        /// Deletes the specified entity.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="entity">The entity.</param>
-        /// <param name="cascade">if set to <c>true</c> [cascade].</param>
-        /// <returns></returns>
-        int Delete<T>(T entity, bool cascade = false);
+        InsertSqlBuilder Insert<T>(T entity);
+
+        InsertSqlBuilder Insert<T>(EntityMap entityMap, T entity);
+
+        UpdateSqlBuilder<T> Update<T>(T entity);
+
+        UpdateSqlBuilder<T> Update<T>(EntityMap entityMap, T entity);
+
+        DeleteSqlBuilder<T> Delete<T>(T entity);
+
+        DeleteSqlBuilder<T> Delete<T>(EntityMap entityMap, T entity);
 
         #region Run commands
 
