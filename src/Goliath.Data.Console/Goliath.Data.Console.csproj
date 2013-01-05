@@ -83,6 +83,10 @@
     <None Include="Templates\CRUDStoredProcSqlServer.razt" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Goliath.Data.CodeGenerator\Goliath.Data.CodeGenerator.csproj">
+      <Project>{e1d739f9-6f55-4931-88ad-bc04b8b9d2db}</Project>
+      <Name>Goliath.Data.CodeGenerator</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Goliath.Data.Providers.Sqlite\Goliath.Data.Providers.Sqlite.csproj">
       <Project>{CA4F51B8-40C8-4FF8-934F-8213126EBAA2}</Project>
       <Name>Goliath.Data.Providers.Sqlite</Name>

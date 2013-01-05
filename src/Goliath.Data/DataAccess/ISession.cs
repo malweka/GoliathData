@@ -41,14 +41,6 @@ namespace Goliath.Data
         /// <value>The data access.</value>
         IDbAccess DataAccess { get; }
 
-        /// <summary>
-        /// Gets the data store.
-        /// </summary>
-        /// <value>
-        /// The data store.
-        /// </value>
-        IDataStoreController DataStore { get; }
-
         #endregion
 
 

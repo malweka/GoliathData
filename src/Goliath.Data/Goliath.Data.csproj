@@ -49,9 +49,6 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="RazorEngine, Version=2.1.4141.21772, Culture=neutral, PublicKeyToken=1f722ed313f51831">
-      <HintPath>..\..\Dependencies\Razor\RazorEngine.dll</HintPath>
-    </Reference>
     <Reference Include="System.Configuration" />
     <Reference Include="System.Web.Razor">
       <HintPath>..\..\Dependencies\Razor\System.Web.Razor.dll</HintPath>
@@ -152,7 +149,6 @@
     <Compile Include="DataAccess\DataAccessException.cs" />
     <Compile Include="DataAccess\DbAccess.cs" />
     <Compile Include="DbTypeInfo.cs" />
-    <Compile Include="Generators\RazorCodeGenerator.cs" />
     <Compile Include="DataAccess\IDbAccess.cs" />
     <Compile Include="DataAccess\IDbProvider.cs" />
     <Compile Include="Generators\ICodeGenerator.cs" />

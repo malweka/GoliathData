@@ -65,11 +65,6 @@ namespace Goliath.Data.DataAccess
         }
         #endregion
 
-        public IDataStoreController DataStore
-        {
-            get { return new DataStoreControllerController(this); }
-        }
-
         #region Data Access
 
         public IQueryBuilder<T> SelectAll<T>()

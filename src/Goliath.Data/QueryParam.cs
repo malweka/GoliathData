@@ -12,6 +12,7 @@ namespace Goliath.Data
         /// Gets the name.
         /// </summary>
         public string Name { get; protected set; }
+
         /// <summary>
         /// Gets or sets the value.
         /// </summary>

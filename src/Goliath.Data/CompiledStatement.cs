@@ -32,6 +32,12 @@ namespace Goliath.Data
         internal VarPropNameInfo Property { get; set; }
     }
 
+    public struct StatementDbParamInfo
+    {
+        public string Name;
+        public System.Data.DbType DbType;
+    }
+
     struct VarPropNameInfo
     {
         public string VarName;
