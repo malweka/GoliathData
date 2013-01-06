@@ -98,7 +98,7 @@ namespace Goliath.Data.Tests
             }
 
             var statementWithParams = statements.Where(s => s.Name == "updateTest2").First();
-            Assert.AreEqual(3, statementWithParams.DBParametersMap.Count);
+            Assert.AreEqual(3, statementWithParams.DbParametersMap.Count);
         }
 
         [Test, ExpectedException(typeof(MappingSerializationException))]

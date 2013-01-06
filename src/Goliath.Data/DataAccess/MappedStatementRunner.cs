@@ -51,7 +51,7 @@ namespace Goliath.Data.DataAccess
             bool parse = statement.IsParsingRequired;          
             if (!parse)
             {
-                parse = ((statement.DBParametersMap.Count > 0) || (statement.InputParametersMap.Count > 0) || ((inputParams != null) && (inputParams.Length > 0)));
+                parse = ((statement.DbParametersMap.Count > 0) || (statement.InputParametersMap.Count > 0) || ((inputParams != null) && (inputParams.Length > 0)));
             }
 
             if (parse && !statement.IsReady)
@@ -108,7 +108,7 @@ namespace Goliath.Data.DataAccess
             bool parse = statement.IsParsingRequired;
             if (!parse)
             {
-                parse = ((statement.DBParametersMap.Count > 0) || (statement.InputParametersMap.Count > 0));
+                parse = ((statement.DbParametersMap.Count > 0) || (statement.InputParametersMap.Count > 0));
             }
 
             if (parse && !statement.IsReady)

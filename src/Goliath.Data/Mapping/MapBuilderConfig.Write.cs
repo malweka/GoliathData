@@ -235,16 +235,23 @@ namespace Goliath.Data.Mapping
 
             bool writeBodyElement = false;
 
-            if(statement.DBParametersMap.Count>0)
+            if(statement.DbParametersMap.Count>0)
             {
                 writeBodyElement = true;
                 xmlWriter.WriteStartElement("dbParameters");
-                foreach (var dbParam in statement.DBParametersMap)
+                foreach (var dbParam in statement.DbParametersMap)
                 {
                     xmlWriter.WriteStartElement("param");
+
                     xmlWriter.WriteStartAttribute("name");
                     xmlWriter.WriteString(dbParam.Key);
                     xmlWriter.WriteEndAttribute();
+                    if(dbParam.Value.HasValue)
+                    {
+                        xmlWriter.WriteStartAttribute("dbType");
+                        xmlWriter.WriteString(dbParam.Value.Value.ToString());
+                        xmlWriter.WriteEndAttribute(); 
+                    }
                     xmlWriter.WriteEndElement();
                 }
                 xmlWriter.WriteEndElement();
