@@ -45,16 +45,58 @@ namespace Goliath.Data.DataAccess
 
         IDataAccessAdapter<TEntity> GetEntityDataAdapter<TEntity>();
 
-        InsertSqlBuilder Insert<T>(T entity);
+        /// <summary>
+        /// Inserts the specified table name.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="tableName">Name of the table.</param>
+        /// <param name="entity">The entity.</param>
+        /// <returns></returns>
+        int Insert<T>(string tableName, T entity);
 
-        InsertSqlBuilder Insert<T>(EntityMap entityMap, T entity);
+        /// <summary>
+        /// Inserts the specified entity map.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="entityMap">The entity map.</param>
+        /// <param name="entity">The entity.</param>
+        /// <returns></returns>
+        int Insert<T>(EntityMap entityMap, T entity);
 
-        UpdateSqlBuilder<T> Update<T>(T entity);
+        /// <summary>
+        /// Updates the specified table name.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="tableName">Name of the table.</param>
+        /// <param name="entity">The entity.</param>
+        /// <returns></returns>
+        UpdateSqlBuilder<T> Update<T>(string tableName, T entity);
 
+        /// <summary>
+        /// Updates the specified entity map.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="entityMap">The entity map.</param>
+        /// <param name="entity">The entity.</param>
+        /// <returns></returns>
         UpdateSqlBuilder<T> Update<T>(EntityMap entityMap, T entity);
 
-        DeleteSqlBuilder<T> Delete<T>(T entity);
+        /// <summary>
+        /// Deletes the specified table name.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="tableName">Name of the table.</param>
+        /// <param name="entity">The entity.</param>
+        /// <returns></returns>
+        DeleteSqlBuilder<T> Delete<T>(string tableName, T entity);
 
+        /// <summary>
+        /// Deletes the specified entity map.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="entityMap">The entity map.</param>
+        /// <param name="entity">The entity.</param>
+        /// <returns></returns>
         DeleteSqlBuilder<T> Delete<T>(EntityMap entityMap, T entity);
 
         #region Run commands

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Xml;
 
 namespace Goliath.Data.Mapping
@@ -161,11 +162,7 @@ namespace Goliath.Data.Mapping
             void Read_StatementsElement(XmlReader reader, MapConfig config, EntityMap entMap)
             {
                 bool hasReachedEndGracefully = false;
-                bool dependsOnEntity = false;
-                if (entMap != null)
-                {
-                    dependsOnEntity = true;
-                }
+                bool dependsOnEntity = entMap != null;
                 while (reader.Read())
                 {
                     StatementMap statement = null;
@@ -330,7 +327,7 @@ namespace Goliath.Data.Mapping
             void Read_StatementParams(XmlReader reader, StatementMap statement)
             {
                 string name = string.Empty;
-                string property = string.Empty;
+                DbType? dbType = null;
 
                 while (reader.MoveToNextAttribute())
                 {
@@ -340,8 +337,10 @@ namespace Goliath.Data.Mapping
                         case "name":
                             name = reader.Value;
                             break;
-                        case "property":
-                            property = reader.Value;
+                        case "dbType":
+                            var dbTypeVal = reader.Value;
+                            if(!string.IsNullOrWhiteSpace(dbTypeVal))
+                                dbType = ReadEnumType<DbType>(dbTypeVal);
                             break;
                         default:
                             break;
@@ -350,10 +349,10 @@ namespace Goliath.Data.Mapping
 
                 if (string.IsNullOrWhiteSpace(name))
                 {
-                    throw new MappingSerializationException(typeof(StatementMap), string.Format("statement {0} - all parameters must have name and value attributes. {1} {2}", statement.Name, name, property));
+                    throw new MappingSerializationException(typeof(StatementMap), string.Format("statement {0} - all parameters must have name and value attributes. {1} {2}", statement.Name, name, dbType));
                 }
 
-                statement.DBParametersMap.Add(name, null);
+                statement.DbParametersMap.Add(name, dbType);
                 reader.MoveToElement();
             }
 

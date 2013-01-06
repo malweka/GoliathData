@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Goliath.Data.Diagnostics;
 using Goliath.Data.Sql;
+using Goliath.Data.Mapping;
 
 namespace Goliath.Data.DataAccess
 {
@@ -13,8 +14,9 @@ namespace Goliath.Data.DataAccess
     class Session : ISession
     {
         static ILogger logger;
-        string id;
+        readonly string id;
         ITransaction currentTransaction;
+        readonly SqlCommandRunner commandRunner = new SqlCommandRunner();
         public ConnectionManager ConnectionManager { get; private set; }
         public ISessionFactory SessionFactory { get; private set; }
 
@@ -69,13 +71,13 @@ namespace Goliath.Data.DataAccess
 
         public IQueryBuilder<T> SelectAll<T>()
         {
-            QueryBuilder<T> queryBuilder = new QueryBuilder<T>(this);
+            var queryBuilder = new QueryBuilder<T>(this);
             return queryBuilder;
         }
 
         public ITableNameBuilder SelectAll()
         {
-            List<string> columnNames = new List<string>();
+            var columnNames = new List<string>();
             return new QueryBuilder(this, columnNames);
         }
 
@@ -86,7 +88,7 @@ namespace Goliath.Data.DataAccess
 
         public ITableNameBuilder Select(string column, params string[] columns)
         {
-            List<string> columnNames = new List<string>();
+            var columnNames = new List<string>();
             columnNames.Add(column);
             if ((columns != null) && (columns.Length > 0))
             {
@@ -99,8 +101,6 @@ namespace Goliath.Data.DataAccess
         #endregion
 
         #region Run command implementation
-
-        SqlCommandRunner commandRunner = new SqlCommandRunner();
 
         public IList<T> RunList<T>(SqlQueryBody sql, int limit, int offset, params QueryParam[] paramArray)
         {
@@ -131,6 +131,9 @@ namespace Goliath.Data.DataAccess
             return commandRunner.Run<T>(this, sql, paramArray);
         }
 
+        #endregion
+
+        #region Run Mapped Statements
 
         public T RunMappedStatement<T>(string statementName, params QueryParam[] paramArray)
         {
@@ -141,7 +144,6 @@ namespace Goliath.Data.DataAccess
         {
             throw new NotImplementedException();
         }
-
 
         public IList<T> RunListMappedStatement<T>(string statementName, params QueryParam[] paramArray)
         {
@@ -182,35 +184,41 @@ namespace Goliath.Data.DataAccess
 
         #region ISqlInterface Members
 
-
-        public InsertSqlBuilder Insert<T>(T entity)
+        public int Insert<T>(string tableName, T entity)
         {
-            throw new NotImplementedException();
+            var entityMap = new DynamicEntityMap(tableName, tableName, typeof(T));
+            return Insert(entityMap, entity);
         }
 
-        public InsertSqlBuilder Insert<T>(Mapping.EntityMap entityMap, T entity)
+        public int Insert<T>(EntityMap entityMap, T entity)
         {
-            throw new NotImplementedException();
+            var insert = new InsertSqlBuilder();
+            var execList = insert.Build(entity, entityMap, this);
+            return execList.Execute(this);
         }
 
-        public UpdateSqlBuilder<T> Update<T>(T entity)
+        public UpdateSqlBuilder<T> Update<T>(string tableName, T entity)
         {
-            throw new NotImplementedException();
+            var entityMap = new DynamicEntityMap(tableName, tableName, typeof(T));
+            return Update(entityMap, entity);
         }
 
-        public UpdateSqlBuilder<T> Update<T>(Mapping.EntityMap entityMap, T entity)
+        public UpdateSqlBuilder<T> Update<T>(EntityMap entityMap, T entity)
         {
-            throw new NotImplementedException();
+            var builder = new UpdateSqlBuilder<T>(this, entityMap, entity);
+            return builder;
         }
 
-        public DeleteSqlBuilder<T> Delete<T>(T entity)
+        public DeleteSqlBuilder<T> Delete<T>(string tableName, T entity)
         {
-            throw new NotImplementedException();
+            var entityMap = new DynamicEntityMap(tableName, tableName, typeof(T));
+            return Delete(entityMap, entity);
         }
 
-        public DeleteSqlBuilder<T> Delete<T>(Mapping.EntityMap entityMap, T entity)
+        public DeleteSqlBuilder<T> Delete<T>(EntityMap entityMap, T entity)
         {
-            throw new NotImplementedException();
+            var builder = new DeleteSqlBuilder<T>(this, entityMap, entity);
+            return builder;
         }
 
         #endregion

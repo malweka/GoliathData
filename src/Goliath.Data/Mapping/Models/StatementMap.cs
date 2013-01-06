@@ -11,7 +11,7 @@ namespace Goliath.Data.Mapping
     [DataContract]
     public class StatementMap : IMapModel
     {
-        Dictionary<string, QueryParam> parameters = new Dictionary<string, QueryParam>();
+        Dictionary<string, System.Data.DbType?> parameters = new Dictionary<string, System.Data.DbType?>();
         Dictionary<string, string> inputParams = new Dictionary<string, string>();
         Dictionary<string, StatementInputParam> paramPropertyMap = new Dictionary<string, StatementInputParam>();
         /// <summary>
@@ -40,7 +40,7 @@ namespace Goliath.Data.Mapping
         /// Gets the parameters.
         /// </summary>
         /// <value>The parameters.</value>
-        public Dictionary<string, QueryParam> DBParametersMap
+        public Dictionary<string, System.Data.DbType?> DbParametersMap
         {
             get
             {
