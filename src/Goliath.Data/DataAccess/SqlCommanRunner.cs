@@ -14,7 +14,7 @@ namespace Goliath.Data.DataAccess
     /// </summary>
     public class SqlCommandRunner
     {
-        static ILogger logger;
+        readonly static ILogger logger;
 
         static SqlCommandRunner()
         {
