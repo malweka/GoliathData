@@ -116,7 +116,6 @@ namespace Goliath.Data.DataAccess
         IList<T> RunListMappedStatement<T>(string statementName, QueryParam[] paramArray, params object[] inputParams);
 
         int RunNonQueryMappedStatement(string statementName, params QueryParam[] paramArray);
-        //int RunNonQueryMappedStatement<T>(string statementName, params QueryParam[] paramArray);
         int RunNonQueryMappedStatement(string statementName, QueryParam[] paramArray, params object[] inputParams);
 
         #endregion

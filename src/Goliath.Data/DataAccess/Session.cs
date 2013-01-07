@@ -5,6 +5,7 @@ using System.Linq;
 using Goliath.Data.Diagnostics;
 using Goliath.Data.Sql;
 using Goliath.Data.Mapping;
+using Goliath.Data.Utils;
 
 namespace Goliath.Data.DataAccess
 {
@@ -17,6 +18,7 @@ namespace Goliath.Data.DataAccess
         readonly string id;
         ITransaction currentTransaction;
         readonly SqlCommandRunner commandRunner = new SqlCommandRunner();
+        readonly IMappedStatementParser statementParser = new StatementMapParser();
         public ConnectionManager ConnectionManager { get; private set; }
         public ISessionFactory SessionFactory { get; private set; }
 
@@ -137,37 +139,93 @@ namespace Goliath.Data.DataAccess
 
         public T RunMappedStatement<T>(string statementName, params QueryParam[] paramArray)
         {
-            throw new NotImplementedException();
+            return RunMappedStatement<T>(statementName, paramArray, new object[] {});
         }
 
         public T RunMappedStatement<T>(string statementName, QueryParam[] paramArray, params object[] inputParams)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var statementRunner = new MappedStatementRunner(statementParser);
+                T returnValue;
+                if(inputParams!= null && inputParams.Length>0)
+                {
+                    returnValue = statementRunner.RunStatement<T>(this, statementName, paramArray, inputParams);
+                }
+                else
+                {
+                    returnValue = statementRunner.RunStatement<T>(this, statementName, paramArray);
+                }
+
+                return returnValue;
+            }
+            catch (GoliathDataException)
+            {
+                throw;
+            }
+            catch(Exception ex)
+            {
+                throw new GoliathDataException(string.Format("Error running mapped statement {0}.", statementName));
+            }
+            
         }
 
         public IList<T> RunListMappedStatement<T>(string statementName, params QueryParam[] paramArray)
         {
-            throw new NotImplementedException();
+            return RunListMappedStatement<T>(statementName, paramArray, new object[] {});
         }
 
         public IList<T> RunListMappedStatement<T>(string statementName, QueryParam[] paramArray, params object[] inputParams)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var statementRunner = new MappedStatementRunner(statementParser);
+                if (inputParams != null && inputParams.Length > 0)
+                {
+                    return statementRunner.RunListStatement<T>(this, statementName, paramArray, inputParams);
+                }
+                else
+                {
+                    return statementRunner.RunListStatement<T>(this, statementName, paramArray);
+                }
+            }
+            catch (GoliathDataException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new GoliathDataException(string.Format("Error running mapped statement {0}.", statementName));
+            }
         }
 
         public int RunNonQueryMappedStatement(string statementName, params QueryParam[] paramArray)
         {
-            throw new NotImplementedException();
-        }
-
-        public int RunNonQueryMappedStatement<T>(string statementName, params QueryParam[] paramArray)
-        {
-            throw new NotImplementedException();
+            return RunNonQueryMappedStatement(statementName, paramArray, new object[] {});
         }
 
         public int RunNonQueryMappedStatement(string statementName, QueryParam[] paramArray, params object[] inputParams)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var statementRunner = new MappedStatementRunner(statementParser);
+                if (inputParams != null && inputParams.Length > 0)
+                {
+                    return statementRunner.RunNonQueryMappedStatement(this, statementName, paramArray, inputParams);
+                }
+                else
+                {
+                    return statementRunner.RunNonQueryMappedStatement(this, statementName, paramArray);
+                }
+            }
+            catch (GoliathDataException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new GoliathDataException(string.Format("Error running mapped statement {0}.", statementName));
+            }
         }
 
         #endregion
