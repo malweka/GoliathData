@@ -131,6 +131,10 @@ namespace Goliath.Data.Mapping
             }
         }
 
+        internal bool UseMappedInsert { get; set; }
+        internal bool UseMappedUpdate { get; set; }
+        internal bool UseMappedDelete { get; set; }
+
         /// <summary>
         /// Gets or sets the properties.
         /// </summary>
@@ -151,7 +155,7 @@ namespace Goliath.Data.Mapping
         /// <value>All properties.</value>
         PropertyCollection AllProperties { get; set; }
 
-        IMapModel baseModel = null;
+        IMapModel baseModel;
         /// <summary>
         /// Gets the base model.
         /// </summary>

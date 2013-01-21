@@ -175,7 +175,21 @@ namespace Goliath.Data.Mapping
                         if (string.IsNullOrEmpty(statement.Name))
                         {
                             if (dependsOnEntity)
+                            {
                                 statement.Name = StatementStore.BuildMappedStatementName(entMap, statement.OperationType);
+                                switch (statement.OperationType)
+                                {
+                                    case MappedStatementType.Insert:
+                                        entMap.UseMappedInsert = true;
+                                        break;
+                                    case MappedStatementType.Delete:
+                                        entMap.UseMappedDelete = true;
+                                        break;
+                                    case MappedStatementType.Update:
+                                        entMap.UseMappedUpdate = true;
+                                        break;
+                                }
+                            }
                             else
                                 throw new MappingSerializationException(typeof(StatementMap), "A statement in goliath.data/statements does not have name defined. A name cannot be infered.");
 
@@ -192,6 +206,7 @@ namespace Goliath.Data.Mapping
                                     case MappedStatementType.Update:
                                     case MappedStatementType.ExecuteNonQuery:
                                     case MappedStatementType.Insert:
+                                    case MappedStatementType.Delete:
                                         statement.ResultMap = typeof(Int32).ToString();
                                         break;
                                     case MappedStatementType.Query:
