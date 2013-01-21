@@ -46,6 +46,14 @@ namespace Goliath.Data.DataAccess
         IDataAccessAdapter<TEntity> GetEntityDataAdapter<TEntity>();
 
         /// <summary>
+        /// Inserts the specified entity.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="entity">The entity.</param>
+        /// <returns></returns>
+        int Insert<T>(T entity);
+
+        /// <summary>
         /// Inserts the specified table name.
         /// </summary>
         /// <typeparam name="T"></typeparam>
@@ -64,6 +72,14 @@ namespace Goliath.Data.DataAccess
         int Insert<T>(EntityMap entityMap, T entity);
 
         /// <summary>
+        /// Updates the specified entity.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="entity">The entity.</param>
+        /// <returns></returns>
+        int Update<T>(T entity);
+
+        /// <summary>
         /// Updates the specified table name.
         /// </summary>
         /// <typeparam name="T"></typeparam>
@@ -80,6 +96,15 @@ namespace Goliath.Data.DataAccess
         /// <param name="entity">The entity.</param>
         /// <returns></returns>
         UpdateSqlBuilder<T> Update<T>(EntityMap entityMap, T entity);
+
+
+        /// <summary>
+        /// Deletes the specified entity.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="entity">The entity.</param>
+        /// <returns></returns>
+        int Delete<T>(T entity);
 
         /// <summary>
         /// Deletes the specified table name.

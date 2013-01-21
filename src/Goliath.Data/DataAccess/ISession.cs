@@ -43,7 +43,6 @@ namespace Goliath.Data
 
         #endregion
 
-
         #region Transactions
 
         /// <summary>

@@ -9,8 +9,6 @@ using Goliath.Data.Utils;
 
 namespace Goliath.Data.DataAccess
 {
-
-
     [Serializable]
     class Session : ISession
     {
@@ -139,7 +137,7 @@ namespace Goliath.Data.DataAccess
 
         public T RunMappedStatement<T>(string statementName, params QueryParam[] paramArray)
         {
-            return RunMappedStatement<T>(statementName, paramArray, new object[] {});
+            return RunMappedStatement<T>(statementName, paramArray, new object[] { });
         }
 
         public T RunMappedStatement<T>(string statementName, QueryParam[] paramArray, params object[] inputParams)
@@ -148,7 +146,7 @@ namespace Goliath.Data.DataAccess
             {
                 var statementRunner = new MappedStatementRunner(statementParser);
                 T returnValue;
-                if(inputParams!= null && inputParams.Length>0)
+                if (inputParams != null && inputParams.Length > 0)
                 {
                     returnValue = statementRunner.RunStatement<T>(this, statementName, paramArray, inputParams);
                 }
@@ -163,16 +161,15 @@ namespace Goliath.Data.DataAccess
             {
                 throw;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 throw new GoliathDataException(string.Format("Error running mapped statement {0}.", statementName));
             }
-            
         }
 
         public IList<T> RunListMappedStatement<T>(string statementName, params QueryParam[] paramArray)
         {
-            return RunListMappedStatement<T>(statementName, paramArray, new object[] {});
+            return RunListMappedStatement<T>(statementName, paramArray, new object[] { });
         }
 
         public IList<T> RunListMappedStatement<T>(string statementName, QueryParam[] paramArray, params object[] inputParams)
@@ -201,7 +198,7 @@ namespace Goliath.Data.DataAccess
 
         public int RunNonQueryMappedStatement(string statementName, params QueryParam[] paramArray)
         {
-            return RunNonQueryMappedStatement(statementName, paramArray, new object[] {});
+            return RunNonQueryMappedStatement(statementName, paramArray, new object[] { });
         }
 
         public int RunNonQueryMappedStatement(string statementName, QueryParam[] paramArray, params object[] inputParams)
@@ -242,6 +239,12 @@ namespace Goliath.Data.DataAccess
 
         #region ISqlInterface Members
 
+        public int Insert<T>(T entity)
+        {
+            var adapter = GetEntityDataAdapter<T>();
+            return adapter.Insert(entity);
+        }
+
         public int Insert<T>(string tableName, T entity)
         {
             var entityMap = new DynamicEntityMap(tableName, tableName, typeof(T));
@@ -255,6 +258,12 @@ namespace Goliath.Data.DataAccess
             return execList.Execute(this);
         }
 
+        public int Update<T>(T entity)
+        {
+            var adapter = GetEntityDataAdapter<T>();
+            return adapter.Update(entity);
+        }
+
         public UpdateSqlBuilder<T> Update<T>(string tableName, T entity)
         {
             var entityMap = new DynamicEntityMap(tableName, tableName, typeof(T));
@@ -265,6 +274,12 @@ namespace Goliath.Data.DataAccess
         {
             var builder = new UpdateSqlBuilder<T>(this, entityMap, entity);
             return builder;
+        }
+
+        public int Delete<T>(T entity)
+        {
+            var adapter = GetEntityDataAdapter<T>();
+            return adapter.Delete(entity);
         }
 
         public DeleteSqlBuilder<T> Delete<T>(string tableName, T entity)
