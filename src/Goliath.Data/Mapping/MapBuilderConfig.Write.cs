@@ -98,6 +98,13 @@ namespace Goliath.Data.Mapping
                         xmlWriter.WriteEndAttribute();
                     }
 
+                    if(entity.IsTrackable)
+                    {
+                        xmlWriter.WriteStartAttribute("trackable");
+                        xmlWriter.WriteString(entity.IsTrackable.ToString());
+                        xmlWriter.WriteEndAttribute();
+                    }
+
                     xmlWriter.WriteStartAttribute("assembly");
                     xmlWriter.WriteString(entity.AssemblyName);
                     xmlWriter.WriteEndAttribute();

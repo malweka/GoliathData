@@ -569,6 +569,9 @@ namespace Goliath.Data.Mapping
                             case "alias":
                                 entMap.TableAlias = reader.Value;
                                 break;
+                            case "trackable":
+                                entMap.IsTrackable = ReadBool(reader.Value);
+                                break;
                             case "linkTable":
                                 bool isLinkTable;
                                 if (bool.TryParse(reader.Value, out isLinkTable))

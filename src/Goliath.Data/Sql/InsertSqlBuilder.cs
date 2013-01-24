@@ -165,6 +165,16 @@ namespace Goliath.Data.Sql
                 if (!entityAccessor.Properties.TryGetValue(pk.Key.Name, out pinf))
                     throw new GoliathDataException("Property " + pk.Key.Name + " not found in entity.");
 
+                if (pk.KeyGenerator == null)
+                {
+                    //no generator was specified so assume the entity has primary key
+                    var keyParam = new QueryParam(paramName, pinf.GetMethod(entity));
+                    info.Parameters.Add(paramName, keyParam);
+                    info.Columns.Add(paramName, pk.Key.ColumnName);
+                    info.DelayExecute = true;
+                    continue;
+                }
+
                 if (!pk.KeyGenerator.IsDatabaseGenerated)
                 {
                     info.DelayExecute = true;

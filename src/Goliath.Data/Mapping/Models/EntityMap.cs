@@ -155,6 +155,14 @@ namespace Goliath.Data.Mapping
         /// <value>All properties.</value>
         PropertyCollection AllProperties { get; set; }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether this instance is trackable.
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if this instance is trackable; otherwise, <c>false</c>.
+        /// </value>
+        public bool IsTrackable { get; set; }
+
         IMapModel baseModel;
         /// <summary>
         /// Gets the base model.

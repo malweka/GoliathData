@@ -153,6 +153,20 @@ namespace Goliath.Data.Utils
         /// <summary>
         /// Creates the proxy.
         /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="type">The type.</param>
+        /// <param name="sessionFactory">The session factory.</param>
+        /// <returns></returns>
+        public static T CreateProxy<T>(this Type type, ISessionFactory sessionFactory)
+        {
+            var entMap = sessionFactory.DbSettings.Map.GetEntityMap(type.FullName);
+            var proxy = CreateProxy(type, entMap, true);
+            return (T) proxy;
+        }
+
+        /// <summary>
+        /// Creates the proxy.
+        /// </summary>
         /// <param name="type">The type.</param>
         /// <param name="entityMap">The entity map.</param>
         /// <param name="implementITrackable">if set to <c>true</c> implement ITrackable.</param>
@@ -165,7 +179,6 @@ namespace Goliath.Data.Utils
         /// <summary>
         /// Creates the proxy.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
         /// <param name="type">The type.</param>
         /// <param name="entityMap">The entity map.</param>
         /// <param name="proxyHydrator">The proxy hydrator.</param>
