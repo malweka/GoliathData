@@ -22,6 +22,7 @@ namespace Goliath.Data.DynamicProxy
             base.AddInterfaceImplementation(typeBuilder);
             typeBuilder.AddInterfaceImplementation(typeof(ITrackable));
             typeBuilder.AddInterfaceImplementation(typeof(INotifyPropertyChanged));
+            typeBuilder.AddInterfaceImplementation(typeof(ICustomTypeDescriptor));
         }
 
         protected override MethodBuilder BuildConstructor(TypeBuilder typeBuilder, Type baseClass, FieldBuilder typeProxy,
@@ -81,11 +82,24 @@ namespace Goliath.Data.DynamicProxy
             gen.Emit(OpCodes.Nop);
             gen.Emit(OpCodes.Ret);
 
-
             var getChangeTrackerMethod = CreateChangeTrackerProperty(typeBuilder, changeTrackField);
             BuildNotifyMethod(typeBuilder, getChangeTrackerMethod, propertyChangedField);
             CreateIsDirtyProperty(typeBuilder, getChangeTrackerMethod);
             CreateVersionProperty(typeBuilder, propertyChangedField);
+
+            BuildComponentModelICustomTypeDescriptorGetAttributes(typeBuilder);
+            BuildComponentModelICustomTypeDescriptorGetClassName(typeBuilder);
+            BuildComponentModelICustomTypeDescriptorGetComponentName(typeBuilder);
+            BuildComponentModelICustomTypeDescriptorGetConverter(typeBuilder);
+            BuildComponentModelICustomTypeDescriptorGetDefaultEvent(typeBuilder);
+            BuildComponentModelICustomTypeDescriptorGetDefaultProperty(typeBuilder);
+            BuildComponentModelICustomTypeDescriptorGetEditor(typeBuilder);
+            BuildComponentModelICustomTypeDescriptorGetEvents(typeBuilder);
+            BuildComponentModelICustomTypeDescriptorGetEventsAttributes(typeBuilder);
+            BuildComponentModelICustomTypeDescriptorGetProperties(typeBuilder);
+            BuildComponentModelICustomTypeDescriptorGetPropertiesAttributes(typeBuilder);
+            BuildComponentModelICustomTypeDescriptorGetPropertyOwner(typeBuilder);
+
 
             return method;
         }
@@ -237,7 +251,7 @@ namespace Goliath.Data.DynamicProxy
 
         void CreateVersionProperty(TypeBuilder type, FieldInfo propertyChangedField)
         {
-            FieldBuilder versionField = type.DefineField("version", typeof(IChangeTracker), FieldAttributes.Private);
+            FieldBuilder versionField = type.DefineField("version", typeof(Int64), FieldAttributes.Private);
 
             //get_Version
             var methodAttributes = MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.Final | MethodAttributes.HideBySig | MethodAttributes.NewSlot;
@@ -375,10 +389,10 @@ namespace Goliath.Data.DynamicProxy
             MethodInfo baseSetMethod = baseType.GetMethod(setMethodName);
             MethodInfo baseGetMethod = baseType.GetMethod(getMethodName);
 
-            MethodInfo objectEqualsMethod = typeof(Object).GetMethod( "Equals",
+            MethodInfo objectEqualsMethod = typeof(Object).GetMethod("Equals",
                 BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic,
                 null,
-                new Type[]{typeof(Object),typeof(Object)},
+                new Type[] { typeof(Object), typeof(Object) },
                 null
                 );
 
@@ -419,6 +433,511 @@ namespace Goliath.Data.DynamicProxy
             return method;
         }
 
+        #region implement ICustomTypeDescriptor
+        MethodAttributes customDescriptorAttributes = System.Reflection.MethodAttributes.Public
+                | System.Reflection.MethodAttributes.Virtual
+                | System.Reflection.MethodAttributes.Final
+                | System.Reflection.MethodAttributes.HideBySig
+                | System.Reflection.MethodAttributes.NewSlot;
 
+        MethodBuilder BuildComponentModelICustomTypeDescriptorGetAttributes(TypeBuilder type)
+        {
+            // Declaring method builder
+            // Method attributes
+            System.Reflection.MethodAttributes methodAttributes = customDescriptorAttributes;
+            MethodBuilder method = type.DefineMethod("GetAttributes", methodAttributes);
+            // Preparing Reflection instances
+            MethodInfo method1 = typeof(TypeDescriptor).GetMethod(
+                "GetAttributes",
+                BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic,
+                null,
+                new Type[]{
+            typeof(Object),
+            typeof(Boolean)
+            },
+                null
+                );
+            // Setting return type
+            method.SetReturnType(typeof(AttributeCollection));
+            // Adding parameters
+            ILGenerator gen = method.GetILGenerator();
+            // Preparing locals
+            LocalBuilder CS10000 = gen.DeclareLocal(typeof(AttributeCollection));
+            // Preparing labels
+            Label label11 = gen.DefineLabel();
+            // Writing body
+            gen.Emit(OpCodes.Nop);
+            gen.Emit(OpCodes.Ldarg_0);
+            gen.Emit(OpCodes.Ldc_I4_1);
+            gen.Emit(OpCodes.Call, method1);
+            gen.Emit(OpCodes.Stloc_0);
+            gen.Emit(OpCodes.Br_S, label11);
+            gen.MarkLabel(label11);
+            gen.Emit(OpCodes.Ldloc_0);
+            gen.Emit(OpCodes.Ret);
+            // finished
+            return method;
+        }
+
+        MethodBuilder BuildComponentModelICustomTypeDescriptorGetClassName(TypeBuilder type)
+        {
+            // Declaring method builder
+            // Method attributes
+            System.Reflection.MethodAttributes methodAttributes = customDescriptorAttributes;
+            MethodBuilder method = type.DefineMethod("GetClassName", methodAttributes);
+            // Preparing Reflection instances
+            MethodInfo method1 = typeof(TypeDescriptor).GetMethod(
+                "GetClassName",
+                BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic,
+                null,
+                new Type[]{
+            typeof(Object),
+            typeof(Boolean)
+            },
+                null
+                );
+            // Setting return type
+            method.SetReturnType(typeof(String));
+            // Adding parameters
+            ILGenerator gen = method.GetILGenerator();
+            // Preparing locals
+            LocalBuilder CS10000 = gen.DeclareLocal(typeof(String));
+            // Preparing labels
+            Label label11 = gen.DefineLabel();
+            // Writing body
+            gen.Emit(OpCodes.Nop);
+            gen.Emit(OpCodes.Ldarg_0);
+            gen.Emit(OpCodes.Ldc_I4_1);
+            gen.Emit(OpCodes.Call, method1);
+            gen.Emit(OpCodes.Stloc_0);
+            gen.Emit(OpCodes.Br_S, label11);
+            gen.MarkLabel(label11);
+            gen.Emit(OpCodes.Ldloc_0);
+            gen.Emit(OpCodes.Ret);
+            // finished
+            return method;
+        }
+
+        MethodBuilder BuildComponentModelICustomTypeDescriptorGetComponentName(TypeBuilder type)
+        {
+            // Declaring method builder
+            // Method attributes
+            System.Reflection.MethodAttributes methodAttributes = customDescriptorAttributes;
+            MethodBuilder method = type.DefineMethod("GetComponentName", methodAttributes);
+            // Preparing Reflection instances
+            MethodInfo method1 = typeof(TypeDescriptor).GetMethod(
+                "GetComponentName",
+                BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic,
+                null,
+                new Type[]{
+            typeof(Object),
+            typeof(Boolean)
+            },
+                null
+                );
+            // Setting return type
+            method.SetReturnType(typeof(String));
+            // Adding parameters
+            ILGenerator gen = method.GetILGenerator();
+            // Preparing locals
+            LocalBuilder CS10000 = gen.DeclareLocal(typeof(String));
+            // Preparing labels
+            Label label11 = gen.DefineLabel();
+            // Writing body
+            gen.Emit(OpCodes.Nop);
+            gen.Emit(OpCodes.Ldarg_0);
+            gen.Emit(OpCodes.Ldc_I4_1);
+            gen.Emit(OpCodes.Call, method1);
+            gen.Emit(OpCodes.Stloc_0);
+            gen.Emit(OpCodes.Br_S, label11);
+            gen.MarkLabel(label11);
+            gen.Emit(OpCodes.Ldloc_0);
+            gen.Emit(OpCodes.Ret);
+            // finished
+            return method;
+        }
+
+        MethodBuilder BuildComponentModelICustomTypeDescriptorGetConverter(TypeBuilder type)
+        {
+            // Declaring method builder
+            // Method attributes
+            System.Reflection.MethodAttributes methodAttributes = customDescriptorAttributes;
+            MethodBuilder method = type.DefineMethod("GetConverter", methodAttributes);
+            // Preparing Reflection instances
+            MethodInfo method1 = typeof(TypeDescriptor).GetMethod(
+                "GetConverter",
+                BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic,
+                null,
+                new Type[]{
+            typeof(Object),
+            typeof(Boolean)
+            },
+                null
+                );
+            // Setting return type
+            method.SetReturnType(typeof(TypeConverter));
+            // Adding parameters
+            ILGenerator gen = method.GetILGenerator();
+            // Preparing locals
+            LocalBuilder CS10000 = gen.DeclareLocal(typeof(TypeConverter));
+            // Preparing labels
+            Label label11 = gen.DefineLabel();
+            // Writing body
+            gen.Emit(OpCodes.Nop);
+            gen.Emit(OpCodes.Ldarg_0);
+            gen.Emit(OpCodes.Ldc_I4_1);
+            gen.Emit(OpCodes.Call, method1);
+            gen.Emit(OpCodes.Stloc_0);
+            gen.Emit(OpCodes.Br_S, label11);
+            gen.MarkLabel(label11);
+            gen.Emit(OpCodes.Ldloc_0);
+            gen.Emit(OpCodes.Ret);
+            // finished
+            return method;
+        }
+
+        MethodBuilder BuildComponentModelICustomTypeDescriptorGetDefaultEvent(TypeBuilder type)
+        {
+            // Declaring method builder
+            // Method attributes
+            System.Reflection.MethodAttributes methodAttributes = customDescriptorAttributes;
+            MethodBuilder method = type.DefineMethod("GetDefaultEvent", methodAttributes);
+            // Preparing Reflection instances
+            MethodInfo method1 = typeof(TypeDescriptor).GetMethod(
+                "GetDefaultEvent",
+                BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic,
+                null,
+                new Type[]{
+            typeof(Object),
+            typeof(Boolean)
+            },
+                null
+                );
+            // Setting return type
+            method.SetReturnType(typeof(EventDescriptor));
+            // Adding parameters
+            ILGenerator gen = method.GetILGenerator();
+            // Preparing locals
+            LocalBuilder CS10000 = gen.DeclareLocal(typeof(EventDescriptor));
+            // Preparing labels
+            Label label11 = gen.DefineLabel();
+            // Writing body
+            gen.Emit(OpCodes.Nop);
+            gen.Emit(OpCodes.Ldarg_0);
+            gen.Emit(OpCodes.Ldc_I4_1);
+            gen.Emit(OpCodes.Call, method1);
+            gen.Emit(OpCodes.Stloc_0);
+            gen.Emit(OpCodes.Br_S, label11);
+            gen.MarkLabel(label11);
+            gen.Emit(OpCodes.Ldloc_0);
+            gen.Emit(OpCodes.Ret);
+            // finished
+            return method;
+        }
+
+        MethodBuilder BuildComponentModelICustomTypeDescriptorGetDefaultProperty(TypeBuilder type)
+        {
+            // Declaring method builder
+            // Method attributes
+            System.Reflection.MethodAttributes methodAttributes = customDescriptorAttributes;
+            MethodBuilder method = type.DefineMethod("GetDefaultProperty", methodAttributes);
+            // Preparing Reflection instances
+            MethodInfo method1 = typeof(TypeDescriptor).GetMethod(
+                "GetDefaultProperty",
+                BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic,
+                null,
+                new Type[]{
+            typeof(Object),
+            typeof(Boolean)
+            },
+                null
+                );
+            // Setting return type
+            method.SetReturnType(typeof(PropertyDescriptor));
+            // Adding parameters
+            ILGenerator gen = method.GetILGenerator();
+            // Preparing locals
+            LocalBuilder CS10000 = gen.DeclareLocal(typeof(PropertyDescriptor));
+            // Preparing labels
+            Label label11 = gen.DefineLabel();
+            // Writing body
+            gen.Emit(OpCodes.Nop);
+            gen.Emit(OpCodes.Ldarg_0);
+            gen.Emit(OpCodes.Ldc_I4_1);
+            gen.Emit(OpCodes.Call, method1);
+            gen.Emit(OpCodes.Stloc_0);
+            gen.Emit(OpCodes.Br_S, label11);
+            gen.MarkLabel(label11);
+            gen.Emit(OpCodes.Ldloc_0);
+            gen.Emit(OpCodes.Ret);
+            // finished
+            return method;
+        }
+
+        MethodBuilder BuildComponentModelICustomTypeDescriptorGetEditor(TypeBuilder type)
+        {
+            // Declaring method builder
+            // Method attributes
+            System.Reflection.MethodAttributes methodAttributes = customDescriptorAttributes;
+            MethodBuilder method = type.DefineMethod("GetEditor", methodAttributes);
+            // Preparing Reflection instances
+            MethodInfo method1 = typeof(TypeDescriptor).GetMethod(
+                "GetEditor",
+                BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic,
+                null,
+                new Type[]{
+            typeof(Object),
+            typeof(Type),
+            typeof(Boolean)
+            },
+                null
+                );
+            // Setting return type
+            method.SetReturnType(typeof(Object));
+            // Adding parameters
+            method.SetParameters(
+                typeof(Type)
+                );
+            // Parameter editorBaseType
+            ParameterBuilder editorBaseType = method.DefineParameter(1, ParameterAttributes.None, "editorBaseType");
+            ILGenerator gen = method.GetILGenerator();
+            // Preparing locals
+            LocalBuilder CS10000 = gen.DeclareLocal(typeof(Object));
+            // Preparing labels
+            Label label12 = gen.DefineLabel();
+            // Writing body
+            gen.Emit(OpCodes.Nop);
+            gen.Emit(OpCodes.Ldarg_0);
+            gen.Emit(OpCodes.Ldarg_1);
+            gen.Emit(OpCodes.Ldc_I4_1);
+            gen.Emit(OpCodes.Call, method1);
+            gen.Emit(OpCodes.Stloc_0);
+            gen.Emit(OpCodes.Br_S, label12);
+            gen.MarkLabel(label12);
+            gen.Emit(OpCodes.Ldloc_0);
+            gen.Emit(OpCodes.Ret);
+            // finished
+            return method;
+        }
+
+        MethodBuilder BuildComponentModelICustomTypeDescriptorGetEvents(TypeBuilder type)
+        {
+            // Declaring method builder
+            // Method attributes
+            System.Reflection.MethodAttributes methodAttributes = customDescriptorAttributes;
+            MethodBuilder method = type.DefineMethod("GetEvents", methodAttributes);
+            // Preparing Reflection instances
+            MethodInfo method1 = typeof(TypeDescriptor).GetMethod(
+                "GetEvents",
+                BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic,
+                null,
+                new Type[]{
+            typeof(Object),
+            typeof(Boolean)
+            },
+                null
+                );
+            // Setting return type
+            method.SetReturnType(typeof(EventDescriptorCollection));
+            // Adding parameters
+            ILGenerator gen = method.GetILGenerator();
+            // Preparing locals
+            LocalBuilder CS10000 = gen.DeclareLocal(typeof(EventDescriptorCollection));
+            // Preparing labels
+            Label label11 = gen.DefineLabel();
+            // Writing body
+            gen.Emit(OpCodes.Nop);
+            gen.Emit(OpCodes.Ldarg_0);
+            gen.Emit(OpCodes.Ldc_I4_1);
+            gen.Emit(OpCodes.Call, method1);
+            gen.Emit(OpCodes.Stloc_0);
+            gen.Emit(OpCodes.Br_S, label11);
+            gen.MarkLabel(label11);
+            gen.Emit(OpCodes.Ldloc_0);
+            gen.Emit(OpCodes.Ret);
+            // finished
+            return method;
+        }
+
+        MethodBuilder BuildComponentModelICustomTypeDescriptorGetEventsAttributes(TypeBuilder type)
+        {
+            // Declaring method builder
+            // Method attributes
+            System.Reflection.MethodAttributes methodAttributes = customDescriptorAttributes;
+            MethodBuilder method = type.DefineMethod("GetEvents", methodAttributes);
+            // Preparing Reflection instances
+            MethodInfo method1 = typeof(TypeDescriptor).GetMethod(
+                "GetEvents",
+                BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic,
+                null,
+                new Type[]{
+            typeof(Object),
+            typeof(Attribute[]),
+            typeof(Boolean)
+            },
+                null
+                );
+            // Setting return type
+            method.SetReturnType(typeof(EventDescriptorCollection));
+            // Adding parameters
+            method.SetParameters(
+                typeof(Attribute[])
+                );
+            // Parameter attributes
+            ParameterBuilder attributes = method.DefineParameter(1, ParameterAttributes.None, "attributes");
+            ILGenerator gen = method.GetILGenerator();
+            // Preparing locals
+            LocalBuilder CS10000 = gen.DeclareLocal(typeof(EventDescriptorCollection));
+            // Preparing labels
+            Label label12 = gen.DefineLabel();
+            // Writing body
+            gen.Emit(OpCodes.Nop);
+            gen.Emit(OpCodes.Ldarg_0);
+            gen.Emit(OpCodes.Ldarg_1);
+            gen.Emit(OpCodes.Ldc_I4_1);
+            gen.Emit(OpCodes.Call, method1);
+            gen.Emit(OpCodes.Stloc_0);
+            gen.Emit(OpCodes.Br_S, label12);
+            gen.MarkLabel(label12);
+            gen.Emit(OpCodes.Ldloc_0);
+            gen.Emit(OpCodes.Ret);
+            // finished
+            return method;
+        }
+
+        MethodBuilder BuildComponentModelICustomTypeDescriptorGetProperties(TypeBuilder type)
+        {
+            // Declaring method builder
+            // Method attributes
+            System.Reflection.MethodAttributes methodAttributes = customDescriptorAttributes;
+            MethodBuilder method = type.DefineMethod("GetProperties", methodAttributes);
+            // Preparing Reflection instances
+            MethodInfo method1 = typeof(Object).GetMethod(
+                "GetType",
+                BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic,
+                null,
+                new Type[]{
+            },
+                null
+                );
+            MethodInfo method2 = typeof(TypeDescriptor).GetMethod(
+                "GetProperties",
+                BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic,
+                null,
+                new Type[]{
+            typeof(Type)
+            },
+                null
+                );
+            // Setting return type
+            method.SetReturnType(typeof(PropertyDescriptorCollection));
+            // Adding parameters
+            ILGenerator gen = method.GetILGenerator();
+            // Preparing locals
+            LocalBuilder CS10000 = gen.DeclareLocal(typeof(PropertyDescriptorCollection));
+            // Preparing labels
+            Label label15 = gen.DefineLabel();
+            // Writing body
+            gen.Emit(OpCodes.Nop);
+            gen.Emit(OpCodes.Ldarg_0);
+            gen.Emit(OpCodes.Call, method1);
+            gen.Emit(OpCodes.Call, method2);
+            gen.Emit(OpCodes.Stloc_0);
+            gen.Emit(OpCodes.Br_S, label15);
+            gen.MarkLabel(label15);
+            gen.Emit(OpCodes.Ldloc_0);
+            gen.Emit(OpCodes.Ret);
+            // finished
+            return method;
+
+        }
+
+        MethodBuilder BuildComponentModelICustomTypeDescriptorGetPropertiesAttributes(TypeBuilder type)
+        {
+            // Declaring method builder
+            // Method attributes
+            System.Reflection.MethodAttributes methodAttributes = customDescriptorAttributes;
+            MethodBuilder method = type.DefineMethod("GetProperties", methodAttributes);
+            // Preparing Reflection instances
+            MethodInfo method1 = typeof(Object).GetMethod(
+                "GetType",
+                BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic,
+                null,
+                new Type[]{
+            },
+                null
+                );
+            MethodInfo method2 = typeof(TypeDescriptor).GetMethod(
+                "GetProperties",
+                BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic,
+                null,
+                new Type[]{
+            typeof(Type),
+            typeof(Attribute[])
+            },
+                null
+                );
+            // Setting return type
+            method.SetReturnType(typeof(PropertyDescriptorCollection));
+            // Adding parameters
+            method.SetParameters(
+                typeof(Attribute[])
+                );
+            // Parameter attributes
+            ParameterBuilder attributes = method.DefineParameter(1, ParameterAttributes.None, "attributes");
+            ILGenerator gen = method.GetILGenerator();
+            // Preparing locals
+            LocalBuilder CS11000 = gen.DeclareLocal(typeof(PropertyDescriptorCollection));
+            // Preparing labels
+            Label label16 = gen.DefineLabel();
+            // Writing body
+            gen.Emit(OpCodes.Nop);
+            gen.Emit(OpCodes.Ldarg_0);
+            gen.Emit(OpCodes.Call, method1);
+            gen.Emit(OpCodes.Ldarg_1);
+            gen.Emit(OpCodes.Call, method2);
+            gen.Emit(OpCodes.Stloc_0);
+            gen.Emit(OpCodes.Br_S, label16);
+            gen.MarkLabel(label16);
+            gen.Emit(OpCodes.Ldloc_0);
+            gen.Emit(OpCodes.Ret);
+            // finished
+            return method;
+
+        }
+
+        MethodBuilder BuildComponentModelICustomTypeDescriptorGetPropertyOwner(TypeBuilder type)
+        {
+            // Declaring method builder
+            // Method attributes
+            System.Reflection.MethodAttributes methodAttributes = customDescriptorAttributes;
+            MethodBuilder method = type.DefineMethod("GetPropertyOwner", methodAttributes);
+            // Preparing Reflection instances
+            // Setting return type
+            method.SetReturnType(typeof(Object));
+            // Adding parameters
+            method.SetParameters(
+                typeof(PropertyDescriptor)
+                );
+            // Parameter pd
+            ParameterBuilder pd = method.DefineParameter(1, ParameterAttributes.None, "pd");
+            ILGenerator gen = method.GetILGenerator();
+            // Preparing locals
+            LocalBuilder CS10000 = gen.DeclareLocal(typeof(Object));
+            // Preparing labels
+            Label label5 = gen.DefineLabel();
+            // Writing body
+            gen.Emit(OpCodes.Nop);
+            gen.Emit(OpCodes.Ldarg_0);
+            gen.Emit(OpCodes.Stloc_0);
+            gen.Emit(OpCodes.Br_S, label5);
+            gen.MarkLabel(label5);
+            gen.Emit(OpCodes.Ldloc_0);
+            gen.Emit(OpCodes.Ret);
+            // finished
+            return method;
+        }
+
+        #endregion
     }
 }
