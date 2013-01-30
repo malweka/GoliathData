@@ -3,17 +3,13 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Goliath.Data;
-using Goliath.Data.Generators;
-using Goliath.Data.Mapping;
-using Goliath.Data.Providers;
-using Goliath.Data.Providers.Sqlite;
-using Goliath.Data.Providers.SqlServer;
-using Goliath.Data.Sql;
-using Goliath.Data.Transformers;
-using Goliath.Data.Utils;
-using System.Linq.Expressions;
-using Goliath.Data.DataAccess;
 using Goliath.Data.CodeGen;
+using Goliath.Data.CodeGenerator;
+using Goliath.Data.DataAccess;
+using Goliath.Data.Mapping;
+using Goliath.Data.Providers.Sqlite;
+using Goliath.Data.Sql;
+using Goliath.Data.Utils;
 
 namespace WebZoo.Data
 {

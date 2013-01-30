@@ -38,7 +38,7 @@ namespace Goliath.Data.Mapping
         {
             MapConfig builder = new MapConfig();
             schemaDescriptor.ProjectSettings = settings;
-            var tables = schemaDescriptor.GetTables();
+            IDictionary<string, EntityMap> tables = schemaDescriptor.GetTables();
 
             IPostGenerationProcessor nameProcessor = new NamePostProcessor(transfactory, tableAbbreviator);
             IPostGenerationProcessor relationshipProcessor = new RelationshipProcessor();

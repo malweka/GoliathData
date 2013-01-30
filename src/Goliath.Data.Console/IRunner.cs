@@ -18,10 +18,4 @@ namespace Goliath.Data.CodeGen
         void RunQueryTests(string workingFolder);
     }
 
-    public interface IGenerator
-    {
-        void GenerateCode(string templateFolder, string workingFolder);
-        MapConfig GenerateMapping(string workingFolder, ProjectSettings settings, ComplexType baseModel, SupportedRdbms rdbms);
-    }
-
 }
