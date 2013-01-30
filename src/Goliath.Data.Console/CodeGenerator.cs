@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using Goliath.Data.CodeGenerator;
 
 namespace Goliath.Data.CodeGen
 {
