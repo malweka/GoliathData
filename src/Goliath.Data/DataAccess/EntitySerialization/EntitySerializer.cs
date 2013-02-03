@@ -178,22 +178,10 @@ namespace Goliath.Data.DataAccess
         {
             if (dataReader.HasRows)
             {
-                var trackable = instanceToHydrate as ITrackable;
-                if (trackable != null)
-                {
-                    trackable.ChangeTracker.Pause();
-                }
-
                 Dictionary<string, int> columns = GetColumnNames(dataReader, entityMap.TableAlias);
                 var entityAccessor = EntityAccessorStore.GetEntityAccessor(typeOfInstance, entityMap);
                 dataReader.Read();
-                SerializeSingle(instanceToHydrate, typeOfInstance, entityMap, entityAccessor, columns, dataReader);
-
-                if (trackable != null)
-                {
-                    trackable.Version = trackable.ChangeTracker.Version;
-                    trackable.ChangeTracker.Start();
-                }
+                SerializeSingle(instanceToHydrate, typeOfInstance, entityMap, entityAccessor, columns, dataReader);     
             }
         }
 
@@ -371,6 +359,13 @@ namespace Goliath.Data.DataAccess
 
         internal void SerializeSingle(object instanceEntity, Type type, EntityMap entityMap, EntityAccessor entityAccessor, Dictionary<string, int> columns, DbDataReader dbReader)
         {
+            var trackable = instanceEntity as ITrackable;
+            if (trackable != null)
+            {
+                trackable.ChangeTracker.Clear();
+                trackable.ChangeTracker.Start();
+            }
+
             EntityMap superEntityMap = null;
             if (entityMap.IsSubClass)
             {
@@ -437,10 +432,22 @@ namespace Goliath.Data.DataAccess
                     }
                 }
             }
+
+            if (trackable != null)
+            {
+                trackable.Version = trackable.ChangeTracker.Version;
+            }
         }
 
         internal void SerializeSingle(object instanceEntity, Type type, ComplexType complextType, EntityAccessor entityAccessor, Dictionary<string, int> columns, DbDataReader dbReader)
         {
+            var trackable = instanceEntity as ITrackable;
+            if (trackable != null)
+            {
+                trackable.ChangeTracker.Clear();
+                trackable.ChangeTracker.Start();
+            }
+
             foreach (var keyVal in entityAccessor.Properties)
             {
                 /* NOTE: Intentionally going only 1 level up the inheritance. something like :
@@ -476,7 +483,10 @@ namespace Goliath.Data.DataAccess
                     }
                 }
             }
+            if (trackable != null)
+            {
+                trackable.Version = trackable.ChangeTracker.Version;
+            }
         }
-
     }
 }

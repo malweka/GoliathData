@@ -46,6 +46,12 @@ namespace Goliath.Data.Entity
         void Clear();
 
         /// <summary>
+        /// Loads the intial values.
+        /// </summary>
+        /// <param name="initialValues">The initial values.</param>
+        void LoadIntialValues(Tuple<string, object>[] initialValues);
+
+        /// <summary>
         /// Tracks the specified property name.
         /// </summary>
         /// <param name="propertyName">Name of the property.</param>

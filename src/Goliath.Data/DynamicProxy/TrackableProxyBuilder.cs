@@ -2,21 +2,12 @@
 using System.ComponentModel;
 using System.Reflection;
 using System.Reflection.Emit;
-using System.Threading;
 using Goliath.Data.Entity;
-using Goliath.Data.Mapping;
 
 namespace Goliath.Data.DynamicProxy
 {
     public class TrackableProxyBuilder : ProxyBuilder
     {
-
-        const string LazyObjectTriggerFieldName = "_lazyObjectLoaded";
-        const string LazyObjectProxyFieldName = "_lazyObjectProxyOf";
-        const string LazyObjectProxyHydrator = "_lazyObjectHydrator";
-
-        static readonly ModuleBuilder moduleBuilder;
-
         protected override void AddInterfaceImplementation(TypeBuilder typeBuilder)
         {
             base.AddInterfaceImplementation(typeBuilder);
@@ -310,6 +301,13 @@ namespace Goliath.Data.DynamicProxy
             gen.Emit(OpCodes.Ldfld, propertyChangedField);
             gen.Emit(OpCodes.Ldarg_0);
             gen.Emit(OpCodes.Ldstr, "Version");
+            gen.Emit(OpCodes.Newobj, ctor3);
+            gen.Emit(OpCodes.Callvirt, method4);
+            gen.Emit(OpCodes.Nop);
+            gen.Emit(OpCodes.Ldarg_0);
+            gen.Emit(OpCodes.Ldfld, propertyChangedField);
+            gen.Emit(OpCodes.Ldarg_0);
+            gen.Emit(OpCodes.Ldstr, "IsDirty");
             gen.Emit(OpCodes.Newobj, ctor3);
             gen.Emit(OpCodes.Callvirt, method4);
             gen.Emit(OpCodes.Nop);
