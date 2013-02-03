@@ -116,6 +116,8 @@ namespace Goliath.Data.Sql
             var localParameters = new List<QueryParam>();
             localParameters.AddRange(Parameters);
             localParameters.AddRange(updateBody.Columns.Values.Select(p => p.Item1));
+
+
             return runner.ExecuteNonQuery(session, updateBody.ToString(dialect), localParameters.ToArray());
         }
 

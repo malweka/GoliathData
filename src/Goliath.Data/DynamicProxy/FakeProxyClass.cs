@@ -187,6 +187,7 @@ namespace Goliath.Data.DynamicProxy
                 if (PropertyChanged != null)
                 {
                     PropertyChanged(this, new PropertyChangedEventArgs("Version"));
+                    PropertyChanged(this, new PropertyChangedEventArgs("IsDirty"));
                 }
             }
         }

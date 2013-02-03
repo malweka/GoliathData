@@ -125,13 +125,13 @@ namespace Goliath.Data.Entity
             TrackedItem item;
             if (changeList.TryGetValue(propertyName, out item))
             {
-                if (item.Value.Equals(value))
+                if (object.Equals(item.Value, value))//(item.Value.Equals(value))
                 {
                     return;
                 }
 
                 item.Value = value;
-                if (((item.InitialValue != null) && item.InitialValue.Equals(value)) || ((item.InitialValue == null) && (value == null)))
+                if (((item.InitialValue != null) && object.Equals(item.InitialValue,value)) || ((item.InitialValue == null) && (value == null)))
                 {
                     item.Version = Version;
                     if (changes.Contains(propertyName))

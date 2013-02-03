@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using Goliath.Data.DataAccess;
 using Goliath.Data.Diagnostics;
+using Goliath.Data.Entity;
 using Goliath.Data.Mapping;
 using Goliath.Data.Sql;
 using Goliath.Data.Utils;
@@ -138,6 +139,13 @@ namespace Goliath.Data
             return filterBuilder.Execute();
         }
 
+        void ResetTrackableEntity(ITrackable trackable)
+        {
+            if (trackable == null) return;
+            trackable.ChangeTracker.Reset();
+            trackable.Version = trackable.ChangeTracker.Version;
+        }
+
         /// <summary>
         /// Updates the specified entity.
         /// </summary>
@@ -151,7 +159,12 @@ namespace Goliath.Data
             try
             {
                 INonQuerySqlBuilder<TEntity> updateBuilder = new UpdateSqlBuilder<TEntity>(session, entityMap, entity);
-                return ExecuteUpdateOrDeleteEntity(updateBuilder, entity);
+                var result = ExecuteUpdateOrDeleteEntity(updateBuilder, entity);
+
+                //if it's a trackable entity let's reset it 
+                ResetTrackableEntity(entity as ITrackable);
+
+                return result;
             }
             catch (GoliathDataException)
             {
@@ -200,7 +213,12 @@ namespace Goliath.Data
             {
                 var insertBuilder = new InsertSqlBuilder();
                 var execList = insertBuilder.Build(entity, entityMap, session);
-                return execList.Execute(session);
+                var result = execList.Execute(session);
+
+                //if it's a trackable entity let's reset it 
+                ResetTrackableEntity(entity as ITrackable);
+
+                return result;
             }
             catch (GoliathDataException)
             {
