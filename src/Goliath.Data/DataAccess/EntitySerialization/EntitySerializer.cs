@@ -475,7 +475,7 @@ namespace Goliath.Data.DataAccess
                     {
                         var val = dbReader[ordinal];
                         var fieldType = dbReader.GetFieldType(ordinal);
-                        if ((fieldType == keyVal.Value.PropertyType) && (val != DBNull.Value))
+                        if ((fieldType == keyVal.Value.PropertyType) && (val != DBNull.Value) && (val != null))
                         {
                             keyVal.Value.SetMethod(instanceEntity, val);
                         }
