@@ -25,9 +25,10 @@ namespace Goliath.Data.DataAccess
                 var relColumns = EntitySerializer.GetColumnNames(dbReader, relEntMap.TableAlias + rel.InternalIndex);
                 Type relType = pInfo.PropertyType;
                 var relEntAccessor = store.GetEntityAccessor(relType, relEntMap);
-                object relIstance = serializer.CreateInstance(relType, relEntMap); //Activator.CreateInstance(relType);
-                serializer.SerializeSingle(relIstance, relType, relEntMap, relEntAccessor, relColumns, dbReader);
-                pInfo.SetMethod(instanceEntity, relIstance);
+                object relIstance = serializer.CreateInstance(relType, relEntMap);
+
+                if(serializer.SerializeSingle(relIstance, relType, relEntMap, relEntAccessor, relColumns, dbReader))
+                    pInfo.SetMethod(instanceEntity, relIstance);
             }
             else
             {

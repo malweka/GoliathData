@@ -357,9 +357,10 @@ namespace Goliath.Data.DataAccess
             return columns;
         }
 
-        internal void SerializeSingle(object instanceEntity, Type type, EntityMap entityMap, EntityAccessor entityAccessor, Dictionary<string, int> columns, DbDataReader dbReader)
+        internal bool SerializeSingle(object instanceEntity, Type type, EntityMap entityMap, EntityAccessor entityAccessor, Dictionary<string, int> columns, DbDataReader dbReader)
         {
             var trackable = instanceEntity as ITrackable;
+            bool pkHasValue = false;
             if (trackable != null)
             {
                 trackable.ChangeTracker.Clear();
@@ -383,8 +384,10 @@ namespace Goliath.Data.DataAccess
                  *  For now too ugly don't want to touch.
                  */
                 var prop = entityMap[keyVal.Key];
+
                 if ((prop == null) && (superEntityMap != null))
                     prop = superEntityMap[keyVal.Key];
+
                 int ordinal;
                 if (prop != null)
                 {
@@ -417,10 +420,15 @@ namespace Goliath.Data.DataAccess
                         var fieldType = dbReader.GetFieldType(ordinal);
                         if ((fieldType == keyVal.Value.PropertyType) && (val != DBNull.Value))
                         {
+                            if (prop.IsPrimaryKey)
+                                pkHasValue = true;
                             keyVal.Value.SetMethod(instanceEntity, val);
                         }
                         else if (keyVal.Value.PropertyType.IsEnum)
                         {
+                            if (prop.IsPrimaryKey)
+                                pkHasValue = true;
+
                             var enumVal = TypeConverterStore.ConvertToEnum(keyVal.Value.PropertyType, val);
                             keyVal.Value.SetMethod(instanceEntity, enumVal);
                         }
@@ -437,6 +445,7 @@ namespace Goliath.Data.DataAccess
             {
                 trackable.Version = trackable.ChangeTracker.Version;
             }
+            return pkHasValue;
         }
 
         internal void SerializeSingle(object instanceEntity, Type type, ComplexType complextType, EntityAccessor entityAccessor, Dictionary<string, int> columns, DbDataReader dbReader)
