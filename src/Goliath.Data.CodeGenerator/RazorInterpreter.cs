@@ -2,6 +2,7 @@
 using System.IO;
 using Goliath.Data.Generators;
 using Goliath.Data.Mapping;
+using Goliath.Data.Providers;
 using RazorEngine;
 using Goliath.Data.Utils;
 using Encoding = System.Text.Encoding;
@@ -11,7 +12,7 @@ namespace Goliath.Data.CodeGenerator
     /// <summary>
     /// 
     /// </summary>
-    public class RazorCodeGenerator : ICodeGenerator
+    public class RazorInterpreter : IInterpreter
     {
         #region ICodeGenerator Members
 
@@ -65,10 +66,40 @@ namespace Goliath.Data.CodeGenerator
         #endregion
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
     public interface IGenerator
     {
-        void GenerateCode(string templateFolder, string workingFolder);
-        MapConfig GenerateMapping(string workingFolder, ProjectSettings settings, ComplexType baseModel, SupportedRdbms rdbms);
+        /// <summary>
+        /// Generates the code.
+        /// </summary>
+        /// <param name="templatefile">The templatefile.</param>
+        /// <param name="workingFolder">The working folder.</param>
+        /// <param name="mapFile">The map file.</param>
+        /// <param name="fileNameFunction">The file name function.</param>
+        void GenerateCode(string templatefile, string workingFolder, string mapFile, Func<string, string> fileNameFunction = null);
+
+        /// <summary>
+        /// Generates the code.
+        /// </summary>
+        /// <param name="templatefile">The templatefile.</param>
+        /// <param name="workingFolder">The working folder.</param>
+        /// <param name="config">The config.</param>
+        /// <param name="fileNameFunction">The file name function.</param>
+        void GenerateCode(string templatefile, string workingFolder, MapConfig config, Func<string, string> fileNameFunction = null);
+
+        /// <summary>
+        /// Generates the mapping.
+        /// </summary>
+        /// <param name="workingFolder">The working folder.</param>
+        /// <param name="schemaDescriptor">The schema descriptor.</param>
+        /// <param name="settings">The settings.</param>
+        /// <param name="baseModel">The base model.</param>
+        /// <param name="rdbms">The RDBMS.</param>
+        /// <param name="mapFileName">Name of the map file.</param>
+        /// <returns></returns>
+        MapConfig GenerateMapping(string workingFolder, ISchemaDescriptor schemaDescriptor, ProjectSettings settings, ComplexType baseModel, SupportedRdbms rdbms, string mapFileName);
     }
 
     /// <summary>

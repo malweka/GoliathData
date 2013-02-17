@@ -62,6 +62,14 @@ INNER JOIN INFORMATION_SCHEMA.KEY_COLUMN_USAGE FK_COLS ON REF_CONST.CONSTRAINT_N
 INNER JOIN INFORMATION_SCHEMA.KEY_COLUMN_USAGE PK_COLS ON PK.CONSTRAINT_NAME = PK_COLS.CONSTRAINT_NAME
 WHERE FK.TABLE_NAME = @tableName";
 
+        const string tableDescriptionScript = @"select t.id as TableId, t.name as TableName, t.uid, ep.name, ep.value as TableDescription from sysobjects t, sys.extended_properties ep
+where t.type = 'u' and t.id = ep.major_id and ep.minor_id = 0";
+        const string colDescriptionScript = @"select c.name as ColName, ep.value as ColDescription from sys.extended_properties ep, syscolumns c
+where  ep.major_id = @tableId
+and c.id = @tableId
+and ep.major_id = c.id
+and ep.minor_id = c.colid";
+
         DbConnection connection;
         DbConnection Connection
         {
@@ -103,7 +111,7 @@ WHERE FK.TABLE_NAME = @tableName";
         /// <returns></returns>
         public override IDictionary<string, EntityMap> GetTables()
         {
-            Dictionary<string, EntityMap> tables = new Dictionary<string, EntityMap>();
+            var tables = new Dictionary<string, EntityMap>();
             try
             {
                 using (DbDataReader reader = db.ExecuteReader(Connection, SELECT_TABLE_FROM_SCHEMA))
@@ -124,6 +132,8 @@ WHERE FK.TABLE_NAME = @tableName";
                         tables.Add(name, table);
                     }
                 }
+                var tableMetaDataDictionary = GetTableMetaData();
+
                 foreach (var table in tables.Values)
                 {
                     logger.Log(LogLevel.Info, string.Format("processing table {0}", table.Name));
@@ -131,8 +141,27 @@ WHERE FK.TABLE_NAME = @tableName";
                     ProcessConstraints(table, columns);
                     ProcessForeignKeys(table);
                     ProcessReferences(table, columns);
-
                     table.AddColumnRange(columns.Values);
+
+                    TableMetaData meta;
+                    if (tableMetaDataDictionary.TryGetValue(table.TableName, out meta))
+                    {
+                        if(!string.IsNullOrWhiteSpace(meta.Description))
+                        {
+                            table.MetaDataAttributes.Add("description", meta.Description);
+                        }
+
+                        foreach (var column in columns)
+                        {
+                            string colMeta;
+                            if(meta.ColumnMetadata.TryGetValue(column.Value.ColumnName, out colMeta))
+                            {
+                                column.Value.MetaDataAttributes.Add("description", colMeta);
+                            }
+                        }
+                    }
+
+                    
                 }
 
             }
@@ -375,6 +404,37 @@ WHERE FK.TABLE_NAME = @tableName";
 
             }
             return defaultValue;
+        }
+
+        public Dictionary<string, TableMetaData> GetTableMetaData()
+        {
+           var tables = new Dictionary<string, TableMetaData>();
+
+            using (var reader = db.ExecuteReader(Connection, tableDescriptionScript))
+            {
+                while (reader.Read())
+                {
+                    TableMetaData tbMetadata = new TableMetaData();
+                    tbMetadata.Name = reader.GetValueAsString("TableName");
+                    tbMetadata.Id = reader.GetValueAsLong("TableId");
+                    tbMetadata.Description = reader.GetValueAsString("TableDescription");
+                    tables.Add(tbMetadata.Name, tbMetadata);
+                }
+            }
+
+            foreach (var tb in tables.Values)
+            {
+                using (DbDataReader reader = db.ExecuteReader(connection, colDescriptionScript, new QueryParam("tableId", tb.Id)))
+                {
+                    while (reader.Read())
+                    {
+                        var colName = reader.GetValueAsString("ColName");
+                        var colDescription = reader.GetValueAsString("ColDescription");
+                        tb.ColumnMetadata.Add(colName, colDescription);
+                    }
+                }
+            }
+            return tables;
         }
 
         /// <summary>

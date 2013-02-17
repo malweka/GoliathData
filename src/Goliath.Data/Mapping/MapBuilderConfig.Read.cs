@@ -12,6 +12,12 @@ namespace Goliath.Data.Mapping
     {
         class MapReader
         {
+            private bool includeMetaData;
+            public MapReader(bool includeMetaData = false)
+            {
+                this.includeMetaData = includeMetaData;
+            }
+
             public void Read(XmlReader reader, MapConfig config)
             {
                 while (reader.ReadToFollowing("goliath.data", XmlNameSpace))
@@ -509,6 +515,17 @@ namespace Goliath.Data.Mapping
                                 keyGen = reader.Value;
                                 break;
                             default:
+                                if(includeMetaData)
+                                {
+                                    if(!string.IsNullOrWhiteSpace(currentAttribute) && currentAttribute.StartsWith("data_"))
+                                    {
+                                        string metaKey = currentAttribute.Replace("data_", string.Empty);
+                                        if(!property.MetaDataAttributes.ContainsKey(metaKey))
+                                        {
+                                            property.MetaDataAttributes.Add(metaKey, reader.Value);
+                                        }
+                                    }
+                                }
                                 break;
                         }
                     }
@@ -578,6 +595,17 @@ namespace Goliath.Data.Mapping
                                     entMap.IsLinkTable = isLinkTable;
                                 break;
                             default:
+                                if (includeMetaData)
+                                {
+                                    if (!string.IsNullOrWhiteSpace(currentAttribute) && currentAttribute.StartsWith("data_"))
+                                    {
+                                        string metaKey = currentAttribute.Replace("data_", string.Empty);
+                                        if (!entMap.MetaDataAttributes.ContainsKey(metaKey))
+                                        {
+                                            entMap.MetaDataAttributes.Add(metaKey, reader.Value);
+                                        }
+                                    }
+                                }
                                 break;
                         }
                     }

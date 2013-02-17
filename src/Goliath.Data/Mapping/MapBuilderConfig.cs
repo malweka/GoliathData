@@ -143,14 +143,16 @@ namespace Goliath.Data.Mapping
         /// Loads the specified filename.
         /// </summary>
         /// <param name="filename">The filename.</param>
-        public void Load(string filename)
+        /// <param name="includeMetadataAttributes">if set to <c>true</c> [include metadata attributes].</param>
+        /// <exception cref="System.InvalidOperationException">map config already loaded</exception>
+        public void Load(string filename, bool includeMetadataAttributes = false)
         {
             if (IsLoaded)
                 throw new InvalidOperationException("map config already loaded");
 
             using (var filestream = File.Open(filename, FileMode.Open, FileAccess.Read))
             {
-                Load(filestream);
+                Load(filestream, includeMetadataAttributes);
             }
         }
 
@@ -158,14 +160,16 @@ namespace Goliath.Data.Mapping
         /// Loads the specified XML stream.
         /// </summary>
         /// <param name="xmlStream">The XML stream.</param>
-        public void Load(Stream xmlStream)
+        /// <param name="includeMetadataAttributes">if set to <c>true</c> [include metadata attributes].</param>
+        /// <exception cref="System.InvalidOperationException">map config already loaded</exception>
+        public void Load(Stream xmlStream, bool includeMetadataAttributes = false)
         {
             if (IsLoaded)
                 throw new InvalidOperationException("map config already loaded");
 
             using (XmlReader reader = XmlReader.Create(xmlStream, new XmlReaderSettings() { IgnoreComments = true, IgnoreWhitespace = true }))
             {
-                MapReader mr = new MapReader();
+                MapReader mr = new MapReader(includeMetadataAttributes);
                 mr.Read(reader, this);
                 ProcessAndInspectRelationship();
                 //Procedures.platformId = Platform;
@@ -222,10 +226,11 @@ namespace Goliath.Data.Mapping
         /// Creates the specified filename.
         /// </summary>
         /// <param name="filename">The filename.</param>
+        /// <param name="includeMetadataAttributes">if set to <c>true</c> [include metadata attributes].</param>
         /// <returns></returns>
-        public static MapConfig Create(string filename)
+        public static MapConfig Create(string filename, bool includeMetadataAttributes = false)
         {
-            return Create(filename, null);
+            return Create(filename, null, includeMetadataAttributes);
         }
 
 
@@ -234,15 +239,17 @@ namespace Goliath.Data.Mapping
         /// </summary>
         /// <param name="filename">The filename.</param>
         /// <param name="settings">The settings.</param>
+        /// <param name="includeMetadataAttributes">if set to <c>true</c> [include metadata attributes].</param>
         /// <returns></returns>
-        public static MapConfig Create(string filename, ProjectSettings settings)
+        /// <exception cref="System.ArgumentNullException">filename</exception>
+        public static MapConfig Create(string filename, ProjectSettings settings, bool includeMetadataAttributes = false)
         {
             if (string.IsNullOrWhiteSpace(filename))
                 throw new ArgumentNullException("filename");
 
             using (var filestream = File.Open(filename, FileMode.Open, FileAccess.Read))
             {
-                return Create(filestream, settings);
+                return Create(filestream, settings, includeMetadataAttributes);
             }
         }
 
@@ -250,21 +257,24 @@ namespace Goliath.Data.Mapping
         /// Creates the specified XML stream.
         /// </summary>
         /// <param name="xmlStream">The XML stream.</param>
+        /// <param name="includeMetadataAttributes">if set to <c>true</c> [include metadata attributes].</param>
         /// <returns></returns>
-        public static MapConfig Create(Stream xmlStream)
+        public static MapConfig Create(Stream xmlStream, bool includeMetadataAttributes = false)
         {
-            return Create(xmlStream, null);
+            return Create(xmlStream, null, includeMetadataAttributes);
         }
+
         /// <summary>
         /// Deserialize file and create a map model.
         /// </summary>
         /// <param name="xmlStream">The XML stream.</param>
         /// <param name="settings">The settings.</param>
+        /// <param name="includeMetadataAttributes">if set to <c>true</c> [include metadata attributes].</param>
         /// <returns></returns>
-        public static MapConfig Create(Stream xmlStream, ProjectSettings settings)
+        public static MapConfig Create(Stream xmlStream, ProjectSettings settings, bool includeMetadataAttributes = false)
         {
             MapConfig config = new MapConfig();
-            config.Load(xmlStream);
+            config.Load(xmlStream, includeMetadataAttributes);
 
             if (settings != null)
                 config.Settings = settings;

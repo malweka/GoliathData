@@ -125,6 +125,16 @@ namespace Goliath.Data.Mapping
                     xmlWriter.WriteString(entity.TableAlias);
                     xmlWriter.WriteEndAttribute();
 
+                    if(entity.MetaDataAttributes.Count > 0)
+                    {
+                        foreach (var metaKeyPair in entity.MetaDataAttributes)
+                        {
+                            xmlWriter.WriteStartAttribute("data_" + metaKeyPair.Key);
+                            xmlWriter.WriteString(metaKeyPair.Value);
+                            xmlWriter.WriteEndAttribute();
+                        }
+                    }
+
                     //primary key
                     if (entity.PrimaryKey != null)
                     {
@@ -519,6 +529,16 @@ namespace Goliath.Data.Mapping
                 xmlWriter.WriteStartAttribute("dbType");
                 xmlWriter.WriteString(transformation.DbType.ToString());
                 xmlWriter.WriteEndAttribute();
+            }
+
+            if (transformation.MetaDataAttributes.Count > 0)
+            {
+                foreach (var metaKeyPair in transformation.MetaDataAttributes)
+                {
+                    xmlWriter.WriteStartAttribute("data_" + metaKeyPair.Key);
+                    xmlWriter.WriteString(metaKeyPair.Value);
+                    xmlWriter.WriteEndAttribute();
+                }
             }
 
             if (closeElement)
