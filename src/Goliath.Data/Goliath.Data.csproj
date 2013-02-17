@@ -151,7 +151,7 @@
     <Compile Include="DbTypeInfo.cs" />
     <Compile Include="DataAccess\IDbAccess.cs" />
     <Compile Include="DataAccess\IDbProvider.cs" />
-    <Compile Include="Generators\ICodeGenerator.cs" />
+    <Compile Include="Generators\IInterpreter.cs" />
     <Compile Include="DataAccess\IMigrationGenerator.cs" />
     <Compile Include="Mapping\Models\PrimaryKeyPropertyCollection.cs" />
     <Compile Include="Mapping\Models\PrimaryKeyProperty.cs" />
@@ -172,6 +172,7 @@
     <Compile Include="Providers\SqlServer\MssqlDialect.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Mapping\SqlTypeHelper.cs" />
+    <Compile Include="Providers\TableMetaData.cs" />
     <Compile Include="SqliteBackend.cs" />
     <Compile Include="SqlServerRdbmsBackend.cs" />
     <Compile Include="Rdbms.cs" />

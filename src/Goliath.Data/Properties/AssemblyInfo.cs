@@ -20,4 +20,5 @@ using System.Runtime.InteropServices;
 
 [assembly: InternalsVisibleTo ("Goliath.Data.Tests")]
 [assembly: InternalsVisibleTo("Goliath.Data.Console")]
+[assembly: InternalsVisibleTo("Goliath.Data.CodeGenerator")]
 

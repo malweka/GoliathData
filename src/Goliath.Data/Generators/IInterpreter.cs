@@ -5,7 +5,7 @@ namespace Goliath.Data.Generators
     /// <summary>
     /// 
     /// </summary>
-   public interface ICodeGenerator
+   public interface IInterpreter
    {
       /// <summary>
       /// Generates the specified template.
