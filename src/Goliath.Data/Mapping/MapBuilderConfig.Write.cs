@@ -541,6 +541,13 @@ namespace Goliath.Data.Mapping
                 }
             }
 
+            if(transformation.IsPrimaryKey && !transformation.MetaDataAttributes.ContainsKey("editable"))
+            {
+                xmlWriter.WriteStartAttribute("data_editable");
+                xmlWriter.WriteString("false");
+                xmlWriter.WriteEndAttribute();
+            }
+
             if (closeElement)
                 xmlWriter.WriteEndElement();//end property
         }

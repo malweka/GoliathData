@@ -30,27 +30,28 @@ namespace Goliath.Data.CodeGenerator
 
         #region ICodeGenerator Members
 
+
         /// <summary>
-        /// Generates the code.
+        /// Generates the code for each entity map.
         /// </summary>
         /// <param name="templatefile">The templatefile.</param>
         /// <param name="workingFolder">The working folder.</param>
         /// <param name="mapfile">The mapfile.</param>
         /// <param name="fileNameFunction">The file name function.</param>
-        public virtual void GenerateCode(string templatefile, string workingFolder, string mapfile, Func<string,string> fileNameFunction = null)
+        public void GenerateCodeForEachEntityMap(string templatefile, string workingFolder, string mapfile, Func<string,string> fileNameFunction = null)
         {            
             var project = MapConfig.Create(mapfile, true);
-            GenerateCode(templatefile,workingFolder,project,fileNameFunction);
+            GenerateCodeForEachEntityMap(templatefile,workingFolder,project,fileNameFunction);
         }
 
         /// <summary>
-        /// Generates the code.
+        /// Generates the code for each entity map.
         /// </summary>
         /// <param name="templatefile">The templatefile.</param>
         /// <param name="workingFolder">The working folder.</param>
         /// <param name="config">The config.</param>
         /// <param name="fileNameFunction">The file name function.</param>
-        public virtual void GenerateCode(string templatefile, string workingFolder, MapConfig config, Func<string, string> fileNameFunction = null)
+        public void GenerateCodeForEachEntityMap(string templatefile, string workingFolder, MapConfig config, Func<string, string> fileNameFunction = null)
         {
             foreach (var table in config.EntityConfigs)
             {
@@ -69,6 +70,19 @@ namespace Goliath.Data.CodeGenerator
         }
 
         /// <summary>
+        /// Generates the code from model.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="model">The model.</param>
+        /// <param name="templatefile">The templatefile.</param>
+        /// <param name="workingFolder">The working folder.</param>
+        /// <param name="filename">The filename.</param>
+       public void GenerateCodeFromModel<T>(T model, string templatefile, string workingFolder,  string filename)
+       {
+           interpreter.Generate(templatefile, Path.Combine(workingFolder, filename), model);
+       }
+
+        /// <summary>
         /// Generates the mapping.
         /// </summary>
         /// <param name="workingFolder">The working folder.</param>
@@ -78,7 +92,7 @@ namespace Goliath.Data.CodeGenerator
         /// <param name="rdbms">The RDBMS.</param>
         /// <param name="mapFileName">Name of the map file.</param>
         /// <returns></returns>
-        public virtual MapConfig GenerateMapping(string workingFolder, ISchemaDescriptor schemaDescriptor, ProjectSettings settings, ComplexType baseModel, SupportedRdbms rdbms, string mapFileName)
+        public MapConfig GenerateMapping(string workingFolder, ISchemaDescriptor schemaDescriptor, ProjectSettings settings, ComplexType baseModel, SupportedRdbms rdbms, string mapFileName)
         {
             return Build(workingFolder, settings, baseModel, schemaDescriptor, mapFileName);
         }
@@ -94,7 +108,7 @@ namespace Goliath.Data.CodeGenerator
         /// <param name="schema">The schema.</param>
         /// <param name="mapFileName">Name of the map file.</param>
         /// <returns></returns>
-        protected virtual MapConfig Build(string workingFolder, ProjectSettings settings, ComplexType baseModel, ISchemaDescriptor schema, string mapFileName)
+        protected MapConfig Build(string workingFolder, ProjectSettings settings, ComplexType baseModel, ISchemaDescriptor schema, string mapFileName)
         {
             schema.ProjectSettings = settings;
             var generator = new DataModelGenerator(schema, new NameTransformerFactory(settings),

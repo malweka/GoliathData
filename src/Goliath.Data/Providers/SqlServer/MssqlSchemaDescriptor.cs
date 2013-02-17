@@ -148,7 +148,7 @@ and ep.minor_id = c.colid";
                     {
                         if(!string.IsNullOrWhiteSpace(meta.Description))
                         {
-                            table.MetaDataAttributes.Add("description", meta.Description);
+                            table.MetaDataAttributes.Add("display_description", meta.Description);
                         }
 
                         foreach (var column in columns)
@@ -156,7 +156,7 @@ and ep.minor_id = c.colid";
                             string colMeta;
                             if(meta.ColumnMetadata.TryGetValue(column.Value.ColumnName, out colMeta))
                             {
-                                column.Value.MetaDataAttributes.Add("description", colMeta);
+                                column.Value.MetaDataAttributes.Add("display_description", colMeta);
                             }
                         }
                     }
