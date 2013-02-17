@@ -81,9 +81,7 @@ namespace Goliath.Data.Mapping
             MappedStatements = new StatementStore(settings.Platform);
             Settings = settings;
 
-            PrimaryKeyGeneratorStore = new KeyGeneratorStore();
-            PrimaryKeyGeneratorStore.Add(new Generators.GuidCombGenerator());
-            PrimaryKeyGeneratorStore.Add(new Generators.AutoIncrementGenerator());
+            PrimaryKeyGeneratorStore = new KeyGeneratorStore {new Generators.GuidCombGenerator(), new Generators.AutoIncrementGenerator()};
         }
 
         /// <summary>
