@@ -79,12 +79,17 @@ namespace Goliath.Data.CodeGenerator
 
                 string editable;
                 if (property.MetaDataAttributes.TryGetValue("editable", out editable))
-                    sb.AppendFormat("[Editable({0})]", editable);
+                    sb.AppendFormat("\r\n\t\t[Editable({0})]", editable);
 
                 string required;
                 if (property.MetaDataAttributes.TryGetValue("required", out required))
-                    sb.AppendFormat("[Editable(ErrorMessage = \"{0}\", ResourceType = typeof({1}))]", PrintResourceName(property, entity, ResourceItemType.ErrorWhenMissing), resourceType);
+                    sb.AppendFormat("\r\n\t\t[Editable(ErrorMessage = \"{0}\", ResourceType = typeof({1}))]", PrintResourceName(property, entity, ResourceItemType.ErrorWhenMissing), resourceType);
 
+            }
+            else
+            {
+                displaySb.Append(")");
+                sb.AppendFormat("[{0}]", displaySb.ToString());
             }
            
             return sb.ToString();
@@ -165,6 +170,7 @@ namespace Goliath.Data.CodeGenerator
     {
         Label,
         Description,
+        Prompt,
         ErrorWhenMissing,
     }
 }
