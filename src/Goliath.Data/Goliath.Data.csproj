@@ -118,7 +118,7 @@
     <Compile Include="GoliathDataException.cs" />
     <Compile Include="ISessionStore.cs" />
     <Compile Include="Collections\ITrackableCollection.cs" />
-    <Compile Include="KeyedCollectionBase.cs" />
+    <Compile Include="Collections\KeyedCollectionBase.cs" />
     <Compile Include="Collections\LazyList.cs" />
     <Compile Include="Generators\IKeyGenerator.cs" />
     <Compile Include="Generators\KeyGeneratorStore.cs" />
@@ -131,6 +131,7 @@
     <Compile Include="Mapping\Enums.cs" />
     <Compile Include="Mapping\Models\ConfigProperty.cs" />
     <Compile Include="Mapping\Models\DynamicEntityMap.cs" />
+    <Compile Include="Mapping\Models\RelationCollection.cs" />
     <Compile Include="Mapping\Models\StatementMap.cs" />
     <Compile Include="Mapping\Models\StatementStore.cs" />
     <Compile Include="Mapping\Models\UnMappedTableMap.cs" />
