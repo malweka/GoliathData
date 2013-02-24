@@ -227,6 +227,13 @@ namespace Goliath.Data.CodeGenerator
                     return rname + "_label";
             }
         }
+
+        public static string GetClassName(string classFullName)
+        {
+            if (classFullName == null) throw new ArgumentNullException("classFullName");
+            var xname = classFullName.Substring(classFullName.LastIndexOf(".") + 1);
+            return xname;
+        }
     }
 
     public enum ResourceItemType
