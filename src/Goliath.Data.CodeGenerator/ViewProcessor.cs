@@ -83,7 +83,7 @@ namespace Goliath.Data.CodeGenerator
             {
                 PropertyViewInfo pview = new PropertyViewInfo();
                 string groupName = "default";
-
+                string resourceType = string.Empty;
                 pview.Name = propDef.Name;
                 foreach (var attr in propDef.CustomAttributes)
                 {
@@ -106,6 +106,7 @@ namespace Goliath.Data.CodeGenerator
                             if (attProp.Name.Equals("ResourceType") && (attProp.Argument.Value != null))
                             {
                                 pview.ResourceType = attProp.Argument.Value.ToString();
+                                resourceType = pview.ResourceType;
                                 continue;
                             }
 
@@ -168,6 +169,7 @@ namespace Goliath.Data.CodeGenerator
                     {
                         Name = groupName,
                         LabelResourceName = groupLabel,
+                        ResourceType = resourceType,
                         DescriptionResourceName = PrintHelper.PrintPropertyGroupResourceName(groupName, ResourceItemType.Description)
                     };
                     viewInfo.Add(propCollection);
@@ -224,6 +226,7 @@ namespace Goliath.Data.CodeGenerator
                     {
                         Name = groupName,
                         LabelResourceName = groupLabel,
+                        ResourceType = resource,
                         DescriptionResourceName = PrintHelper.PrintPropertyGroupResourceName(groupName, ResourceItemType.Description)
                     };
                     viewInfo.Add(propCollection);
@@ -271,7 +274,6 @@ namespace Goliath.Data.CodeGenerator
 
             return viewInfo;
         }
-
 
     }
 }
