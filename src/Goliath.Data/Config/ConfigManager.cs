@@ -8,7 +8,7 @@ namespace Goliath.Data.Config
 {
     class ConfigManager : IConfigurationManager, IDatabaseSettings
     {
-        MapConfig mainMap;
+        readonly MapConfig mainMap;
         IDbProvider provider;
         IDbAccess dbAccess;
         IDbConnector connector;
@@ -45,8 +45,6 @@ namespace Goliath.Data.Config
             MapConfig config = MapConfig.Create(mapFile);
             return Load(config);
         }
-
-
 
         public IConfigurationManager Load(MapConfig map)
         {
@@ -91,7 +89,7 @@ namespace Goliath.Data.Config
             if (factoryMethod == null)
                 throw new ArgumentNullException("factoryMethod");
 
-            this.dataAccessAdapterFactory = factoryMethod;
+            dataAccessAdapterFactory = factoryMethod;
             return this;
         }
 
@@ -161,7 +159,6 @@ namespace Goliath.Data.Config
             }
 
             var dbConnector = DbProvider.GetDatabaseConnector(mainMap.Settings.ConnectionString);
-            settings = this;
 
             var sessFact = new SessionFactory(this, dataAccessAdapterFactory, entitySerializerFactory);
             return sessFact;
@@ -175,8 +172,6 @@ namespace Goliath.Data.Config
         }
 
         #endregion
-
-        private static IDatabaseSettings settings;
 
         //internal static ISessionSettings CurrentSettings
         //{

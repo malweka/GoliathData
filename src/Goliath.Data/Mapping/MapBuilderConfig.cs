@@ -16,7 +16,13 @@ namespace Goliath.Data.Mapping
         internal const string XmlNameSpace = "http://schemas.hamsman.com/goliath/data/1.1";
         List<StatementMap> unprocessedStatements = new List<StatementMap>();
 
-        internal List<StatementMap> UnprocessedStatements { get { return unprocessedStatements; } }
+        /// <summary>
+        /// Gets the unprocessed statements.
+        /// </summary>
+        /// <value>
+        /// The unprocessed statements.
+        /// </value>
+        public List<StatementMap> UnprocessedStatements { get { return unprocessedStatements; } }
 
         #region Properties
         /// <summary>
@@ -81,7 +87,7 @@ namespace Goliath.Data.Mapping
             MappedStatements = new StatementStore(settings.Platform);
             Settings = settings;
 
-            PrimaryKeyGeneratorStore = new KeyGeneratorStore {new Generators.GuidCombGenerator(), new Generators.AutoIncrementGenerator()};
+            PrimaryKeyGeneratorStore = new KeyGeneratorStore { new Generators.GuidCombGenerator(), new Generators.AutoIncrementGenerator() };
         }
 
         /// <summary>
@@ -138,6 +144,58 @@ namespace Goliath.Data.Mapping
         public bool IsLoaded { get; private set; }
 
         /// <summary>
+        /// Loads the mapped statements.
+        /// </summary>
+        /// <param name="filename">The filename.</param>
+        /// <exception cref="System.InvalidOperationException"></exception>
+        /// <exception cref="System.IO.FileNotFoundException">Cannot load File. File not found.</exception>
+        public void LoadMappedStatements(string filename)
+        {
+            if (!canSetExternalMapStatements)
+                throw new InvalidOperationException(string.Format("MapConfig not initialized properly. No Platform has been defined. Cannot load statements from {0}.", filename));
+
+            if (!File.Exists(filename))
+                throw new FileNotFoundException("Cannot load File. File not found.", filename);
+
+            using (var filestream = File.Open(filename, FileMode.Open, FileAccess.Read))
+            {
+                LoadMappedStatements(filestream);
+            }
+        }
+
+        /// <summary>
+        /// Loads the mapped statements.
+        /// </summary>
+        /// <param name="xmlStream">The XML stream.</param>
+        /// <exception cref="System.ArgumentNullException">xmlStream</exception>
+        public void LoadMappedStatements(Stream xmlStream)
+        {
+            if (xmlStream == null) throw new ArgumentNullException("xmlStream");
+
+            var mapConfig = MapConfig.Create(xmlStream);
+            LoadMappedStatements(mapConfig.UnprocessedStatements);
+        }
+
+        /// <summary>
+        /// Loads the mapped statements.
+        /// </summary>
+        /// <param name="statements">The statements.</param>
+        /// <exception cref="System.ArgumentNullException">statements</exception>
+        /// <exception cref="System.InvalidOperationException">MapConfig not initialized properly. No Platform has been defined. Cannot load statements.</exception>
+        public void LoadMappedStatements(IEnumerable<StatementMap> statements)
+        {
+            if (statements == null) throw new ArgumentNullException("statements");
+            if (!canSetExternalMapStatements)
+                throw new InvalidOperationException("MapConfig not initialized properly. No Platform has been defined. Cannot load statements.");
+
+            foreach (var statementMap in statements)
+            {
+                MappedStatements.Add(statementMap);
+            }
+        }
+
+
+        /// <summary>
         /// Loads the specified filename.
         /// </summary>
         /// <param name="filename">The filename.</param>
@@ -147,6 +205,9 @@ namespace Goliath.Data.Mapping
         {
             if (IsLoaded)
                 throw new InvalidOperationException("map config already loaded");
+
+            if (!File.Exists(filename))
+                throw new FileNotFoundException("Cannot load File. File not found.", filename);
 
             using (var filestream = File.Open(filename, FileMode.Open, FileAccess.Read))
             {
@@ -165,16 +226,13 @@ namespace Goliath.Data.Mapping
             if (IsLoaded)
                 throw new InvalidOperationException("map config already loaded");
 
-            using (XmlReader reader = XmlReader.Create(xmlStream, new XmlReaderSettings() { IgnoreComments = true, IgnoreWhitespace = true }))
+            using (var reader = XmlReader.Create(xmlStream, new XmlReaderSettings() { IgnoreComments = true, IgnoreWhitespace = true }))
             {
-                MapReader mr = new MapReader(includeMetadataAttributes);
+                var mr = new MapReader(includeMetadataAttributes);
                 mr.Read(reader, this);
                 ProcessAndInspectRelationship();
-                //Procedures.platformId = Platform;
                 IsLoaded = true;
             }
-
-            //return config;
         }
 
         void ProcessAndInspectRelationship()
@@ -189,7 +247,7 @@ namespace Goliath.Data.Mapping
                     var relEntMap = GetEntityMap(rel.ReferenceEntityName);
                     if (relEntMap == null)
                         throw new MappingException(string.Format("Could not find Mapped Entity {0} for property {1}.{2}", rel.ReferenceEntityName, entMap.Name, rel.PropertyName));
-                   
+
                     rel.ReferenceTable = relEntMap.TableName;
                     rel.ReferenceTableSchemaName = relEntMap.SchemaName;
 
@@ -203,6 +261,8 @@ namespace Goliath.Data.Mapping
             }
         }
 
+        private bool canSetExternalMapStatements;
+
         /// <summary>
         /// Maps the statements.
         /// </summary>
@@ -211,6 +271,7 @@ namespace Goliath.Data.Mapping
         {
             MappedStatements.SetPlatform(platform);
             Settings.Platform = platform;
+            canSetExternalMapStatements = true;
 
             foreach (var statement in unprocessedStatements)
             {
@@ -276,7 +337,7 @@ namespace Goliath.Data.Mapping
 
             if (settings != null)
                 config.Settings = settings;
-            
+
             return config;
         }
     }
