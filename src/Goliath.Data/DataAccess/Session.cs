@@ -131,6 +131,11 @@ namespace Goliath.Data.DataAccess
             return commandRunner.Run<T>(this, sql, paramArray);
         }
 
+        public int RunNonQuery(string sql, params QueryParam[] paramArray)
+        {
+            return commandRunner.ExecuteNonQuery(this, sql, paramArray);
+        }
+
         #endregion
 
         #region Run Mapped Statements

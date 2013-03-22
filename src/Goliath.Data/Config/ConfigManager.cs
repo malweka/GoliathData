@@ -18,34 +18,62 @@ namespace Goliath.Data.Config
         IEntitySerializer entitySerializerFactory;
         internal Func<Type, ILogger> LoggerFactory { get; set; }
 
+        /// <summary>
+        /// Gets the converter store.
+        /// </summary>
+        /// <value>
+        /// The converter store.
+        /// </value>
         public ITypeConverterStore ConverterStore
         {
             get { return typeConverterStore; }
         }
 
+        /// <summary>
+        /// Gets the db provider.
+        /// </summary>
+        /// <value>
+        /// The db provider.
+        /// </value>
         public IDbProvider DbProvider
         {
             get { return provider; }
             private set { provider = value; }
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ConfigManager"/> class.
+        /// </summary>
+        /// <param name="config">The config.</param>
+        /// <exception cref="System.ArgumentNullException">config</exception>
         public ConfigManager(MapConfig config)
         {
             if (config == null)
                 throw new ArgumentNullException("config");
 
-            mainMap = config;            
+            mainMap = config;
             typeConverterStore = new TypeConverterStore();
         }
 
         #region IConfigurationManager Members
 
+        /// <summary>
+        /// Loads the specified map file.
+        /// </summary>
+        /// <param name="mapFile">The map file.</param>
+        /// <returns></returns>
         public IConfigurationManager Load(string mapFile)
         {
             MapConfig config = MapConfig.Create(mapFile);
             return Load(config);
         }
 
+        /// <summary>
+        /// Loads the specified map.
+        /// </summary>
+        /// <param name="map">The map.</param>
+        /// <returns></returns>
+        /// <exception cref="System.ArgumentNullException">map</exception>
         public IConfigurationManager Load(MapConfig map)
         {
             if (map == null)
@@ -58,12 +86,18 @@ namespace Goliath.Data.Config
             return this;
         }
 
-        public IConfigurationManager RegisterProvider(IDbProvider provider)
+        /// <summary>
+        /// Registers the provider.
+        /// </summary>
+        /// <param name="dbProvider">The db provider.</param>
+        /// <returns></returns>
+        /// <exception cref="System.ArgumentNullException">provider</exception>
+        public IConfigurationManager RegisterProvider(IDbProvider dbProvider)
         {
-            if (provider == null)
-                throw new ArgumentNullException("provider");
+            if (dbProvider == null)
+                throw new ArgumentNullException("dbProvider");
 
-            DbProvider = provider;
+            DbProvider = dbProvider;
             return this;
         }
 
@@ -84,7 +118,7 @@ namespace Goliath.Data.Config
         /// <param name="factoryMethod">The factory method.</param>
         /// <returns></returns>
         /// <exception cref="System.ArgumentNullException">factoryMethod</exception>
-        public IConfigurationManager RegisterDataAccessAdapterFactory(Func<MapConfig,IEntitySerializer,IDataAccessAdapterFactory> factoryMethod)
+        public IConfigurationManager RegisterDataAccessAdapterFactory(Func<MapConfig, IEntitySerializer, IDataAccessAdapterFactory> factoryMethod)
         {
             if (factoryMethod == null)
                 throw new ArgumentNullException("factoryMethod");
@@ -164,7 +198,11 @@ namespace Goliath.Data.Config
             return sessFact;
         }
 
-       public  DbAccess CreateAccessor()
+        /// <summary>
+        /// Creates the accessor.
+        /// </summary>
+        /// <returns></returns>
+        public DbAccess CreateAccessor()
         {
             var dbConnector = DbProvider.GetDatabaseConnector(mainMap.Settings.ConnectionString);
             var accessor = new DbAccess(dbConnector);
@@ -180,6 +218,9 @@ namespace Goliath.Data.Config
 
         #region ISessionSettings Members
 
+        /// <summary>
+        /// Gets the map.
+        /// </summary>
         public MapConfig Map
         {
             get
@@ -188,11 +229,23 @@ namespace Goliath.Data.Config
             }
         }
 
+        /// <summary>
+        /// Gets the SQL dialect.
+        /// </summary>
+        /// <value>
+        /// The SQL dialect.
+        /// </value>
         public SqlDialect SqlDialect
         {
             get { return DbProvider.SqlDialect; }
         }
 
+        /// <summary>
+        /// Gets the connector.
+        /// </summary>
+        /// <value>
+        /// The connector.
+        /// </value>
         public IDbConnector Connector
         {
             get
@@ -203,6 +256,12 @@ namespace Goliath.Data.Config
             }
         }
 
+        /// <summary>
+        /// Gets the db access.
+        /// </summary>
+        /// <value>
+        /// The db access.
+        /// </value>
         public IDbAccess DbAccess
         {
             get { return dbAccess ?? (dbAccess = CreateAccessor()); }

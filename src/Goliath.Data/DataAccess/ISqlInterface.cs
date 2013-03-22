@@ -133,6 +133,7 @@ namespace Goliath.Data.DataAccess
 
         T Run<T>(string sql, params QueryParam[] paramArray);
         T Run<T>(SqlQueryBody sql, params QueryParam[] paramArray);
+        int RunNonQuery(string sql, params QueryParam[] paramArray);
 
         T RunMappedStatement<T>(string statementName, params QueryParam[] paramArray);
         T RunMappedStatement<T>(string statementName, QueryParam[] paramArray, params object[] inputParams);
