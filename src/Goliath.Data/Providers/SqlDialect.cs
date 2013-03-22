@@ -570,5 +570,46 @@ namespace Goliath.Data.Providers
         {
             return string.Format("{0} LIMIT {1} OFFSET {2}", queryBody.ToString(), pagingInfo.Limit, pagingInfo.Offset);
         }
+
+        public static string PrintClrTypeToString(Type type, bool nullable = false)
+        {
+            string print = type.Name;
+
+            if (type.IsPrimitive || print.Equals("String") || print.Equals("Boolean"))
+            {
+                switch (type.Name.ToLower())
+                {
+                    case "int32":
+                        print = "int";
+                        break;
+                    case "int64":
+                        print = "long";
+                        break;
+                    case "int16":
+                        print = "short";
+                        break;
+                    case "boolean":
+                        print = "bool";
+                        break;
+                    case "single":
+                        print = "float";
+                        break;
+                    default:
+                        print = type.Name.ToLower();
+                        break;
+                }
+            }
+
+            else if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
+            {
+                var args = type.GetGenericArguments();
+                return PrintClrTypeToString(args[0], true);
+            }
+
+            if (nullable)
+                return string.Format("{0}?", print);
+
+            return print;
+        }
     }
 }

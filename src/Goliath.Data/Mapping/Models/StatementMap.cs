@@ -31,7 +31,7 @@ namespace Goliath.Data.Mapping
         /// </value>
         public bool IsParsingRequired { get; set; }
 
-        internal Dictionary<string, StatementInputParam> ParamPropertyMap
+        public Dictionary<string, StatementInputParam> ParamPropertyMap
         {
             get { return paramPropertyMap; }
         }

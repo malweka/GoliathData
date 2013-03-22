@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Goliath.Data;
 using Goliath.Data.Mapping;
+using Goliath.Data.Providers;
 using Goliath.Data.Utils;
 
 namespace Goliath.Data.CodeGenerator
@@ -52,6 +53,14 @@ namespace Goliath.Data.CodeGenerator
             return string.Empty;
         }
 
+        /// <summary>
+        /// Prints the property description attribute.
+        /// </summary>
+        /// <param name="property">The property.</param>
+        /// <param name="entity">The entity.</param>
+        /// <param name="resourceType">Type of the resource.</param>
+        /// <returns></returns>
+        /// <exception cref="System.ArgumentNullException">entity</exception>
         public static string PrintPropertyDescriptionAttribute(this Property property, EntityMap entity, string resourceType)
         {
             if (entity == null) throw new ArgumentNullException("entity");
@@ -61,7 +70,7 @@ namespace Goliath.Data.CodeGenerator
             displaySb.AppendFormat("Display(Name = \"{0}\", Description = \"{1}\", ResourceType = typeof({2})", PrintResourceName(property, entity, ResourceItemType.Label),
                 PrintResourceName(property, entity, ResourceItemType.Description), resourceType);
 
-            if(property.MetaDataAttributes.Count > 0)
+            if (property.MetaDataAttributes.Count > 0)
             {
                 string displayPrompt;
                 if (property.MetaDataAttributes.TryGetValue("display_prompt", out displayPrompt))
@@ -92,7 +101,7 @@ namespace Goliath.Data.CodeGenerator
                 displaySb.Append(")");
                 sb.AppendFormat("[{0}]", displaySb.ToString());
             }
-           
+
             return sb.ToString();
         }
 
@@ -108,7 +117,6 @@ namespace Goliath.Data.CodeGenerator
             if (key == null) throw new ArgumentNullException("key");
             return property.MetaDataAttributes.TryGetValue(key, out attributeValue);
         }
-
 
         /// <summary>
         /// Prints the display description.
@@ -147,6 +155,13 @@ namespace Goliath.Data.CodeGenerator
             return PrintDescription(property);
         }
 
+        /// <summary>
+        /// Prints the name of the resource.
+        /// </summary>
+        /// <param name="entity">The entity.</param>
+        /// <param name="resourceType">Type of the resource.</param>
+        /// <returns></returns>
+        /// <exception cref="System.ArgumentNullException">entity</exception>
         public static string PrintResourceName(this EntityMap entity, ResourceItemType resourceType)
         {
             if (entity == null) throw new ArgumentNullException("entity");
@@ -233,6 +248,55 @@ namespace Goliath.Data.CodeGenerator
             if (classFullName == null) throw new ArgumentNullException("classFullName");
             var xname = classFullName.Substring(classFullName.LastIndexOf(".") + 1);
             return xname;
+        }
+
+        public static string PrintStatementParameters(SqlDialect dialect, StatementMap stat)
+        {
+            var parameters = new List<string>();
+
+            if (stat.InputParametersMap.Count > 0)
+            {
+                foreach (var inputParam in stat.InputParametersMap)
+                {
+                    parameters.Add(string.Format("{0} {1}", inputParam.Value, inputParam.Key));
+                }
+            }
+            else if (stat.DbParametersMap.Count > 0)
+            {
+                foreach (var dbParam in stat.DbParametersMap)
+                {
+                    string dbParamType;
+                    if (dbParam.Value == null)
+                        dbParamType = "object";
+                    else
+                        dbParamType = SqlDialect.PrintClrTypeToString(dialect.GetClrType(dbParam.Value.Value, true), false);
+                    parameters.Add(string.Format("{0} {1}", dbParamType, dbParam.Key));
+                }
+            }
+
+            return string.Join(", ", parameters);
+        }
+
+        public static string PrintStatementQueryParams(SqlDialect dialect, StatementMap stat)
+        {
+            var parameters = new List<string>();
+
+            if (stat.InputParametersMap.Count > 0)
+            {
+                foreach (var inputParam in stat.InputParametersMap)
+                {
+                    parameters.Add(string.Format("new QueryParam(\"{0}\", {0})", inputParam.Key));
+                }
+            }
+            else if (stat.DbParametersMap.Count > 0)
+            {
+                foreach (var dbParam in stat.DbParametersMap)
+                {
+                    parameters.Add(string.Format("new QueryParam(\"{0}\", {0})", dbParam.Key));
+                }
+            }
+
+            return string.Join(", ", parameters);
         }
     }
 
