@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data;
 
 namespace Goliath.Data
 {
@@ -44,6 +45,16 @@ namespace Goliath.Data
         public override string ToString()
         {
             return Name;
+        }
+
+        internal static QueryParam CreateParameter(Mapping.Property property, string paramName, object value)
+        {
+            if ((value != null) && property.IsComplexType && value.GetType().IsEnum && 
+                ((property.DbType == DbType.String) || (property.DbType == DbType.AnsiString) || (property.DbType == DbType.AnsiStringFixedLength) || (property.DbType == DbType.StringFixedLength)))
+            {
+                return new QueryParam(paramName, value.ToString());
+            }
+            else return new QueryParam(paramName, value);
         }
     }
 }
