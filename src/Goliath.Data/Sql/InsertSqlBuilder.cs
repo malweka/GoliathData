@@ -94,7 +94,8 @@ namespace Goliath.Data.Sql
 
                         info.Columns.Add(paramName, prop.ColumnName);
                         var propVal = pinf.GetMethod(entity);
-                        info.Parameters.Add(paramName, new QueryParam(paramName, propVal));
+                        //info.Parameters.Add(paramName, new QueryParam(paramName, propVal));
+                        info.Parameters.Add(paramName, QueryParam.CreateParameter(prop, paramName, propVal));
                     }
                 }
             }

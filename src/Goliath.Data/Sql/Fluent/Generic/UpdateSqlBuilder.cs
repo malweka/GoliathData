@@ -131,7 +131,8 @@ namespace Goliath.Data.Sql
                 }
             }
 
-            Tuple<QueryParam, bool> tuple = Tuple.Create(new QueryParam(string.Format("{0}_{1}",entityMap.TableAlias, prop.ColumnName)) { Value = val }, isRel);
+            //Tuple<QueryParam, bool> tuple = Tuple.Create(new QueryParam(string.Format("{0}_{1}",entityMap.TableAlias, prop.ColumnName)) { Value = val }, isRel);
+            Tuple<QueryParam, bool> tuple = Tuple.Create(QueryParam.CreateParameter(prop, string.Format("{0}_{1}", entityMap.TableAlias, prop.ColumnName), val), isRel);
             updateBodyInfo.Columns.Add(prop.ColumnName, tuple);
         }
 

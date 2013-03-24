@@ -133,11 +133,18 @@ namespace Goliath.Data.Mapping
         {
             if (IsComplexType && (entity.Parent != null))
             {
-                var complexT = entity.Parent.ComplexTypes[ComplexTypeName];
-                if (complexT != null)
+                ComplexType complexT;
+                if (entity.Parent.ComplexTypes.TryGetValue(ComplexTypeName, out complexT))
                 {
                     return complexT.FullName;
                 }
+                else
+                    return ComplexTypeName;
+                //var complexT = entity.Parent.ComplexTypes[ComplexTypeName];
+                //if (complexT != null)
+                //{
+                //    return complexT.FullName;
+                //}
             }
             else
             {
