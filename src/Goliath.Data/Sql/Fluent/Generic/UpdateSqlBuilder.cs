@@ -204,6 +204,11 @@ namespace Goliath.Data.Sql
 
         public override int Execute()
         {
+            //if it's a trackable entity and no changes where made, let's not waste our time running a query
+            var trackable = entity as ITrackable;
+            if (trackable != null && !trackable.IsDirty)
+                return 0;
+
             var execList = Build();
             int total = 0;
             var runner = new SqlCommandRunner();
