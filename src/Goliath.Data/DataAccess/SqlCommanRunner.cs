@@ -287,7 +287,7 @@ namespace Goliath.Data.DataAccess
 
             try
             {
-                if (instanceType.IsPrimitive)
+                if (instanceType.IsPrimitive || typeof(string) == instanceType || typeof(Guid) == instanceType || typeof(DateTime) == instanceType || typeof(DateTimeOffset) == instanceType)
                 {
                     value = ExecuteScalar<T>(dbConn, session, sql, paramArray);
                 }
