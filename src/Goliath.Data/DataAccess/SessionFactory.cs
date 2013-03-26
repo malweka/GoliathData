@@ -6,9 +6,9 @@ namespace Goliath.Data.DataAccess
     [Serializable]
     class SessionFactory : ISessionFactory
     {
-        Func<MapConfig, IEntitySerializer, IDataAccessAdapterFactory> adapterFactoryFactoryMethod;
+        readonly Func<MapConfig, IEntitySerializer, IDataAccessAdapterFactory> adapterFactoryFactoryMethod;
         IDataAccessAdapterFactory adapterFactory;
-        IEntitySerializer serializer;
+        readonly IEntitySerializer serializer;
 
 
         public IEntitySerializer DataSerializer
@@ -30,6 +30,7 @@ namespace Goliath.Data.DataAccess
 
         public IDatabaseSettings DbSettings { get; private set; }
 
+        private IConnectionManager connectionManager;
         public SessionFactory(IDatabaseSettings settings, Func<MapConfig, IEntitySerializer, IDataAccessAdapterFactory> adapterFactoryFactoryMethod, IEntitySerializer serializer)
         {
             if (settings == null)
@@ -42,12 +43,14 @@ namespace Goliath.Data.DataAccess
             this.serializer = serializer;
             this.adapterFactoryFactoryMethod = adapterFactoryFactoryMethod;
             DbSettings = settings;
+
+            connectionManager = new ConnectionManager(DbSettings.Connector, DbSettings.Connector.AllowMultipleConnections);
         }
 
-        ISession CreateSession(IConnectionProvider connProvider)
-        {
-            return new Session(this, connProvider);
-        }
+        //ISession CreateSession(IConnectionProvider connProvider)
+        //{
+        //    return new Session(this, connProvider);
+        //}
 
         #region ISessionFactory Members
 
@@ -56,13 +59,13 @@ namespace Goliath.Data.DataAccess
             if (connection == null)
                 throw new ArgumentNullException("connection");
 
-            var sess = CreateSession(new UserProvidedConnectionProvider(connection));
+            var sess = new Session(this, new ConnectionManager(DbSettings.Connector, connection, DbSettings.Connector.AllowMultipleConnections));
             return sess;
         }
 
         public ISession OpenSession()
         {
-            var sess = CreateSession(new ConnectionProvider(DbSettings.Connector));
+            var sess = new Session(this, connectionManager);
             return sess;
         }
 

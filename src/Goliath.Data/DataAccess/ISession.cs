@@ -1,13 +1,13 @@
-﻿using Goliath.Data.DataAccess;
+﻿using System;
+using Goliath.Data.DataAccess;
 
 namespace Goliath.Data
 {
-    
-
+   
     /// <summary>
     /// 
     /// </summary>
-    public interface ISession : ISqlInterface
+    public interface ISession : ISqlInterface, IDisposable
     {
         #region Properties 
 
@@ -21,7 +21,7 @@ namespace Goliath.Data
         /// Gets the connection manager.
         /// </summary>
         /// <value>The connection manager.</value>
-        ConnectionManager ConnectionManager { get; }
+        IConnectionManager ConnectionManager { get; }
 
         /// <summary>
         /// Gets the id.
@@ -69,6 +69,8 @@ namespace Goliath.Data
         /// </summary>
         /// <returns></returns>
         ITransaction RollbackTransaction();
+
+        void Close();
 
         #endregion
     }

@@ -49,10 +49,9 @@ namespace Goliath.Data.DataAccess
         {
             try
             {
-                var currConnection = session.ConnectionManager.CurrentConnection;
-
-                if (currConnection.State != ConnectionState.Open)
-                    currConnection.Open();
+                var currConnection = session.ConnectionManager.OpenConnection();
+                //if (currConnection.State != ConnectionState.Open)
+                //    currConnection.Open();
                 
                 if (isolatedLevel == IsolationLevel.Unspecified)
                     transaction = currConnection.BeginTransaction();
