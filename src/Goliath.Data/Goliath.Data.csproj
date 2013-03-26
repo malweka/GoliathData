@@ -62,6 +62,7 @@
     <Compile Include="Collections\TrackableList.cs" />
     <Compile Include="CompiledStatement.cs" />
     <Compile Include="DataAccess\EntitySerialization\IEntityFactory.cs" />
+    <Compile Include="DataAccess\IConnectionManager.cs" />
     <Compile Include="DataAccess\ISqlInterface.cs" />
     <Compile Include="DataAccess\MappedStatementRunner.cs" />
     <Compile Include="DataAccess\SqlCommanRunner.cs" />
@@ -80,10 +81,8 @@
     <Compile Include="Config\IDatabaseSettings.cs" />
     <Compile Include="DataAccess\AdoTransaction.cs" />
     <Compile Include="DataAccess\ConnectionManager.cs" />
-    <Compile Include="DataAccess\ConnectionProvider.cs" />
     <Compile Include="DataAccess\DataAccessAdapterFactory.cs" />
     <Compile Include="DataAccess\EntitySerialization\EntitySerializer.cs" />
-    <Compile Include="DataAccess\IConnectionProvider.cs" />
     <Compile Include="DataAccess\IDbConnector.cs" />
     <Compile Include="DataAccess\EntitySerialization\IEntitySerializer.cs" />
     <Compile Include="DataAccess\ITypeConverter.cs" />

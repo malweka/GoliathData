@@ -1,18 +1,24 @@
 ﻿using System;
 using System.Data;
 using System.Data.Common;
+using Goliath.Data.Diagnostics;
 
 namespace Goliath.Data.DataAccess
 {
     /// <summary>
     /// 
     /// </summary>
-    public class ConnectionManager : IDisposable
+    public class ConnectionManager : IDisposable, IConnectionManager
     {
-        IConnectionProvider connectionProvider;
+        IDbConnector dbConnector;
         bool keepConnectionAlive;
         DbConnection currentConn;
+        static ILogger logger;
 
+        static ConnectionManager()
+        {
+            logger = Logger.GetLogger(typeof(ConnectionManager));
+        }
         /// <summary>
         /// Gets the current connection.
         /// </summary>
@@ -30,16 +36,38 @@ namespace Goliath.Data.DataAccess
         /// </value>
         public bool HasOpenConnection { get; private set; }
 
+        private bool userProvidedConnection;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="ConnectionManager"/> class.
         /// </summary>
-        /// <param name="connectionProvider">The connection provider.</param>
+        /// <param name="dbConnector">The db connector.</param>
         /// <param name="keepConnectionAlive">if set to <c>true</c> [keep connection alive].</param>
-        public ConnectionManager(IConnectionProvider connectionProvider, bool keepConnectionAlive)
+        public ConnectionManager(IDbConnector dbConnector, bool keepConnectionAlive)
+            : this(dbConnector, null, keepConnectionAlive)
         {
-            this.connectionProvider = connectionProvider;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ConnectionManager"/> class.
+        /// </summary>
+        /// <param name="dbConnector">The db connector.</param>
+        /// <param name="userConnection">The user connection.</param>
+        /// <param name="keepConnectionAlive">if set to <c>true</c> [keep connection alive].</param>
+        public ConnectionManager(IDbConnector dbConnector, DbConnection userConnection, bool keepConnectionAlive)
+        {
+            this.dbConnector = dbConnector;
             this.keepConnectionAlive = keepConnectionAlive;
-            currentConn = connectionProvider.GetConnection();
+
+            if (userConnection != null)
+            {
+                currentConn = userConnection;
+                userProvidedConnection = true;
+                this.keepConnectionAlive = true;
+
+                if (userConnection.State == ConnectionState.Open)
+                    HasOpenConnection = true;
+            }
         }
 
         /// <summary>
@@ -50,10 +78,35 @@ namespace Goliath.Data.DataAccess
         {
             if (!HasOpenConnection)
             {
-                if (currentConn.State != ConnectionState.Open)
-                    currentConn.Open();
+                if (!userProvidedConnection)
+                    currentConn = dbConnector.CreateNewConnection();
+
+                currentConn.Open();
                 HasOpenConnection = true;
             }
+            else
+            {
+                if (currentConn.State == ConnectionState.Broken)
+                {
+                    try
+                    {
+                        currentConn.Close();
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.LogException("Closing broken connection failed.", ex);
+                    }
+
+                    currentConn = dbConnector.CreateNewConnection();
+                    currentConn.Open();
+                }
+                else if (currentConn.State == ConnectionState.Closed)
+                {
+                    currentConn = dbConnector.CreateNewConnection();
+                    currentConn.Open();
+                }
+            }
+
             return currentConn;
         }
 
@@ -62,12 +115,17 @@ namespace Goliath.Data.DataAccess
         /// </summary>
         public void CloseConnection()
         {
-            if (!keepConnectionAlive)
+            if (!keepConnectionAlive && HasOpenConnection)
             {
-                connectionProvider.DiscardOfConnection(currentConn);
-                currentConn = connectionProvider.GetConnection();
+                currentConn.Close();
+                currentConn = null;
+                HasOpenConnection = false;
             }
-            HasOpenConnection = false;
+            else if(userProvidedConnection)
+            {
+                currentConn = null;
+                HasOpenConnection = false;
+            }
         }
 
         #region IDisposable Members
@@ -77,17 +135,17 @@ namespace Goliath.Data.DataAccess
         /// </summary>
         public void Dispose()
         {
-            if (currentConn != null)
-            {
-                connectionProvider.DiscardOfConnection(currentConn);
+            //if (currentConn != null)
+            //{
+            //    connectionProvider.DiscardOfConnection(currentConn);
 
-                if (keepConnectionAlive)
-                {
-                    DbConnection connRef = currentConn;
-                    currentConn = null;
-                }
-            }
-            
+            //    if (keepConnectionAlive)
+            //    {
+            //        DbConnection connRef = currentConn;
+            //        currentConn = null;
+            //    }
+            //}
+
         }
 
         #endregion

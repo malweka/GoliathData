@@ -34,7 +34,7 @@ namespace Goliath.Data.DynamicProxy
         {
             logger.Log(LogLevel.Debug, "opening connection for proxy query");
             var dbAccess = settings.CreateAccessor();
-            using (ConnectionManager connManager = new ConnectionManager(new ConnectionProvider(settings.Connector), !settings.Connector.AllowMultipleConnections))
+            using (var connManager = new ConnectionManager(settings.Connector, !settings.Connector.AllowMultipleConnections))
             {
                 try
                 {

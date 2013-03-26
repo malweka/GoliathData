@@ -209,6 +209,7 @@ namespace Goliath.Data.DataAccess
             {
                 throw new GoliathDataException(string.Format("Exception while running sql command: {0}", sql), ex);
             }
+           
         }
 
         /// <summary>

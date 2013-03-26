@@ -17,7 +17,7 @@ namespace Goliath.Data.DataAccess
         ITransaction currentTransaction;
         readonly SqlCommandRunner commandRunner = new SqlCommandRunner();
         readonly IMappedStatementParser statementParser = new StatementMapParser();
-        public ConnectionManager ConnectionManager { get; private set; }
+        public IConnectionManager ConnectionManager { get; private set; }
         public ISessionFactory SessionFactory { get; private set; }
 
         #region .Ctor
@@ -27,11 +27,19 @@ namespace Goliath.Data.DataAccess
             logger = Logger.GetLogger(typeof(Session));
         }
 
-        public Session(ISessionFactory sessionFactory, IConnectionProvider connectionProvider)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Session"/> class.
+        /// </summary>
+        /// <param name="sessionFactory">The session factory.</param>
+        /// <param name="connectionManager">The connection manager.</param>
+        public Session(ISessionFactory sessionFactory, IConnectionManager connectionManager)
         {
+            if (sessionFactory == null) throw new ArgumentNullException("sessionFactory");
+            if (connectionManager == null) throw new ArgumentNullException("connectionManager");
+
             id = Guid.NewGuid().ToString().Replace("-", string.Empty).ToLower();
             SessionFactory = sessionFactory;
-            ConnectionManager = new ConnectionManager(connectionProvider, !sessionFactory.DbSettings.Connector.AllowMultipleConnections);
+            ConnectionManager = connectionManager;
         }
 
         void DisposeOfConnection(IDbConnection connection)
@@ -352,5 +360,20 @@ namespace Goliath.Data.DataAccess
 
         #endregion
 
+        public void Close()
+        {
+            if (ConnectionManager.HasOpenConnection)
+                ConnectionManager.CloseConnection();
+        }
+
+
+        #region IDisposable Members
+
+        public void Dispose()
+        {
+            Close();
+        }
+
+        #endregion
     }
 }

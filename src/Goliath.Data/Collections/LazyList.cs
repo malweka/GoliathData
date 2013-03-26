@@ -100,7 +100,7 @@ namespace Goliath.Data.Collections
             {
                 logger.Log(LogLevel.Debug, "Opening connection for lazy collection query");
                 var dbAccess = settings.CreateAccessor();
-                using (var connManager = new ConnectionManager(new ConnectionProvider(settings.Connector), !settings.Connector.AllowMultipleConnections))
+                using (var connManager = new ConnectionManager(settings.Connector, !settings.Connector.AllowMultipleConnections))
                 {
                     QueryParam[] parameters = null;
 

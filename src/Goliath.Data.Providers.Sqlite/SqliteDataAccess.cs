@@ -12,6 +12,19 @@ namespace Goliath.Data.Providers.Sqlite
     {
         static ILogger logger;
 
+
+        public override bool AllowMultipleConnections
+        {
+            get
+            {
+                return false;
+            }
+            protected set
+            {
+
+            }
+        }
+
         static SqliteDbConnector()
         {
             logger = Logger.GetLogger(typeof(SqliteDbConnector));
@@ -24,7 +37,7 @@ namespace Goliath.Data.Providers.Sqlite
         public SqliteDbConnector(string connectionString)
             : base(connectionString, RdbmsBackend.SupportedSystemNames.Sqlite3)
         {
-            AllowMultipleConnections = false;
+
         }
 
         /// <summary>
