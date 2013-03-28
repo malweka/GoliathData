@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using Goliath.Data.Entity;
 
@@ -71,7 +72,7 @@ namespace Goliath.Data.DynamicProxy
         #endregion
     }
 
-    public class FakeTrackableProxyClass : FakeBaseProxy, ILazyObject, ITrackable, INotifyPropertyChanged, ICustomTypeDescriptor
+    public class FakeTrackableProxyClass : FakeBaseProxy, ILazyObject, ITrackable, INotifyPropertyChanged
     {
         Type _typeToProxy;
         bool _isLoaded;
@@ -83,7 +84,15 @@ namespace Goliath.Data.DynamicProxy
             _typeToProxy = typeToProxy;
             _isLoaded = (proxyHydrator == null);
             _proxyHydrator = proxyHydrator;
-            _changeTracker = new ChangeTracker();
+            _changeTracker = new ChangeTracker(GetInitialValues);
+        }
+
+        static IDictionary<string, object> GetInitialValues()
+        {
+            IDictionary<string, object> initialValues = new Dictionary<string, object>();
+            initialValues.Add("Name", null);
+            initialValues.Add("Age", null);
+            return null;
         }
 
         public override string Name
@@ -203,68 +212,7 @@ namespace Goliath.Data.DynamicProxy
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        #endregion
-
-        public AttributeCollection GetAttributes()
-        {
-            return TypeDescriptor.GetAttributes(this, true);
-        }
-
-        string ICustomTypeDescriptor.GetClassName()
-        {
-            return TypeDescriptor.GetClassName(this, true);
-        }
-
-        string ICustomTypeDescriptor.GetComponentName()
-        {
-            return TypeDescriptor.GetComponentName(this, true);
-        }
-
-        TypeConverter ICustomTypeDescriptor.GetConverter()
-        {
-            return TypeDescriptor.GetConverter(this, true);
-        }
-
-        EventDescriptor ICustomTypeDescriptor.GetDefaultEvent()
-        {
-            return TypeDescriptor.GetDefaultEvent(this, true);
-        }
-
-        PropertyDescriptor ICustomTypeDescriptor.GetDefaultProperty()
-        {
-            return TypeDescriptor.GetDefaultProperty(this, true);
-        }
-
-        object ICustomTypeDescriptor.GetEditor(Type editorBaseType)
-        {
-            return TypeDescriptor.GetEditor(this, editorBaseType, true);
-        }
-
-        EventDescriptorCollection ICustomTypeDescriptor.GetEvents(Attribute[] attributes)
-        {
-            return TypeDescriptor.GetEvents(this, attributes, true);
-        }
-
-        EventDescriptorCollection ICustomTypeDescriptor.GetEvents()
-        {
-            return TypeDescriptor.GetEvents(this, true);
-        }
-
-        public PropertyDescriptorCollection GetProperties(Attribute[] attributes)
-        {
-            //The control must be passed to the method.
-            return TypeDescriptor.GetProperties(GetType(), attributes);
-        }
-
-        public PropertyDescriptorCollection GetProperties()
-        {
-            return TypeDescriptor.GetProperties(GetType());
-        }
-
-        object ICustomTypeDescriptor.GetPropertyOwner(PropertyDescriptor pd)
-        {
-            return this;
-        }
+        #endregion   
     }
 
     public class FakeBaseProxy

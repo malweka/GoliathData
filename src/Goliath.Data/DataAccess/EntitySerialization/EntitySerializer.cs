@@ -17,12 +17,12 @@ namespace Goliath.Data.DataAccess
     class EntitySerializer : IEntitySerializer, IEntityFactory
     {
 
-        static ConcurrentDictionary<Type, Delegate> factoryList = new ConcurrentDictionary<Type, Delegate>();
+        static readonly ConcurrentDictionary<Type, Delegate> factoryList = new ConcurrentDictionary<Type, Delegate>();
 
         static ILogger logger;
         internal ITypeConverterStore TypeConverterStore { get; set; }
-        EntityAccessorStore EntityAccessorStore = new EntityAccessorStore();
-        IDatabaseSettings settings;
+        readonly EntityAccessorStore EntityAccessorStore = new EntityAccessorStore();
+        readonly IDatabaseSettings settings;
 
         MapConfig Map
         {
@@ -282,7 +282,7 @@ namespace Goliath.Data.DataAccess
         {
             Func<DbDataReader, IEntityMap, IList<TEntity>> func = (dbReader, model) =>
             {
-                List<TEntity> list = new List<TEntity>();
+                var list = new List<TEntity>();
 
                 Type type = typeof(TEntity);
                 EntityAccessor entityAccessor;
@@ -290,7 +290,7 @@ namespace Goliath.Data.DataAccess
 
                 if (model is EntityMap)
                 {
-                    EntityMap entityMap = (EntityMap)model;
+                    var entityMap = (EntityMap)model;
                     columns = GetColumnNames(dbReader, model.TableAlias);
 
                     //TODO: should we cache everything?
@@ -314,7 +314,7 @@ namespace Goliath.Data.DataAccess
                 }
                 else if (model is ComplexType)
                 {
-                    ComplexType complexType = (ComplexType)model;
+                    var complexType = (ComplexType)model;
                     columns = GetColumnNames(dbReader, null);
                     entityAccessor = EntityAccessorStore.GetEntityAccessor(type, complexType);
 
@@ -334,15 +334,15 @@ namespace Goliath.Data.DataAccess
 
         internal static Dictionary<string, int> GetColumnNames(DbDataReader dbReader, string tableAlias)
         {
-            Dictionary<string, int> columns = new Dictionary<string, int>();
+            var columns = new Dictionary<string, int>();
 
-            for (int i = 0; i < dbReader.FieldCount; i++)
+            for (var i = 0; i < dbReader.FieldCount; i++)
             {
                 var fieldName = dbReader.GetName(i);
 
                 if (!string.IsNullOrWhiteSpace(tableAlias))
                 {
-                    string tabb = string.Format("{0}_", tableAlias);
+                    var tabb = string.Format("{0}_", tableAlias);
                     if (fieldName.StartsWith(tabb))
                     {
                         var colName = ParameterNameBuilderHelper.GetPropNameFromQueryName(fieldName, tableAlias);
@@ -361,10 +361,13 @@ namespace Goliath.Data.DataAccess
         {
             var trackable = instanceEntity as ITrackable;
             bool pkHasValue = false;
+
             if (trackable != null)
             {
-                trackable.ChangeTracker.Clear();
-                trackable.ChangeTracker.Start();
+                logger.Log(LogLevel.Debug, "Stopping and clearing Entity change tracker.");
+                trackable.ChangeTracker.StopAndClear();
+                logger.Log(LogLevel.Debug, "Initializing trackable entity change tracker.");
+                trackable.ChangeTracker.Init();
             }
 
             EntityMap superEntityMap = null;
@@ -388,54 +391,59 @@ namespace Goliath.Data.DataAccess
                 if ((prop == null) && (superEntityMap != null))
                     prop = superEntityMap[keyVal.Key];
 
-                int ordinal;
                 if (prop != null)
                 {
                     if (prop is Relation)
                     {
                         //logger.Log(LogLevel.Info, string.Format("Read {0} is a relation", keyVal.Key));
-                        Relation rel = (Relation)prop;
+                        var rel = (Relation)prop;
                         switch (rel.RelationType)
                         {
                             case RelationshipType.ManyToOne:
-                                SerializeManyToOne manyToOneHelper = new SerializeManyToOne(SqlDialect, EntityAccessorStore);
+                                var manyToOneHelper = new SerializeManyToOne(SqlDialect, EntityAccessorStore);
                                 manyToOneHelper.Serialize(settings, this, rel, instanceEntity, keyVal.Value, entityMap, entityAccessor, columns, dbReader);
                                 break;
                             case RelationshipType.OneToMany:
-                                SerializeOneToMany oneToManyHelper = new SerializeOneToMany(SqlDialect, EntityAccessorStore);
+                                var oneToManyHelper = new SerializeOneToMany(SqlDialect, EntityAccessorStore);
                                 oneToManyHelper.Serialize(settings, this, rel, instanceEntity, keyVal.Value, entityMap, entityAccessor, columns, dbReader);
                                 break;
                             case RelationshipType.ManyToMany:
-                                SerializeManyToMany manyToMany = new SerializeManyToMany(SqlDialect, EntityAccessorStore);
+                                var manyToMany = new SerializeManyToMany(SqlDialect, EntityAccessorStore);
                                 manyToMany.Serialize(settings, this, rel, instanceEntity, keyVal.Value, entityMap, entityAccessor, columns, dbReader);
-                                break;
-                            default:
                                 break;
                         }
 
                     }
-                    else if (columns.TryGetValue(prop.ColumnName, out ordinal))
+                    else
                     {
-                        var val = dbReader[ordinal];
-                        var fieldType = dbReader.GetFieldType(ordinal);
-                        if ((fieldType == keyVal.Value.PropertyType) && (val != DBNull.Value))
+                        int ordinal;
+                        if (columns.TryGetValue(prop.ColumnName, out ordinal))
                         {
-                            if (prop.IsPrimaryKey)
-                                pkHasValue = true;
-                            keyVal.Value.SetMethod(instanceEntity, val);
-                        }
-                        else if (keyVal.Value.PropertyType.IsEnum)
-                        {
-                            if (prop.IsPrimaryKey)
-                                pkHasValue = true;
+                            var val = dbReader[ordinal];
+                            var fieldType = dbReader.GetFieldType(ordinal);
+                            if ((fieldType == keyVal.Value.PropertyType) && (val != DBNull.Value))
+                            {
+                                if (prop.IsPrimaryKey)
+                                    pkHasValue = true;
+                                keyVal.Value.SetMethod(instanceEntity, val);
+                                LoadInitialValueForInTracker(trackable, prop.PropertyName, val);
+                            }
+                            else if (keyVal.Value.PropertyType.IsEnum)
+                            {
+                                if (prop.IsPrimaryKey)
+                                    pkHasValue = true;
 
-                            var enumVal = TypeConverterStore.ConvertToEnum(keyVal.Value.PropertyType, val);
-                            keyVal.Value.SetMethod(instanceEntity, enumVal);
-                        }
-                        else
-                        {
-                            var converter = TypeConverterStore.GetConverterFactoryMethod(keyVal.Value.PropertyType);
-                            keyVal.Value.SetMethod(instanceEntity, converter.Invoke(val));
+                                var enumVal = TypeConverterStore.ConvertToEnum(keyVal.Value.PropertyType, val);
+                                keyVal.Value.SetMethod(instanceEntity, enumVal);
+                                LoadInitialValueForInTracker(trackable, prop.PropertyName, enumVal);
+                            }
+                            else
+                            {
+                                var converter = TypeConverterStore.GetConverterFactoryMethod(keyVal.Value.PropertyType);
+                                var convertedValue = converter.Invoke(val);
+                                keyVal.Value.SetMethod(instanceEntity, convertedValue);
+                                LoadInitialValueForInTracker(trackable, prop.PropertyName, convertedValue);
+                            }
                         }
                     }
                 }
@@ -443,9 +451,18 @@ namespace Goliath.Data.DataAccess
 
             if (trackable != null)
             {
+                trackable.ChangeTracker.Start();
                 trackable.Version = trackable.ChangeTracker.Version;
+                logger.Log(LogLevel.Debug, string.Format("Restarted tracker -- version {0}.", trackable.Version));
             }
+
             return pkHasValue;
+        }
+
+        void LoadInitialValueForInTracker(ITrackable trackable, string propertyName, object value)
+        {
+            if (trackable == null) return;
+            trackable.ChangeTracker.LoadInitialValue(propertyName, value);
         }
 
         internal void SerializeSingle(object instanceEntity, Type type, ComplexType complextType, EntityAccessor entityAccessor, Dictionary<string, int> columns, DbDataReader dbReader)
@@ -453,8 +470,10 @@ namespace Goliath.Data.DataAccess
             var trackable = instanceEntity as ITrackable;
             if (trackable != null)
             {
-                trackable.ChangeTracker.Clear();
-                trackable.ChangeTracker.Start();
+                logger.Log(LogLevel.Debug, "Stopping and clearing Entity change tracker.");
+                trackable.ChangeTracker.StopAndClear();
+                logger.Log(LogLevel.Debug, "Initializing trackable entity change tracker.");
+                trackable.ChangeTracker.Init();
             }
 
             foreach (var keyVal in entityAccessor.Properties)
@@ -478,23 +497,30 @@ namespace Goliath.Data.DataAccess
                         if ((fieldType == keyVal.Value.PropertyType) && (val != DBNull.Value) && (val != null))
                         {
                             keyVal.Value.SetMethod(instanceEntity, val);
+                            LoadInitialValueForInTracker(trackable, prop.PropertyName, val);
                         }
                         else if (keyVal.Value.PropertyType.IsEnum)
                         {
                             var enumVal = TypeConverterStore.ConvertToEnum(keyVal.Value.PropertyType, val);
                             keyVal.Value.SetMethod(instanceEntity, enumVal);
+                            LoadInitialValueForInTracker(trackable, prop.PropertyName, enumVal);
                         }
                         else
                         {
                             var converter = TypeConverterStore.GetConverterFactoryMethod(keyVal.Value.PropertyType);
-                            keyVal.Value.SetMethod(instanceEntity, converter.Invoke(val));
+                            var convertedValue = converter.Invoke(val);
+                            keyVal.Value.SetMethod(instanceEntity, convertedValue);
+                            LoadInitialValueForInTracker(trackable, prop.PropertyName, convertedValue);
                         }
                     }
                 }
             }
+
             if (trackable != null)
             {
+                trackable.ChangeTracker.Start();
                 trackable.Version = trackable.ChangeTracker.Version;
+                logger.Log(LogLevel.Debug, string.Format("Restarted tracker -- version {0}.", trackable.Version));
             }
         }
     }

@@ -48,7 +48,6 @@
     <Compile Include="BaseEntity.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="CodeGenerator.cs" />
     <Compile Include="Generated\Animal.cs">
       <SubType>Code</SubType>
     </Compile>

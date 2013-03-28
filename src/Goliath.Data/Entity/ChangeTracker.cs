@@ -12,30 +12,30 @@ namespace Goliath.Data.Entity
     [Serializable]
     public class ChangeTracker : IChangeTracker
     {
+
+        #region Properties and variables
+
         readonly Dictionary<string, TrackedItem> changeList = new Dictionary<string, TrackedItem>();
         readonly List<string> changes = new List<string>();
+        private Func<IDictionary<string, object>> getInitialValuesMethod;
         bool tracking;
+        private bool isInitialized;
+
+        /// <summary>
+        /// Gets a value indicating whether this instance is tracking.
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if this instance is tracking; otherwise, <c>false</c>.
+        /// </value>
+        public bool IsTracking
+        {
+            get { return tracking; }
+        }
 
         /// <summary>
         /// Gets the version.
         /// </summary>
         public long Version { get; private set; }
-
-        /// <summary>
-        /// Starts the tracking.
-        /// </summary>
-        public void Start()
-        {
-            tracking = true;
-        }
-
-        /// <summary>
-        /// Pauses the tracking.
-        /// </summary>
-        public void Pause()
-        {
-            tracking = false;
-        }
 
         /// <summary>
         /// Gets a value indicating whether this instance has changes.
@@ -51,29 +51,58 @@ namespace Goliath.Data.Entity
                 return hasChanges;
             }
         }
+        #endregion
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ChangeTracker" /> class.
-        /// </summary>
-        public ChangeTracker()
+        public void Init()
         {
-            Version = DateTime.UtcNow.Ticks;
+            if (isInitialized) return;
+
+            InitializeTrackList(getInitialValuesMethod());
+            isInitialized = true;
+            UpdateVersion();
         }
 
         /// <summary>
-        /// Loads the intial values.
+        /// Starts the tracking.
         /// </summary>
-        /// <param name="initialValues">The initial values.</param>
-        public void LoadIntialValues(Tuple<string, object>[] initialValues)
+        public void Start()
+        {
+            tracking = true;
+            Init();
+        }
+
+        /// <summary>
+        /// Pauses the tracking.
+        /// </summary>
+        public void Pause()
+        {
+            tracking = false;
+        }
+
+        void UpdateVersion()
+        {
+            Version = DateTime.UtcNow.Ticks;
+        }
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ChangeTracker"/> class.
+        /// </summary>
+        /// <param name="getInitialValuesMethod">The get initial values method.</param>
+        public ChangeTracker(Func<IDictionary<string, object>> getInitialValuesMethod)
+        {
+            if (getInitialValuesMethod == null) throw new ArgumentNullException("getInitialValuesMethod");
+            this.getInitialValuesMethod = getInitialValuesMethod;
+        }
+
+        void InitializeTrackList(IDictionary<string, object> initialValues)
         {
             if (tracking)
                 return;
 
             foreach (var tuple in initialValues)
             {
-                if (!string.IsNullOrWhiteSpace(tuple.Item1))
+                if (!string.IsNullOrWhiteSpace(tuple.Key) && !changeList.ContainsKey(tuple.Key))
                 {
-                    changeList.Add(tuple.Item1, new TrackedItem(tuple.Item1, tuple.Item2));
+                    changeList.Add(tuple.Key, new TrackedItem(tuple.Key, tuple.Value));
                 }
             }
         }
@@ -93,23 +122,49 @@ namespace Goliath.Data.Entity
         /// </summary>
         public void Reset()
         {
-            Version = DateTime.UtcNow.Ticks;
+            UpdateVersion();
+
             foreach (var item in changeList.Values)
             {
                 item.InitialValue = item.Value;
                 item.Version = Version;
             }
-            changes.Clear();
 
+            changes.Clear();
         }
 
         /// <summary>
         /// Clears changes.
         /// </summary>
-        public void Clear()
+        public void StopAndClear()
         {
             changes.Clear();
             changeList.Clear();
+            isInitialized = false;
+            tracking = false;
+            Version = 0;
+        }
+
+        /// <summary>
+        /// Loads the initial value.
+        /// </summary>
+        /// <param name="propertyName">Name of the property.</param>
+        /// <param name="value">The value.</param>
+        /// <returns></returns>
+        public bool LoadInitialValue(string propertyName, object value)
+        {
+            if (!tracking)
+            {
+                TrackedItem item;
+                if (changeList.TryGetValue(propertyName, out item))
+                {
+                    item.Value = value;
+                    item.Version = Version;
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         /// <summary>
@@ -131,7 +186,7 @@ namespace Goliath.Data.Entity
                 }
 
                 item.Value = value;
-                if (((item.InitialValue != null) && object.Equals(item.InitialValue,value)) || ((item.InitialValue == null) && (value == null)))
+                if (((item.InitialValue != null) && object.Equals(item.InitialValue, value)) || ((item.InitialValue == null) && (value == null)))
                 {
                     item.Version = Version;
                     if (changes.Contains(propertyName))
@@ -144,11 +199,11 @@ namespace Goliath.Data.Entity
                         changes.Add(propertyName);
                 }
             }
-            else
-            {
-                item = new TrackedItem(propertyName, value) { Version = Version };
-                changeList.Add(propertyName, item);
-            }
+            //else
+            //{
+            //    item = new TrackedItem(propertyName, value) { Version = Version };
+            //    changeList.Add(propertyName, item);
+            //}
         }
 
         /// <summary>
