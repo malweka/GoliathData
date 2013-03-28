@@ -47,9 +47,9 @@ namespace WebZoo.Data
             //Console.WriteLine(Guid.NewGuid().ToString("N"));
             MapConfig mapConfig = null;
             SupportedRdbms rdbms = SupportedRdbms.Mssql2008;
-            WebZooRunner zoorunner = new WebZooRunner(rdbms, new CodeGenerator(), AppDomain.CurrentDomain.BaseDirectory, true);
+            WebZooRunner zoorunner = new WebZooRunner(rdbms, new GenericCodeGenerator(), AppDomain.CurrentDomain.BaseDirectory, true);
             //mapConfig = zoorunner.CreateMap();
-            //zoorunner.GenerateCode();
+            //zoorunner.GenerateClasses();
 
 
             string mapfile = Path.Combine(zoorunner.WorkingFolder, Goliath.Data.CodeGen.Constants.MapFileName);
@@ -65,7 +65,7 @@ namespace WebZoo.Data
             compiled = parser.Parse(new SqliteDialect(), mapConfig, inputParams, template);
 
 
-            zoorunner = new WebZooRunner(SupportedRdbms.Sqlite3, new CodeGenerator(), AppDomain.CurrentDomain.BaseDirectory, true);
+            zoorunner = new WebZooRunner(SupportedRdbms.Sqlite3, new GenericCodeGenerator(), AppDomain.CurrentDomain.BaseDirectory, true);
             mapConfig.Settings.ConnectionString = zoorunner.Settings.ConnectionString;
             QueryTest(mapConfig);
             Console.WriteLine("done");

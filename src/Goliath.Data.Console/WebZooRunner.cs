@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using Goliath.Data.CodeGenerator;
+using Goliath.Data.Providers;
 
 namespace Goliath.Data.CodeGen
 {
@@ -197,14 +198,37 @@ namespace Goliath.Data.CodeGen
             }
 
             Settings.BaseModel = baseModel.FullName;
-            return codeGen.GenerateMapping(WorkingFolder, Settings, baseModel, rdbms);
+            SqlDialect dialect = new Mssq2008Dialect();
+            IDbConnector dbConnector = new MssqlDbConnector(Settings.ConnectionString);
+            IDbAccess db = new DbAccess(dbConnector);
+            using (ISchemaDescriptor schemaDescriptor = new MssqlSchemaDescriptor(db, dbConnector, dialect, Settings))
+            {
+                return codeGen.GenerateMapping(WorkingFolder, schemaDescriptor, Settings, baseModel, rdbms, Constants.MapFileName);
+            }
         }
 
-        public void GenerateCode()
+        public void GenerateClasses()
         {
-            codeGen.GenerateCode(TemplateFolder, WorkingFolder);
+            var mapfile = Path.Combine(WorkingFolder, Constants.MapFileName);
+            var templateFile = Path.Combine(TemplateFolder, "Class.razt");
+            codeGen.GenerateCodeForEachEntityMap(templateFile, WorkingFolder, mapfile, (name) => name + ".cs");
+        }
+
+        public void GenerateClasses(string mapFile)
+        {
+            var templateFile = Path.Combine(TemplateFolder, "Class.razt");
+            codeGen.GenerateCodeForEachEntityMap(templateFile, WorkingFolder, mapFile, (name) => name + ".cs");
+        }
+
+        public void GenerateClasses(MapConfig config)
+        {
+            var templateFile = Path.Combine(TemplateFolder, "Class.razt");
+            codeGen.GenerateCodeForEachEntityMap(templateFile, WorkingFolder, config, (name) => name + ".cs");
         }
     }
 
-    
+    public class Constants
+    {
+        public const string MapFileName = "Generated_GoData.Map.xml";
+    }
 }

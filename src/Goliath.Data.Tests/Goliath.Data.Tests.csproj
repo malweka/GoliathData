@@ -64,7 +64,6 @@
     <Compile Include="AdoTransactionTests.cs" />
     <Compile Include="AssemblySetupTestFixture.cs" />
     <Compile Include="BaseEntity.cs" />
-    <Compile Include="ConnectionProviderTests.cs" />
     <Compile Include="DatabaseInit.cs" />
     <Compile Include="DynamicEntityMapTests.cs" />
     <Compile Include="EntityAccessorStoreTests.cs" />
@@ -82,7 +81,6 @@
     <Compile Include="TrackableProxyBuilderTests.cs" />
     <Compile Include="UpdateSqlBuilderFluentTests.cs" />
     <Compile Include="UpdateSqlBuilderTests.cs" />
-    <Compile Include="UserProvidedConnectionProviderTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Entities\WebZoo\GoData.Map.xml" />

@@ -20,6 +20,26 @@ namespace Goliath.Data.Entity
         bool HasChanges { get; }
 
         /// <summary>
+        /// Gets a value indicating whether this instance is tracking.
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if this instance is tracking; otherwise, <c>false</c>.
+        /// </value>
+        bool IsTracking { get; }
+
+        /// <summary>
+        /// Inits this instance.
+        /// </summary>
+        void Init();
+
+        /// <summary>
+        /// Loads the initial value.
+        /// </summary>
+        /// <param name="propertyName">Name of the property.</param>
+        /// <param name="value">The value.</param>
+        bool LoadInitialValue(string propertyName, object value);
+
+        /// <summary>
         /// Starts the tracking.
         /// </summary>
         void Start();
@@ -43,13 +63,13 @@ namespace Goliath.Data.Entity
         /// <summary>
         /// Clears this instance.
         /// </summary>
-        void Clear();
+        void StopAndClear();
 
-        /// <summary>
-        /// Loads the intial values.
-        /// </summary>
-        /// <param name="initialValues">The initial values.</param>
-        void LoadIntialValues(Tuple<string, object>[] initialValues);
+        ///// <summary>
+        ///// Loads the intial values.
+        ///// </summary>
+        ///// <param name="initialValues">The initial values.</param>
+        //void LoadIntialValues(Tuple<string, object>[] initialValues);
 
         /// <summary>
         /// Tracks the specified property name.
