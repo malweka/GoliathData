@@ -59,7 +59,6 @@ namespace Goliath.Data.Entity
 
             InitializeTrackList(getInitialValuesMethod());
             isInitialized = true;
-            UpdateVersion();
         }
 
         /// <summary>
@@ -91,6 +90,7 @@ namespace Goliath.Data.Entity
         {
             if (getInitialValuesMethod == null) throw new ArgumentNullException("getInitialValuesMethod");
             this.getInitialValuesMethod = getInitialValuesMethod;
+            UpdateVersion();
         }
 
         void InitializeTrackList(IDictionary<string, object> initialValues)
@@ -120,14 +120,14 @@ namespace Goliath.Data.Entity
         /// <summary>
         /// Resets all the changes.
         /// </summary>
-        public void Reset()
+        public void CommitChanges()
         {
             UpdateVersion();
-
             foreach (var item in changeList.Values)
             {
                 item.InitialValue = item.Value;
                 item.Version = Version;
+                item.Value = null;
             }
 
             changes.Clear();

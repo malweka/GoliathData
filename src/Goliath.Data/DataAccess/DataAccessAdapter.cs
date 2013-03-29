@@ -142,7 +142,7 @@ namespace Goliath.Data
         void ResetTrackableEntity(ITrackable trackable)
         {
             if (trackable == null) return;
-            trackable.ChangeTracker.Reset();
+            trackable.ChangeTracker.CommitChanges();
             trackable.Version = trackable.ChangeTracker.Version;
         }
 
