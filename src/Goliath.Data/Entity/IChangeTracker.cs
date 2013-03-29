@@ -58,7 +58,7 @@ namespace Goliath.Data.Entity
         /// <summary>
         /// Resets this instance.
         /// </summary>
-        void Reset();
+        void CommitChanges();
 
         /// <summary>
         /// Clears this instance.

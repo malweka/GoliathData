@@ -325,6 +325,7 @@ namespace Goliath.Data.DataAccess
             else if (currentTransaction.IsStarted)
             {
                 //TODO: throw exception here?
+                return currentTransaction;
             }
 
             currentTransaction.Begin(isolationLevel);

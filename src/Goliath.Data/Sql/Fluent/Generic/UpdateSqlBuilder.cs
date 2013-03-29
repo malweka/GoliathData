@@ -6,6 +6,7 @@ using System.Linq.Expressions;
 using System.Text;
 using Goliath.Data.Collections;
 using Goliath.Data.DataAccess;
+using Goliath.Data.Diagnostics;
 using Goliath.Data.Entity;
 using Goliath.Data.Mapping;
 using Goliath.Data.Utils;
@@ -14,6 +15,13 @@ namespace Goliath.Data.Sql
 {
     public class UpdateSqlBuilder<T> : NonQuerySqlBuilderBase<T>
     {
+        static ILogger logger;
+
+        static UpdateSqlBuilder()
+        {
+            logger = Logger.GetLogger(typeof(UpdateSqlBuilder<T>));
+        }
+
         public UpdateSqlBuilder(ISession session, EntityMap entityMap, T entity) : base(session, entityMap, entity) { }
 
         public UpdateSqlBuilder(ISession session, T entity) : base(session, entity) { }
@@ -213,6 +221,10 @@ namespace Goliath.Data.Sql
             int total = 0;
             var runner = new SqlCommandRunner();
             var dialect = session.SessionFactory.DbSettings.SqlDialect;
+            //if(trackable != null)
+            //{
+            //    logger.Log(LogLevel.Debug, string.Format("changes found {0} ", trackable.ChangeTracker.GetChangedItems().Count));
+            //}
 
             foreach (var update in execList.Statements.Values)
             {
