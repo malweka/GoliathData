@@ -1,9 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
-using System.Data.Common;
-using System.Linq;
-using System.Text;
 using Goliath.Data.DataAccess;
 using Goliath.Data.Diagnostics;
 using Goliath.Data.Entity;
@@ -29,7 +25,7 @@ namespace Goliath.Data
         static ILogger logger;
         readonly EntityMap entityMap;
         readonly EntityAccessorStore entityAccessorStore = new EntityAccessorStore();
-        
+
         #region ctors
 
         static DataAccessAdapter()
@@ -141,7 +137,7 @@ namespace Goliath.Data
 
         void ResetTrackableEntity(ITrackable trackable)
         {
-            if (trackable == null) return;
+            if (trackable == null || !trackable.IsDirty) return;
             trackable.ChangeTracker.CommitChanges();
             trackable.Version = trackable.ChangeTracker.Version;
         }
@@ -216,7 +212,8 @@ namespace Goliath.Data
                 var result = execList.Execute(session);
 
                 //if it's a trackable entity let's reset it 
-                ResetTrackableEntity(entity as ITrackable);
+                var trackable = entity as ITrackable;
+                ResetTrackableEntity(trackable);
 
                 return result;
             }
