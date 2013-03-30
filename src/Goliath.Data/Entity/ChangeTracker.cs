@@ -142,7 +142,6 @@ namespace Goliath.Data.Entity
             changeList.Clear();
             isInitialized = false;
             tracking = false;
-            Version = 0;
         }
 
         /// <summary>
