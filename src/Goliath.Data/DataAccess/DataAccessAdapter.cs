@@ -213,8 +213,13 @@ namespace Goliath.Data
 
                 //if it's a trackable entity let's reset it 
                 var trackable = entity as ITrackable;
-                ResetTrackableEntity(trackable);
-
+                //ResetTrackableEntity(trackable);
+                if(trackable != null && !trackable.ChangeTracker.IsTracking)
+                {
+                    trackable.ChangeTracker.Init();
+                   //TODO: write method to initialize values;
+                    trackable.ChangeTracker.Start();
+                }
                 return result;
             }
             catch (GoliathDataException)

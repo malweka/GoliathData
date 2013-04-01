@@ -123,6 +123,7 @@ namespace Goliath.Data.Entity
         public void CommitChanges()
         {
             UpdateVersion();
+
             foreach (var item in changeList.Values)
             {
                 item.InitialValue = item.Value;
