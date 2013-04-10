@@ -209,7 +209,7 @@ namespace Goliath.Data.DataAccess
             {
                 throw new GoliathDataException(string.Format("Exception while running sql command: {0}", sql), ex);
             }
-           
+
         }
 
         /// <summary>
@@ -389,7 +389,7 @@ namespace Goliath.Data.DataAccess
 
             try
             {
-                if (instanceType.IsPrimitive)
+                if (instanceType.IsPrimitive || typeof(string) == instanceType || typeof(Guid) == instanceType || typeof(DateTime) == instanceType || typeof(DateTimeOffset) == instanceType)
                 {
                     list = ExecuteReaderPrimitive<T>(dbConn, session, sql.ToString(dialect, new PagingInfo() { Limit = limit, Offset = offset }), paramArray);
                 }
@@ -461,7 +461,7 @@ namespace Goliath.Data.DataAccess
 
             try
             {
-                if (instanceType.IsPrimitive)
+                if (instanceType.IsPrimitive || typeof(string) == instanceType || typeof(Guid) == instanceType || typeof(DateTime) == instanceType || typeof(DateTimeOffset) == instanceType)
                 {
                     list = ExecuteReaderPrimitive<T>(dbConn, session, sql, limit, offset, out total, paramArray);
                 }
@@ -531,7 +531,7 @@ namespace Goliath.Data.DataAccess
 
             try
             {
-                if (instanceType.IsPrimitive)
+                if (instanceType.IsPrimitive || typeof(string) == instanceType || typeof(Guid) == instanceType || typeof(DateTime) == instanceType || typeof(DateTimeOffset) == instanceType)
                 {
                     list = ExecuteReaderPrimitive<T>(dbConn, session, sql, paramArray);
                 }
