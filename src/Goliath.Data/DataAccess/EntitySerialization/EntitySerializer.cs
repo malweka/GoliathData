@@ -14,7 +14,7 @@ using Goliath.Data.Utils;
 namespace Goliath.Data.DataAccess
 {
     [Serializable]
-    class EntitySerializer : IEntitySerializer, IEntityFactory
+    class EntitySerializer : IEntitySerializer
     {
 
         static readonly ConcurrentDictionary<Type, Delegate> factoryList = new ConcurrentDictionary<Type, Delegate>();
@@ -63,11 +63,11 @@ namespace Goliath.Data.DataAccess
             this.TypeConverterStore = typeConverterStore;
         }
 
-        public T CreateInstance<T>()
+        public T CreateNewInstance<T>()
         {
             Type type = typeof(T);
             EntityMap entityMap = Map.GetEntityMap(type.FullName);
-            return CreateInstance<T>(entityMap);
+            return CreateNewInstance<T>(entityMap);
         }
 
         /// <summary>
@@ -76,10 +76,10 @@ namespace Goliath.Data.DataAccess
         /// <typeparam name="T"></typeparam>
         /// <param name="entityMap"></param>
         /// <returns></returns>
-        public T CreateInstance<T>(EntityMap entityMap)
+        public T CreateNewInstance<T>(EntityMap entityMap)
         {
             Type type = typeof(T);
-            object instance = CreateInstance(type, entityMap);
+            object instance = CreateNewInstance(type, entityMap);
             return (T)instance;
         }
 
@@ -90,7 +90,7 @@ namespace Goliath.Data.DataAccess
         /// <param name="entityMap">The entity map.</param>
         /// <returns></returns>
         /// <exception cref="System.ArgumentNullException">entityMap</exception>
-        public object CreateInstance(Type type, EntityMap entityMap)
+        public object CreateNewInstance(Type type, EntityMap entityMap)
         {
             if (entityMap == null)
                 throw new ArgumentNullException("entityMap");
@@ -306,7 +306,7 @@ namespace Goliath.Data.DataAccess
 
                     while (dbReader.Read())
                     {
-                        var instanceEntity = CreateInstance(type, entityMap); //Activator.CreateInstance(type);
+                        var instanceEntity = CreateNewInstance(type, entityMap); //Activator.CreateNewInstance(type);
                         SerializeSingle(instanceEntity, type, entityMap, entityAccessor, columns, dbReader);
                         list.Add((TEntity)instanceEntity);
                     }

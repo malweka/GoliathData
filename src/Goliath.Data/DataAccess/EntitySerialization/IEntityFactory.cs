@@ -1,4 +1,5 @@
-﻿using Goliath.Data.Mapping;
+﻿using System;
+using Goliath.Data.Mapping;
 
 namespace Goliath.Data.DataAccess
 {
@@ -8,17 +9,24 @@ namespace Goliath.Data.DataAccess
     public interface IEntityFactory
     {
         /// <summary>
-        /// Creates the instance.
+        /// Creates the new instance.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        T CreateInstance<T>();
-
+        T CreateNewInstance<T>();
         /// <summary>
-        /// Creates the instance.
+        /// Creates the new instance.
         /// </summary>
         /// <typeparam name="T"></typeparam>
+        /// <param name="entityMap">The entity map.</param>
         /// <returns></returns>
-        T CreateInstance<T>(EntityMap entityMap);
+        T CreateNewInstance<T>(EntityMap entityMap);
+        /// <summary>
+        /// Creates the new instance.
+        /// </summary>
+        /// <param name="type">The type.</param>
+        /// <param name="entityMap">The entity map.</param>
+        /// <returns></returns>
+        object CreateNewInstance(Type type, EntityMap entityMap);
     }
 }

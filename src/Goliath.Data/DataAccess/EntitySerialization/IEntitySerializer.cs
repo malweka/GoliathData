@@ -8,7 +8,7 @@ namespace Goliath.Data.DataAccess
     /// <summary>
     /// 
     /// </summary>
-    public interface IEntitySerializer
+    public interface IEntitySerializer : IEntityFactory
     {
         /// <summary>
         /// Gets the SQL dialect.
@@ -92,5 +92,7 @@ namespace Goliath.Data.DataAccess
         /// <param name="propertyName">Name of the property.</param>
         /// <param name="propertyValue">The property value.</param>
         void SetPropertyValue(object entity, string propertyName, object propertyValue);
+
+
     }
 }
