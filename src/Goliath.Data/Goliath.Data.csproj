@@ -121,7 +121,6 @@
     <Compile Include="Collections\LazyList.cs" />
     <Compile Include="Generators\IKeyGenerator.cs" />
     <Compile Include="Generators\KeyGeneratorStore.cs" />
-    <Compile Include="Libs\TinyIoC.cs" />
     <Compile Include="Mapping\MapBuilderConfig.Read.cs" />
     <Compile Include="Mapping\MapBuilderConfig.Write.cs" />
     <Compile Include="Mapping\MappingException.cs" />
