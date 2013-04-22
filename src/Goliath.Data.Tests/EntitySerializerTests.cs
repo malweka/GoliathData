@@ -14,7 +14,7 @@ namespace Goliath.Data.Tests
              var dbsettings = SessionHelper.Factory.DbSettings;
              var entitySerializer = new EntitySerializer(dbsettings);
 
-             Zoo zoo = entitySerializer.CreateInstance<Zoo>();
+             Zoo zoo = entitySerializer.CreateNewInstance<Zoo>();
              Assert.IsNotNull(zoo);
          }
 
@@ -24,7 +24,7 @@ namespace Goliath.Data.Tests
              var dbsettings = SessionHelper.Factory.DbSettings;
              var entitySerializer = new EntitySerializer(dbsettings);
 
-             Employee emp = entitySerializer.CreateInstance<Employee>();
+             Employee emp = entitySerializer.CreateNewInstance<Employee>();
              Assert.IsTrue(((Collections.TrackableList<Animal>)emp.AnimalsOnAnimalsHandler_EmployeeId).IsTracking);
          }
     }

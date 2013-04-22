@@ -136,7 +136,7 @@ namespace WebZoo.Data
             var animalapter = sess.GetEntityDataAdapter<Animal>();
 
             var entFactory = sessionFactory.DataSerializer as Goliath.Data.DataAccess.IEntityFactory;
-            var zobo = entFactory.CreateInstance<Zoo>();
+            var zobo = entFactory.CreateNewInstance<Zoo>();
 
 
             var qkw = sess.SelectAll<Animal>().Where(c => c.Name).EqualTo(c => c.Location).And(c => c.Age).GreaterOrEqualToValue(3);
