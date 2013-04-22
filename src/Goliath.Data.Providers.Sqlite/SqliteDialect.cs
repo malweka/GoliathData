@@ -52,6 +52,11 @@ namespace Goliath.Data.Providers.Sqlite
             return ";\nSELECT last_insert_rowid()";
         }
 
+        /// <summary>
+        /// Creates the name of the parameter.
+        /// </summary>
+        /// <param name="variableName">Name of the variable.</param>
+        /// <returns></returns>
         public override string CreateParameterName(string variableName)
         {
             return string.Format("${0}", variableName);

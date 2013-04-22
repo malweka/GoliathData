@@ -57,7 +57,7 @@ namespace Goliath.Data
         /// <summary>
         /// 
         /// </summary>
-        public struct SupportedSystemNames
+        public static class SupportedSystemNames
         {
             /// <summary>
             /// 
@@ -71,10 +71,6 @@ namespace Goliath.Data
             /// 
             /// </summary>
             public const string Mssql2008R2 = "Mssql2008R2";
-            ///// <summary>
-            ///// 
-            ///// </summary>
-            //public const string MssqlAll = "MssqlAll";
             /// <summary>
             /// 
             /// </summary>
