@@ -85,10 +85,12 @@ namespace Goliath.Data.CodeGenerator
                 string groupName = "default";
                 string resourceType = string.Empty;
                 pview.Name = propDef.Name;
+                bool attributeFound = false;
                 foreach (var attr in propDef.CustomAttributes)
                 {
                     if (attr.AttributeType.Name.Equals("DisplayAttribute"))
                     {
+                        attributeFound = true;
                         foreach (var attProp in attr.Properties)
                         {
                             if (attProp.Name.Equals("Name") && (attProp.Argument.Value != null))
@@ -136,6 +138,7 @@ namespace Goliath.Data.CodeGenerator
                     {
                         if (attr.HasConstructorArguments && attr.ConstructorArguments[0].Value != null)
                         {
+                            attributeFound = true;
                             var editableValue = attr.ConstructorArguments[0].Value.ToString();
 
                             bool isEditable;
@@ -151,10 +154,15 @@ namespace Goliath.Data.CodeGenerator
                         foreach (var attProp in attr.Properties)
                         {
                             if (attProp.Name.Equals("ErrorMessageResourceName") && (attProp.Argument.Value != null))
+                            {
+                                attributeFound = true;
                                 pview.RequiredErrorResourceName = attProp.Argument.Value.ToString();
+                            }
                         }
                     }
                 }
+
+                if (!attributeFound) continue;
 
                 PropertyGroupViewInfo propCollection;
                 if (!viewInfo.TryGetValue(groupName, out propCollection))
@@ -190,12 +198,12 @@ namespace Goliath.Data.CodeGenerator
         public static EntityViewInfo BuildViewInfo(this EntityMap entityMap, string resource)
         {
             var viewInfo = new EntityViewInfo()
-                                          {
-                                              EntityName = entityMap.FullName,
-                                              ResourceType = resource,
-                                              LabelResourceName = entityMap.PrintResourceName(ResourceItemType.Label),
-                                              DescriptionResourceName = entityMap.PrintResourceName(ResourceItemType.Description)
-                                          };
+            {
+                EntityName = entityMap.FullName,
+                ResourceType = resource,
+                LabelResourceName = entityMap.PrintResourceName(ResourceItemType.Label),
+                DescriptionResourceName = entityMap.PrintResourceName(ResourceItemType.Description)
+            };
 
 
             foreach (var prop in entityMap)
@@ -236,13 +244,13 @@ namespace Goliath.Data.CodeGenerator
                     continue;
 
                 var propViewInfo = new PropertyViewInfo()
-                                       {
-                                           Name = prop.Name,
-                                           ResourceType = resource,
-                                           Editable = true,
-                                           LabelResourceName = prop.PrintResourceName(entityMap, ResourceItemType.Label),
-                                           DescriptionResourceName = prop.PrintResourceName(entityMap, ResourceItemType.Description),
-                                       };
+                {
+                    Name = prop.Name,
+                    ResourceType = resource,
+                    Editable = true,
+                    LabelResourceName = prop.PrintResourceName(entityMap, ResourceItemType.Label),
+                    DescriptionResourceName = prop.PrintResourceName(entityMap, ResourceItemType.Description),
+                };
                 string attr;
                 if (prop.TryGetAttribute("display_prompt", out attr))
                 {
