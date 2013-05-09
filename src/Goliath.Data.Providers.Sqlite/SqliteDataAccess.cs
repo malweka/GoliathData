@@ -13,6 +13,12 @@ namespace Goliath.Data.Providers.Sqlite
         static ILogger logger;
 
 
+        /// <summary>
+        /// Gets or sets a value indicating whether [allow multiple connections].
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if [allow multiple connections]; otherwise, <c>false</c>.
+        /// </value>
         public override bool AllowMultipleConnections
         {
             get

@@ -121,7 +121,7 @@ namespace Goliath.Data.Providers.SqlServer
         {
 
             StringBuilder sqlSb = new StringBuilder();
-            sqlSb.AppendFormat("[{0}]", fromType.ColumnName);
+            sqlSb.Append(Escape(fromType.ColumnName));
             string to = null;
             string fType = fromType.SqlType.ToLower();
             if (!string.IsNullOrWhiteSpace(fType))
