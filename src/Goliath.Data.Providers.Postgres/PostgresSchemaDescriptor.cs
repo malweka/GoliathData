@@ -40,12 +40,12 @@ and table_schema <> 'pg_catalog' and table_schema <> 'information_schema'";
         private const string SELECT_COLUMNS = @"select cols.*, colCons.constraint_name,cons.constraint_type,cons.is_deferrable,cons.initially_deferred from information_schema.columns cols
 left join information_schema.constraint_column_usage colCons on cols.column_name = colCons.column_name and cols.table_name = colCons.table_name
 left join information_schema.table_constraints cons on colCons.constraint_name = cons.constraint_name
-where cols.table_name = $tableName";
+where cols.table_name = @tableName";
         private const string SELECT_REFERENCES = @"select rf.*, cs.table_schema as referenced_table_schema, cs.table_name as referenced_table_name, col.column_name as referenced_column_name, col.constraint_name as referenced_constraint_name, cs.constraint_type 
 from information_schema.referential_constraints rf
 INNER JOIN information_schema.table_constraints cs on cs.constraint_name = rf.unique_constraint_name
 INNER JOIN information_schema.constraint_column_usage col on col.constraint_name = cs.constraint_name
-where rf.constraint_name = $constrainName";
+where rf.constraint_name = @constrainName";
 
         static PostgresSchemaDescriptor()
         {
@@ -120,6 +120,8 @@ where rf.constraint_name = $constrainName";
         protected virtual Dictionary<string, Property> ProcessColumns(EntityMap table)
         {
             var columnList = new Dictionary<string, Property>();
+            var references = new Dictionary<string, Property>();
+
             using (var reader = db.ExecuteReader(Connection, SELECT_COLUMNS, new QueryParam("tableName", table.TableName)))
             {
                 while (reader.Read())
@@ -181,13 +183,24 @@ where rf.constraint_name = $constrainName";
                         }
                         else if (constraintType.ToUpper().Equals("FOREIGN KEY"))
                         {
-                            col = ReadForeignKeyReference(col, constrainName);
+                            references.Add(constrainName, col);
+                            continue;
+                            //col = ReadForeignKeyReference(col, constrainName);
                         }
 
                         col.ConstraintName = constrainName;
                     }
 
                     columnList.Add(colName, col);
+                }
+
+                foreach(var rl in references)
+                {
+                    var refCol = ReadForeignKeyReference(rl.Value, rl.Key);
+                    refCol.ConstraintName = rl.Key;
+                    if (columnList.ContainsKey(refCol.ColumnName))
+                        columnList.Remove(refCol.ColumnName);
+                    columnList.Add(refCol.ColumnName, refCol);
                 }
             }
 
