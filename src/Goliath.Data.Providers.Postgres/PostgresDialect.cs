@@ -30,6 +30,7 @@ namespace Goliath.Data.Providers.Postgres
             RegisterType(DbType.Int64, "serial8");
             RegisterType(DbType.Int64, "int8");
             RegisterType(DbType.Double, "double precision");
+            RegisterType(DbType.Double, "float8");
             RegisterType(DbType.Single, "float");
             RegisterType(DbType.Int16, "smallint");
             RegisterType(DbType.Int16, "int2");
@@ -71,7 +72,7 @@ namespace Goliath.Data.Providers.Postgres
         /// <returns></returns>
         public override string CreateParameterName(string variableName)
         {
-            return string.Format("${0}", variableName);
+            return string.Format("@{0}", variableName);
         }
 
 
