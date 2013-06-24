@@ -8,6 +8,7 @@ namespace Goliath.Data.Mapping
     /// <summary>
     /// 
     /// </summary>
+    [System.Diagnostics.DebuggerDisplay("Entity = {Name}, Table = {TableName}")]
     [Serializable]
     [DataContract]
     public class EntityMap : IEntityMap, IEquatable<EntityMap>, IEnumerable<Property>, ICollection<Property>

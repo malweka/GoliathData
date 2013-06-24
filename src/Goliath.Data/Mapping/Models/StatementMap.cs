@@ -9,6 +9,7 @@ namespace Goliath.Data.Mapping
     /// </summary>
     [Serializable]
     [DataContract]
+    [System.Diagnostics.DebuggerDisplay("Name = {Name}, DbName = {DbName}")]
     public class StatementMap : IMapModel
     {
         Dictionary<string, System.Data.DbType?> parameters = new Dictionary<string, System.Data.DbType?>();
