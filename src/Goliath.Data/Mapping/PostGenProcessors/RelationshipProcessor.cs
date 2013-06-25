@@ -62,10 +62,11 @@ namespace Goliath.Data.Mapping
                                 string aColCamel = aRel.ColumnName.Camelize();
                                 string bColCamel = bRel.ColumnName.Camelize();
 
+                                logger.Log(LogLevel.Debug, string.Format("Processing map table {0} statements -> {1}, {2}", ent.TableName, aColCamel, bColCamel));
                                 //build mapped statement for ease of adding and removing association
                                 var aInsertStatement = new StatementMap
                                                            {
-                                                               Name = string.Format("{0}_AddLinkFor_{1}", aEnt.FullName, ent.TableName),
+                                                               Name = string.Format("{0}_AddLinkFor_{1}_{2}", aEnt.FullName, ent.TableName,aRel.ColumnName),
                                                                OperationType = MappedStatementType.Insert,
                                                                Body = string.Format("INSERT INTO {0} ({1}, {2}) VALUES({3}, {4});", ent.TableName, aRel.ColumnName, bRel.ColumnName, StatementMap.BuildPropTag(aColCamel, aRel.ReferenceProperty), StatementMap.BuildPropTag(bColCamel, bRel.ReferenceProperty)),
                                                                DependsOnEntity = aEnt.FullName
@@ -75,7 +76,7 @@ namespace Goliath.Data.Mapping
 
                                 var aDeleteStatement = new StatementMap
                                 {
-                                    Name = string.Format("{0}_RemoveLinkFor_{1}", aEnt.FullName, ent.TableName),
+                                    Name = string.Format("{0}_RemoveLinkFor_{1}_{2}", aEnt.FullName, ent.TableName, aRel.ColumnName),
                                     OperationType = MappedStatementType.Delete,
                                     Body = string.Format("DELETE FROM {0} WHERE {1} = {3} AND {2} = {4};", ent.TableName, aRel.ColumnName, bRel.ColumnName, StatementMap.BuildPropTag(aColCamel, aRel.ReferenceProperty), StatementMap.BuildPropTag(bColCamel, bRel.ReferenceProperty)),
                                     DependsOnEntity = aEnt.FullName
@@ -106,7 +107,7 @@ namespace Goliath.Data.Mapping
 
                                 var bInsertStatement = new StatementMap
                                 {
-                                    Name = string.Format("{0}_AddLinkFor_{1}", bEnt.FullName, ent.TableName),
+                                    Name = string.Format("{0}_AddLinkFor_{1}_{2}", bEnt.FullName, ent.TableName, bRel.ColumnName),
                                     OperationType = MappedStatementType.Insert,
                                     Body = string.Format("INSERT INTO {0} ({1}, {2}) VALUES({3}, {4});", ent.TableName, aRel.ColumnName, bRel.ColumnName, StatementMap.BuildPropTag(aColCamel, aRel.ReferenceProperty), StatementMap.BuildPropTag(bColCamel, bRel.ReferenceProperty)),
                                     DependsOnEntity = bEnt.FullName
@@ -116,11 +117,12 @@ namespace Goliath.Data.Mapping
 
                                 var bDeleteStatement = new StatementMap
                                 {
-                                    Name = string.Format("{0}_RemoveLinkFor_{1}", bEnt.FullName, ent.TableName),
+                                    Name = string.Format("{0}_RemoveLinkFor_{1}_{2}", bEnt.FullName, ent.TableName, bRel.ColumnName),
                                     OperationType = MappedStatementType.Delete,
                                     Body = string.Format("DELETE FROM {0} WHERE {1} = {3} AND {2} = {4};", ent.TableName, aRel.ColumnName, bRel.ColumnName, StatementMap.BuildPropTag(aColCamel, aRel.ReferenceProperty), StatementMap.BuildPropTag(bColCamel, bRel.ReferenceProperty)),
                                     DependsOnEntity = bEnt.FullName
                                 };
+
                                 bDeleteStatement.InputParametersMap.Add(aColCamel, aEnt.FullName);
                                 bDeleteStatement.InputParametersMap.Add(bColCamel, bEnt.FullName);
 
@@ -138,7 +140,7 @@ namespace Goliath.Data.Mapping
                             {
                                 var pk = (Relation)key.Key;
                                 ent.Extends = pk.ReferenceEntityName;
-                                //ent.IsSubClass = true;
+                                logger.Log(LogLevel.Debug, string.Format("Processing Relationshing {0} extends -> {1}.", ent.Name, ent.Extends));
                             }
                         }
 
@@ -153,6 +155,7 @@ namespace Goliath.Data.Mapping
                             EntityMap other;
                             if (entityList.TryGetValue(reference.ReferenceTable, out other))
                             {
+                                logger.Log(LogLevel.Debug, string.Format("Processing One-To-Many ent:{0} other:{1}.", ent.Name, other.Name));
                                 other.Relations.Add(new Relation()
                                 {
                                     IsComplexType = true,

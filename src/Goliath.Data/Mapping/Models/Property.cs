@@ -10,6 +10,7 @@ namespace Goliath.Data.Mapping
     /// </summary>
     [Serializable]
     [DataContract]
+    [System.Diagnostics.DebuggerDisplay("Property = {PropertyName}, Column = {ColumnName}")]
     public class Property : ConfigProperty
     {
         /// <summary>
