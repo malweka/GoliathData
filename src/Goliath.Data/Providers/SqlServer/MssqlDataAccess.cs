@@ -26,8 +26,7 @@ namespace Goliath.Data.Providers.SqlServer
         /// <returns></returns>
         public override DbConnection CreateNewConnection()
         {
-            DbConnection retVal;
-            retVal = new SqlConnection(ConnectionString);
+            DbConnection retVal = new SqlConnection(ConnectionString);
             return retVal;
         }
 
@@ -45,7 +44,7 @@ namespace Goliath.Data.Providers.SqlServer
             if (value == null)
                 value = DBNull.Value;
 
-            SqlParameter param = new SqlParameter(string.Format("@{0}", parameterName), value);
+            var param = new SqlParameter(string.Format("@{0}", parameterName), value);
             return param;
         }
     }

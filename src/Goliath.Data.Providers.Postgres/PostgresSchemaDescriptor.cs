@@ -40,12 +40,54 @@ and table_schema <> 'pg_catalog' and table_schema <> 'information_schema'";
         private const string SELECT_COLUMNS = @"select cols.*, colCons.constraint_name,cons.constraint_type,cons.is_deferrable,cons.initially_deferred from information_schema.columns cols
 left join information_schema.constraint_column_usage colCons on cols.column_name = colCons.column_name and cols.table_name = colCons.table_name
 left join information_schema.table_constraints cons on colCons.constraint_name = cons.constraint_name
-where cols.table_name = $tableName";
-        private const string SELECT_REFERENCES = @"select rf.*, cs.table_schema as referenced_table_schema, cs.table_name as referenced_table_name, col.column_name as referenced_column_name, col.constraint_name as referenced_constraint_name, cs.constraint_type 
+where cols.table_name = @tableName
+and (cons.constraint_type is null or cons.constraint_type <> 'FOREIGN KEY') 
+ORDER BY cols.ordinal_position ASC";
+
+        private const string SQL_CONSTRAINT_DETAILS = @"select rf.*, cs.table_schema as referenced_table_schema, cs.table_name as referenced_table_name, col.column_name as referenced_column_name, col.constraint_name as referenced_constraint_name, cs.constraint_type 
 from information_schema.referential_constraints rf
 INNER JOIN information_schema.table_constraints cs on cs.constraint_name = rf.unique_constraint_name
 INNER JOIN information_schema.constraint_column_usage col on col.constraint_name = cs.constraint_name
-where rf.constraint_name = $constrainName";
+where rf.constraint_name = @constrainName";
+
+        private const string SQL_SELECT_REFERENCES = @"SELECT c.conname AS constraint_name,
+          CASE c.contype           
+            WHEN 'c' THEN 'CHECK'
+            WHEN 'f' THEN 'FOREIGN KEY'
+            WHEN 'p' THEN 'PRIMARY KEY'
+            WHEN 'u' THEN 'UNIQUE'
+          END AS constraint_type,
+          CASE WHEN c.condeferrable = 'f' THEN 0 ELSE 1 END AS is_deferrable,
+          CASE WHEN c.condeferred = 'f' THEN 0 ELSE 1 END AS is_deferred,
+          t.relname AS table_name,
+          array_to_string(c.conkey, ' ') AS constraint_key,
+          CASE confupdtype
+            WHEN 'a' THEN 'NO ACTION'
+            WHEN 'r' THEN 'RESTRICT'
+            WHEN 'c' THEN 'CASCADE'
+            WHEN 'n' THEN 'SET NULL'
+            WHEN 'd' THEN 'SET DEFAULT'
+          END AS on_update,
+          CASE confdeltype
+            WHEN 'a' THEN 'NO ACTION'
+            WHEN 'r' THEN 'RESTRICT'
+            WHEN 'c' THEN 'CASCADE'
+            WHEN 'n' THEN 'SET NULL'
+            WHEN 'd' THEN 'SET DEFAULT'
+          END AS on_delete,
+          CASE confmatchtype
+            WHEN 'u' THEN 'UNSPECIFIED'
+            WHEN 'f' THEN 'FULL'
+            WHEN 'p' THEN 'PARTIAL'
+          END AS match_type,
+          t2.relname AS references_table,
+          array_to_string(c.confkey, ' ') AS fk_constraint_key
+     FROM pg_constraint c
+LEFT JOIN pg_class t  ON c.conrelid  = t.oid
+LEFT JOIN pg_class t2 ON c.confrelid = t2.oid
+where c.contype = 'f'";
+
+        private Dictionary<string, string[]> tableColumnMap = new Dictionary<string, string[]>();
 
         static PostgresSchemaDescriptor()
         {
@@ -103,6 +145,8 @@ where rf.constraint_name = $constrainName";
                     var columns = ProcessColumns(table);
                     table.AddColumnRange(columns.Values);
                 }
+
+                ProcessReferences(tables);
             }
             catch (Exception ex)
             {
@@ -120,8 +164,11 @@ where rf.constraint_name = $constrainName";
         protected virtual Dictionary<string, Property> ProcessColumns(EntityMap table)
         {
             var columnList = new Dictionary<string, Property>();
+            //var references = new Dictionary<string, Property>();
+
             using (var reader = db.ExecuteReader(Connection, SELECT_COLUMNS, new QueryParam("tableName", table.TableName)))
             {
+                var columnMap = new List<string>();
                 while (reader.Read())
                 {
                     string colName = reader.GetValueAsString("column_name");
@@ -131,6 +178,8 @@ where rf.constraint_name = $constrainName";
                     int? scale = reader.GetValueAsInt("numeric_scale");
 
                     logger.Log(LogLevel.Info, string.Format("\t column: {0} {1}({2})", colName, dataType, length ?? 0));
+                    columnMap.Add(colName);
+
                     Property col = null;
                     if (length.HasValue)
                     {
@@ -179,47 +228,136 @@ where rf.constraint_name = $constrainName";
                             col.IsPrimaryKey = true;
                             col.IsUnique = true;
                         }
-                        else if (constraintType.ToUpper().Equals("FOREIGN KEY"))
-                        {
-                            col = ReadForeignKeyReference(col, constrainName);
-                        }
+                        //else if (constraintType.ToUpper().Equals("FOREIGN KEY"))
+                        //{
+                        //    references.Add(constrainName, col);
+                        //    continue;
+                        //    //col = ReadForeignKeyReference(col, constrainName);
+                        //}
 
                         col.ConstraintName = constrainName;
                     }
 
                     columnList.Add(colName, col);
                 }
+
+                tableColumnMap.Add(table.TableName, columnMap.ToArray());
+
+                //foreach(var rl in references)
+                //{
+                //    var refCol = ReadForeignKeyReference(rl.Value, rl.Key);
+                //    refCol.ConstraintName = rl.Key;
+                //    if (columnList.ContainsKey(refCol.ColumnName))
+                //        columnList.Remove(refCol.ColumnName);
+                //    columnList.Add(refCol.ColumnName, refCol);
+                //}
             }
 
             return columnList;
         }
 
-        Relation ReadForeignKeyReference(Property col, string fkConstraintName)
+        void ProcessReferences(Dictionary<string, EntityMap> tables)
         {
-            using (var reader = db.ExecuteReader(Connection, SELECT_REFERENCES, new QueryParam("constrainName", fkConstraintName)))
+            try
             {
-                Relation rel = null;
-                while (reader.Read())
+                var fkList = new List<ForeignKeyMeta>();
+                using (var reader = db.ExecuteReader(Connection, SQL_SELECT_REFERENCES))
                 {
-                    rel = new Relation(col);
-                    string refTable = reader.GetValueAsString("referenced_table_name");
-                    string refSchema = reader.GetValueAsString("referenced_table_schema");
-                    string refColName = reader.GetValueAsString("referenced_column_name");
-                    string refconstName = reader.GetValueAsString("referenced_constraint_name");
-                    rel.ReferenceColumn = refColName;
-                    rel.ReferenceProperty = refColName;
-                    rel.ReferenceTable = refTable;
-                    rel.ReferenceTableSchemaName = refSchema;
-                    rel.ReferenceConstraintName = refconstName;
-                    rel.RelationType = RelationshipType.ManyToOne;
+                    while (reader.Read())
+                    {
+                        var meta = new ForeignKeyMeta
+                        {
+                            ConstraintName = reader.GetValueAsString("constraint_name"),
+                            TableName = reader.GetValueAsString("table_name"),
+                            ReferenceTableName = reader.GetValueAsString("references_table"),
+                            ConstraintKey = reader.GetValueAsInt("constraint_key"),
+                            ForeignKeyConstraintKey = reader.GetValueAsInt("fk_constraint_key")
+                        };
 
-                    rel.ReferenceEntityName = refTable;
-
-                    break;
+                        logger.Log(LogLevel.Info, string.Format("Read foreign key: {0}", meta.ConstraintName));
+                        fkList.Add(meta);
+                    }
                 }
-                return rel;
+
+                foreach (var meta in fkList)
+                {
+                    EntityMap entMap;
+                    string[] entCols;
+                    if (tables.TryGetValue(meta.TableName, out entMap) && tableColumnMap.TryGetValue(meta.TableName, out entCols))
+                    {
+                        if (!meta.ConstraintKey.HasValue)
+                        {
+                            logger.Log(LogLevel.Warning, string.Format("Constraint {0} didn't produce a key number", meta.ConstraintName));
+                            continue;
+                        }
+                        var columnName = entCols[meta.ConstraintKey.Value-1];
+                        //find the column that references
+                        var col = entMap[columnName];
+                        //var refCol = ReadConstraintDetails(col, meta.ConstraintName);
+                        EntityMap refEntMap;
+                        string[] refEntCols;
+
+                        if (tables.TryGetValue(meta.ReferenceTableName, out refEntMap) && tableColumnMap.TryGetValue(meta.ReferenceTableName, out refEntCols))
+                        {
+
+                            if (!meta.ForeignKeyConstraintKey.HasValue)
+                            {
+                                logger.Log(LogLevel.Warning, string.Format("ForeignKeyConstraintKey {0} didn't produce a key number", meta.ConstraintName));
+                                continue;
+                            }
+
+                            var refColumnName = refEntCols[meta.ForeignKeyConstraintKey.Value - 1];
+                            var refCol = refEntMap[refColumnName];
+
+                            var rel = new Relation(col)
+                            {
+                                ReferenceColumn = refCol.ColumnName,
+                                ReferenceProperty = refCol.Name,
+                                ReferenceTable = refEntMap.TableName,
+                                ReferenceTableSchemaName = refEntMap.SchemaName,
+                                ReferenceConstraintName = meta.ConstraintName,
+                                RelationType = RelationshipType.ManyToOne,
+                            };
+
+                            entMap.Remove(col);
+                            entMap.Add(rel);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.LogException("Error while getting table structure", ex);
+                throw;
             }
         }
+
+        //Relation ReadConstraintDetails(Property col, string fkConstraintName)
+        //{
+        //    using (var reader = db.ExecuteReader(Connection, SQL_CONSTRAINT_DETAILS, new QueryParam("constrainName", fkConstraintName)))
+        //    {
+        //        Relation rel = null;
+        //        while (reader.Read())
+        //        {
+        //            rel = new Relation(col);
+        //            string refTable = reader.GetValueAsString("referenced_table_name");
+        //            string refSchema = reader.GetValueAsString("referenced_table_schema");
+        //            string refColName = reader.GetValueAsString("referenced_column_name");
+        //            string refconstName = reader.GetValueAsString("referenced_constraint_name");
+        //            rel.ReferenceColumn = refColName;
+        //            rel.ReferenceProperty = refColName;
+        //            rel.ReferenceTable = refTable;
+        //            rel.ReferenceTableSchemaName = refSchema;
+        //            rel.ReferenceConstraintName = refconstName;
+        //            rel.RelationType = RelationshipType.ManyToOne;
+
+        //            rel.ReferenceEntityName = refTable;
+
+        //            break;
+        //        }
+        //        return rel;
+        //    }
+        //}
 
         /// <summary>
         /// Gets the views.
@@ -251,5 +389,16 @@ where rf.constraint_name = $constrainName";
                 connection.Dispose();
             }
         }
+
+        struct ForeignKeyMeta
+        {
+            public string ConstraintName;
+            public string TableName;
+            public int? ConstraintKey;
+            public string ReferenceTableName;
+            public int? ForeignKeyConstraintKey;
+        }
+
+
     }
 }

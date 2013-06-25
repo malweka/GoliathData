@@ -25,7 +25,7 @@ namespace Goliath.Data.Providers.Postgres
         /// <returns></returns>
         public override System.Data.Common.DbConnection CreateNewConnection()
         {
-            var connection = new NpgsqlConnection();
+            var connection = new NpgsqlConnection(ConnectionString);
             return connection;
         }
 
@@ -43,7 +43,7 @@ namespace Goliath.Data.Providers.Postgres
 
             if (value == null)
                 value = DBNull.Value;
-            var param = new NpgsqlParameter(string.Format("${0}", parameterName), value);
+            var param = new NpgsqlParameter(string.Format("@{0}", parameterName), value);
             return param;
         }
     }
