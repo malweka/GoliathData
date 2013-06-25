@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Diagnostics;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Reflection.Emit;
 using Goliath.Data.DynamicProxy;
@@ -30,6 +31,21 @@ namespace Goliath.Data.Utils
             //mTypeHash[typeof(bool)] = OpCodes.Ldind_I1;
             //mTypeHash[typeof(double)] = OpCodes.Ldind_R8;
             //mTypeHash[typeof(float)] = OpCodes.Ldind_R4;
+        }
+
+        public static string GetExpressionMemberName<TProperty>(this Expression<Func<TProperty>> property)
+        {
+            var lambda = (LambdaExpression)property;
+
+            MemberExpression memberExpression;
+            if (lambda.Body is UnaryExpression)
+            {
+                var unaryExpression = (UnaryExpression)lambda.Body;
+                memberExpression = (MemberExpression)unaryExpression.Operand;
+            }
+            else memberExpression = (MemberExpression)lambda.Body;
+
+            return memberExpression.Member.Name;
         }
 
         public static bool IsGoliathValueType(this Type type)
