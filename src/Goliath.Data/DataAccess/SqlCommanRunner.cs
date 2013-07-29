@@ -503,6 +503,14 @@ namespace Goliath.Data.DataAccess
             }
         }
 
+        /// <summary>
+        /// Runs the list.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="session">The session.</param>
+        /// <param name="sql">The SQL.</param>
+        /// <param name="paramArray">The param array.</param>
+        /// <returns></returns>
         public IList<T> RunList<T>(ISession session, SqlQueryBody sql, params QueryParam[] paramArray)
         {
             return RunList<T>(session, sql.ToString(), paramArray);
