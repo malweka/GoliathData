@@ -75,7 +75,7 @@ namespace Goliath.Data
             var projSettings = new ProjectSettings
                                    {
                                        Platform = RdbmsBackend.SupportedSystemNames.Sqlite3,
-                                       Namespace = "MyTerritory.Data",
+                                       Namespace = "MyTerritory.Data", //TODO: remove this hardcoded namespace
                                        ConnectionString = BuildSqliteConnectionString(databaseFile)
                                    };
             var sessionFactory = new Database().Configure(mapfile, projSettings).RegisterProvider(new SqliteProvider()).Init();
