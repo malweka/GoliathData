@@ -80,8 +80,9 @@ namespace Goliath.Data.Entity
 
         void UpdateVersion()
         {
-            Version = DateTime.UtcNow.Ticks;
+            Version = DateTime.UtcNow.Ticks + 1;
         }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="ChangeTracker"/> class.
         /// </summary>
@@ -90,7 +91,7 @@ namespace Goliath.Data.Entity
         {
             if (getInitialValuesMethod == null) throw new ArgumentNullException("getInitialValuesMethod");
             this.getInitialValuesMethod = getInitialValuesMethod;
-            UpdateVersion();
+            Version = DateTime.UtcNow.Ticks;
         }
 
         void InitializeTrackList(IDictionary<string, object> initialValues)
@@ -194,7 +195,8 @@ namespace Goliath.Data.Entity
                 }
                 else
                 {
-                    item.Version = DateTime.UtcNow.Ticks;
+                    //NOTE: we depend on the version to check what was updated. We need to increase the tick value so that it will always be greater than the version of when the tracker started.
+                    item.Version = DateTime.UtcNow.Ticks + 1;
                     if (!changes.Contains(propertyName))
                         changes.Add(propertyName);
                 }
