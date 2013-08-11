@@ -94,7 +94,7 @@ namespace Goliath.Data.Sql
                             var relEnt = session.SessionFactory.DbSettings.Map.GetEntityMap(rel.ReferenceEntityName);
                             if (!innerBuilder.Joins.ContainsKey(relEnt.TableAlias))
                             {
-                                innerBuilder.LeftJoin(relEnt.TableName, relEnt.TableAlias + rel.InternalIndex).On(entityMap.TableAlias, rel.ReferenceColumn).EqualTo(prop.ColumnName);
+                                innerBuilder.LeftJoin(relEnt.TableName, relEnt.TableAlias + rel.InternalIndex).On(tableAlias, rel.ReferenceColumn).EqualTo(prop.ColumnName);
                             }
 
                             LoadColumns(relEnt, relEnt.TableAlias+rel.InternalIndex, propertyNames);
