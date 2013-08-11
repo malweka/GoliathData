@@ -364,9 +364,9 @@ namespace Goliath.Data.DataAccess
 
             if (trackable != null)
             {
-                logger.Log(LogLevel.Debug, string.Format("Stopping and clearing Entity {0}  change tracker.", type));
+                //logger.Log(LogLevel.Debug, string.Format("Stopping and clearing Entity {0}  change tracker.", type));
                 trackable.ChangeTracker.StopAndClear();
-                logger.Log(LogLevel.Debug, "Initializing trackable entity change tracker.");
+                //logger.Log(LogLevel.Debug, "Initializing trackable entity change tracker.");
                 trackable.ChangeTracker.Init();
             }
 
@@ -453,7 +453,7 @@ namespace Goliath.Data.DataAccess
             {
                 trackable.ChangeTracker.Start();
                 trackable.Version = trackable.ChangeTracker.Version;
-                logger.Log(LogLevel.Debug, string.Format("Restarted tracker -- version {0}.", trackable.Version));
+                //logger.Log(LogLevel.Debug, string.Format("Restarted tracker -- version {0}.", trackable.Version));
             }
 
             return pkHasValue;
@@ -470,9 +470,9 @@ namespace Goliath.Data.DataAccess
             var trackable = instanceEntity as ITrackable;
             if (trackable != null)
             {
-                logger.Log(LogLevel.Debug, string.Format("Stopping and clearing Entity {0}  change tracker.", type));
+                //logger.Log(LogLevel.Debug, string.Format("Stopping and clearing Entity {0}  change tracker.", type));
                 trackable.ChangeTracker.StopAndClear();
-                logger.Log(LogLevel.Debug, "Initializing trackable entity change tracker.");
+                //logger.Log(LogLevel.Debug, "Initializing trackable entity change tracker.");
                 trackable.ChangeTracker.Init();
             }
 
@@ -520,7 +520,7 @@ namespace Goliath.Data.DataAccess
             {
                 trackable.ChangeTracker.Start();
                 trackable.Version = trackable.ChangeTracker.Version;
-                logger.Log(LogLevel.Debug, string.Format("Restarted tracker -- version {0}.", trackable.Version));
+                //logger.Log(LogLevel.Debug, string.Format("Restarted tracker -- version {0}.", trackable.Version));
             }
         }
     }
