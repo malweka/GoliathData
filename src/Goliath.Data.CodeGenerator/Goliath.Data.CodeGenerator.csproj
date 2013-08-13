@@ -58,7 +58,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CodeGenRunner.cs" />
     <Compile Include="GenericCodeGenerator.cs" />
+    <Compile Include="ICodeGenRunner.cs" />
     <Compile Include="IGenerator.cs" />
     <Compile Include="PrintHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
