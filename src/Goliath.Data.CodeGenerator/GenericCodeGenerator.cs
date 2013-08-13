@@ -114,7 +114,11 @@ namespace Goliath.Data.CodeGenerator
             var generator = new DataModelGenerator(schema, new NameTransformerFactory(settings),
                 new DefaultTableNameAbbreviator());
 
-            MapConfig builder = generator.GenerateMap(settings, baseModel);
+            MapConfig builder;
+            if (baseModel != null)
+                builder = generator.GenerateMap(settings, baseModel);
+            else
+                builder = generator.GenerateMap(settings);
 
             CreateFolderIfNotExist(workingFolder);
 
