@@ -46,6 +46,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\AssemblyInfo.Shared.cs">
+      <Link>Properties\AssemblyInfo.Shared.cs</Link>
+    </Compile>
     <Compile Include="PostgresDbConnector.cs" />
     <Compile Include="PostgresDialect.cs" />
     <Compile Include="PostgresProvider.cs" />

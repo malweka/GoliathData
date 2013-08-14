@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{E1D739F9-6F55-4931-88AD-BC04B8B9D2DB}</ProjectGuid>
+    <ProjectGuid>{36636CBD-3B73-4293-97C5-940CE16A69DC}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Goliath.Data.CodeGenerator</RootNamespace>
-    <AssemblyName>Goliath.Data.CodeGenerator</AssemblyName>
+    <RootNamespace>Goliath</RootNamespace>
+    <AssemblyName>Goliath.Utilities</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -30,27 +30,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Mono.Cecil">
-      <HintPath>..\..\..\MyTerritory\src\packages\Mono.Cecil.0.9.5.4\lib\net40\Mono.Cecil.dll</HintPath>
-    </Reference>
-    <Reference Include="Mono.Cecil.Mdb">
-      <HintPath>..\..\..\MyTerritory\src\packages\Mono.Cecil.0.9.5.4\lib\net40\Mono.Cecil.Mdb.dll</HintPath>
-    </Reference>
-    <Reference Include="Mono.Cecil.Pdb">
-      <HintPath>..\..\..\MyTerritory\src\packages\Mono.Cecil.0.9.5.4\lib\net40\Mono.Cecil.Pdb.dll</HintPath>
-    </Reference>
-    <Reference Include="Mono.Cecil.Rocks">
-      <HintPath>..\..\..\MyTerritory\src\packages\Mono.Cecil.0.9.5.4\lib\net40\Mono.Cecil.Rocks.dll</HintPath>
-    </Reference>
-    <Reference Include="RazorEngine">
-      <HintPath>..\packages\RazorEngine.3.0.8\lib\net40\RazorEngine.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Web.Razor, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <Private>True</Private>
-      <HintPath>..\packages\RazorEngine.3.0.8\lib\net40\System.Web.Razor.dll</HintPath>
-    </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -58,29 +39,21 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\AssemblyInfo.Shared.cs">
+    <Compile Include="..\src\AssemblyInfo.Shared.cs">
       <Link>Properties\AssemblyInfo.Shared.cs</Link>
     </Compile>
-    <Compile Include="CodeGenRunner.cs" />
-    <Compile Include="GenericCodeGenerator.cs" />
-    <Compile Include="ICodeGenRunner.cs" />
-    <Compile Include="IGenerator.cs" />
-    <Compile Include="PrintHelper.cs" />
+    <Compile Include="Security\CryptoProviderBase.cs" />
+    <Compile Include="Security\DSACryptoProvider.cs" />
+    <Compile Include="Security\ICryptoProvider.cs" />
+    <Compile Include="IOHelpers.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RazorInterpreter.cs" />
-    <Compile Include="ViewBuilder\EntityViewInfo.cs" />
-    <Compile Include="ViewBuilder\PropertyGroupViewInfo.cs" />
-    <Compile Include="ViewBuilder\PropertyViewInfo.cs" />
-    <Compile Include="ViewProcessor.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Goliath.Data\Goliath.Data.csproj">
-      <Project>{b3fc3122-ef38-45d1-8019-4d889283b4dc}</Project>
-      <Name>Goliath.Data</Name>
-    </ProjectReference>
+    <Compile Include="Security\RsaCryptoProvider.cs" />
+    <Compile Include="Security\IHashProvider.cs" />
+    <Compile Include="Security\IUniqueNumberGenerator.cs" />
+    <Compile Include="Security\RandomLongGenerator.cs" />
+    <Compile Include="Security\SaltedSha256HashProvider.cs" />
+    <Compile Include="Security\SecureRandom.cs" />
+    <Compile Include="Security\SecurityHelperMethods.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
