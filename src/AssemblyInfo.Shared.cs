@@ -1,7 +1,7 @@
 ﻿using System.Reflection;
 
 [assembly: AssemblyCompany("Hamsman")]
-[assembly: AssemblyProduct("Goliath.Data")]
+[assembly: AssemblyProduct("Goliath")]
 [assembly: AssemblyCopyright("Copyright © Emmanuel Hameyie 2012")]
 [assembly: AssemblyTrademark("")]
 
