@@ -227,7 +227,7 @@ namespace Goliath.Data.Mapping
 
                             if ((statement.InputParametersMap.Count == 0) && ((statement.OperationType == MappedStatementType.Insert) || (statement.OperationType == MappedStatementType.Update)))
                             {
-                                statement.InputParametersMap.Add("a", entMap.FullName);
+                                //statement.InputParametersMap.Add("a", entMap.FullName);
                             }
                         }
 
