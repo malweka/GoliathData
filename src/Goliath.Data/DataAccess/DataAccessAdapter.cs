@@ -26,6 +26,14 @@ namespace Goliath.Data
         readonly EntityMap entityMap;
         readonly EntityAccessorStore entityAccessorStore = new EntityAccessorStore();
 
+        /// <summary>
+        /// Gets the session.
+        /// </summary>
+        /// <value>
+        /// The session.
+        /// </value>
+        public ISession Session { get { return session; } }
+
         #region ctors
 
         static DataAccessAdapter()

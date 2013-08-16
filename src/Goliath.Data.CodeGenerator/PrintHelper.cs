@@ -277,6 +277,28 @@ namespace Goliath.Data.CodeGenerator
             return string.Join(", ", parameters);
         }
 
+        public static string PrintStatementParameterNames(SqlDialect dialect, StatementMap stat)
+        {
+            var parameters = new List<string>();
+
+            if (stat.InputParametersMap.Count > 0)
+            {
+                foreach (var inputParam in stat.InputParametersMap)
+                {
+                    parameters.Add(inputParam.Key);
+                }
+            }
+            else if (stat.DbParametersMap.Count > 0)
+            {
+                foreach (var dbParam in stat.DbParametersMap)
+                {
+                    parameters.Add(dbParam.Key);
+                }
+            }
+
+            return string.Join(", ", parameters);
+        }
+
         public static string PrintStatementQueryParams(SqlDialect dialect, StatementMap stat)
         {
             var parameters = new List<string>();

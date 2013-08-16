@@ -78,5 +78,8 @@ namespace Goliath.Data
     /// <summary>
     /// 
     /// </summary>
-    public interface IDataAccessAdapter { }
+    public interface IDataAccessAdapter
+    {
+        ISession Session { get; }
+    }
 }
