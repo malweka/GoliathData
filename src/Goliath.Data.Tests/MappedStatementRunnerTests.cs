@@ -33,7 +33,7 @@ namespace Goliath.Data.Tests
         public void RunStatement_session_trying_to_run_non_query_should_throw_when_picking_wrong_method()
         {
             try
-            {
+            { 
                 var session = SessionHelper.Factory.OpenSession();
                 MappedStatementRunner runner = new MappedStatementRunner();
                 runner.RunStatement<int>(session, "insertZoos", null, new Zoo() { Name = "zooblar", AcceptNewAnimals = true, City = "Kosovo" }, new Zoo() { Name = "Trenton", City = "Trenton", AcceptNewAnimals = false });

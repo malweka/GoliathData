@@ -101,7 +101,9 @@
     <Content Include="Scripts\Sqlite\Guid\04_monkeys.sql" />
     <Content Include="TestFiles\MapConfigTests\Test001.data.xml" />
     <Content Include="TestFiles\MapConfigTests\Test002.data.xml" />
-    <Content Include="TestFiles\MapConfigTests\TestFullMap.xml" />
+    <Content Include="TestFiles\MapConfigTests\TestFullMap.xml">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="TestFiles\MapConfigTests\Test_statement_invalid_missing_name.xml" />
     <Content Include="TestFiles\MapConfigTests\Test_statement_invalid_param_missing_prop.xml" />
     <Content Include="TestFiles\MapConfigTests\Test_statement_invalid_statement_operationType.xml" />
