@@ -71,6 +71,11 @@ namespace Goliath.Data.Mapping
             return string.Format("{0}_{1}", map.TableAlias, Key.ColumnName);
         }
 
+        public override string ToString()
+        {
+            return Key.PropertyName;
+        }
+
         /// <summary>
         /// Performs an implicit conversion from <see cref="Goliath.Data.Mapping.Property"/> to <see cref="Goliath.Data.Mapping.PrimaryKeyProperty"/>.
         /// </summary>
