@@ -100,6 +100,7 @@ namespace Goliath.Data
             case DbType.StringFixedLength:
             case DbType.String:
             case DbType.AnsiString:
+            case DbType.Xml:
                clrType = typeof(string);
                break;
             case DbType.Binary:
@@ -185,7 +186,7 @@ namespace Goliath.Data
                  clrType = typeof(DateTimeOffset);
                  break;
             default:
-               throw new NotImplementedException(string.Format("DbMigrations currently has no mapping of '{0}' for MS-SQL", sqlType));
+               throw new NotImplementedException(string.Format("Goliath.Data currently has no mapping of '{0}' for MS-SQL", sqlType));
 
          }
          return clrType;

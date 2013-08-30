@@ -40,6 +40,9 @@ namespace Goliath.Data.Mapping
                             EntityMap bEnt;
                             if (entityList.TryGetValue(bRel.ReferenceTable, out bEnt))
                             {
+                                var aRepPropName = bEnt.Name.Pluralize();
+                                if (aEnt.Relations.Contains(aRepPropName))
+                                    aRepPropName = string.Format("{0}On{1}_{2}", bEnt.Name.Pluralize(), ent.Name, aRel.ColumnName.Pascalize());
                                 aEnt.Relations.Add(new Relation()
                                 {
                                     IsComplexType = true,
@@ -52,7 +55,7 @@ namespace Goliath.Data.Mapping
                                     MapColumn = aRel.ColumnName ?? string.Empty,
                                     MapPropertyName = aRel.ReferenceColumn ?? string.Empty,
                                     MapReferenceColumn = bRel.ColumnName ?? string.Empty,
-                                    PropertyName = string.Format("{0}On{1}_{2}", bEnt.Name.Pluralize(), ent.Name, aRel.ColumnName.Pascalize()),
+                                    PropertyName = aRepPropName,
                                     ReferenceEntityName = bEnt.FullName,
                                     ReferenceTable = bEnt.TableName,
                                     RelationType = RelationshipType.ManyToMany,
@@ -87,6 +90,9 @@ namespace Goliath.Data.Mapping
                                 mappedStatementStore.Add(aInsertStatement);
                                 mappedStatementStore.Add(aDeleteStatement);
 
+                                var bRepPropName = aEnt.Name.Pluralize();
+                                if (bEnt.Relations.Contains(aRepPropName))
+                                    bRepPropName = string.Format("{0}On{1}_{2}", aEnt.Name.Pluralize(), ent.Name, bRel.ColumnName.Pascalize());
                                 bEnt.Relations.Add(new Relation()
                                 {
                                     IsComplexType = true,
@@ -99,7 +105,7 @@ namespace Goliath.Data.Mapping
                                     MapReferenceColumn = aRel.ColumnName ?? string.Empty,
                                     CollectionType = CollectionType.List,
                                     LazyLoad = true,
-                                    PropertyName = string.Format("{0}On{1}_{2}", aEnt.Name.Pluralize(), ent.Name, bRel.ColumnName.Pascalize()),
+                                    PropertyName = bRepPropName,
                                     ReferenceEntityName = aEnt.FullName,
                                     ReferenceTable = aEnt.TableName,
                                     RelationType = RelationshipType.ManyToMany,
@@ -156,6 +162,9 @@ namespace Goliath.Data.Mapping
                             if (entityList.TryGetValue(reference.ReferenceTable, out other))
                             {
                                 logger.Log(LogLevel.Debug, string.Format("Processing One-To-Many ent:{0} other:{1}.", ent.Name, other.Name));
+                                var aRepPropName = ent.Name.Pluralize();
+                                if (other.Relations.Contains(aRepPropName))
+                                    aRepPropName = string.Format("{0}On{1}", ent.Name.Pluralize(), reference.ColumnName.Pascalize());
                                 other.Relations.Add(new Relation()
                                 {
                                     IsComplexType = true,
@@ -163,7 +172,7 @@ namespace Goliath.Data.Mapping
                                     ColumnName = reference.ReferenceColumn,
                                     ReferenceColumn = reference.ColumnName,
                                     ReferenceProperty = reference.PropertyName,
-                                    PropertyName = string.Format("{0}On{1}", ent.Name.Pluralize(), reference.ColumnName.Pascalize()),
+                                    PropertyName = aRepPropName,
                                     ReferenceTable = ent.TableName,
                                     RelationType = RelationshipType.OneToMany,
                                     ReferenceEntityName = ent.FullName,
