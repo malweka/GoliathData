@@ -146,7 +146,39 @@ namespace Goliath.Data.Mapping
                             {
                                 var pk = (Relation)key.Key;
                                 ent.Extends = pk.ReferenceEntityName;
-                                logger.Log(LogLevel.Debug, string.Format("Processing Relationshing {0} extends -> {1}.", ent.Name, ent.Extends));
+                                logger.Log(LogLevel.Debug, string.Format("Processing  {0} extends -> {1}.", ent.Name, ent.Extends));
+                            }
+                            else if((ent.PrimaryKey != null) && (ent.PrimaryKey.Keys.Count > 1))
+                            {
+                                for(var i=0;i<ent.PrimaryKey.Keys.Count;i++)
+                                {
+                                    var k = ent.PrimaryKey.Keys[i].Key as Relation;
+                                    if (k != null && k.RelationType == RelationshipType.ManyToOne)
+                                    {
+                                        EntityMap other;
+                                        if (entityList.TryGetValue(k.ReferenceTable, out other))
+                                        {
+                                            logger.Log(LogLevel.Debug, string.Format("Processing One-To-Many ent:{0} other:{1}.", ent.Name, other.Name));
+                                            var aRepPropName = ent.Name.Pluralize();
+                                            if (other.Relations.Contains(aRepPropName))
+                                                aRepPropName = string.Format("{0}On{1}", ent.Name.Pluralize(), k.ColumnName.Pascalize());
+                                            other.Relations.Add(new Relation()
+                                            {
+                                                IsComplexType = true,
+                                                LazyLoad = true,
+                                                ColumnName = k.ReferenceColumn,
+                                                ReferenceColumn = k.ColumnName,
+                                                ReferenceProperty = k.PropertyName,
+                                                PropertyName = aRepPropName,
+                                                ReferenceTable = ent.TableName,
+                                                RelationType = RelationshipType.OneToMany,
+                                                ReferenceEntityName = ent.FullName,
+                                                CollectionType = CollectionType.List,
+                                            });
+                                        }
+                                    }
+
+                                }
                             }
                         }
 

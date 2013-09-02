@@ -89,6 +89,12 @@ namespace Goliath.Data.Mapping
                     {
                         prop.PropertyName = propNamer.Transform(prop, prop.ColumnName);
                     }
+
+                    if(prop.PropertyName.Equals(table.Name))
+                    {
+                        //member name cannot be the same as enclosing type. We rename
+                        prop.PropertyName = prop.PropertyName + "Property";
+                    }
                 }
 
                 if (!table.IsLinkTable && table.PrimaryKey != null)
