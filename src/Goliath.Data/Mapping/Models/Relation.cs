@@ -154,9 +154,15 @@ namespace Goliath.Data.Mapping
         [DataMember]
         public CollectionType CollectionType { get; set; }
 
+        /// <summary>
+        /// Gets the CLR type as string.
+        /// </summary>
+        /// <param name="dialect"></param>
+        /// <param name="entity">The entity.</param>
+        /// <returns></returns>
         public override string GetClrTypeAsString(Providers.SqlDialect dialect, EntityMap entity)
         {
-            return ReferenceEntityName;
+            return IsPrimaryKey ? base.GetClrTypeAsString(dialect, entity) : ReferenceEntityName;
         }
     }
 }
