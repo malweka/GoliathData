@@ -33,6 +33,9 @@ namespace WebZoo.Data
             var t3 = typeof (string);
             var t4 = typeof (DateTime);
 
+            string kxwe = Inflector.Singularize("DrugUnitStatus");
+            Console.WriteLine(kxwe);
+
             Console.WriteLine(t2.IsGoliathValueType());
             //si.Select<Animal>("Id", "some", "Xoe")
             //    .InnerJoin<Zoo>()

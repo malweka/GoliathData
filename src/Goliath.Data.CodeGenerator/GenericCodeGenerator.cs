@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using Goliath.Data.Diagnostics;
 using Goliath.Data.Generators;
 using Goliath.Data.Mapping;
 using Goliath.Data.Providers;
@@ -13,11 +14,17 @@ namespace Goliath.Data.CodeGenerator
     public class GenericCodeGenerator : IGenerator
     {
         private readonly IInterpreter interpreter;
+        static ILogger logger;
+
+        static GenericCodeGenerator()
+        {
+            logger = Logger.GetLogger(typeof(GenericCodeGenerator));
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="GenericCodeGenerator" /> class.
         /// </summary>
-        public GenericCodeGenerator():this(new RazorInterpreter()){ }
+        public GenericCodeGenerator() : this(new RazorInterpreter()) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="GenericCodeGenerator" /> class.
@@ -38,10 +45,11 @@ namespace Goliath.Data.CodeGenerator
         /// <param name="workingFolder">The working folder.</param>
         /// <param name="mapfile">The mapfile.</param>
         /// <param name="fileNameFunction">The file name function.</param>
-        public void GenerateCodeForEachEntityMap(string templatefile, string workingFolder, string mapfile, Func<string,string> fileNameFunction = null)
-        {            
+        /// <param name="excludedTables">The excluded tables.</param>
+        public void GenerateCodeForEachEntityMap(string templatefile, string workingFolder, string mapfile, Func<string, string> fileNameFunction = null, params string[] excludedTables)
+        {
             var project = MapConfig.Create(mapfile, true);
-            GenerateCodeForEachEntityMap(templatefile,workingFolder,project,fileNameFunction);
+            GenerateCodeForEachEntityMap(templatefile, workingFolder, project, fileNameFunction, excludedTables);
         }
 
         /// <summary>
@@ -51,11 +59,12 @@ namespace Goliath.Data.CodeGenerator
         /// <param name="workingFolder">The working folder.</param>
         /// <param name="config">The config.</param>
         /// <param name="fileNameFunction">The file name function.</param>
-        public void GenerateCodeForEachEntityMap(string templatefile, string workingFolder, MapConfig config, Func<string, string> fileNameFunction = null)
+        /// <param name="excludedTables">The excluded tables.</param>
+        public void GenerateCodeForEachEntityMap(string templatefile, string workingFolder, MapConfig config, Func<string, string> fileNameFunction = null, params string[] excludedTables)
         {
             foreach (var table in config.EntityConfigs)
             {
-                if (table.IsLinkTable)
+                if (table.IsLinkTable || SchemaDescriptor.IsExcludedEntity(excludedTables, table.Name))
                     continue;
 
                 var name = table.Name + ".txt";
@@ -64,8 +73,10 @@ namespace Goliath.Data.CodeGenerator
                 {
                     name = fileNameFunction(table.Name);
                 }
+                var fname = Path.Combine(workingFolder, name);
 
-                interpreter.Generate(templatefile, Path.Combine(workingFolder, name), table);
+                interpreter.Generate(templatefile, fname, table);
+                logger.Log(LogLevel.Debug, string.Format("File {0} generate from template {1} for entity {2}", fname, templatefile, table));
             }
         }
 
@@ -77,10 +88,10 @@ namespace Goliath.Data.CodeGenerator
         /// <param name="templatefile">The templatefile.</param>
         /// <param name="workingFolder">The working folder.</param>
         /// <param name="filename">The filename.</param>
-       public void GenerateCodeFromModel<T>(T model, string templatefile, string workingFolder,  string filename)
-       {
-           interpreter.Generate(templatefile, Path.Combine(workingFolder, filename), model);
-       }
+        public void GenerateCodeFromModel<T>(T model, string templatefile, string workingFolder, string filename)
+        {
+            interpreter.Generate(templatefile, Path.Combine(workingFolder, filename), model);
+        }
 
         /// <summary>
         /// Generates the mapping.
@@ -124,7 +135,7 @@ namespace Goliath.Data.CodeGenerator
 
             var mapfile = Path.Combine(workingFolder, mapFileName);
             builder.Save(mapfile, true);
-			return builder;
+            return builder;
         }
 
         static void CreateFolderIfNotExist(string folderPath)
