@@ -31,6 +31,7 @@ namespace Goliath.Data.Utils
             AddPlural("(quiz)$", "$1zes");
 
             AddSingular("s$", "");
+            AddSingular("tatus$", "tatus");
             AddSingular("(n)ews$", "$1ews");
             AddSingular("([ti])a$", "$1um");
             AddSingular("((a)naly|(b)a|(d)iagno|(p)arenthe|(p)rogno|(s)ynop|(t)he)ses$", "$1$2sis");

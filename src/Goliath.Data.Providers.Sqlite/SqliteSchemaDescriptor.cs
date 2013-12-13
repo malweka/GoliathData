@@ -33,8 +33,16 @@ namespace Goliath.Data.Providers.Sqlite
         }
 
 
-        public SqliteSchemaDescriptor(IDbAccess db, IDbConnector dbConnector, SqlDialect dialect, ProjectSettings settings)
-            : base(RdbmsBackend.SupportedSystemNames.Sqlite3)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SqliteSchemaDescriptor"/> class.
+        /// </summary>
+        /// <param name="db">The database.</param>
+        /// <param name="dbConnector">The database connector.</param>
+        /// <param name="dialect">The dialect.</param>
+        /// <param name="settings">The settings.</param>
+        /// <param name="excludedTables">The excluded tables.</param>
+        public SqliteSchemaDescriptor(IDbAccess db, IDbConnector dbConnector, SqlDialect dialect, ProjectSettings settings, params string[] excludedTables)
+            : base(RdbmsBackend.SupportedSystemNames.Sqlite3, excludedTables)
         {
             this.db = db;
             this.dbConnector = dbConnector;
@@ -55,6 +63,10 @@ namespace Goliath.Data.Providers.Sqlite
                     while (reader.Read())
                     {
                         string name = reader.GetValueAsString("tbl_name");
+
+                        if (IsExcluded(name))
+                            continue;
+
                         string schemaName = "main";
                         EntityMap table = new EntityMap(name, name);
                         table.Namespace = ProjectSettings.Namespace;

@@ -63,13 +63,15 @@ namespace Goliath.Data.CodeGenerator
         /// Generates the classes.
         /// </summary>
         /// <param name="mapFilename">The map filename.</param>
-        void GenerateClasses(string mapFilename);
+        /// <param name="excludedEntities">The excluded entities.</param>
+        void GenerateClasses(string mapFilename, params string[] excludedEntities);
 
         /// <summary>
         /// Generates the classes.
         /// </summary>
         /// <param name="config">The config.</param>
-        void GenerateClasses(MapConfig config);
+        /// <param name="excludedEntities">The excluded entities.</param>
+        void GenerateClasses(MapConfig config, params string[] excludedEntities);
 
         /// <summary>
         /// Generates the code from template.
@@ -78,7 +80,8 @@ namespace Goliath.Data.CodeGenerator
         /// <param name="templateFile">The template file.</param>
         /// <param name="workingFolder">The working folder.</param>
         /// <param name="fileNameFunction">The file name function.</param>
-        void GenerateClassesFromTemplate(string mapFile, string templateFile, string workingFolder, Func<string, string> fileNameFunction = null);
+        /// <param name="excludedEntities">The excluded entities.</param>
+        void GenerateClassesFromTemplate(string mapFile, string templateFile, string workingFolder, Func<string, string> fileNameFunction = null, params string[] excludedEntities);
 
         /// <summary>
         /// Generates the code from template.
@@ -87,7 +90,8 @@ namespace Goliath.Data.CodeGenerator
         /// <param name="templateFile">The template file.</param>
         /// <param name="workingFolder">The working folder.</param>
         /// <param name="fileNameFunction">The file name function.</param>
-        void GenerateClassesFromTemplate(MapConfig config, string templateFile, string workingFolder, Func<string, string> fileNameFunction = null);
+        /// <param name="excludedEntities">The excluded entities.</param>
+        void GenerateClassesFromTemplate(MapConfig config, string templateFile, string workingFolder, Func<string, string> fileNameFunction = null, params string[] excludedEntities);
 
         /// <summary>
         /// Generates the code from template.
