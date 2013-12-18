@@ -32,21 +32,24 @@ namespace Goliath.Data.Mapping
         /// Builds the map.
         /// </summary>
         /// <param name="settings">The settings.</param>
+        /// <param name="entityRenames">The entity renames.</param>
         /// <param name="additionalTypes">The additional types.</param>
         /// <returns></returns>
-        public MapConfig GenerateMap(ProjectSettings settings, params ComplexType[] additionalTypes)
+        public MapConfig GenerateMap(ProjectSettings settings, IDictionary<string, string> entityRenames, params ComplexType[] additionalTypes)
         {
             MapConfig builder = new MapConfig();
             schemaDescriptor.ProjectSettings = settings;
             IDictionary<string, EntityMap> tables = schemaDescriptor.GetTables();
 
+            if (entityRenames == null) entityRenames = new Dictionary<string, string>();
+
             IPostGenerationProcessor nameProcessor = new NamePostProcessor(transfactory, tableAbbreviator);
             IPostGenerationProcessor relationshipProcessor = new RelationshipProcessor();
 
-            nameProcessor.Process(tables, builder.MappedStatements);
-            relationshipProcessor.Process(tables, builder.MappedStatements);
+            nameProcessor.Process(tables, builder.MappedStatements,entityRenames);
+            relationshipProcessor.Process(tables, builder.MappedStatements,entityRenames);
 
-            
+
             builder.Settings = settings;
             builder.Settings.GeneratedBy = schemaDescriptor.ToString();
             builder.Settings.Platform = schemaDescriptor.DatabaseProviderName;
@@ -76,7 +79,7 @@ namespace Goliath.Data.Mapping
 
             return builder;
         }
-        
+
         void MapPrimaryKey(EntityMap entMap)
         {
             var pks = entMap.Properties.Where(p => p.IsPrimaryKey).ToList();

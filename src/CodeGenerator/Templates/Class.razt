@@ -1,0 +1,226 @@
+﻿@using Goliath.Data.Mapping
+@using Goliath.Data.Diagnostics
+@using Goliath.Data.Providers.SqlServer
+@using Goliath.Data.Utils
+@using Goliath.Data.CodeGenerator
+///////////////////////////////////////////////////////////////////
+//	
+//	Auto generated -  Model Template @(typeof(Goliath.Data.CodeGenerator.CodeGenRunner).Assembly.GetName().Version)
+//
+///////////////////////////////////////////////////////////////////
+using System;
+using System.Collections.Generic;
+@{
+	string _extends = string.Empty; 
+	var sqlMapper = new Mssq2008Dialect();
+	string modelClassName = Model.Name;
+	if(!string.IsNullOrWhiteSpace(Model.Extends))
+	{
+		_extends = string.Format(": {0}", Model.Extends);
+	}
+	if(Model.PrimaryKey != null)
+	{
+		if(string.IsNullOrEmpty(_extends))
+		{
+			_extends = string.Format(": IEquatable<{0}>", Model.Name);
+		}
+		else
+		{
+			_extends = string.Format("{0}, IEquatable<{1}>", _extends, Model.Name); 
+		}
+	}
+}
+
+namespace @Model.Namespace
+{
+	public partial class @Model.Name @Raw(_extends)
+	{
+		#region Primary Key
+
+		@{
+			if(Model.PrimaryKey != null)
+			{
+				foreach(var k in Model.PrimaryKey.Keys)
+				{
+					Property p = k;
+					if(!p.CanPrint(Model))
+					{
+						continue;
+					}
+		@:public virtual @p.GetClrTypeAsString(sqlMapper, Model) @p.PropertyName { get; set; }
+				}
+			}
+		}
+
+		#endregion
+
+		#region properties
+
+		@{
+			foreach(var p in Model.Properties)
+			{
+				if(!p.CanPrint(Model))
+				{
+					continue;
+				}
+		@:public virtual @p.GetClrTypeAsString(sqlMapper, Model) @p.PropertyName { get; set; }
+			}
+		}
+
+		#endregion
+
+		#region relations
+
+		@{
+			foreach(var p in Model.Relations)
+			{
+				if(!p.CanPrint(Model))
+				{
+					continue;
+				}
+				var other = Model.Parent.EntityConfigs[p.ReferenceEntityName];
+				if((int)p.RelationType < 2)
+				{
+		@:public virtual @other.FullName @p.PropertyName { get; set; }		
+				}
+				else
+				{
+					string relListName = Goliath.Data.Utils.Inflector.Uncapitalize(p.PropertyName);
+		@:IList<@other.FullName> @(relListName) = new Goliath.Data.Collections.TrackableList<@other.FullName>();
+		@:public virtual IList<@other.FullName> @p.PropertyName { get { return @(relListName); } set { @(relListName) = value; } }
+				}
+			}
+		}
+
+		#endregion
+		@{
+			if(Model.PrimaryKey != null)
+			{
+		@:
+		@:#region Equatable
+		@:
+		@:/// <summary>
+        @:/// Determines whether the specified <see cref="@(Model.Name)"/> is equal to this instance.
+        @:/// </summary>
+        @:/// <param name="other">The <see cref="@(Model.Name)"/> to compare with this instance.</param>
+        @:/// <returns>
+        @:/// 	<c>true</c> if the specified <see cref="@(Model.Name)"/> is equal to this instance; otherwise, <c>false</c>.
+        @:/// </returns>
+		@:public bool Equals(@(Model.Name) other)
+		@:{
+		@:	if(other == null)
+		@:		return false;
+		@:	
+		@:	return object.Equals(other.@(Model.PrimaryKey.Keys[0].Key.PropertyName), @(Model.PrimaryKey.Keys[0].Key.PropertyName));
+		@:}
+		@:
+		@:/// <summary>
+        @:/// Returns a hash code for this instance.
+        @:/// </summary>
+        @:/// <returns>
+        @:/// A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table. 
+        @:/// </returns>
+		@:public override int GetHashCode()
+        @:{
+        @:	return @(Model.PrimaryKey.Keys[0].Key.PropertyName).GetHashCode();
+        @:}
+		@:
+		@:/// <summary>
+        @:/// Determines whether the specified <see cref="System.Object"/> is equal to this instance.
+        @:/// </summary>
+        @:/// <param name="obj">The <see cref="System.Object"/> to compare with this instance.</param>
+        @:/// <returns>
+        @:/// 	<c>true</c> if the specified <see cref="System.Object"/> is equal to this instance; otherwise, <c>false</c>.
+        @:/// </returns>
+		@:public override bool Equals(object obj)
+        @:{
+        @:    if (obj is @(Model.Name))
+        @:        return Equals((@(Model.Name))obj);
+		@:
+        @:    return base.Equals(obj);
+		@:}
+		@:#endregion
+			}
+		}
+
+	}
+
+	#region metadata
+
+	public static partial class PropertyNames
+	{
+		/// <summary>
+		/// Properties names for <see cref="@(Model.FullName)"/>
+		/// </summary>
+		public static class @(Model.Name)
+		{
+			@{
+				if(Model.PrimaryKey != null)
+				{
+					foreach(var k in Model.PrimaryKey.Keys)
+					{
+						Property p = k;
+			@:public const string @p.PropertyName = "@p.PropertyName";
+					}
+				}
+
+				foreach(var p in Model.Properties)
+				{
+			@:public const string @p.PropertyName = "@p.PropertyName";
+				}
+				foreach(var p in Model.Relations)
+				{
+			@:public const string @p.PropertyName = "@p.PropertyName";
+				}
+			}	
+		}
+	}
+
+	#endregion
+
+	#region DataAdapterExtensions
+	
+	public static partial class DataAdapterExtensionMethods
+	{
+		@{
+				if(Model.PrimaryKey != null)
+				{
+					foreach(var k in Model.PrimaryKey.Keys)
+					{
+						Property p = k;
+		@:/// <summary>
+        @:/// Fetch entity by Id
+        @:/// </summary>
+        @:/// <param name="dataAdapter">The data adapter.</param>
+        @:/// <param name="id">The id.</param>
+        @:/// <returns>entity of type <see cref="@(Model.Name)" /> </returns>
+		@:public static @(Model.Name) GetById(this Goliath.Data.IDataAccessAdapter<@(Model.Name)> dataAdapter, @(p.GetClrTypeAsString(sqlMapper, Model)) id)
+		@:{
+		@:	var val = dataAdapter.Select().Where(c => c.@(p.PropertyName)).EqualToValue(id).FetchOne();
+		@:	return val;
+		@:}
+					}
+				}
+
+				foreach(var p in Model.Properties)
+				{
+					if(p.IsUnique)
+					{
+		@:
+		@:/// <summary>
+        @:/// Fetch entity by unique @(p.PropertyName) property
+        @:/// </summary>
+        @:/// <param name="dataAdapter">The data adapter.</param>
+        @:/// <param name="@(p.PropertyName.Camelize())">The @(p.PropertyName.Camelize()).</param>
+        @:/// <returns>entity of type <see cref="@(Model.Name)" /> </returns>
+		@:public static @(Model.Name) GetBy@(p.PropertyName)(this Goliath.Data.IDataAccessAdapter<@(Model.Name)> dataAdapter, @(p.GetClrTypeAsString(sqlMapper, Model)) @(p.PropertyName.Camelize()))
+		@:{
+		@:	var val = dataAdapter.Select().Where(c => c.@(p.PropertyName)).EqualToValue(@(p.PropertyName.Camelize())).FetchOne();
+		@:	return val;
+		@:}
+					}
+				}
+		}
+	}
+	#endregion
+}

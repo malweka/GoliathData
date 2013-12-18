@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using Goliath.Data.Mapping;
 using Goliath.Data.Providers;
@@ -83,6 +85,27 @@ namespace Goliath.Data.CodeGenerator
             if (string.IsNullOrWhiteSpace(mapFilename)) throw new ArgumentNullException("mapFilename");
 
             return codeGen.GenerateMapping(WorkingFolder, schemaDescriptor, Settings, baseModel, rdbms, mapFilename);
+        }
+
+        /// <summary>
+        /// Creates the map.
+        /// </summary>
+        /// <param name="schemaDescriptor">The schema descriptor.</param>
+        /// <param name="entityRenames">The entity renames.</param>
+        /// <param name="baseModel">The base model.</param>
+        /// <param name="mapFilename">The map filename.</param>
+        /// <returns></returns>
+        /// <exception cref="System.ArgumentNullException">
+        /// schemaDescriptor
+        /// or
+        /// mapFilename
+        /// </exception>
+        public MapConfig CreateMap(ISchemaDescriptor schemaDescriptor, IDictionary<string, string> entityRenames, ComplexType baseModel, string mapFilename)
+        {
+            if (schemaDescriptor == null) throw new ArgumentNullException("schemaDescriptor");
+            if (string.IsNullOrWhiteSpace(mapFilename)) throw new ArgumentNullException("mapFilename");
+
+            return codeGen.GenerateMapping(WorkingFolder, schemaDescriptor, entityRenames, Settings, baseModel, rdbms, mapFilename);
         }
 
         /// <summary>
