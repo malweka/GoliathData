@@ -15,7 +15,7 @@ namespace Goliath.Data.Mapping
             logger = Logger.GetLogger(typeof(RelationshipProcessor));
         }
 
-        public virtual void Process(IDictionary<string, EntityMap> entityList, StatementStore mappedStatementStore)
+        public virtual void Process(IDictionary<string, EntityMap> entityList, StatementStore mappedStatementStore, IDictionary<string, string> entityRenames)
         {
             foreach (var ent in entityList.Values)
             {

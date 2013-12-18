@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Goliath.Data.Transformers;
 using Goliath.Data.Utils;
+using Microsoft.SqlServer.Server;
 
 namespace Goliath.Data.Mapping
 {
@@ -24,14 +25,14 @@ namespace Goliath.Data.Mapping
 
         #region IPostGenerationProcessor Members
 
-        public void Process(IDictionary<string, EntityMap> entities, StatementStore mappedStatementStore)
+        public void Process(IDictionary<string, EntityMap> entities, StatementStore mappedStatementStore, IDictionary<string, string> entityRenames)
         {
-            ProcessTableNames(entities);
+            ProcessTableNames(entities, entityRenames);
         }
 
         #endregion
 
-        void ProcessTableNames(IDictionary<string, EntityMap> entities)
+        void ProcessTableNames(IDictionary<string, EntityMap> entities, IDictionary<string, string> entityRenames)
         {
             var tableNamer = transfactory.GetTransformer<EntityMap>();
             var relNamer = transfactory.GetTransformer<Relation>();
@@ -39,7 +40,7 @@ namespace Goliath.Data.Mapping
 
             foreach (var table in entities.Values)
             {
-                table.Name = tableNamer.Transform(table, table.Name);
+                table.Name = GetRename(tableNamer.Transform(table, table.Name), entityRenames);
                 table.TableAlias = tableAbbreviator.Abbreviate(table.Name);
                 var propertyListClone = table.ToArray();
 
@@ -54,11 +55,11 @@ namespace Goliath.Data.Mapping
                         EntityMap refEnt;
                         if (entities.TryGetValue(rel.ReferenceTable, out refEnt))
                         {
-                            rel.ReferenceEntityName = string.Format("{0}.{1}", refEnt.Namespace, tableNamer.Transform(null, rel.ReferenceTable));
+                            rel.ReferenceEntityName = string.Format("{0}.{1}", refEnt.Namespace, GetRename(tableNamer.Transform(null, rel.ReferenceTable), entityRenames));
                         }
 
                         string name = relNamer.Transform(rel, rel.ColumnName);
-                        if(!string.IsNullOrWhiteSpace(rel.MapPropertyName))
+                        if (!string.IsNullOrWhiteSpace(rel.MapPropertyName))
                         {
                             string mapPropName = propNamer.Transform(rel, rel.MapPropertyName);
                             rel.MapPropertyName = mapPropName;
@@ -90,7 +91,7 @@ namespace Goliath.Data.Mapping
                         prop.PropertyName = propNamer.Transform(prop, prop.ColumnName);
                     }
 
-                    if(prop.PropertyName.Equals(table.Name))
+                    if (prop.PropertyName.Equals(table.Name))
                     {
                         //member name cannot be the same as enclosing type. We rename
                         prop.PropertyName = prop.PropertyName + "Property";
@@ -101,7 +102,7 @@ namespace Goliath.Data.Mapping
                 {
                     foreach (var pk in table.PrimaryKey.Keys)
                     {
-                        if(pk.Key.DbType == System.Data.DbType.Guid)
+                        if (pk.Key.DbType == System.Data.DbType.Guid)
                         {
                             pk.KeyGenerationStrategy = Generators.GuidCombGenerator.GeneratorName;
                             pk.UnsavedValueString = Guid.Empty.ToString();
@@ -117,6 +118,17 @@ namespace Goliath.Data.Mapping
             }
         }
 
+
+        string GetRename(string tableName, IDictionary<string, string> entityRenames)
+        {
+            if (entityRenames == null) return tableName;
+
+            string newName;
+            if (entityRenames.TryGetValue(tableName, out newName))
+                return newName;
+
+            return tableName;
+        }
 
     }
 }

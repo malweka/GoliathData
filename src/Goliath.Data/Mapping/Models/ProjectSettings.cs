@@ -93,7 +93,7 @@ namespace Goliath.Data.Mapping
         public string BaseModel { get; set; }
 
 
-        Dictionary<string, string> properties = new Dictionary<string, string>();
+        readonly Dictionary<string, string> properties = new Dictionary<string, string>();
 
         internal Dictionary<string, string> Properties { get { return properties; } }
 
