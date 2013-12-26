@@ -32,6 +32,7 @@ namespace Goliath.Data.CodeGenerator
                 .Add("namespace=|n=", w => opts.Namespace = w)
                 .Add("baseModel=", w => opts.BaseModelXml = w)
                 .Add("exclude=", w => opts.Excluded = w)
+                .Add("entity=", w => opts.EntityModel = w)
                 .Add("renameConfig=", w => opts.RenameConfig = w)
                 .Add("datamap=|map=|m=", w => opts.MapFile = w)
                 .Add("connectionstring=|c=", w => opts.ConnectionString = w)
@@ -138,6 +139,7 @@ namespace Goliath.Data.CodeGenerator
         public string BaseModelXml { get; set; }
         public string Excluded { get; set; }
         public string RenameConfig { get; set; }
+        public string EntityModel { get; set; }
 
         public string[] ExcludedArray { get; set; }
     }

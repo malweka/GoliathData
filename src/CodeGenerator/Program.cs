@@ -147,10 +147,25 @@ namespace Goliath.Data.CodeGenerator
             if (string.IsNullOrWhiteSpace(opts.OutputFile))
                 throw new GoliathDataException("Output file is required for generate operation. Please make sure that -out=\"YOUR_FILE.EXT\" argument is passed in.");
 
-            codeGenRunner.GenerateCodeFromTemplate(map, template, codeGenRunner.WorkingFolder, opts.OutputFile);
+            if(!string.IsNullOrWhiteSpace(opts.EntityModel))
+            {
+                logger.Log(LogLevel.Debug, string.Format("Extracting model {0} from map entity models.", opts.EntityModel));
+
+                EntityMap entMap; 
+                if(map.EntityConfigs.TryGetValue(opts.EntityModel, out entMap))
+                {
+                    codeGenRunner.GenerateCodeFromTemplate(entMap, template, codeGenRunner.WorkingFolder, opts.OutputFile);
+                }
+
+                //TODO: nice to have feature is to use reflection to load a type from an external assembly.
+            }
+            else
+            {
+                codeGenRunner.GenerateCodeFromTemplate(map, template, codeGenRunner.WorkingFolder, opts.OutputFile);
+            }
         }
 
-        static void GenerateEntities(AppOptionInfo opts, CodeGenRunner codeGenRunner)
+        static void GenerateEntities(AppOptionInfo opts, ICodeGenRunner codeGenRunner)
         {
             Console.WriteLine("\n\nGenerating Entities...");
 
@@ -181,7 +196,10 @@ namespace Goliath.Data.CodeGenerator
                 Console.WriteLine("\n\nRead base model.");
                 baseMap.Load(opts.BaseModelXml);
                 if (baseMap.ComplexTypes.Count > 0)
+                {
                     baseModel = baseMap.ComplexTypes[0];
+                    codeGenRunner.Settings.BaseModel = baseModel.FullName;
+                }
             }
 
             using (ISchemaDescriptor schemaDescriptor = providerFactory.CreateDbSchemaDescriptor(rdbms, codeGenRunner.Settings, opts.ExcludedArray))

@@ -8,7 +8,7 @@
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Goliath.Data.CodeGenerator</RootNamespace>
-    <AssemblyName>Goliath.Data.CodeGenerator.Console</AssemblyName>
+    <AssemblyName>GoliathData</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
@@ -33,24 +33,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Goliath.Data, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Dependencies\CodeGen\Goliath.Data.dll</HintPath>
-    </Reference>
-    <Reference Include="Goliath.Data.CodeGenerator, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Dependencies\CodeGen\Goliath.Data.CodeGenerator.dll</HintPath>
-    </Reference>
-    <Reference Include="Goliath.Data.Providers.Postgres">
-      <HintPath>..\Dependencies\CodeGen\Goliath.Data.Providers.Postgres.dll</HintPath>
-    </Reference>
-    <Reference Include="Goliath.Data.Providers.Sqlite">
-      <HintPath>..\Dependencies\CodeGen\Goliath.Data.Providers.Sqlite.dll</HintPath>
-    </Reference>
-    <Reference Include="RazorEngine, Version=3.0.8.0, Culture=neutral, PublicKeyToken=9ee697374c7e744a, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Dependencies\CodeGen\RazorEngine.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
@@ -76,15 +58,27 @@
     <None Include="App.config">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Templates\Class.razt" />
-    <None Include="Templates\ISystemConfigProvider.razt" />
-    <None Include="Templates\DbContext.razt" />
-    <None Include="Templates\DbContextModelCreation.razt" />
-    <None Include="Templates\EntityResource.razt" />
-    <None Include="Templates\TrackableClass.razt" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="commandArgs.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Goliath.Data.CodeGenerator\Goliath.Data.CodeGenerator.csproj">
+      <Project>{e1d739f9-6f55-4931-88ad-bc04b8b9d2db}</Project>
+      <Name>Goliath.Data.CodeGenerator</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Goliath.Data.Providers.Postgres\Goliath.Data.Providers.Postgres.csproj">
+      <Project>{63c1425c-ec22-4d44-9774-981912a3a56c}</Project>
+      <Name>Goliath.Data.Providers.Postgres</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Goliath.Data.Providers.Sqlite\Goliath.Data.Providers.Sqlite.csproj">
+      <Project>{ca4f51b8-40c8-4ff8-934f-8213126ebaa2}</Project>
+      <Name>Goliath.Data.Providers.Sqlite</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Goliath.Data\Goliath.Data.csproj">
+      <Project>{b3fc3122-ef38-45d1-8019-4d889283b4dc}</Project>
+      <Name>Goliath.Data</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
