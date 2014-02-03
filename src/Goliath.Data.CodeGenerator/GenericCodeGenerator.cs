@@ -164,7 +164,12 @@ namespace Goliath.Data.CodeGenerator
 
             CreateFolderIfNotExist(workingFolder);
 
-            var mapfile = Path.Combine(workingFolder, mapFileName);
+            string mapfile;
+            if (!Path.IsPathRooted(mapFileName))
+                mapfile = Path.Combine(workingFolder, mapFileName);
+            else 
+                mapfile = mapFileName;
+
             builder.Save(mapfile, true);
             return builder;
         }

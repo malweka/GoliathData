@@ -108,10 +108,6 @@ namespace Goliath.Data.CodeGenerator
 
 
             Console.WriteLine("\nDone!");
-#if DEBUG
-            Console.WriteLine("\nPress any key to exit.");
-            Console.ReadKey();
-#endif
         }
 
         static string GetCodeMapFile(AppOptionInfo opts)
@@ -188,7 +184,7 @@ namespace Goliath.Data.CodeGenerator
             Console.WriteLine("\n\nCreate Map...");
             var providerFactory = new ProviderFactory();
             ComplexType baseModel = null;
-            string mapFileName = Path.GetFileName(opts.MapFile);
+            var mapFileName = GetCodeMapFile(opts);
 
             if (!string.IsNullOrWhiteSpace(opts.BaseModelXml) && File.Exists(opts.BaseModelXml))
             {

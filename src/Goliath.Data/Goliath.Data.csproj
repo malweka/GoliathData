@@ -151,6 +151,7 @@
     <Compile Include="DataAccess\IMigrationGenerator.cs" />
     <Compile Include="Mapping\Models\PrimaryKeyPropertyCollection.cs" />
     <Compile Include="Mapping\Models\PrimaryKeyProperty.cs" />
+    <Compile Include="Mapping\PostGenProcessors\PropertiesRenameProcessor.cs" />
     <Compile Include="ParamHolder.cs" />
     <Compile Include="PropertyQueryParam.cs" />
     <Compile Include="Providers\DbConnector.cs" />

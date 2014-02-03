@@ -108,6 +108,7 @@ namespace Goliath.Data.CodeGenerator
                         var names = line.Split(new string[] { ",", ";", "|" }, StringSplitOptions.RemoveEmptyEntries);
                         if (names.Length > 1)
                         {
+                            if (!opts.EntitiesToRename.ContainsKey(names[0]))
                             opts.EntitiesToRename.Add(names[0], names[1]);
                         }
                     }

@@ -45,10 +45,11 @@ namespace Goliath.Data.Mapping
 
             IPostGenerationProcessor nameProcessor = new NamePostProcessor(transfactory, tableAbbreviator);
             IPostGenerationProcessor relationshipProcessor = new RelationshipProcessor();
+            IPostGenerationProcessor propRenameProcessor = new PropertiesRenameProcessor();
 
-            nameProcessor.Process(tables, builder.MappedStatements,entityRenames);
-            relationshipProcessor.Process(tables, builder.MappedStatements,entityRenames);
-
+            nameProcessor.Process(tables, builder.MappedStatements, entityRenames);
+            relationshipProcessor.Process(tables, builder.MappedStatements, entityRenames);
+            propRenameProcessor.Process(tables, builder.MappedStatements, entityRenames);
 
             builder.Settings = settings;
             builder.Settings.GeneratedBy = schemaDescriptor.ToString();
