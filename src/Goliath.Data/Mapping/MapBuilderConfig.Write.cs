@@ -25,6 +25,8 @@ namespace Goliath.Data.Mapping
 
                 xmlWriter.WriteStartElement("goliath.data", XmlNameSpace);
 
+                var foundStatementMaps = new List<StatementMap>();
+
                 if ((Settings != null) && !string.IsNullOrEmpty(Settings.Platform))
                 {
                     xmlWriter.WriteStartAttribute("rdbms");
@@ -98,7 +100,7 @@ namespace Goliath.Data.Mapping
                         xmlWriter.WriteEndAttribute();
                     }
 
-                    if(entity.IsTrackable)
+                    if (entity.IsTrackable)
                     {
                         xmlWriter.WriteStartAttribute("trackable");
                         xmlWriter.WriteString(entity.IsTrackable.ToString());
@@ -125,7 +127,7 @@ namespace Goliath.Data.Mapping
                     xmlWriter.WriteString(entity.TableAlias);
                     xmlWriter.WriteEndAttribute();
 
-                    if(entity.MetaDataAttributes.Count > 0)
+                    if (entity.MetaDataAttributes.Count > 0)
                     {
                         foreach (var metaKeyPair in entity.MetaDataAttributes)
                         {
@@ -146,11 +148,12 @@ namespace Goliath.Data.Mapping
                     WriteTransformations(xmlWriter, entity);
 
                     var statements = MappedStatements.InnerProcedureList.Values.Where(s => string.Equals(s.DependsOnEntity, entity.FullName)).ToList();
-                    if(statements.Count>0)
+                    if (statements.Count > 0)
                     {
                         xmlWriter.WriteStartElement("statements");
                         foreach (var statementMap in statements)
                         {
+                            foundStatementMaps.Add(statementMap);
                             WriteTransformations(xmlWriter, entity, statementMap);
                         }
                         xmlWriter.WriteEndElement();
@@ -158,6 +161,17 @@ namespace Goliath.Data.Mapping
                     xmlWriter.WriteEndElement();//entity
                 }
                 xmlWriter.WriteEndElement();//end entities
+
+                if (MappedStatements.InnerProcedureList.Count > 0)
+                {
+                    xmlWriter.WriteStartElement("statements");
+                    foreach (var statementMap in MappedStatements.InnerProcedureList.Values)
+                    {
+                        if (!foundStatementMaps.Contains(statementMap))
+                            WriteTransformations(xmlWriter, null, statementMap);
+                    }
+                    xmlWriter.WriteEndElement();
+                }
 
                 xmlWriter.WriteStartElement("complexTypes");
                 foreach (var complex in ComplexTypes)
@@ -204,7 +218,7 @@ namespace Goliath.Data.Mapping
             }
         }
 
-        void WriteTransformations(XmlTextWriter xmlWriter,EntityMap entity,  StatementMap statement)
+        void WriteTransformations(XmlTextWriter xmlWriter, EntityMap entity, StatementMap statement)
         {
             string elementName;
             bool writeOperation = false;
@@ -228,11 +242,16 @@ namespace Goliath.Data.Mapping
                     break;
             }
 
+            string statName;
+            if (entity != null)
+                statName = statement.Name.Replace(entity.FullName + "_", string.Empty);
+            else statName = statement.Name;
+
             xmlWriter.WriteStartElement(elementName);
-            if(!string.IsNullOrWhiteSpace(statement.Name))
+            if (!string.IsNullOrWhiteSpace(statement.Name))
             {
                 xmlWriter.WriteStartAttribute("name");
-                xmlWriter.WriteString(statement.Name.Replace(entity.FullName + "_", string.Empty));
+                xmlWriter.WriteString(statName);
                 xmlWriter.WriteEndAttribute();
             }
 
@@ -243,7 +262,7 @@ namespace Goliath.Data.Mapping
                 xmlWriter.WriteEndAttribute();
             }
 
-            if(writeOperation)
+            if (writeOperation)
             {
                 xmlWriter.WriteStartAttribute("operationType");
                 xmlWriter.WriteString(statement.OperationType.ToString());
@@ -252,7 +271,7 @@ namespace Goliath.Data.Mapping
 
             bool writeBodyElement = false;
 
-            if(statement.DbParametersMap.Count>0)
+            if (statement.DbParametersMap.Count > 0)
             {
                 writeBodyElement = true;
                 xmlWriter.WriteStartElement("dbParameters");
@@ -263,11 +282,11 @@ namespace Goliath.Data.Mapping
                     xmlWriter.WriteStartAttribute("name");
                     xmlWriter.WriteString(dbParam.Key);
                     xmlWriter.WriteEndAttribute();
-                    if(dbParam.Value.HasValue)
+                    if (dbParam.Value.HasValue)
                     {
                         xmlWriter.WriteStartAttribute("dbType");
                         xmlWriter.WriteString(dbParam.Value.Value.ToString());
-                        xmlWriter.WriteEndAttribute(); 
+                        xmlWriter.WriteEndAttribute();
                     }
                     xmlWriter.WriteEndElement();
                 }
@@ -295,14 +314,14 @@ namespace Goliath.Data.Mapping
                 xmlWriter.WriteEndElement();
             }
 
-            if(!string.IsNullOrWhiteSpace(statement.Body))
+            if (!string.IsNullOrWhiteSpace(statement.Body))
             {
-                if(writeBodyElement)
+                if (writeBodyElement)
                     xmlWriter.WriteStartElement("body");
 
                 xmlWriter.WriteCData(statement.Body);
 
-                if(writeBodyElement)
+                if (writeBodyElement)
                     xmlWriter.WriteEndElement();
             }
 
@@ -337,7 +356,7 @@ namespace Goliath.Data.Mapping
                 xmlWriter.WriteStartAttribute("clrType");
                 xmlWriter.WriteString(transformation.ClrType.ToString());
                 xmlWriter.WriteEndAttribute();
-            }           
+            }
 
 
             if (!string.IsNullOrWhiteSpace(transformation.SqlType))
@@ -541,7 +560,7 @@ namespace Goliath.Data.Mapping
                 }
             }
 
-            if(transformation.IsPrimaryKey && !transformation.MetaDataAttributes.ContainsKey("editable"))
+            if (transformation.IsPrimaryKey && !transformation.MetaDataAttributes.ContainsKey("editable"))
             {
                 xmlWriter.WriteStartAttribute("data_editable");
                 xmlWriter.WriteString("false");
@@ -590,7 +609,7 @@ namespace Goliath.Data.Mapping
             WriteTransformations(xmlWriter, relation, "list", false);
 
             if (relation.RelationType == RelationshipType.ManyToMany)
-            {                
+            {
 
                 if (!string.IsNullOrWhiteSpace(relation.MapTableName))
                 {
@@ -619,7 +638,7 @@ namespace Goliath.Data.Mapping
                     xmlWriter.WriteString(relation.MapReferenceColumn);
                     xmlWriter.WriteEndAttribute();
                 }
-            }            
+            }
             xmlWriter.WriteEndElement();
         }
 
@@ -631,7 +650,7 @@ namespace Goliath.Data.Mapping
                 WriteTransformations(xmlWriter, trans);
             }
 
-            
+
             xmlWriter.WriteEndElement();//relations
         }
 

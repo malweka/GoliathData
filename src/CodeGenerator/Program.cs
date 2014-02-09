@@ -69,7 +69,9 @@ namespace Goliath.Data.CodeGenerator
                                     {
                                         Namespace = opts.Namespace,
                                         AssemblyName = opts.AssemblyName,
-                                        ConnectionString = opts.ConnectionString
+                                        ConnectionString = opts.ConnectionString,
+                                        Platform = "Mssql2008R2"
+                                        
                                     }
                                 };
 
@@ -200,7 +202,14 @@ namespace Goliath.Data.CodeGenerator
 
             using (ISchemaDescriptor schemaDescriptor = providerFactory.CreateDbSchemaDescriptor(rdbms, codeGenRunner.Settings, opts.ExcludedArray))
             {
-                codeGenRunner.CreateMap(schemaDescriptor, opts.EntitiesToRename, baseModel, mapFileName);
+                var map = codeGenRunner.CreateMap(schemaDescriptor, opts.EntitiesToRename, baseModel, mapFileName);
+                //Console.WriteLine("mapped statements: {0}", opts.MappedStatementFile);
+                if(!string.IsNullOrWhiteSpace(opts.MappedStatementFile) && File.Exists(opts.MappedStatementFile))
+                {
+                    Console.WriteLine("Load mapped statements from {0} into {1}", opts.MappedStatementFile, mapFileName);
+                    map.LoadMappedStatements(opts.MappedStatementFile);
+                    map.Save(mapFileName, true);
+                }
             }
         }
 

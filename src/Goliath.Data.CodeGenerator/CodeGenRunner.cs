@@ -84,7 +84,9 @@ namespace Goliath.Data.CodeGenerator
             if (schemaDescriptor == null) throw new ArgumentNullException("schemaDescriptor");
             if (string.IsNullOrWhiteSpace(mapFilename)) throw new ArgumentNullException("mapFilename");
 
-            return codeGen.GenerateMapping(WorkingFolder, schemaDescriptor, Settings, baseModel, rdbms, mapFilename);
+            var map = codeGen.GenerateMapping(WorkingFolder, schemaDescriptor, Settings, baseModel, rdbms, mapFilename);
+            map.MapStatements(Settings.Platform);
+            return map;
         }
 
         /// <summary>
@@ -105,7 +107,9 @@ namespace Goliath.Data.CodeGenerator
             if (schemaDescriptor == null) throw new ArgumentNullException("schemaDescriptor");
             if (string.IsNullOrWhiteSpace(mapFilename)) throw new ArgumentNullException("mapFilename");
 
-            return codeGen.GenerateMapping(WorkingFolder, schemaDescriptor, entityRenames, Settings, baseModel, rdbms, mapFilename);
+            var map= codeGen.GenerateMapping(WorkingFolder, schemaDescriptor, entityRenames, Settings, baseModel, rdbms, mapFilename);
+            map.MapStatements(Settings.Platform);
+            return map;
         }
 
         /// <summary>
