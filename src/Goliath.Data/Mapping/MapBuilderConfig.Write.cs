@@ -243,15 +243,29 @@ namespace Goliath.Data.Mapping
             }
 
             string statName;
+            string resultMap = null;
             if (entity != null)
+            {
                 statName = statement.Name.Replace(entity.FullName + "_", string.Empty);
-            else statName = statement.Name;
+            }
+            else
+            {
+                statName = statement.Name;
+                resultMap = statement.ResultMap;
+            }
 
             xmlWriter.WriteStartElement(elementName);
             if (!string.IsNullOrWhiteSpace(statement.Name))
             {
                 xmlWriter.WriteStartAttribute("name");
                 xmlWriter.WriteString(statName);
+                xmlWriter.WriteEndAttribute();
+            }
+
+            if (!string.IsNullOrWhiteSpace(resultMap))
+            {
+                xmlWriter.WriteStartAttribute("resultMap");
+                xmlWriter.WriteString(resultMap);
                 xmlWriter.WriteEndAttribute();
             }
 
