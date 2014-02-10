@@ -208,6 +208,7 @@ namespace Goliath.Data.CodeGenerator
                 {
                     Console.WriteLine("Load mapped statements from {0} into {1}", opts.MappedStatementFile, mapFileName);
                     map.LoadMappedStatements(opts.MappedStatementFile);
+                    CodeGenRunner.ProcessMappedStatements(map);
                     map.Save(mapFileName, true);
                 }
             }

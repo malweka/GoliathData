@@ -89,6 +89,23 @@ namespace Goliath.Data.CodeGenerator
             return map;
         }
 
+        public static void ProcessMappedStatements(MapConfig map)
+        {
+            foreach (var stat in map.MappedStatements)
+            {
+
+                if (!string.IsNullOrWhiteSpace(stat.DependsOnEntity)) continue;
+
+                EntityMap ent;
+                if (map.EntityConfigs.TryGetValue(stat.ResultMap, out ent))
+                {
+                    //Console.WriteLine("ResultMap {0} is an entity - set dependance", stat.ResultMap);
+                    stat.DependsOnEntity = ent.FullName;
+                    stat.Name = string.Format("{0}_{1}", ent.FullName, stat.Name);
+                }
+            }
+        }
+
         /// <summary>
         /// Creates the map.
         /// </summary>
@@ -107,7 +124,7 @@ namespace Goliath.Data.CodeGenerator
             if (schemaDescriptor == null) throw new ArgumentNullException("schemaDescriptor");
             if (string.IsNullOrWhiteSpace(mapFilename)) throw new ArgumentNullException("mapFilename");
 
-            var map= codeGen.GenerateMapping(WorkingFolder, schemaDescriptor, entityRenames, Settings, baseModel, rdbms, mapFilename);
+            var map = codeGen.GenerateMapping(WorkingFolder, schemaDescriptor, entityRenames, Settings, baseModel, rdbms, mapFilename);
             map.MapStatements(Settings.Platform);
             return map;
         }
