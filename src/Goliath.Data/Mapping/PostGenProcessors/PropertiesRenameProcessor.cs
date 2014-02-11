@@ -1,10 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using Goliath.Data.Diagnostics;
 
 namespace Goliath.Data.Mapping
 {
     class PropertiesRenameProcessor : IPostGenerationProcessor
     {
+        static readonly ILogger logger;
+        static PropertiesRenameProcessor()
+        {
+            logger = Logger.GetLogger(typeof(RelationshipProcessor));
+        }
 
         public void Process(IDictionary<string, EntityMap> entities, StatementStore mappedStatementStore, IDictionary<string, string> entityRenames)
         {
@@ -19,10 +26,28 @@ namespace Goliath.Data.Mapping
                     string renameVal;
                     if (entityRenames.TryGetValue(keyName, out renameVal))
                     {
+                        var oldName = prop.PropertyName;
                         prop.PropertyName = renameVal;
+                        logger.Log(LogLevel.Debug, string.Format("Renamed {0}.{1} to {2}", ent.Name, oldName, renameVal));
+
+                        var rel = prop as Relation;
+                        if (rel != null)
+                        {
+                            EntityMap relMap = entities.Values.FirstOrDefault(c => rel.ReferenceEntityName.Equals(c.FullName));
+                            if (relMap != null)
+                            {
+                                var bCols = relMap.Relations.Where(c => oldName.Equals(c.ReferenceProperty));
+                                foreach (var relation in bCols)
+                                {
+                                    relation.ReferenceProperty = renameVal;
+                                }
+                            }
+                        }
                     }
                 }
             }
+
+
         }
     }
 }
