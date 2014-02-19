@@ -4,6 +4,7 @@ using Goliath.Data.Diagnostics;
 using Goliath.Data.Generators;
 using Goliath.Data.Mapping;
 using Goliath.Data.Providers;
+using Goliath.Data.Providers.SqlServer;
 using Goliath.Data.Transformers;
 using System;
 
@@ -152,9 +153,10 @@ namespace Goliath.Data.CodeGenerator
             IDictionary<string, string> entityRenames,
             string mapFileName)
         {
+            var rwords = Mssq2008Dialect.SqlServerReservedWords.Split(new string[] { " ", "\n", "," }, StringSplitOptions.RemoveEmptyEntries);
             schema.ProjectSettings = settings;
             var generator = new DataModelGenerator(schema, new NameTransformerFactory(settings),
-                new DefaultTableNameAbbreviator());
+                new DefaultTableNameAbbreviator(rwords));
 
             MapConfig builder;
             if (baseModel != null)
