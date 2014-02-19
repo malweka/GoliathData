@@ -23,8 +23,8 @@ namespace Goliath.Data.Providers
         /// <summary>
         /// 
         /// </summary>
-        protected Dictionary<string, string> translationTypeMap;// = new Dictionary<string, string>();
-        List<string> reservedWords = new List<string>();
+        protected Dictionary<string, string> translationTypeMap;
+        static protected List<string> reservedWords = new List<string>();
 
         /// <summary>
         /// Gets the name of the database provider.
@@ -39,7 +39,7 @@ namespace Goliath.Data.Providers
         object lockTransmap = new object();
         bool canTranslate;
 
-       // public bool SupportsIdentityColumn { get; set; }
+        // public bool SupportsIdentityColumn { get; set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SqlDialect"/> class.
@@ -64,8 +64,8 @@ namespace Goliath.Data.Providers
             RegisterType(DbType.DateTime, "datetime");
             RegisterType(DbType.Date, "date");
             RegisterType(DbType.Guid, "uniqueidentifier");
-            OnRegisterTypes();
 
+            OnRegisterTypes();
             OnRegisterFunctions();
 
             DatabaseProviderName = dbProviderName;
@@ -76,14 +76,14 @@ namespace Goliath.Data.Providers
         /// Called when [register types].
         /// </summary>
         protected virtual void OnRegisterTypes()
-        {            
+        {
         }
 
         /// <summary>
         /// Called when [register translation types].
         /// </summary>
         protected virtual void OnRegisterTranslationTypes()
-        {            
+        {
         }
 
         /// <summary>
@@ -158,7 +158,7 @@ namespace Goliath.Data.Providers
                 throw new ArgumentNullException("fromType");
 
             LoadSqlStringType();
-            
+
 
             return OnTranslateToSqlTypeString(fromType);
         }
@@ -176,7 +176,7 @@ namespace Goliath.Data.Providers
             LoadSqlStringType();
 
             StringBuilder sqlSb = new StringBuilder();
-            
+
             string to = null;
             string fType = fromType.SqlType.ToLower();
             if (!string.IsNullOrWhiteSpace(fType))
@@ -271,7 +271,7 @@ namespace Goliath.Data.Providers
         {
             if (!canTranslate)
                 throw new GoliathDataException("Register translate type can only be called from within OnRegisterTranslationTypes");
-            
+
             string to;
             fromType = fromType.ToLower();
             lock (lockTransmap)
@@ -355,7 +355,7 @@ namespace Goliath.Data.Providers
         public virtual DbType SqlStringToDbType(string sqlType)
         {
             DbTypeInfo dbInfo;
-            
+
             if (typeMap.TryGetValue(sqlType, out dbInfo))
             {
                 return dbInfo.DbType;
@@ -552,12 +552,22 @@ namespace Goliath.Data.Providers
         /// <returns></returns>
         public string EscapeIfReserveWord(string value)
         {
-            if (reservedWords.Contains(value.ToUpper()))
+            if (IsReservedWord(value.ToUpper()))
             {
                 return Escape(value);
             }
             else
                 return value;
+        }
+
+        /// <summary>
+        /// Determines whether [is reserved word] [the specified value].
+        /// </summary>
+        /// <param name="value">The value.</param>
+        /// <returns></returns>
+        public bool IsReservedWord(string value)
+        {
+            return reservedWords.Contains(value.ToUpper());
         }
 
         /// <summary>
