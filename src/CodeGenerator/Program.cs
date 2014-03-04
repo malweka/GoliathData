@@ -22,6 +22,10 @@ namespace Goliath.Data.CodeGenerator
 
             Console.WriteLine("Starting application. Generated files will be saved on Folder: {0} ", opts.WorkingFolder);
             Console.WriteLine("Template Folder: {0} \n", opts.TemplateFolder);
+#if DEBUG
+            Console.WriteLine("Press enter to continue.");
+            Console.ReadLine();
+#endif
 
             SupportedRdbms rdbms;
 
@@ -71,7 +75,7 @@ namespace Goliath.Data.CodeGenerator
                                         AssemblyName = opts.AssemblyName,
                                         ConnectionString = opts.ConnectionString,
                                         Platform = "Mssql2008R2"
-                                        
+
                                     }
                                 };
 
@@ -86,6 +90,14 @@ namespace Goliath.Data.CodeGenerator
                         logger.Log(LogLevel.Debug, string.Format("Entities generated in work folder {0}.", opts.WorkingFolder));
                     }
                     catch (Exception ex) { PrintError("Exception thrown while trying to generate entities.", ex); }
+                    break;
+                case "GENERATEALL":
+                    try
+                    {
+                        GenerateAllFromTemplate(opts, codeGenRunner);
+                        logger.Log(LogLevel.Debug, string.Format("Generated all files based on templates in work folder {0}.", opts.WorkingFolder));
+                    }
+                    catch (Exception ex) { PrintError("Exception thrown while trying to generate all.", ex); }
                     break;
                 case "GENERATE":
                     try
@@ -145,12 +157,12 @@ namespace Goliath.Data.CodeGenerator
             if (string.IsNullOrWhiteSpace(opts.OutputFile))
                 throw new GoliathDataException("Output file is required for generate operation. Please make sure that -out=\"YOUR_FILE.EXT\" argument is passed in.");
 
-            if(!string.IsNullOrWhiteSpace(opts.EntityModel))
+            if (!string.IsNullOrWhiteSpace(opts.EntityModel))
             {
                 logger.Log(LogLevel.Debug, string.Format("Extracting model {0} from map entity models.", opts.EntityModel));
 
-                EntityMap entMap; 
-                if(map.EntityConfigs.TryGetValue(opts.EntityModel, out entMap))
+                EntityMap entMap;
+                if (map.EntityConfigs.TryGetValue(opts.EntityModel, out entMap))
                 {
                     codeGenRunner.GenerateCodeFromTemplate(entMap, template, codeGenRunner.WorkingFolder, opts.OutputFile);
                 }
@@ -161,6 +173,25 @@ namespace Goliath.Data.CodeGenerator
             {
                 codeGenRunner.GenerateCodeFromTemplate(map, template, codeGenRunner.WorkingFolder, opts.OutputFile);
             }
+        }
+
+        static void GenerateAllFromTemplate(AppOptionInfo opts, ICodeGenRunner codeGenRunner)
+        {
+            Console.WriteLine("\n\nGenerating for all entities...");
+
+            var codeMapFile = GetCodeMapFile(opts);
+
+            var template = Path.Combine(codeGenRunner.TemplateFolder, opts.TemplateName);
+
+            if (!File.Exists(template))
+                throw new GoliathDataException(string.Format("template file {0} not found.", template));
+
+            var map = MapConfig.Create(codeMapFile, true);
+            map.Settings.AssemblyName = opts.AssemblyName;
+            map.Settings.Namespace = opts.Namespace;
+
+            codeGenRunner.GenerateClassesFromTemplate(map, template, codeGenRunner.WorkingFolder, (name) => string.Concat(name, opts.OutputFile), opts.ExcludedArray);
+
         }
 
         static void GenerateEntities(AppOptionInfo opts, ICodeGenRunner codeGenRunner)
@@ -204,7 +235,7 @@ namespace Goliath.Data.CodeGenerator
             {
                 var map = codeGenRunner.CreateMap(schemaDescriptor, opts.EntitiesToRename, baseModel, mapFileName);
                 //Console.WriteLine("mapped statements: {0}", opts.MappedStatementFile);
-                if(!string.IsNullOrWhiteSpace(opts.MappedStatementFile) && File.Exists(opts.MappedStatementFile))
+                if (!string.IsNullOrWhiteSpace(opts.MappedStatementFile) && File.Exists(opts.MappedStatementFile))
                 {
                     Console.WriteLine("Load mapped statements from {0} into {1}", opts.MappedStatementFile, mapFileName);
                     map.LoadMappedStatements(opts.MappedStatementFile);

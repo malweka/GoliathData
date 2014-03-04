@@ -68,17 +68,23 @@ namespace Goliath.Data.CodeGenerator
             {
                 if (table.IsLinkTable || SchemaDescriptor.IsExcludedEntity(excludedTables, table.Name))
                     continue;
-
-                var name = table.Name + ".txt";
-
-                if (fileNameFunction != null)
+                try
                 {
-                    name = fileNameFunction(table.Name);
-                }
-                var fname = Path.Combine(workingFolder, name);
+                    var name = table.Name + ".txt";
 
-                interpreter.Generate(templatefile, fname, table);
-                logger.Log(LogLevel.Debug, string.Format("File {0} generate from template {1} for entity {2}", fname, templatefile, table));
+                    if (fileNameFunction != null)
+                    {
+                        name = fileNameFunction(table.Name);
+                    }
+                    var fname = Path.Combine(workingFolder, name);
+
+                    interpreter.Generate(templatefile, fname, table);
+                    logger.Log(LogLevel.Debug, string.Format("File {0} generate from template {1} for entity {2}", fname, templatefile, table));
+                }
+                catch (Exception ex)
+                {
+                    logger.LogException("Couldn't generate code file for " + table.Name, ex);
+                }
             }
         }
 
