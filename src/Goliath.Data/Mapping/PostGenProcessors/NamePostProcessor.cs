@@ -46,7 +46,6 @@ namespace Goliath.Data.Mapping
 
                 foreach (var prop in propertyListClone)
                 {
-                    //var prop = table[i];
 
                     if (prop is Relation)
                     {
@@ -67,13 +66,18 @@ namespace Goliath.Data.Mapping
 
                         if (!string.Equals(rel.ColumnName, name) && !rel.IsPrimaryKey)
                         {
-                            //rel.PropertyName = name;
                             if (rel.RelationType == RelationshipType.ManyToOne)
                             {
                                 Property newProperty = rel.Clone();
                                 newProperty.PropertyName = rel.ColumnName.Pascalize();
                                 table.Remove(rel);
                                 rel.PropertyName = name;
+
+                                if (rel.PropertyName.Equals(newProperty.PropertyName))
+                                {
+                                    rel.PropertyName = string.Concat(name, "Entity");
+                                }
+
                                 table.Add(rel);
                                 table.Add(newProperty);
                             }

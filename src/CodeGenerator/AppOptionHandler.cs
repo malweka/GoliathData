@@ -28,6 +28,7 @@ namespace Goliath.Data.CodeGenerator
 
                 .Add("createMap", w => opts.ActionName = w)
                 .Add("generate", w => opts.ActionName = w)
+                .Add("generateAll", w => opts.ActionName = w)
                 .Add("generateEntities", w => opts.ActionName = w)
                 .Add("namespace=|n=", w => opts.Namespace = w)
                 .Add("baseModel=", w => opts.BaseModelXml = w)
