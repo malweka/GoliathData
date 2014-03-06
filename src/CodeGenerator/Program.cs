@@ -240,6 +240,38 @@ namespace Goliath.Data.CodeGenerator
                     Console.WriteLine("Load mapped statements from {0} into {1}", opts.MappedStatementFile, mapFileName);
                     map.LoadMappedStatements(opts.MappedStatementFile);
                     CodeGenRunner.ProcessMappedStatements(map);
+                    //process keygen
+                    if (!string.IsNullOrWhiteSpace(opts.DefaultKeygen))
+                    {
+                        foreach (var ent in map.EntityConfigs)
+                        {
+                            if (ent.PrimaryKey != null)
+                            {
+                                foreach (var k in ent.PrimaryKey.Keys)
+                                {
+                                    if (string.IsNullOrWhiteSpace(k.KeyGenerationStrategy))
+                                    {
+                                        k.KeyGenerationStrategy = opts.DefaultKeygen;
+                                    }
+                                }
+                            }
+
+                            if (!string.IsNullOrWhiteSpace(opts.ComplexTypeMap))
+                            {
+                                foreach (var prop in ent)
+                                {
+                                    var key = string.Concat(ent.Name, ".", prop.Name);
+                                    string complextType;
+                                    if (opts.ComplexTypesTypeMap.TryGetValue(key, out complextType))
+                                    {
+                                        prop.ComplexTypeName = complextType;
+                                        prop.IsComplexType = true;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    
                     map.Save(mapFileName, true);
                 }
             }
