@@ -198,6 +198,25 @@ namespace Goliath.Data.CodeGenerator
                 return string.Format("prop_group_{0}_label", propertyGroupName);
         }
 
+        static string GetResourceName(string rname, ResourceItemType resourceType)
+        {
+            switch (resourceType)
+            {
+                case ResourceItemType.Description:
+                    return rname + "_description";
+                case ResourceItemType.ErrorWhenMissing:
+                    return rname + "_reqError";
+                case ResourceItemType.ErrorNull:
+                    return string.Concat(rname, "_nullError");
+                case ResourceItemType.ErrorLength:
+                    return string.Concat(rname, "_lengthError");
+                case ResourceItemType.Prompt:
+                    return rname + "_dispPrompt";
+                default:
+                    return rname + "_label";
+            }
+        }
+
         /// <summary>
         /// Prints the name of the resource.
         /// </summary>
@@ -210,39 +229,37 @@ namespace Goliath.Data.CodeGenerator
             if (prop == null) throw new ArgumentNullException("prop");
             if (entity == null) throw new ArgumentNullException("entity");
 
-            string rname = string.Format("{0}_{1}", entity.FullName.Replace(".", "_").ToLower(), prop.Name.ToLower());
-            switch (resourceType)
-            {
-                case ResourceItemType.Description:
-                    return rname + "_description";
-                case ResourceItemType.ErrorWhenMissing:
-                    return rname + "_reqError";
-                case ResourceItemType.Prompt:
-                    return rname + "_dispPrompt";
-                default:
-                    return rname + "_label";
-            }
+            var rname = string.Format("{0}_{1}", entity.FullName.Replace(".", "_").ToLower(), prop.Name.ToLower());
+            return GetResourceName(rname, resourceType);
         }
 
+        /// <summary>
+        /// Prints the name of the property resource.
+        /// </summary>
+        /// <param name="propertyName">Name of the property.</param>
+        /// <param name="classFullName">Full name of the class.</param>
+        /// <param name="resourceType">Type of the resource.</param>
+        /// <returns></returns>
+        /// <exception cref="System.ArgumentNullException">
+        /// propertyName
+        /// or
+        /// classFullName
+        /// </exception>
         public static string PrintPropertyResourceName(string propertyName, string classFullName, ResourceItemType resourceType)
         {
             if (propertyName == null) throw new ArgumentNullException("propertyName");
             if (classFullName == null) throw new ArgumentNullException("classFullName");
 
-            string rname = string.Format("{0}_{1}", classFullName.Replace(".", "_").ToLower(), propertyName.ToLower());
-            switch (resourceType)
-            {
-                case ResourceItemType.Description:
-                    return rname + "_description";
-                case ResourceItemType.ErrorWhenMissing:
-                    return rname + "_reqError";
-                case ResourceItemType.Prompt:
-                    return rname + "_dispPrompt";
-                default:
-                    return rname + "_label";
-            }
+            var rname = string.Format("{0}_{1}", classFullName.Replace(".", "_").ToLower(), propertyName.ToLower());
+            return GetResourceName(rname, resourceType);
         }
 
+        /// <summary>
+        /// Gets the name of the class.
+        /// </summary>
+        /// <param name="classFullName">Full name of the class.</param>
+        /// <returns></returns>
+        /// <exception cref="System.ArgumentNullException">classFullName</exception>
         public static string GetClassName(string classFullName)
         {
             if (classFullName == null) throw new ArgumentNullException("classFullName");
@@ -250,6 +267,12 @@ namespace Goliath.Data.CodeGenerator
             return xname;
         }
 
+        /// <summary>
+        /// Prints the statement parameters.
+        /// </summary>
+        /// <param name="dialect">The dialect.</param>
+        /// <param name="stat">The stat.</param>
+        /// <returns></returns>
         public static string PrintStatementParameters(SqlDialect dialect, StatementMap stat)
         {
             var parameters = new List<string>();
@@ -277,6 +300,12 @@ namespace Goliath.Data.CodeGenerator
             return string.Join(", ", parameters);
         }
 
+        /// <summary>
+        /// Prints the statement parameter names.
+        /// </summary>
+        /// <param name="dialect">The dialect.</param>
+        /// <param name="stat">The stat.</param>
+        /// <returns></returns>
         public static string PrintStatementParameterNames(SqlDialect dialect, StatementMap stat)
         {
             var parameters = new List<string>();
@@ -299,6 +328,12 @@ namespace Goliath.Data.CodeGenerator
             return string.Join(", ", parameters);
         }
 
+        /// <summary>
+        /// Prints the statement query parameters.
+        /// </summary>
+        /// <param name="dialect">The dialect.</param>
+        /// <param name="stat">The stat.</param>
+        /// <returns></returns>
         public static string PrintStatementQueryParams(SqlDialect dialect, StatementMap stat)
         {
             var parameters = new List<string>();
@@ -322,11 +357,34 @@ namespace Goliath.Data.CodeGenerator
         }
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
     public enum ResourceItemType
     {
+        /// <summary>
+        /// The label
+        /// </summary>
         Label,
+        /// <summary>
+        /// The description
+        /// </summary>
         Description,
+        /// <summary>
+        /// The prompt
+        /// </summary>
         Prompt,
+        /// <summary>
+        /// The error when missing
+        /// </summary>
         ErrorWhenMissing,
+        /// <summary>
+        /// The error null
+        /// </summary>
+        ErrorNull,
+        /// <summary>
+        /// The error length
+        /// </summary>
+        ErrorLength,
     }
 }

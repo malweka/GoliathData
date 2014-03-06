@@ -35,6 +35,8 @@ namespace Goliath.Data.CodeGenerator
                 .Add("exclude=", w => opts.Excluded = w)
                 .Add("entity=", w => opts.EntityModel = w)
                 .Add("renameConfig=", w => opts.RenameConfig = w)
+                .Add("complexTypeMap=", w => opts.ComplexTypeMap = w)
+                .Add("defaultKeygen=", w => opts.DefaultKeygen = w)
                 .Add("statementMap=", w => opts.MappedStatementFile = w)
                 .Add("datamap=|map=|m=", w => opts.MapFile = w)
                 .Add("connectionstring=|c=", w => opts.ConnectionString = w)
@@ -46,7 +48,6 @@ namespace Goliath.Data.CodeGenerator
                 .Add("templateFolder=|t=", w => opts.TemplateFolder = w);
 
             p.Parse(args);
-
 
             if (string.IsNullOrWhiteSpace(opts.ConnectionString))
             {
@@ -82,6 +83,7 @@ namespace Goliath.Data.CodeGenerator
                 opts.ExcludedArray = opts.Excluded.Split(new string[] { ",", ";", "|" }, StringSplitOptions.RemoveEmptyEntries);
 
             ProcessRenames(opts);
+            ProcessCompleTypeMap(opts);
 
             return opts;
         }
@@ -111,7 +113,7 @@ namespace Goliath.Data.CodeGenerator
                         if (names.Length > 1)
                         {
                             if (!opts.EntitiesToRename.ContainsKey(names[0]))
-                            opts.EntitiesToRename.Add(names[0], names[1]);
+                                opts.EntitiesToRename.Add(names[0], names[1]);
                         }
                     }
                 }
@@ -122,6 +124,33 @@ namespace Goliath.Data.CodeGenerator
             }
         }
 
+        private static void ProcessCompleTypeMap(AppOptionInfo opts)
+        {
+            if (string.IsNullOrWhiteSpace(opts.ComplexTypeMap)) return;
+
+            if (!File.Exists(opts.ComplexTypeMap)) return;
+            try
+            {
+                using (var reader = new StreamReader(opts.ComplexTypeMap))
+                {
+                    string line;
+                    while ((line = reader.ReadLine()) != null)
+                    {
+                        var names = line.Split(new string[] { ",", ";", "|" }, StringSplitOptions.RemoveEmptyEntries);
+                        if (names.Length > 1)
+                        {
+                            if (!opts.ComplexTypesTypeMap.ContainsKey(names[0]))
+                                opts.ComplexTypesTypeMap.Add(names[0], names[1]);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.LogException("Could not process complex type map file.", ex);
+            }
+        }
+
     }
 
 
@@ -129,6 +158,8 @@ namespace Goliath.Data.CodeGenerator
     {
         readonly Dictionary<string, string> entitiesToRename = new Dictionary<string, string>();
         public Dictionary<string, string> EntitiesToRename { get { return entitiesToRename; } }
+        private readonly Dictionary<string, string> complexTypesTypeMap = new Dictionary<string, string>();
+        public Dictionary<string, string> ComplexTypesTypeMap { get { return complexTypesTypeMap; } }
         public string ConnectionString { get; set; }
         public string ProviderName { get; set; }
         public string WorkingFolder { get; set; }
@@ -144,6 +175,8 @@ namespace Goliath.Data.CodeGenerator
         public string RenameConfig { get; set; }
         public string EntityModel { get; set; }
         public string MappedStatementFile { get; set; }
+        public string DefaultKeygen { get; set; }
+        public string ComplexTypeMap { get; set; }
 
         public string[] ExcludedArray { get; set; }
     }
