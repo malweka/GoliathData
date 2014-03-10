@@ -26,7 +26,13 @@ namespace Goliath.Data
         /// <returns></returns>
         public static bool TryGetBackend(string key, out Lazy<RdbmsBackend> item)
         {
-            return supportedRdbms.TryGetValue(key, out item);
+            if(string.IsNullOrWhiteSpace(key)) throw new ArgumentNullException("key");
+            return supportedRdbms.TryGetValue(key.ToUpper(), out item);
+        }
+
+        public static bool IsPlatformSupported(string platformName)
+        {
+            return supportedRdbms.ContainsKey(platformName);
         }
 
         /// <summary>
@@ -62,31 +68,31 @@ namespace Goliath.Data
             /// <summary>
             /// 
             /// </summary>
-            public const string Mssql2005 = "Mssql2005";
+            public const string Mssql2005 = "MSSQL2005";
             /// <summary>
             /// 
             /// </summary>
-            public const string Mssql2008 = "Mssql2008";
+            public const string Mssql2008 = "MSSQL2008";
             /// <summary>
             /// 
             /// </summary>
-            public const string Mssql2008R2 = "Mssql2008R2";
+            public const string Mssql2008R2 = "MSSQL2008R2";
             /// <summary>
             /// 
             /// </summary>
-            public const string Sqlite3 = "Sqlite3";
+            public const string Sqlite3 = "SQLITE3";
             /// <summary>
             /// 
             /// </summary>
-            public const string Postgresql8 = "Postgresql8";
+            public const string Postgresql8 = "POSTGRESQL8";
             /// <summary>
             /// 
             /// </summary>
-            public const string Postgresql9 = "Postgresql9";
+            public const string Postgresql9 = "POSTGRESQL9";
             /// <summary>
             /// 
             /// </summary>
-            public const string MySql5 = "MySql5";
+            public const string MySql5 = "MYSQL5";
         }
     }
 }

@@ -65,7 +65,7 @@ namespace Goliath.Data.Mapping
 
                 foreach (var rdbms in supportedDbs)
                 {
-                    if (Platform.Id.Equals(rdbms) || Platform.CompatibilityGroup.Contains(rdbms))
+                    if (Platform.Id.Equals(rdbms.ToUpper()) || Platform.CompatibilityGroup.Contains(rdbms.ToUpper()))
                     {
                         InnerProcedureList.Add(item.Name, item);
                         break;
