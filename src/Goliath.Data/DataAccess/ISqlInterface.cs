@@ -92,10 +92,9 @@ namespace Goliath.Data.DataAccess
         /// Updates the specified entity map.
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <param name="entityMap">The entity map.</param>
         /// <param name="entity">The entity.</param>
         /// <returns></returns>
-        UpdateSqlBuilder<T> Update<T>(EntityMap entityMap, T entity);
+        UpdateSqlBuilder<T> UpdateQuery<T>(T entity);
 
 
         /// <summary>
@@ -119,10 +118,9 @@ namespace Goliath.Data.DataAccess
         /// Deletes the specified entity map.
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <param name="entityMap">The entity map.</param>
         /// <param name="entity">The entity.</param>
         /// <returns></returns>
-        DeleteSqlBuilder<T> Delete<T>(EntityMap entityMap, T entity);
+        DeleteSqlBuilder<T> DeleteQuery<T>(T entity);
 
         #region Run commands
 

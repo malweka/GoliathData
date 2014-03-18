@@ -60,15 +60,16 @@ namespace Goliath.Data.DataAccess
                 {
                     if (type == typeof(string))
                         return string.Empty;
-
-                    if ((type == typeof(int)) || (type == typeof(int?)) || (type == typeof(long)) ||
-                        (type == typeof(long?)) || (type == typeof(short)) || (type == typeof(short?)))
+                    if ((type == typeof(int)) || (type == typeof(int?)))
                         return 0;
-
-                    if ((type == typeof(double)) || (type == typeof(double?)) || (type == typeof(float)) ||
-                        (type == typeof(float?)))
-                        return 0.0;
-
+                    if ((type == typeof(long)) || (type == typeof(long?)))
+                        return (long)0;
+                    if ((type == typeof(short)) || (type == typeof(short?)))
+                        return (short)0;
+                    if ((type == typeof(double)) || (type == typeof(double?)))
+                        return (double)0;
+                    if ((type == typeof(float)) || (type == typeof(float?)))
+                        return (float)0.0;
                     if ((type == typeof(Guid)) || (type == typeof(Guid?)))
                         return Guid.Empty;
                 }
