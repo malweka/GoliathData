@@ -280,13 +280,19 @@ namespace Goliath.Data.DataAccess
         public UpdateSqlBuilder<T> Update<T>(string tableName, T entity)
         {
             var entityMap = new DynamicEntityMap(tableName, tableName, typeof(T));
-            return Update(entityMap, entity);
+            return UpdateInternal(entityMap, entity);
         }
 
-        public UpdateSqlBuilder<T> Update<T>(EntityMap entityMap, T entity)
+        UpdateSqlBuilder<T> UpdateInternal<T>(EntityMap entityMap, T entity)
         {
             var builder = new UpdateSqlBuilder<T>(this, entityMap, entity);
             return builder;
+        }
+
+        public UpdateSqlBuilder<T> UpdateQuery<T>(T entity)
+        {
+            var entityMap = SessionFactory.DbSettings.Map.GetEntityMap(typeof(T).FullName);
+            return UpdateInternal(entityMap, entity);
         }
 
         public int Delete<T>(T entity)
@@ -298,10 +304,16 @@ namespace Goliath.Data.DataAccess
         public DeleteSqlBuilder<T> Delete<T>(string tableName, T entity)
         {
             var entityMap = new DynamicEntityMap(tableName, tableName, typeof(T));
-            return Delete(entityMap, entity);
+            return DeleteInternal(entityMap, entity);
         }
 
-        public DeleteSqlBuilder<T> Delete<T>(EntityMap entityMap, T entity)
+        public DeleteSqlBuilder<T> DeleteQuery<T>(T entity)
+        {
+            var entityMap = SessionFactory.DbSettings.Map.GetEntityMap(typeof(T).FullName);
+            return DeleteInternal(entityMap, entity);
+        }
+
+         DeleteSqlBuilder<T> DeleteInternal<T>(EntityMap entityMap, T entity)
         {
             var builder = new DeleteSqlBuilder<T>(this, entityMap, entity);
             return builder;
