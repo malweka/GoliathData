@@ -190,8 +190,18 @@ namespace Goliath.Data.CodeGenerator
             map.Settings.AssemblyName = opts.AssemblyName;
             map.Settings.Namespace = opts.Namespace;
 
-            codeGenRunner.GenerateClassesFromTemplate(map, template, codeGenRunner.WorkingFolder, (name) => string.Concat(name, opts.OutputFile), opts.ExcludedArray);
+            codeGenRunner.GenerateClassesFromTemplate(map, template, codeGenRunner.WorkingFolder, (name) => GetFileName(name, opts.OutputFile), opts.ExcludedArray);
 
+        }
+
+        static string GetFileName(string entityName, string outputFile)
+        {
+            if(outputFile.Contains("(name)"))
+            {
+                return outputFile.Replace("(name)", entityName);
+            }
+
+            return string.Concat(entityName, outputFile);
         }
 
         static void GenerateEntities(AppOptionInfo opts, ICodeGenRunner codeGenRunner)
