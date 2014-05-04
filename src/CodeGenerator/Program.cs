@@ -124,7 +124,7 @@ namespace Goliath.Data.CodeGenerator
             Console.WriteLine("\nDone!");
         }
 
-        static string GetCodeMapFile(AppOptionInfo opts)
+        static string GetCodeMapFile(AppOptionInfo opts, bool throwIfNotExist = true)
         {
             string codeMapFile = opts.MapFile;
             if (!File.Exists(opts.MapFile))
@@ -133,7 +133,7 @@ namespace Goliath.Data.CodeGenerator
             }
 
             Console.WriteLine("Reading Code Map file...");
-            if (!File.Exists(codeMapFile))
+            if (!File.Exists(codeMapFile) && throwIfNotExist)
                 throw new GoliathDataException(string.Format("Map file {0} not found.", codeMapFile));
 
             return codeMapFile;
@@ -227,7 +227,7 @@ namespace Goliath.Data.CodeGenerator
             Console.WriteLine("\n\nCreate Map...");
             var providerFactory = new ProviderFactory();
             ComplexType baseModel = null;
-            var mapFileName = GetCodeMapFile(opts);
+            var mapFileName = GetCodeMapFile(opts, false);
 
             if (!string.IsNullOrWhiteSpace(opts.BaseModelXml) && File.Exists(opts.BaseModelXml))
             {

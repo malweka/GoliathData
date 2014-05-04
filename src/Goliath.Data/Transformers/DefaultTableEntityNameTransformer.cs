@@ -25,7 +25,7 @@ namespace Goliath.Data.Transformers
 
         public string Transform(EntityMap mapModel, string original)
         {
-
+             
             if (string.IsNullOrWhiteSpace(original))
                 throw new ArgumentNullException("original");
             //if (string.IsNullOrWhiteSpace(tablePrefix))
@@ -41,9 +41,10 @@ namespace Goliath.Data.Transformers
                         original = original.Substring(startIndex);
                     }
                 }
-
-                string val = original.Singularize() ?? original;
-                val = val.Pascalize();
+                
+                var val = NamePostProcessor.CleanUpString(original).Singularize() ?? original;
+                //string val = original.Singularize() ?? original;
+                val = val.ToClrValPascal();
                 return val;
             }
             catch (Exception ex)

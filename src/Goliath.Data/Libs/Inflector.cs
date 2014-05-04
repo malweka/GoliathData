@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
 namespace Goliath.Data.Utils
@@ -175,17 +176,49 @@ namespace Goliath.Data.Utils
         }
 
         /// <summary>
+        /// To the CLR value pascal.
+        /// </summary>
+        /// <param name="word">The word.</param>
+        /// <returns></returns>
+        public static string ToClrValPascal(this string word)
+        {
+            if (string.IsNullOrWhiteSpace(word)) return string.Empty;
+
+            return Titleize(word).Replace(" ", string.Empty);
+        }
+
+        /// <summary>
         /// Titleizes the specified word.
         /// </summary>
         /// <param name="word">The word.</param>
         /// <returns></returns>
         public static string Titleize(this string word)
         {
-            return Regex.Replace(Humanize(Underscore(word)), @"\b([a-z])",
-                                 delegate(Match match)
-                                 {
-                                     return match.Captures[0].Value.ToUpper();
-                                 });
+            //return Regex.Replace(Humanize(Underscore(word)), @"\b([a-z])",
+            //                     delegate(Match match)
+            //                     {
+            //                         return match.Captures[0].Value.ToUpper();
+            //                     });
+            string s = Regex.Replace(Humanize(Underscore(word)), @"\b([a-z])", match => match.Captures[0].Value.ToUpper());
+            bool digit = false;
+            string a = string.Empty;
+            foreach (char c in s)
+            {
+                if (Char.IsDigit(c))
+                {
+                    digit = true;
+                    a = a + c;
+                }
+                else
+                {
+                    if (digit && Char.IsLower(c))
+                        a = a + Char.ToUpper(c);
+                    else
+                        a = a + c;
+                    digit = false;
+                }
+            }
+            return a;
         }
 
         /// <summary>

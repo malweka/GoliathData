@@ -25,7 +25,7 @@ namespace Goliath.Data.Transformers
                 throw new ArgumentNullException("original");
 
             if (mapModel.RelationType != RelationshipType.ManyToOne)
-                return original.Pascalize();
+                return original.ToClrValPascal();
 
             try
             {
@@ -34,7 +34,7 @@ namespace Goliath.Data.Transformers
                 {
                     //mapModel.KeyFieldName = original;
                     //mapModel.PropertyName = original;
-                    return original.Pascalize();
+                    return original.ToClrValPascal();
                 }
 
                 if (original.EndsWith(prefix, StringComparison.InvariantCultureIgnoreCase) && !mapModel.IsPrimaryKey)
@@ -42,12 +42,12 @@ namespace Goliath.Data.Transformers
                     string name = original.Substring(0, original.IndexOf("Id", StringComparison.OrdinalIgnoreCase));
                     //mapModel.PropertyName = name;
                     //mapModel.KeyFieldName = original;
-                    return name.Pascalize().Replace("_", string.Empty);
+                    return name.ToClrValPascal().Replace("_", string.Empty);
                 }
                 else
                 {
                     //mapModel.KeyFieldName = mapModel.PropertyName + "_Key";
-                    return original.Pascalize();
+                    return original.ToClrValPascal();
                 }
 
                 //return original.Pascalize();

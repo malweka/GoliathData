@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
+using System.Text.RegularExpressions;
 using Goliath.Data.Transformers;
 using Goliath.Data.Utils;
 using Microsoft.SqlServer.Server;
@@ -21,6 +23,39 @@ namespace Goliath.Data.Mapping
 
             transfactory = transformerFactory;
             this.tableAbbreviator = tableAbbreviator;
+        }
+
+        private static readonly Regex rxCleanUp = new Regex(@"[^\w\d_]", RegexOptions.Compiled);
+
+        internal static string CleanUpString(string str)
+        {
+            // Replace punctuation and symbols in variable names as these are not allowed.
+            int len = str.Length;
+            if (len == 0)
+                return str;
+            var sb = new StringBuilder();
+            bool replacedCharacter = false;
+            for (int n = 0; n < len; ++n)
+            {
+                char c = str[n];
+                if (c != '_' && (char.IsSymbol(c) || char.IsPunctuation(c)))
+                {
+                    int ascii = c;
+                    sb.AppendFormat("{0}", ascii);
+                    replacedCharacter = true;
+                    continue;
+                }
+                sb.Append(c);
+            }
+            if (replacedCharacter)
+                str = sb.ToString();
+
+            // Remove non alphanumerics
+            str = rxCleanUp.Replace(str, "");
+            if (char.IsDigit(str[0]))
+                str = "C" + str;
+
+            return str;
         }
 
         #region IPostGenerationProcessor Members
@@ -69,7 +104,7 @@ namespace Goliath.Data.Mapping
                             if (rel.RelationType == RelationshipType.ManyToOne)
                             {
                                 Property newProperty = rel.Clone();
-                                newProperty.PropertyName = rel.ColumnName.Pascalize();
+                                newProperty.PropertyName = propNamer.Transform(rel, rel.ColumnName);
                                 table.Remove(rel);
                                 rel.PropertyName = name;
 

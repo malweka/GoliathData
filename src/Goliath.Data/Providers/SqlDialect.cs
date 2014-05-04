@@ -52,6 +52,7 @@ namespace Goliath.Data.Providers
             RegisterType(DbType.Int32, "int");
             RegisterType(DbType.Int32, "integer");
             RegisterType(DbType.Int32, "numeric");
+            //RegisterType(DbType.Int32, "tinyint"); -- tinyint is byte
             RegisterType(DbType.AnsiStringFixedLength, 8000, "char");
             RegisterType(DbType.AnsiString, 8000, "varchar");
             RegisterType(DbType.StringFixedLength, 4000, "nchar");
