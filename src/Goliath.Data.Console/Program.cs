@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using Goliath.Data;
 using Goliath.Data.CodeGen;
 using Goliath.Data.CodeGenerator;
@@ -16,6 +17,27 @@ namespace WebZoo.Data
     class Program
     {
         const string MapFileName = "GoData.Map.xml";
+        static Random rng = new Random(Environment.TickCount);
+
+        static long GenerateId()
+        {
+            byte[] buffer = Guid.NewGuid().ToByteArray();
+            return BitConverter.ToInt64(buffer, 0);
+        }
+
+        public static Int64 GenerateRandomNumber(int size)
+        {
+            
+            var builder = new StringBuilder();
+            string s;
+            for (int i = 0; i < size; i++)
+            {
+                s = Convert.ToString(Convert.ToInt32(Math.Floor(26 * rng.NextDouble() + 65)));
+                builder.Append(s);
+            }
+
+            return Convert.ToInt64((builder.ToString()));
+        }
 
 
         static void Main(string[] args)
@@ -32,6 +54,14 @@ namespace WebZoo.Data
             var t2 = typeof (DateTime?);
             var t3 = typeof (string);
             var t4 = typeof (DateTime);
+
+
+            for (var i = 0; i < 1000; i++)
+            {
+                Console.WriteLine(GenerateRandomNumber(4));
+            }
+
+
 
             string kxwe = Inflector.Singularize("DrugUnitStatus");
             Console.WriteLine(kxwe);
