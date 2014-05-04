@@ -201,7 +201,7 @@ namespace Goliath.Data.DataAccess
         {
             var obj = ReadNullableInt64(value);
             if (obj == null)
-                return default(short);
+                return default(long);
             else
                 return obj;
         }
