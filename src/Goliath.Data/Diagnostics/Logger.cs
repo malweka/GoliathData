@@ -17,7 +17,7 @@ namespace Goliath.Data.Diagnostics
         {
             CurrentLevel = logLevel;
             currentLogLevel = logLevel;
-            
+
         }
 
         /// <summary>
@@ -98,9 +98,14 @@ namespace Goliath.Data.Diagnostics
                 return loggerFactoryMethod.Invoke(type);
         }
 
-        internal static void SetLogger(Func<Type, ILogger> factoryMethod)
+        /// <summary>
+        /// Sets the logger.
+        /// </summary>
+        /// <param name="factoryMethod">The factory method.</param>
+        public static void SetLogger(Func<Type, ILogger> factoryMethod)
         {
-            loggerFactoryMethod = factoryMethod;
+            if (loggerFactoryMethod == null)
+                loggerFactoryMethod = factoryMethod;
         }
     }
 }
