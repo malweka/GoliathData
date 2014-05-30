@@ -43,6 +43,11 @@ namespace Goliath.Data.Mapping
                                 var aRepPropName = bEnt.Name.Pluralize();
                                 if (aEnt.Relations.Contains(aRepPropName))
                                     aRepPropName = string.Format("{0}On{1}_{2}", bEnt.Name.Pluralize(), ent.Name, aRel.ColumnName.Pascalize());
+
+                                var keyName = string.Format("{0}.{1}", aEnt.Name, aRepPropName);
+                                if (entityRenames.ContainsKey(keyName))
+                                    aRepPropName = entityRenames[keyName];
+
                                 aEnt.Relations.Add(new Relation()
                                 {
                                     IsComplexType = true,
@@ -93,6 +98,11 @@ namespace Goliath.Data.Mapping
                                 var bRepPropName = aEnt.Name.Pluralize();
                                 if (bEnt.Relations.Contains(aRepPropName))
                                     bRepPropName = string.Format("{0}On{1}_{2}", aEnt.Name.Pluralize(), ent.Name, bRel.ColumnName.Pascalize());
+
+                                keyName = string.Format("{0}.{1}", bEnt.Name, bRepPropName);
+                                if (entityRenames.ContainsKey(keyName))
+                                    bRepPropName = entityRenames[keyName];
+
                                 bEnt.Relations.Add(new Relation()
                                 {
                                     IsComplexType = true,
@@ -148,9 +158,9 @@ namespace Goliath.Data.Mapping
                                 ent.Extends = pk.ReferenceEntityName;
                                 logger.Log(LogLevel.Debug, string.Format("Processing  {0} extends -> {1}.", ent.Name, ent.Extends));
                             }
-                            else if((ent.PrimaryKey != null) && (ent.PrimaryKey.Keys.Count > 1))
+                            else if ((ent.PrimaryKey != null) && (ent.PrimaryKey.Keys.Count > 1))
                             {
-                                for(var i=0;i<ent.PrimaryKey.Keys.Count;i++)
+                                for (var i = 0; i < ent.PrimaryKey.Keys.Count; i++)
                                 {
                                     var k = ent.PrimaryKey.Keys[i].Key as Relation;
                                     if (k != null && k.RelationType == RelationshipType.ManyToOne)
@@ -159,9 +169,15 @@ namespace Goliath.Data.Mapping
                                         if (entityList.TryGetValue(k.ReferenceTable, out other))
                                         {
                                             logger.Log(LogLevel.Debug, string.Format("Processing One-To-Many ent:{0} other:{1}.", ent.Name, other.Name));
+
                                             var aRepPropName = ent.Name.Pluralize();
                                             if (other.Relations.Contains(aRepPropName))
                                                 aRepPropName = string.Format("{0}On{1}", ent.Name.Pluralize(), k.ColumnName.Pascalize());
+
+                                            var keyName = string.Format("{0}.{1}", other.Name, aRepPropName);
+                                            if (entityRenames.ContainsKey(keyName))
+                                                aRepPropName = entityRenames[keyName];
+
                                             other.Relations.Add(new Relation()
                                             {
                                                 IsComplexType = true,
@@ -197,6 +213,11 @@ namespace Goliath.Data.Mapping
                                 var aRepPropName = ent.Name.Pluralize();
                                 if (other.Relations.Contains(aRepPropName))
                                     aRepPropName = string.Format("{0}On{1}", ent.Name.Pluralize(), reference.ColumnName.Pascalize());
+
+                                var keyName = string.Format("{0}.{1}", other.Name, aRepPropName);
+                                if (entityRenames.ContainsKey(keyName))
+                                    aRepPropName = entityRenames[keyName];
+
                                 other.Relations.Add(new Relation()
                                 {
                                     IsComplexType = true,
