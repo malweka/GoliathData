@@ -21,7 +21,7 @@ namespace Goliath.Data.CodeGenerator
         /// <value>
         /// The settings.
         /// </value>
-        public ProjectSettings Settings { get; protected set; }
+        public ProjectSettings Settings { get; set; }
 
         /// <summary>
         /// Gets or sets the script folder.
@@ -56,6 +56,14 @@ namespace Goliath.Data.CodeGenerator
         public string DatabaseFolder { get; set; }
 
         /// <summary>
+        /// Gets or sets the name of the query provider.
+        /// </summary>
+        /// <value>
+        /// The name of the query provider.
+        /// </value>
+        public string QueryProviderName { get; set; }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="CodeGenRunner"/> class.
         /// </summary>
         /// <param name="rdbms">The RDBMS.</param>
@@ -85,7 +93,7 @@ namespace Goliath.Data.CodeGenerator
             if (string.IsNullOrWhiteSpace(mapFilename)) throw new ArgumentNullException("mapFilename");
 
             var map = codeGen.GenerateMapping(WorkingFolder, schemaDescriptor, Settings, baseModel, rdbms, mapFilename);
-            map.MapStatements(Settings.Platform);
+            map.MapStatements(QueryProviderName);
             return map;
         }
 
@@ -93,7 +101,6 @@ namespace Goliath.Data.CodeGenerator
         {
             foreach (var stat in map.MappedStatements)
             {
-
                 if (!string.IsNullOrWhiteSpace(stat.DependsOnEntity)) continue;
 
                 EntityMap ent;
@@ -125,7 +132,7 @@ namespace Goliath.Data.CodeGenerator
             if (string.IsNullOrWhiteSpace(mapFilename)) throw new ArgumentNullException("mapFilename");
 
             var map = codeGen.GenerateMapping(WorkingFolder, schemaDescriptor, entityRenames, Settings, baseModel, rdbms, mapFilename);
-            map.MapStatements(Settings.Platform);
+            map.MapStatements(QueryProviderName);
             return map;
         }
 
