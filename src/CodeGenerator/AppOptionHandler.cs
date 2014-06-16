@@ -45,6 +45,7 @@ namespace Goliath.Data.CodeGenerator
                 .Add("workingFolder=|w=", w => opts.WorkingFolder = w)
                 .Add("out=|o=", w => opts.OutputFile = w)
                 .Add("in=|i=", w => opts.TemplateName = w)
+                .Add("queryProvider=", w => opts.QueryProviderName = w)
                 .Add("templateFolder=|t=", w => opts.TemplateFolder = w);
 
             p.Parse(args);
@@ -162,6 +163,7 @@ namespace Goliath.Data.CodeGenerator
         public Dictionary<string, string> ComplexTypesTypeMap { get { return complexTypesTypeMap; } }
         public string ConnectionString { get; set; }
         public string ProviderName { get; set; }
+        public string QueryProviderName { get; set; }
         public string WorkingFolder { get; set; }
         public string TemplateFolder { get; set; }
         public string Namespace { get; set; }

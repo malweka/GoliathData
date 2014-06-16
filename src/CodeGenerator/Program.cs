@@ -54,7 +54,10 @@ namespace Goliath.Data.CodeGenerator
                 }
             }
 
-            else rdbms = SupportedRdbms.Mssql2008;
+            else rdbms = SupportedRdbms.Mssql2008R2;
+
+            if (string.IsNullOrWhiteSpace(opts.QueryProviderName))
+                opts.QueryProviderName = SupportedRdbms.Mssql2008R2.ToString();
 
             Console.Write("Provider");
             Console.ForegroundColor = ConsoleColor.Blue;
@@ -69,12 +72,13 @@ namespace Goliath.Data.CodeGenerator
                                     ScriptFolder = AppDomain.CurrentDomain.BaseDirectory,
                                     DatabaseFolder = AppDomain.CurrentDomain.BaseDirectory,
                                     WorkingFolder = opts.WorkingFolder,
+                                    QueryProviderName = opts.QueryProviderName,
                                     Settings =
                                     {
                                         Namespace = opts.Namespace,
                                         AssemblyName = opts.AssemblyName,
                                         ConnectionString = opts.ConnectionString,
-                                        Platform = "Mssql2008R2"
+                                        Platform = rdbms.ToString()
 
                                     }
                                 };

@@ -15,7 +15,7 @@ namespace Goliath.Data.CodeGenerator
         /// <value>
         /// The settings.
         /// </value>
-        ProjectSettings Settings { get; }
+        ProjectSettings Settings { get; set; }
         /// <summary>
         /// Gets or sets the script folder.
         /// </summary>

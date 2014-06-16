@@ -417,7 +417,7 @@ namespace Goliath.Data.DataAccess
                     else
                     {
                         int ordinal;
-                        if (columns.TryGetValue(prop.ColumnName, out ordinal))
+                        if (columns.TryGetValue(prop.ColumnName, out ordinal) || columns.TryGetValue(prop.ColumnName.ToLower(), out ordinal))
                         {
                             var val = dbReader[ordinal];
                             var fieldType = dbReader.GetFieldType(ordinal);
