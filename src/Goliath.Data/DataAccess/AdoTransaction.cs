@@ -38,7 +38,7 @@ namespace Goliath.Data.DataAccess
         /// </summary>
         public void Begin()
         {
-            Begin(IsolationLevel.ReadCommitted);
+            Begin(IsolationLevel.ReadUncommitted);
         }
 
         /// <summary>

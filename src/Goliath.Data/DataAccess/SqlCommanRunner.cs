@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.Common;
 using System.Linq;
 using System.Text;
@@ -86,7 +87,7 @@ namespace Goliath.Data.DataAccess
                 throw new GoliathDataException(string.Format("Count function is either not registerd for provider {0} or is not supported",
                     dialect.DatabaseProviderName));
 
-            StringBuilder countSql = new StringBuilder(string.Format("SELECT {0} AS ctn_TOTAL ", countFunction.ToSqlStatement()));
+            StringBuilder countSql = new StringBuilder(string.Format("SELECT {0} ctn_TOTAL ", countFunction.ToSqlStatement()));
             countSql.AppendFormat("FROM {0} ", sql.From);
             if (!string.IsNullOrWhiteSpace(sql.JoinEnumeration))
                 countSql.Append(sql.JoinEnumeration);
@@ -171,18 +172,18 @@ namespace Goliath.Data.DataAccess
         /// <exception cref="GoliathDataException"></exception>
         public object ExecuteScalar(ISession session, string sql, Type resultType, params QueryParam[] paramArray)
         {
-            bool ownTransaction = false;
+            //bool ownTransaction = false;
 
             try
             {
                 var dbConn = session.ConnectionManager.OpenConnection();
                 object value = null;
 
-                if ((session.CurrentTransaction == null) || !session.CurrentTransaction.IsStarted)
-                {
-                    session.BeginTransaction();
-                    ownTransaction = true;
-                }
+                //if ((session.CurrentTransaction == null) || !session.CurrentTransaction.IsStarted)
+                //{
+                //    session.BeginTransaction();
+                //    ownTransaction = true;
+                //}
 
                 var result = session.DataAccess.ExecuteScalar(dbConn, session.CurrentTransaction, sql, paramArray);
 
@@ -195,23 +196,23 @@ namespace Goliath.Data.DataAccess
                 }
 
 
-                if (ownTransaction)
-                    session.CommitTransaction();
+                //if (ownTransaction)
+                //    session.CommitTransaction();
 
                 return value;
             }
             catch (GoliathDataException ex)
             {
-                if (ownTransaction)
-                    session.RollbackTransaction();
+                //if (ownTransaction)
+                //    session.RollbackTransaction();
 
                 logger.Log(LogLevel.Debug, string.Format("Goliath Exception found {0} ", ex.Message));
                 throw;
             }
             catch (Exception ex)
             {
-                if (ownTransaction)
-                    session.RollbackTransaction();
+                //if (ownTransaction)
+                //    session.RollbackTransaction();
 
                 throw new GoliathDataException(string.Format("Exception while running sql command: {0}", sql), ex);
             }
@@ -288,18 +289,19 @@ namespace Goliath.Data.DataAccess
         public T Run<T>(ISession session, string sql, params QueryParam[] paramArray)
         {
             Type instanceType = typeof(T);
-            bool ownTransaction = false;
+            //bool ownTransaction = false;
             var dbConn = session.ConnectionManager.OpenConnection();
             T value = default(T);
 
-            if ((session.CurrentTransaction == null) || !session.CurrentTransaction.IsStarted)
-            {
-                session.BeginTransaction();
-                ownTransaction = true;
-            }
-
             try
             {
+                //if ((session.CurrentTransaction == null) || !session.CurrentTransaction.IsStarted)
+                //{
+                //    ownTransaction = true;
+                //    session.BeginTransaction();
+
+                //}
+
                 if (instanceType.IsPrimitive || typeof(string) == instanceType || typeof(Guid) == instanceType || typeof(DateTime) == instanceType || typeof(DateTimeOffset) == instanceType)
                 {
                     value = ExecuteScalar<T>(dbConn, session, sql, paramArray);
@@ -326,23 +328,23 @@ namespace Goliath.Data.DataAccess
                     }
                 }
 
-                if (ownTransaction)
-                    session.CommitTransaction();
+                //if (ownTransaction)
+                //    session.CommitTransaction();
 
                 return value;
             }
             catch (GoliathDataException ex)
             {
-                if (ownTransaction)
-                    session.RollbackTransaction();
+                //if (ownTransaction)
+                //    session.RollbackTransaction();
 
                 logger.Log(LogLevel.Debug, string.Format("Goliath Exception found {0} ", ex.Message));
                 throw;
             }
             catch (Exception ex)
             {
-                if (ownTransaction)
-                    session.RollbackTransaction();
+                //if (ownTransaction)
+                //    session.RollbackTransaction();
 
                 throw new GoliathDataException(string.Format("Exception while running sql command: {0}", sql), ex);
             }
@@ -352,15 +354,15 @@ namespace Goliath.Data.DataAccess
         {
             bool ownTransaction = false;
             var dbConn = session.ConnectionManager.OpenConnection();
-
-            if ((session.CurrentTransaction == null) || !session.CurrentTransaction.IsStarted)
-            {
-                session.BeginTransaction();
-                ownTransaction = true;
-            }
-
+            
             try
             {
+                if ((session.CurrentTransaction == null) || !session.CurrentTransaction.IsStarted)
+                {
+                    ownTransaction = true;
+                    session.BeginTransaction();
+                }
+
                 int value = session.DataAccess.ExecuteNonQuery(dbConn, sql, paramArray);
 
                 if (ownTransaction)
@@ -399,20 +401,19 @@ namespace Goliath.Data.DataAccess
         public IList<T> RunList<T>(ISession session, SqlQueryBody sql, int limit, int offset, params QueryParam[] paramArray)
         {
             Type instanceType = typeof(T);
-            bool ownTransaction = false;
+            //bool ownTransaction = false;
             var dbConn = session.ConnectionManager.OpenConnection();
             IList<T> list = new List<T>();
             var dialect = session.SessionFactory.DbSettings.SqlDialect;
-            var serializer = session.SessionFactory.DataSerializer;
-
-            if ((session.CurrentTransaction == null) || !session.CurrentTransaction.IsStarted)
-            {
-                session.BeginTransaction();
-                ownTransaction = true;
-            }
-
+            //var serializer = session.SessionFactory.DataSerializer;
             try
             {
+                //if ((session.CurrentTransaction == null) || !session.CurrentTransaction.IsStarted)
+                //{
+                //    ownTransaction = true;
+                //    session.BeginTransaction();
+                //}
+
                 if (instanceType.IsPrimitive || typeof(string) == instanceType || typeof(Guid) == instanceType || typeof(DateTime) == instanceType || typeof(DateTimeOffset) == instanceType)
                 {
                     list = ExecuteReaderPrimitive<T>(dbConn, session, sql.ToString(dialect, new PagingInfo() { Limit = limit, Offset = offset }), paramArray);
@@ -439,23 +440,23 @@ namespace Goliath.Data.DataAccess
                     }
                 }
 
-                if (ownTransaction)
-                    session.CommitTransaction();
+                //if (ownTransaction)
+                //    session.CommitTransaction();
 
                 return list;
             }
             catch (GoliathDataException ex)
             {
-                if (ownTransaction)
-                    session.RollbackTransaction();
+                //if (ownTransaction)
+                //    session.RollbackTransaction();
 
                 logger.Log(LogLevel.Debug, string.Format("Goliath Exception found {0} ", ex.Message));
                 throw;
             }
             catch (Exception ex)
             {
-                if (ownTransaction)
-                    session.RollbackTransaction();
+                //if (ownTransaction)
+                //    session.RollbackTransaction();
 
                 throw new GoliathDataException(string.Format("Exception while running sql command: {0}", sql), ex);
             }
@@ -477,20 +478,20 @@ namespace Goliath.Data.DataAccess
         {
             total = 0;
             Type instanceType = typeof(T);
-            bool ownTransaction = false;
+            //bool ownTransaction = false;
             var dbConn = session.ConnectionManager.OpenConnection();
             IList<T> list = new List<T>();
             var dialect = session.SessionFactory.DbSettings.SqlDialect;
             var serializer = session.SessionFactory.DataSerializer;
 
-            if ((session.CurrentTransaction == null) || !session.CurrentTransaction.IsStarted)
-            {
-                session.BeginTransaction();
-                ownTransaction = true;
-            }
-
             try
             {
+                //if ((session.CurrentTransaction == null) || !session.CurrentTransaction.IsStarted)
+                //{
+                //    ownTransaction = true;
+                //    session.BeginTransaction();
+                //}
+
                 if (instanceType.IsPrimitive || typeof(string) == instanceType || typeof(Guid) == instanceType || typeof(DateTime) == instanceType || typeof(DateTimeOffset) == instanceType)
                 {
                     list = ExecuteReaderPrimitive<T>(dbConn, session, sql, limit, offset, out total, paramArray);
@@ -517,23 +518,23 @@ namespace Goliath.Data.DataAccess
                     }
                 }
 
-                if (ownTransaction)
-                    session.CommitTransaction();
+                //if (ownTransaction)
+                //    session.CommitTransaction();
 
                 return list;
             }
             catch (GoliathDataException ex)
             {
-                if (ownTransaction)
-                    session.RollbackTransaction();
+                //if (ownTransaction)
+                //    session.RollbackTransaction();
 
                 logger.Log(LogLevel.Debug, string.Format("Goliath Exception found {0} ", ex.Message));
                 throw;
             }
             catch (Exception ex)
             {
-                if (ownTransaction)
-                    session.RollbackTransaction();
+                //if (ownTransaction)
+                //    session.RollbackTransaction();
 
                 throw new GoliathDataException(string.Format("Exception while running sql command: {0}", sql), ex);
             }
@@ -563,18 +564,18 @@ namespace Goliath.Data.DataAccess
         public IList<T> RunList<T>(ISession session, string sql, params QueryParam[] paramArray)
         {
             Type instanceType = typeof(T);
-            bool ownTransaction = false;
+            //bool ownTransaction = false;
             var dbConn = session.ConnectionManager.OpenConnection();
             IList<T> list = new List<T>();
 
-            if ((session.CurrentTransaction == null) || !session.CurrentTransaction.IsStarted)
-            {
-                session.BeginTransaction();
-                ownTransaction = true;
-            }
-
             try
             {
+                //if ((session.CurrentTransaction == null) || !session.CurrentTransaction.IsStarted)
+                //{
+                //    ownTransaction = true;
+                //    session.BeginTransaction();
+                //}
+
                 if (instanceType.IsPrimitive || typeof(string) == instanceType || typeof(Guid) == instanceType || typeof(DateTime) == instanceType || typeof(DateTimeOffset) == instanceType)
                 {
                     list = ExecuteReaderPrimitive<T>(dbConn, session, sql, paramArray);
@@ -601,15 +602,15 @@ namespace Goliath.Data.DataAccess
                     }
                 }
 
-                if (ownTransaction)
-                    session.CommitTransaction();
+                //if (ownTransaction)
+                //    session.CommitTransaction();
 
                 return list;
             }
             catch (GoliathDataException ex)
             {
-                if (ownTransaction)
-                    session.RollbackTransaction();
+                //if (ownTransaction)
+                //    session.RollbackTransaction();
 
                 logger.Log(LogLevel.Debug, string.Format("Goliath Exception found {0} ", ex.Message));
 
@@ -617,8 +618,8 @@ namespace Goliath.Data.DataAccess
             }
             catch (Exception ex)
             {
-                if (ownTransaction)
-                    session.RollbackTransaction();
+                //if (ownTransaction)
+                //    session.RollbackTransaction();
 
                 throw new GoliathDataException(string.Format("Exception while running sql command: {0}", sql), ex);
             }
