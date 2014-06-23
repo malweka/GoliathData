@@ -325,7 +325,7 @@ namespace Goliath.Data.DataAccess
 
         public ITransaction BeginTransaction()
         {
-            return BeginTransaction(IsolationLevel.Unspecified);
+            return BeginTransaction(IsolationLevel.ReadUncommitted);
         }
 
         public ITransaction BeginTransaction(System.Data.IsolationLevel isolationLevel)
@@ -361,7 +361,7 @@ namespace Goliath.Data.DataAccess
         public ITransaction RollbackTransaction()
         {
             if ((currentTransaction == null) || (!currentTransaction.IsStarted))
-                throw new GoliathDataException("no transaction or not started yet");
+                return null;
 
             currentTransaction.Rollback();
             currentTransaction.Dispose();

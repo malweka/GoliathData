@@ -135,9 +135,18 @@ namespace Goliath.Data.Sql
 
         public T FetchOne<T>()
         {
-            SqlCommandRunner runner = new SqlCommandRunner();
+            var runner = new SqlCommandRunner();
             var query = Build();
             return runner.Run<T>(session, query, Parameters.ToArray());
+        }
+
+        public int Count()
+        {
+            if(ColumNames.Count < 1) throw new InvalidOperationException("no columns has been selected");
+
+            var query = Build(true);
+            var runner = new SqlCommandRunner();
+            return runner.Run<int>(session, query, Parameters.ToArray());
         }
 
         #endregion
@@ -150,7 +159,7 @@ namespace Goliath.Data.Sql
             }
         }
 
-        public SqlQueryBody Build()
+        public SqlQueryBody Build(bool selectCount = false)
         {
             SqlQueryBody queryBody = new SqlQueryBody();
 
@@ -165,9 +174,20 @@ namespace Goliath.Data.Sql
             }
 
             if (columnNames.Count < 1)
+            {
                 queryBody.ColumnEnumeration = "*";
+            }
             else
-                 queryBody.ColumnEnumeration = ColumnFormatter.Format(columnNames, alias);
+            {
+                queryBody.ColumnEnumeration = ColumnFormatter.Format(columnNames, alias);
+            }
+
+            if (selectCount)
+            {
+                var countFunction = dialect.GetFunction(FunctionNames.Count);
+                var sql = countFunction.ToSqlStatement(new QueryParam("*"));
+                queryBody.ColumnEnumeration = sql;
+            }
 
             StringBuilder joinBuilder = new StringBuilder();
             if (joins.Count > 0)

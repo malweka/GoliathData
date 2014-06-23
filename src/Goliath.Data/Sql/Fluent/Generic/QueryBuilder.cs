@@ -203,6 +203,11 @@ namespace Goliath.Data.Sql
             return innerBuilder.FetchAll<T>();
         }
 
+        public int Count()
+        {
+            return innerBuilder.Count();
+        }
+
         public T FetchOne()
         {
             return innerBuilder.FetchOne<T>();

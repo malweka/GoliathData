@@ -101,13 +101,18 @@ namespace Goliath.Data.Sql
     public interface IFetchable<T>
     {
         ICollection<T> FetchAll();
+
         T FetchOne();
+
+        int Count();
     }
 
     public interface IFetchableWithOutput<T>
     {
         ICollection<T> FetchAll(out long total);
+
         ICollection<T> FetchAll();
+
     }
 
     public interface IQueryFetchable<T> : IFetchable<T>
