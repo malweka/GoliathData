@@ -52,6 +52,9 @@ namespace Goliath.Data.Sql
 
         IBinaryOperation<T> LikeValue(TValue value);
         IBinaryOperation<T> Like(Expression<Func<T, TValue>> property);
+
+        IBinaryOperation<T> ILikeValue(TValue value);
+        IBinaryOperation<T> ILike(Expression<Func<T, TValue>> property);
     }
 
     public interface IJoinFilterClause<T, TRelation, TValue>

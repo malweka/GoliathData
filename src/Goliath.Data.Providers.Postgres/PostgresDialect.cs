@@ -15,7 +15,7 @@ namespace Goliath.Data.Providers.Postgres
         public PostgresDialect()
             : base(RdbmsBackend.SupportedSystemNames.Postgresql9)
         {
-
+            StrictCaseSensitivity = true;
         }
 
         /// <summary>
@@ -75,6 +75,10 @@ namespace Goliath.Data.Providers.Postgres
             return string.Format("@{0}", variableName);
         }
 
+        public override string PrintCaseIncensitiveLike()
+        {
+            return "ILIKE";
+        }
 
         /// <summary>
         /// Escapes the specified value.

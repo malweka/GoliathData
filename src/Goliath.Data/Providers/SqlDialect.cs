@@ -48,6 +48,8 @@ namespace Goliath.Data.Providers
         protected SqlDialect(string dbProviderName)
         {
             SupportIdentityColumns = true;
+            StrictCaseSensitivity = false;
+
             RegisterType(DbType.Boolean, "bit");
             RegisterType(DbType.Int32, "int");
             RegisterType(DbType.Int32, "integer");
@@ -209,6 +211,11 @@ namespace Goliath.Data.Providers
             ISqlFunction func;
             functionMap.TryGetValue(functionName, out func);
             return func;
+        }
+
+        public virtual string PrintCaseIncensitiveLike()
+        {
+            return "LIKE";
         }
 
         /// <summary>
@@ -392,6 +399,7 @@ namespace Goliath.Data.Providers
         /// </value>
         public bool SupportIdentityColumns { get; set; }
 
+        public bool StrictCaseSensitivity { get; protected set; }
         /// <summary>
         /// Identities the SQL.
         /// </summary>
