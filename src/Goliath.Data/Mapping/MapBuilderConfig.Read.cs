@@ -104,11 +104,11 @@ namespace Goliath.Data.Mapping
 
             #region read methods
 
-            void InitializeRelObject(ref Relation rel, Property prop)
-            {
-                if (rel == null)
-                    rel = new Relation(prop);
-            }
+            //void InitializeRelObject(ref Relation rel, Property prop)
+            //{
+            //    if (rel == null)
+            //        rel = new Relation(prop);
+            //}
 
             #region <statement>
 
@@ -390,8 +390,9 @@ namespace Goliath.Data.Mapping
             {
                 if (reader.CanReadElement(elementName))
                 {
-                    Property property = new Property();
-                    Relation rel = null;
+                    var property = new Property();
+                    var rel = new Relation();
+                    bool loadedRel = false;
                     string keyGen = null;
                     string unsavedValue = null;
 
@@ -460,51 +461,51 @@ namespace Goliath.Data.Mapping
                                 break;
                             //relation attributes
                             case "relation":
-                                InitializeRelObject(ref rel, property);
+                                loadedRel = true;
                                 rel.RelationType = ReadEnumType<RelationshipType>(reader.Value);
                                 break;
                             case "referenceTable":
-                                InitializeRelObject(ref rel, property);
+                                loadedRel = true;
                                 rel.ReferenceTable = reader.Value;
                                 break;
                             case "referenceColumn":
-                                InitializeRelObject(ref rel, property);
+                                loadedRel = true;
                                 rel.ReferenceColumn = reader.Value;
                                 break;
                             case "referenceProperty":
-                                InitializeRelObject(ref rel, property);
+                                loadedRel = true;
                                 rel.ReferenceProperty = reader.Value;
                                 break;
                             case "refConstraint":
-                                InitializeRelObject(ref rel, property);
+                                loadedRel = true;
                                 rel.ReferenceConstraintName = reader.Value;
                                 break;
                             case "refEntity":
-                                InitializeRelObject(ref rel, property);
+                                loadedRel = true;
                                 rel.ReferenceEntityName = reader.Value;
                                 break;
                             case "exclude":
-                                InitializeRelObject(ref rel, property);
+                                loadedRel = true;
                                 rel.Exclude = ReadBool(reader.Value);
                                 break;
                             case "inverse":
-                                InitializeRelObject(ref rel, property);
+                                loadedRel = true;
                                 rel.Inverse = ReadBool(reader.Value);
                                 break;
                             case "mapColumn":
-                                InitializeRelObject(ref rel, property);
+                                loadedRel = true;
                                 rel.MapColumn = reader.Value;
                                 break;
                             case "mapReferenceColumn":
-                                InitializeRelObject(ref rel, property);
+                                loadedRel = true;
                                 rel.MapReferenceColumn = reader.Value;
                                 break;
                             case "propertyName":
-                                InitializeRelObject(ref rel, property);
+                                loadedRel = true;
                                 rel.MapPropertyName = reader.Value;
                                 break;
                             case "mapTable":
-                                InitializeRelObject(ref rel, property);
+                                loadedRel = true;
                                 rel.MapTableName = reader.Value;
                                 break;
                             //primary key attributes
@@ -537,8 +538,11 @@ namespace Goliath.Data.Mapping
                         pk.UnsavedValueString = unsavedValue;
                     }
 
-                    if (rel != null)
+                    if (loadedRel)
+                    {
+                        rel.LoadPropertyValues(property);
                         return rel;
+                    }
 
                     if (forceReturnRel)
                     {
