@@ -41,6 +41,7 @@ namespace Goliath.Data.Sql
         /// 
         /// </summary>
         Like,
+        LikeNonCaseSensitive,
         /// <summary>
         /// 
         /// </summary>

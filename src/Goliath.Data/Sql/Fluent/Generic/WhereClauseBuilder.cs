@@ -64,6 +64,9 @@ namespace Goliath.Data.Sql
                 case ComparisonOperator.Like:
                     whereClause.Like(tableAlias, columnName);
                     break;
+                case ComparisonOperator.LikeNonCaseSensitive:
+                    whereClause.ILike(tableAlias, columnName);
+                    break;
                 case ComparisonOperator.LowerOrEquals:
                     whereClause.LowerOrEqualTo(tableAlias, columnName);
                     break;
@@ -105,6 +108,9 @@ namespace Goliath.Data.Sql
                 //break;
                 case ComparisonOperator.Like:
                     whereClause.LikeValue(value);
+                    break;
+                case ComparisonOperator.LikeNonCaseSensitive:
+                    whereClause.ILikeValue(value);
                     break;
                 case ComparisonOperator.LowerOrEquals:
                     whereClause.LowerOrEqualToValue(value);
@@ -170,7 +176,7 @@ namespace Goliath.Data.Sql
             return BuildBinaryOperation(ComparisonOperator.LowerThan, value);
         }
 
-        public IBinaryOperation<T> LowerThan(System.Linq.Expressions.Expression<Func<T, TProperty>> property)
+        public IBinaryOperation<T> LowerThan(Expression<Func<T, TProperty>> property)
         {
             return BuildBinaryOperation(ComparisonOperator.LowerThan, property);
         }
@@ -180,9 +186,19 @@ namespace Goliath.Data.Sql
             return BuildBinaryOperation(ComparisonOperator.Like, value);
         }
 
-        public IBinaryOperation<T> Like(System.Linq.Expressions.Expression<Func<T, TProperty>> property)
+        public IBinaryOperation<T> Like(Expression<Func<T, TProperty>> property)
         {
             return BuildBinaryOperation(ComparisonOperator.Like, property);
+        }
+
+        public IBinaryOperation<T> ILikeValue(TProperty value)
+        {
+            return BuildBinaryOperation(ComparisonOperator.LikeNonCaseSensitive, value);
+        }
+
+        public IBinaryOperation<T> ILike(Expression<Func<T, TProperty>> property)
+        {
+            return BuildBinaryOperation(ComparisonOperator.LikeNonCaseSensitive, property);
         }
 
         #endregion

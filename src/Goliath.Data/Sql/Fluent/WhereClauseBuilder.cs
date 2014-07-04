@@ -96,6 +96,9 @@ namespace Goliath.Data.Sql
                 case ComparisonOperator.Like:
                     op = "LIKE";
                     break;
+                case ComparisonOperator.LikeNonCaseSensitive:
+                    op = dialect.PrintCaseIncensitiveLike();
+                    break;
                 case ComparisonOperator.LowerOrEquals:
                     op = "<=";
                     break;
@@ -236,6 +239,25 @@ namespace Goliath.Data.Sql
         public IBinaryOperation Like(string tableAlias, string propertyName)
         {
             BuildColumnBinaryOperation(tableAlias, propertyName, ComparisonOperator.Like);
+            return builder;
+        }
+
+
+        public IBinaryOperation ILikeValue(object value)
+        {
+            BuildBinaryOperation(value, ComparisonOperator.LikeNonCaseSensitive);
+            return builder;
+        }
+
+        public IBinaryOperation ILike(string propertyName)
+        {
+            BuildColumnBinaryOperation(propertyName, ComparisonOperator.LikeNonCaseSensitive);
+            return builder;
+        }
+
+        public IBinaryOperation ILike(string tableAlias, string propertyName)
+        {
+            BuildColumnBinaryOperation(tableAlias, propertyName, ComparisonOperator.LikeNonCaseSensitive);
             return builder;
         }
 

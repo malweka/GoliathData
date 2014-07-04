@@ -66,6 +66,10 @@ namespace Goliath.Data.Sql
         IBinaryOperation LikeValue(object value);
         IBinaryOperation Like(string propertyName);
         IBinaryOperation Like(string tableAlias, string propertyName);
+
+        IBinaryOperation ILikeValue(object value);
+        IBinaryOperation ILike(string propertyName);
+        IBinaryOperation ILike(string tableAlias, string propertyName);
     }
 
     public interface ISorterClause
