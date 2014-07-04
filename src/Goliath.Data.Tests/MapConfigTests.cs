@@ -50,10 +50,10 @@ namespace Goliath.Data.Tests
             MapConfig config = new MapConfig();
             config.Load(testMapfile);
 
-            var statement = config.UnprocessedStatements.Where(c => c.Name == "updateTest").First();
+            var statement = config.UnprocessedStatements.Where(c => c.Name == "updateTest").FirstOrDefault();
             Assert.AreEqual("WebZoo.Data.Zoo", statement.InputParametersMap.Values.First());
 
-            statement = config.UnprocessedStatements.Where(c => c.Name == "testInsert").First();
+            statement = config.UnprocessedStatements.Where(c => c.Name == "testInsert").FirstOrDefault();
             Assert.AreEqual("WebZoo.Data.Zoo", statement.InputParametersMap.Values.First());
         }
 
@@ -99,6 +99,18 @@ namespace Goliath.Data.Tests
 
             var statementWithParams = statements.Where(s => s.Name == "updateTest2").First();
             Assert.AreEqual(3, statementWithParams.DbParametersMap.Count);
+        }
+
+        [Test]
+        public void Load_reference_dbType_should_be_valid()
+        {
+            string testMapfile = Path.Combine(SessionHelper.BaseDirectory, "TestFiles", "MapConfigTests", "TestFullMap.xml");
+            MapConfig config = new MapConfig();
+            config.Load(testMapfile);
+
+            var ent = config.GetEntityMap("WebZoo.Data.Animal");
+            var rel = ent.Relations["Zoo"];
+            Assert.AreEqual(System.Data.DbType.Int32, rel.DbType);
         }
 
         [Test, ExpectedException(typeof(MappingSerializationException))]
