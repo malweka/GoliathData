@@ -325,7 +325,7 @@ namespace Goliath.Data.DataAccess
 
         public ITransaction BeginTransaction()
         {
-            return BeginTransaction(IsolationLevel.ReadUncommitted);
+            return BeginTransaction(SessionFactory.DbSettings.Connector.DefaultIsolationLevel);
         }
 
         public ITransaction BeginTransaction(System.Data.IsolationLevel isolationLevel)

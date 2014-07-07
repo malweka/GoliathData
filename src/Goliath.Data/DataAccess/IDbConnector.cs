@@ -1,4 +1,5 @@
-﻿using System.Data.Common;
+﻿using System.Data;
+using System.Data.Common;
 
 namespace Goliath.Data
 {
@@ -12,6 +13,14 @@ namespace Goliath.Data
         /// </summary>
         /// <returns></returns>
         DbConnection CreateNewConnection();
+
+        /// <summary>
+        /// Gets the default isolation level.
+        /// </summary>
+        /// <value>
+        /// The default isolation level.
+        /// </value>
+        IsolationLevel DefaultIsolationLevel { get; }
 
         /// <summary>
         /// Gets the name of the database provider.

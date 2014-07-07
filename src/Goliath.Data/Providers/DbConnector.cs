@@ -1,4 +1,5 @@
-﻿using System.Data.Common;
+﻿using System.Data;
+using System.Data.Common;
 
 namespace Goliath.Data.Providers
 {
@@ -50,6 +51,8 @@ namespace Goliath.Data.Providers
         /// </summary>
         /// <returns></returns>
         public abstract DbConnection CreateNewConnection();
+
+        public virtual IsolationLevel DefaultIsolationLevel { get { return IsolationLevel.ReadUncommitted;} }
 
         ///// <summary>
         ///// Creates the parameter.

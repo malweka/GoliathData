@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data;
 using System.Data.SQLite;
 using Goliath.Data.Diagnostics;
 
@@ -54,6 +55,11 @@ namespace Goliath.Data.Providers.Sqlite
         {
             var connection = new SQLiteConnection(ConnectionString);
             return connection;
+        }
+
+        public override IsolationLevel DefaultIsolationLevel
+        {
+            get { return IsolationLevel.Unspecified; }
         }
 
         /// <summary>

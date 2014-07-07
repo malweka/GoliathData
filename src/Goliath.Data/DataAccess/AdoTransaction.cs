@@ -38,14 +38,15 @@ namespace Goliath.Data.DataAccess
         /// </summary>
         public void Begin()
         {
-            Begin(IsolationLevel.ReadUncommitted);
+            var defaultLevel = session.SessionFactory.DbSettings.Connector.DefaultIsolationLevel;
+            Begin(defaultLevel);
         }
 
         /// <summary>
         /// Begins the specified isolated level.
         /// </summary>
         /// <param name="isolatedLevel">The isolated level.</param>
-        public void Begin(System.Data.IsolationLevel isolatedLevel)
+        public void Begin(IsolationLevel isolatedLevel)
         {
             try
             {
