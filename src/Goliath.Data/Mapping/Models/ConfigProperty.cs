@@ -39,12 +39,22 @@ namespace Goliath.Data.Mapping
         /// <value>The type of the CLR.</value>
         [DataMember]
         public Type ClrType { get; set; }
+
+        private DbType dbType;
+
         /// <summary>
         /// Gets or sets the type of the db.
         /// </summary>
         /// <value>The type of the db.</value>
         [DataMember]
-        public DbType DbType { get; set; }
+        public DbType DbType
+        {
+            get { return dbType; }
+            set
+            {
+                dbType = value;
+            }
+        }
         /// <summary>
         /// Gets or sets the errors.
         /// </summary>
