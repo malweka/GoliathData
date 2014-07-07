@@ -21,6 +21,11 @@ namespace Goliath.Data.Mapping
         /// <param name="prop">The prop.</param>
         public Relation(Property prop)
         {
+            LoadPropertyValues(prop);
+        }
+
+        internal void LoadPropertyValues(Property prop)
+        {
             LazyLoad = prop.LazyLoad;
             IgnoreOnUpdate = prop.IgnoreOnUpdate;
             IsComplexType = prop.IsComplexType;
@@ -42,7 +47,6 @@ namespace Goliath.Data.Mapping
             IsUnique = prop.IsUnique;
             IsPrimaryKey = prop.IsPrimaryKey;
             SqlType = prop.SqlType;
-
         }
 
         /// <summary>
