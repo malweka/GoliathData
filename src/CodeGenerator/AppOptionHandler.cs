@@ -36,6 +36,7 @@ namespace Goliath.Data.CodeGenerator
                 .Add("entity=", w => opts.EntityModel = w)
                 .Add("renameConfig=", w => opts.RenameConfig = w)
                 .Add("complexTypeMap=", w => opts.ComplexTypeMap = w)
+                .Add("extension=", w => opts.ExtensionMap = w)
                 .Add("defaultKeygen=", w => opts.DefaultKeygen = w)
                 .Add("statementMap=", w => opts.MappedStatementFile = w)
                 .Add("datamap=|map=|m=", w => opts.MapFile = w)
@@ -85,6 +86,7 @@ namespace Goliath.Data.CodeGenerator
 
             ProcessRenames(opts);
             ProcessCompleTypeMap(opts);
+            ProcessExtensionMap(opts);
 
             return opts;
         }
@@ -152,15 +154,86 @@ namespace Goliath.Data.CodeGenerator
             }
         }
 
+        private static void ProcessExtensionMap(AppOptionInfo opts)
+        {
+            if (string.IsNullOrWhiteSpace(opts.ExtensionMap)) return;
+
+            if (!File.Exists(opts.ExtensionMap)) return;
+            try
+            {
+                using (var reader = new StreamReader(opts.ExtensionMap))
+                {
+                    string txt = reader.ReadToEnd();
+                    var lines = txt.Split(new string[] { "\n", "\r", ";" }, StringSplitOptions.RemoveEmptyEntries);
+                    foreach (var line in lines)
+                    {
+                        var stms = line.Split(new string[] { "=" }, StringSplitOptions.RemoveEmptyEntries);
+                        if (stms.Length > 1)
+                        {
+                            var name = stms[0].Trim();
+                            var value = stms[1].Trim().Replace("\"", string.Empty).Replace("'", string.Empty);
+
+                            var entParts = name.Trim().Split(new string[] { "." }, StringSplitOptions.RemoveEmptyEntries);
+                            if (name.Contains("data_"))
+                            {
+                                if (entParts.Length > 2)
+                                {
+                                    var key = string.Concat(entParts[0].Trim(), ".", entParts[1].Trim());
+                                    if (!opts.MetadataDictionary.ContainsKey(key))
+                                    {
+                                        var lst = new List<Tuple<string, string>> { Tuple.Create(entParts[2].Trim(), value) };
+                                        opts.MetadataDictionary.Add(key, lst);
+                                    }
+                                    else
+                                    {
+                                        opts.MetadataDictionary[key].Add(Tuple.Create(entParts[2].Trim(), value));
+                                    }
+                                }
+                                else
+                                {
+                                    var key = entParts[0].Trim();
+                                    if (!opts.MetadataDictionary.ContainsKey(key))
+                                    {
+                                        var lst = new List<Tuple<string, string>> { Tuple.Create(entParts[0].Trim(), value) };
+                                        opts.MetadataDictionary.Add(key, lst);
+                                    }
+                                    else
+                                    {
+                                        opts.MetadataDictionary[key].Add(Tuple.Create(entParts[0].Trim(), value));
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                if (!opts.ActivatedProperties.ContainsKey(name))
+                                    opts.ActivatedProperties.Add(name, value);
+                            }
+
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.LogException("Could not process complex type map file.", ex);
+            }
+        }
+
     }
 
 
     class AppOptionInfo
     {
         readonly Dictionary<string, string> entitiesToRename = new Dictionary<string, string>();
+        readonly Dictionary<string, List<Tuple<string, string>>> metadataDictionary = new Dictionary<string, List<Tuple<string, string>>>();
         public Dictionary<string, string> EntitiesToRename { get { return entitiesToRename; } }
         private readonly Dictionary<string, string> complexTypesTypeMap = new Dictionary<string, string>();
         public Dictionary<string, string> ComplexTypesTypeMap { get { return complexTypesTypeMap; } }
+        public Dictionary<string, List<Tuple<string, string>>> MetadataDictionary { get { return metadataDictionary; } }
+        readonly Dictionary<string, string> properties = new Dictionary<string, string>();
+
+        public Dictionary<string, string> ActivatedProperties { get { return properties; } }
+
         public string ConnectionString { get; set; }
         public string ProviderName { get; set; }
         public string QueryProviderName { get; set; }
@@ -179,6 +252,7 @@ namespace Goliath.Data.CodeGenerator
         public string MappedStatementFile { get; set; }
         public string DefaultKeygen { get; set; }
         public string ComplexTypeMap { get; set; }
+        public string ExtensionMap { get; set; }
 
         public string[] ExcludedArray { get; set; }
     }

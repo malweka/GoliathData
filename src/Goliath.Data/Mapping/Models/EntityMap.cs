@@ -165,7 +165,14 @@ namespace Goliath.Data.Mapping
         public bool IsTrackable { get; set; }
 
         readonly Dictionary<string, string> metadataAttributes = new Dictionary<string, string>();
-        internal Dictionary<string, string> MetaDataAttributes { get { return metadataAttributes; } }
+
+        /// <summary>
+        /// Gets the meta data attributes.
+        /// </summary>
+        /// <value>
+        /// The meta data attributes.
+        /// </value>
+        public Dictionary<string, string> MetaDataAttributes { get { return metadataAttributes; } }
 
         IMapModel baseModel;
 

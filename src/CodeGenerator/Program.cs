@@ -1,9 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using Goliath.Data.Diagnostics;
 using Goliath.Data.Mapping;
 using Goliath.Data.Providers;
-using Goliath.Data.Providers.SqlServer;
+
 
 namespace Goliath.Data.CodeGenerator
 {
@@ -18,14 +19,17 @@ namespace Goliath.Data.CodeGenerator
 
         static void Main(string[] args)
         {
-            var opts = AppOptionHandler.ParseOptions(args);
 
-            Console.WriteLine("Starting application. Generated files will be saved on Folder: {0} ", opts.WorkingFolder);
-            Console.WriteLine("Template Folder: {0} \n", opts.TemplateFolder);
 #if DEBUG
             Console.WriteLine("Press enter to continue.");
             Console.ReadLine();
 #endif
+
+            var opts = AppOptionHandler.ParseOptions(args);
+
+            Console.WriteLine("Starting application. Generated files will be saved on Folder: {0} ", opts.WorkingFolder);
+            Console.WriteLine("Template Folder: {0} \n", opts.TemplateFolder);
+
 
             SupportedRdbms rdbms;
 
@@ -254,42 +258,136 @@ namespace Goliath.Data.CodeGenerator
                     Console.WriteLine("Load mapped statements from {0} into {1}", opts.MappedStatementFile, mapFileName);
                     map.LoadMappedStatements(opts.MappedStatementFile);
                     CodeGenRunner.ProcessMappedStatements(map);
+                }
+
+                foreach (var ent in map.EntityConfigs)
+                {
+                    ProcessMetadata(opts, ent);
+                    ProcessActivatedProperties(opts, ent);
+
                     //process keygen
                     if (!string.IsNullOrWhiteSpace(opts.DefaultKeygen))
                     {
-                        foreach (var ent in map.EntityConfigs)
+                        if (ent.PrimaryKey != null)
                         {
-                            if (ent.PrimaryKey != null)
+                            foreach (var k in ent.PrimaryKey.Keys)
                             {
-                                foreach (var k in ent.PrimaryKey.Keys)
+                                if (string.IsNullOrWhiteSpace(k.KeyGenerationStrategy))
                                 {
-                                    if (string.IsNullOrWhiteSpace(k.KeyGenerationStrategy))
-                                    {
-                                        k.KeyGenerationStrategy = opts.DefaultKeygen;
-                                    }
-                                }
-                            }
-
-                            if (!string.IsNullOrWhiteSpace(opts.ComplexTypeMap))
-                            {
-                                foreach (var prop in ent)
-                                {
-                                    var key = string.Concat(ent.Name, ".", prop.Name);
-                                    string complextType;
-                                    if (opts.ComplexTypesTypeMap.TryGetValue(key, out complextType))
-                                    {
-                                        prop.ComplexTypeName = complextType;
-                                        prop.IsComplexType = true;
-                                    }
+                                    k.KeyGenerationStrategy = opts.DefaultKeygen;
                                 }
                             }
                         }
                     }
-                    
-                    map.Save(mapFileName, true);
+
+                    foreach (var prop in ent)
+                    {
+                        ProcessMetadata(opts, ent, prop);
+                        ProcessActivatedProperties(opts, ent, prop);
+
+                        if (!string.IsNullOrWhiteSpace(opts.ComplexTypeMap))
+                        {
+                            var key = string.Concat(ent.Name, ".", prop.Name);
+                            string complextType;
+                            if (opts.ComplexTypesTypeMap.TryGetValue(key, out complextType))
+                            {
+                                prop.ComplexTypeName = complextType;
+                                prop.IsComplexType = true;
+                            }
+                        }
+                    }
+
+                }
+
+                map.Save(mapFileName, true);
+            }
+        }
+
+        static void ProcessMetadata(AppOptionInfo opts, EntityMap ent)
+        {
+            List<Tuple<string, string>> metadata;
+            if (opts.MetadataDictionary.TryGetValue(ent.Name, out metadata))
+            {
+                foreach (var tuple in metadata)
+                {
+                    ent.MetaDataAttributes.Add(tuple.Item1.Replace("data_", string.Empty), tuple.Item2);
                 }
             }
         }
+
+        private static void ProcessMetadata(AppOptionInfo opts, EntityMap ent, Property prop)
+        {
+            var key = string.Concat(ent.Name, ".", prop.Name);
+            List<Tuple<string, string>> metadata;
+            if (opts.MetadataDictionary.TryGetValue(key, out metadata))
+            {
+                foreach (var tuple in metadata)
+                {
+                    prop.MetaDataAttributes.Add(tuple.Item1.Replace("data_", string.Empty), tuple.Item2);
+                }
+            }
+        }
+
+        private static void ProcessActivatedProperties(AppOptionInfo opts, EntityMap ent)
+        {
+            var isTrackable = string.Concat(ent.Name, ".IsTrackable");
+            var extends = string.Concat(ent.Name, ".Extends");
+            var tableAlias = string.Concat(ent.Name, ".TableAlias");
+
+            if (opts.ActivatedProperties.ContainsKey(isTrackable))
+            {
+                bool val;
+                bool.TryParse(opts.ActivatedProperties[isTrackable], out val);
+                ent.IsTrackable = val;
+            }
+
+            if (opts.ActivatedProperties.ContainsKey(extends))
+            {
+                ent.Extends = opts.ActivatedProperties[extends];
+            }
+
+            if (opts.ActivatedProperties.ContainsKey(tableAlias))
+            {
+                ent.TableAlias = opts.ActivatedProperties[tableAlias];
+            }
+        }
+
+        private static void ProcessActivatedProperties(AppOptionInfo opts, EntityMap ent, Property prop)
+        {
+            var ignoreOnUpdate = string.Concat(ent.Name, ".", prop.Name, ".IgnoreOnUpdate");
+            var lazyload = string.Concat(ent.Name, ".", prop.Name, ".LazyLoad");
+            var isNullable = string.Concat(ent.Name, ".", prop.Name, ".IsNullable");
+            var isUnique = string.Concat(ent.Name, ".", prop.Name, ".IsUnique");
+
+            if (opts.ActivatedProperties.ContainsKey(ignoreOnUpdate))
+            {
+                bool val;
+                bool.TryParse(opts.ActivatedProperties[ignoreOnUpdate], out val);
+                prop.IgnoreOnUpdate = val;
+            }
+
+            if (opts.ActivatedProperties.ContainsKey(lazyload))
+            {
+                bool val;
+                bool.TryParse(opts.ActivatedProperties[lazyload], out val);
+                prop.LazyLoad = val;
+            }
+
+            if (opts.ActivatedProperties.ContainsKey(isNullable))
+            {
+                bool val;
+                bool.TryParse(opts.ActivatedProperties[isNullable], out val);
+                prop.IsNullable = val;
+            }
+
+            if (opts.ActivatedProperties.ContainsKey(isUnique))
+            {
+                bool val;
+                bool.TryParse(opts.ActivatedProperties[isUnique], out val);
+                prop.IsUnique = val;
+            }
+        }
+
 
         static void PrintError(string errorMessage, Exception ex)
         {
