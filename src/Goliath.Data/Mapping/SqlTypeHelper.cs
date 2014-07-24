@@ -118,7 +118,6 @@ namespace Goliath.Data
                     else
                         clrType = typeof(byte);
                     break;
-                case DbType.Currency:
                 case DbType.Double:
                     if (isNullable)
                         clrType = typeof(double?);
@@ -134,6 +133,7 @@ namespace Goliath.Data
                     else
                         clrType = typeof(DateTime);
                     break;
+                case DbType.Currency:
                 case DbType.Decimal:
                     if (isNullable)
                         clrType = typeof(decimal?);
