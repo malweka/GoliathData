@@ -16,7 +16,7 @@ namespace Goliath.Data.Mapping
     {
         internal const string XmlNameSpace = "http://schemas.hamsman.com/goliath/data/1.1";
         List<StatementMap> unprocessedStatements = new List<StatementMap>();
-         
+
         /// <summary>
         /// Gets the unprocessed statements.
         /// </summary>
@@ -194,6 +194,36 @@ namespace Goliath.Data.Mapping
             {
                 MappedStatements.Add(statementMap);
             }
+        }
+
+
+        /// <summary>
+        /// Merges the map.
+        /// </summary>
+        /// <param name="config">The configuration.</param>
+        /// <exception cref="GoliathDataException">
+        /// </exception>
+        public void MergeMap(MapConfig config)
+        {
+            foreach (var entity in config.EntityConfigs)
+            {
+                if (EntityConfigs.Contains(entity.FullName))
+                    continue;
+
+                EntityConfigs.Add(entity);
+            }
+
+            foreach (var complexType in config.ComplexTypes)
+            {
+                if(ComplexTypes.Contains(complexType.FullName))
+                    continue;
+                ComplexTypes.Add(complexType);
+            }
+
+            config.MapStatements(config.Settings.Platform);
+            MapStatements(Settings.Platform);
+
+            LoadMappedStatements(config.MappedStatements);
         }
 
 

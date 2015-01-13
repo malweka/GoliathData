@@ -143,6 +143,14 @@ namespace Goliath.Data.Mapping
             get { return ColumnName; }
         }
 
+        /// <summary>
+        /// Gets or sets the order.
+        /// </summary>
+        /// <value>
+        /// The order.
+        /// </value>
+        public int Order { get; set; }
+
         #endregion
 
         #region IEquatable<ConfigProperty> Members

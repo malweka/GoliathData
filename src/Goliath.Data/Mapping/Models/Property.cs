@@ -109,6 +109,7 @@ namespace Goliath.Data.Mapping
                 LazyLoad = LazyLoad,
                 IgnoreOnUpdate = IgnoreOnUpdate,
                 IsComplexType = IsComplexType,
+                Order = Order,
                 ComplexTypeName = ComplexTypeName,
                 ConstraintType = ConstraintType,
                 DefaultValue = DefaultValue,

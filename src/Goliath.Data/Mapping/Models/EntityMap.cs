@@ -263,6 +263,14 @@ namespace Goliath.Data.Mapping
         }
 
         /// <summary>
+        /// Gets or sets the order.
+        /// </summary>
+        /// <value>
+        /// The order.
+        /// </value>
+        public int Order { get; set; }
+
+        /// <summary>
         /// Gets the property or relation
         /// </summary>
         /// <param name="propertyName">Name of the property.</param>

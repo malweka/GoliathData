@@ -107,6 +107,14 @@ namespace Goliath.Data.CodeGenerator
                     }
                     catch (Exception ex) { PrintError("Exception thrown while trying to generate all.", ex); }
                     break;
+                case "COMBINEMAPS":
+                    try
+                    {
+                        CombineMaps(opts, codeGenRunner);
+                        logger.Log(LogLevel.Debug, string.Format("Merging map {0} with {1}.", opts.TemplateName, opts.MapFile));
+                    }
+                    catch (Exception ex) { PrintError("Exception thrown while trying to generate all.", ex); }
+                    break;
                 case "GENERATE":
                     try
                     {
@@ -135,6 +143,7 @@ namespace Goliath.Data.CodeGenerator
         static string GetCodeMapFile(AppOptionInfo opts, bool throwIfNotExist = true)
         {
             string codeMapFile = opts.MapFile;
+
             if (!File.Exists(opts.MapFile))
             {
                 codeMapFile = Path.Combine(opts.WorkingFolder, Path.GetFileName(opts.MapFile));
@@ -145,6 +154,23 @@ namespace Goliath.Data.CodeGenerator
                 throw new GoliathDataException(string.Format("Map file {0} not found.", codeMapFile));
 
             return codeMapFile;
+        }
+
+        static void CombineMaps(AppOptionInfo opts, CodeGenRunner codeGenRunner)
+        {
+            var codeMapFile = GetCodeMapFile(opts);
+            var mainMap = MapConfig.Create(codeMapFile, true);
+
+            string mapfile2 = opts.TemplateName;
+            if (!File.Exists(mapfile2))
+            {
+                throw new GoliathDataException(string.Format("map file {0} does not exist", mapfile2));
+            }
+
+            var secondMap = MapConfig.Create(mapfile2, true);
+            mainMap.MergeMap(secondMap);
+            CodeGenRunner.ProcessMappedStatements(mainMap);
+            mainMap.Save(codeMapFile, true);
         }
 
         static void GenerateFromTemplate(AppOptionInfo opts, CodeGenRunner codeGenRunner)
@@ -204,7 +230,7 @@ namespace Goliath.Data.CodeGenerator
 
         static string GetFileName(string entityName, string outputFile)
         {
-            if(outputFile.Contains("(name)"))
+            if (outputFile.Contains("(name)"))
             {
                 return outputFile.Replace("(name)", entityName);
             }
@@ -230,6 +256,57 @@ namespace Goliath.Data.CodeGenerator
             codeGenRunner.GenerateClasses(map, opts.ExcludedArray);
         }
 
+        //static void ProcessMapBeforeSave(MapConfig map, string mapFileName, AppOptionInfo opts)
+        //{
+        //    if (!string.IsNullOrWhiteSpace(opts.MappedStatementFile) && File.Exists(opts.MappedStatementFile))
+        //    {
+        //        Console.WriteLine("Load mapped statements from {0} into {1}", opts.MappedStatementFile, mapFileName);
+        //        map.LoadMappedStatements(opts.MappedStatementFile);
+        //        CodeGenRunner.ProcessMappedStatements(map);
+        //    }
+
+        //    foreach (var ent in map.EntityConfigs)
+        //    {
+        //        ProcessMetadata(opts, ent);
+        //        ProcessActivatedProperties(opts, ent);
+
+        //        //process keygen
+        //        if (!string.IsNullOrWhiteSpace(opts.DefaultKeygen))
+        //        {
+        //            if (ent.PrimaryKey != null)
+        //            {
+        //                foreach (var k in ent.PrimaryKey.Keys)
+        //                {
+        //                    if (string.IsNullOrWhiteSpace(k.KeyGenerationStrategy))
+        //                    {
+        //                        k.KeyGenerationStrategy = opts.DefaultKeygen;
+        //                    }
+        //                }
+        //            }
+        //        }
+
+        //        foreach (var prop in ent)
+        //        {
+        //            ProcessMetadata(opts, ent, prop);
+        //            ProcessActivatedProperties(opts, ent, prop);
+
+        //            if (!string.IsNullOrWhiteSpace(opts.ComplexTypeMap))
+        //            {
+        //                var key = string.Concat(ent.Name, ".", prop.Name);
+        //                string complextType;
+        //                if (opts.ComplexTypesTypeMap.TryGetValue(key, out complextType))
+        //                {
+        //                    prop.ComplexTypeName = complextType;
+        //                    prop.IsComplexType = true;
+        //                }
+        //            }
+        //        }
+
+        //    }
+
+        //    map.Save(mapFileName, true);
+        //}
+        private const string prima_orda_file = "prima_orda.log";
         static void CreateMap(AppOptionInfo opts, SupportedRdbms rdbms, CodeGenRunner codeGenRunner)
         {
             Console.WriteLine("\n\nCreate Map...");
@@ -260,10 +337,45 @@ namespace Goliath.Data.CodeGenerator
                     CodeGenRunner.ProcessMappedStatements(map);
                 }
 
+                //let's try to read order from log if exists
+                string prima_orda = Path.Combine(opts.WorkingFolder, prima_orda_file);
+                var previousOrderDict = new Dictionary<string, Tuple<int, string>>();
+                var orderCount = 0;
+                if (File.Exists(prima_orda))
+                {
+                    using (var sr = new StreamReader(prima_orda))
+                    {
+                        var contentLog = sr.ReadToEnd();
+                        if (!string.IsNullOrWhiteSpace(contentLog))
+                        {
+                            var split = contentLog.Split(new string[] {"\n", "\r"}, StringSplitOptions.RemoveEmptyEntries);
+                            for (var i = 0; i < split.Length; i++)
+                            {
+                                var tbName = split[i];
+                                previousOrderDict.Add(tbName, Tuple.Create(i+1, tbName));
+                            }
+
+                            orderCount = split.Length;
+                        }
+                    }
+                }
+
                 foreach (var ent in map.EntityConfigs)
                 {
                     ProcessMetadata(opts, ent);
                     ProcessActivatedProperties(opts, ent);
+
+                    Tuple<int, string> tbOrder;
+                    if (previousOrderDict.TryGetValue(ent.FullName, out tbOrder))
+                    {
+                        ent.Order = tbOrder.Item1;
+                    }
+                    else
+                    {
+                        previousOrderDict.Add(ent.FullName, Tuple.Create(ent.Order, ent.FullName));
+                        orderCount = orderCount + 1;
+                        ent.Order = orderCount;
+                    }
 
                     //process keygen
                     if (!string.IsNullOrWhiteSpace(opts.DefaultKeygen))
@@ -300,6 +412,13 @@ namespace Goliath.Data.CodeGenerator
                 }
 
                 map.Save(mapFileName, true);
+                using (var file = new StreamWriter(prima_orda))
+                {
+                    foreach (var tbOrder in previousOrderDict.Keys)
+                    {
+                       file.WriteLine(tbOrder);
+                    }
+                }
             }
         }
 
@@ -325,6 +444,11 @@ namespace Goliath.Data.CodeGenerator
                 {
                     prop.MetaDataAttributes.Add(tuple.Item1.Replace("data_", string.Empty), tuple.Item2);
                 }
+            }
+
+            if (prop.PropertyName.Equals("CreatedOn") || prop.PropertyName.Equals("CreatedBy"))
+            {
+                prop.MetaDataAttributes.Add("editable", "false");
             }
         }
 
@@ -385,6 +509,11 @@ namespace Goliath.Data.CodeGenerator
                 bool val;
                 bool.TryParse(opts.ActivatedProperties[isUnique], out val);
                 prop.IsUnique = val;
+            }
+
+            if (prop.PropertyName.Equals("CreatedOn") || prop.PropertyName.Equals("CreatedBy"))
+            {
+                prop.IgnoreOnUpdate = true;
             }
         }
 

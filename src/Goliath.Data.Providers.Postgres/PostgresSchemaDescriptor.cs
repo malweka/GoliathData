@@ -123,9 +123,11 @@ where c.contype = 'f'";
             {
                 using (var reader = db.ExecuteReader(Connection, SELECT_TABLE_FROM_SCHEMA))
                 {
+                    int countOrder = 0;
                     while (reader.Read())
                     {
                         string tablename = reader.GetValueAsString("table_name");
+                        countOrder++;
 
                         if (IsExcluded(tablename))
                             continue;
@@ -138,6 +140,7 @@ where c.contype = 'f'";
                         var table = new EntityMap(tablename, tablename);
                         table.Namespace = ProjectSettings.Namespace;
                         table.SchemaName = schemaName;
+                        table.Order = countOrder;
                         table.AssemblyName = ProjectSettings.AssemblyName;
                         table.TableAlias = tablename;
                         tables.Add(tablename, table);
@@ -174,6 +177,7 @@ where c.contype = 'f'";
             using (var reader = db.ExecuteReader(Connection, SELECT_COLUMNS, new QueryParam("tableName", table.TableName)))
             {
                 var columnMap = new List<string>();
+                int countOrder = 0;
                 while (reader.Read())
                 {
                     string colName = reader.GetValueAsString("column_name");
@@ -181,6 +185,7 @@ where c.contype = 'f'";
                     int? length = reader.GetValueAsInt("character_maximum_length");
                     int? precision = reader.GetValueAsInt("numeric_precision");
                     int? scale = reader.GetValueAsInt("numeric_scale");
+                    countOrder++;
 
                     logger.Log(LogLevel.Info, string.Format("\t column: {0} {1}({2})", colName, dataType, length ?? 0));
                     columnMap.Add(colName);
@@ -205,6 +210,8 @@ where c.contype = 'f'";
                         col.Scale = -1;
 
                     col.SqlType = dataType;
+                    col.Order = countOrder;
+
                     bool isNullable = reader.GetValueAsString("is_nullable").Equals("YES");
                     string columnDefault = reader.GetValueAsString("column_default");
                     if (!string.IsNullOrWhiteSpace(columnDefault) && columnDefault.Contains("nextval(") && columnDefault.Contains("seq'::regclass)"))
@@ -295,7 +302,7 @@ where c.contype = 'f'";
                             logger.Log(LogLevel.Warning, string.Format("Constraint {0} didn't produce a key number", meta.ConstraintName));
                             continue;
                         }
-                        var columnName = entCols[meta.ConstraintKey.Value-1];
+                        var columnName = entCols[meta.ConstraintKey.Value - 1];
                         //find the column that references
                         var col = entMap[columnName];
                         //var refCol = ReadConstraintDetails(col, meta.ConstraintName);

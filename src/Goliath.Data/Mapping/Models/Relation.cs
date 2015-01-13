@@ -35,6 +35,7 @@ namespace Goliath.Data.Mapping
             ConstraintName = prop.ConstraintName;
             PropertyName = prop.PropertyName;
             ColumnName = prop.ColumnName;
+            Order = prop.Order;
             ClrType = prop.ClrType;
             DbType = prop.DbType;
             Errors = prop.Errors;

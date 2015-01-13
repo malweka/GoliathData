@@ -93,6 +93,13 @@ namespace Goliath.Data.Mapping
                         xmlWriter.WriteEndAttribute();
                     }
 
+                    if(entity.Order>0)
+                    {
+                        xmlWriter.WriteStartAttribute("order");
+                        xmlWriter.WriteString(entity.Order.ToString());
+                        xmlWriter.WriteEndAttribute();
+                    }
+
                     if (entity.IsLinkTable)
                     {
                         xmlWriter.WriteStartAttribute("linkTable");
@@ -355,6 +362,13 @@ namespace Goliath.Data.Mapping
             {
                 xmlWriter.WriteStartAttribute("column");
                 xmlWriter.WriteString(transformation.ColumnName);
+                xmlWriter.WriteEndAttribute();
+            }
+
+            if (transformation.Order > 0)
+            {
+                xmlWriter.WriteStartAttribute("order");
+                xmlWriter.WriteString(transformation.Order.ToString());
                 xmlWriter.WriteEndAttribute();
             }
 
