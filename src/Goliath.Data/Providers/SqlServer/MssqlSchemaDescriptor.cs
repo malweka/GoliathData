@@ -117,9 +117,11 @@ and ep.minor_id = c.colid";
             {
                 using (DbDataReader reader = db.ExecuteReader(Connection, SELECT_TABLE_FROM_SCHEMA))
                 {
+                    int counterOrder = 0;
                     while (reader.Read())
                     {
                         string name = reader.GetValueAsString("TABLE_NAME");
+                        counterOrder++;
                         if (IsExcluded(name))
                             continue;
 
@@ -133,6 +135,7 @@ and ep.minor_id = c.colid";
                         table.SchemaName = schemaName;
                         table.AssemblyName = ProjectSettings.AssemblyName;
                         table.TableAlias = name;
+                        table.Order = counterOrder;
                         tables.Add(name, table);
                     }
                 }
@@ -187,8 +190,10 @@ and ep.minor_id = c.colid";
             Dictionary<string, Property> columnList = new Dictionary<string, Property>();
             using (DbDataReader reader = db.ExecuteReader(Connection, SELECT_COLUMNS, new QueryParam("tableName", table.TableName)))
             {
+                int countOrder = 0;
                 while (reader.Read())
                 {
+                    countOrder++;
                     string colName = reader.GetValueAsString("COLUMN_NAME");
                     string dataType = reader.GetValueAsString("DATA_TYPE");
                     int? length = reader.GetValueAsInt("CHARACTER_MAXIMUM_LENGTH");
@@ -217,6 +222,7 @@ and ep.minor_id = c.colid";
                         col.Scale = -1;
 
                     col.SqlType = dataType;
+                    col.Order = countOrder;
 
                     bool isNullable = reader.GetValueAsString("IS_NULLABLE").Equals("YES");
                     bool isIdentity = reader.GetValueAsInt("IsIdentity") == 1;

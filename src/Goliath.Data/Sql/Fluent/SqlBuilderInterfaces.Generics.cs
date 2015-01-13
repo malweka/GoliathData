@@ -99,6 +99,7 @@ namespace Goliath.Data.Sql
     public interface IOrderByDirection<T> : IQueryFetchable<T>
     {
         ISorterClause<T> OrderBy<TProperty>(Expression<Func<T, TProperty>> property);
+        ISorterClause<T> OrderBy(string columnName);
     }
 
     public interface IFetchable<T>

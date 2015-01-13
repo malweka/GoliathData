@@ -226,6 +226,13 @@ namespace Goliath.Data.Sql
             return new SortBuilder<T>(this, sortBuilder);
         }
 
+        public ISorterClause<T> OrderBy(string columnName)
+        {
+
+            var sortBuilder = (SortBuilder)innerBuilder.OrderBy(columnName);
+            return new SortBuilder<T>(this, sortBuilder);
+        }
+
         #endregion
     }
 }
