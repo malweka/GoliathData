@@ -69,6 +69,8 @@
     <Compile Include="PrintHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RazorInterpreter.cs" />
+    <Compile Include="ViewBuilder\EntityControlMap.cs" />
+    <Compile Include="ViewBuilder\EntityControlMapBuilder.cs" />
     <Compile Include="ViewBuilder\EntityViewInfo.cs" />
     <Compile Include="ViewBuilder\PropertyGroupViewInfo.cs" />
     <Compile Include="ViewBuilder\PropertyViewInfo.cs" />

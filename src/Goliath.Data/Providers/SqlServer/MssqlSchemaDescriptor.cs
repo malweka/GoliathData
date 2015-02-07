@@ -283,30 +283,6 @@ and ep.minor_id = c.colid";
 
                         col.ConstraintName = reader.GetValueAsString("ConstraintName");
                     }
-                    //else
-                    //{
-                    //   string constraintName = reader.GetStringVal("ConstraintName");
-
-                    //   if (!constraints.Contains(constraintName))
-                    //   {
-                    //      ConstraintType? type = null;
-                    //      switch (constraintType)
-                    //      {
-                    //         case "UNIQUE":
-                    //            type = ConstraintType.Unique;
-                    //            break;
-                    //         case "PRIMARY KEY":
-                    //            type = ConstraintType.PrimaryKey;
-                    //            break;
-                    //      }
-                    //      //if (type != null)
-                    //      //{
-                    //      //   constraint = new Constraint(constraintName, type.Value, null);
-                    //      //   constraints.Add(constraintName, constraint);
-                    //      //}
-                    //   }
-                    //   //constraint.Columns.Add(colName);
-                    //}
                 }
             }
         }
@@ -323,11 +299,10 @@ and ep.minor_id = c.colid";
                 while (reader.Read())
                 {
                     string colName = reader.GetValueAsString("COLUMN_NAME");
-                    //var namefactory = transfactory.GetTransformer<Relation>();
                     Property col;
                     if (columns.TryGetValue(colName, out col))
                     {
-                        Relation rel = new Relation(col);
+                        var rel = new Relation(col);
                         string refTable = reader.GetValueAsString("REFERENCED_TABLE_NAME");
                         string refSchema = reader.GetValueAsString("REFERENCED_TABLE_SCHEMA");
                         string refColName = reader.GetValueAsString("REFERENCED_COLUMN_NAME");
@@ -350,12 +325,6 @@ and ep.minor_id = c.colid";
                     {
                         logger.Log(LogLevel.Warning, "Not Found");
                     }
-
-                    //column.ConstraintName = new ColumnReference(refTable, refSchema, refColName);
-                    //if (!table.DependsOnTables.Contains(refTable) && !table.Name.Equals(refTable))
-                    //{
-                    //   table.DependsOnTables.Add(refTable);
-                    //}
                 }
             }
         }
