@@ -18,4 +18,6 @@ namespace Goliath.Data.CodeGenerator.ViewBuilder
             return item.Name;
         }
     }
+
+
 }

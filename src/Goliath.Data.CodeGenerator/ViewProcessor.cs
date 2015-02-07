@@ -10,6 +10,8 @@ namespace Goliath.Data.CodeGenerator
 {
     public static class ViewProcessor
     {
+        static readonly EntityControlMapBuilder controlBuilder = new EntityControlMapBuilder();
+
         /// <summary>
         /// Builds the view info.
         /// </summary>
@@ -62,6 +64,44 @@ namespace Goliath.Data.CodeGenerator
 
 
             return views;
+        }
+
+        /// <summary>
+        /// Builds the control map.
+        /// </summary>
+        /// <param name="config">The configuration.</param>
+        /// <returns></returns>
+        public static Dictionary<string, EntityControlMap> BuildControlMap(this MapConfig config)
+        {
+            var  mapDictionary = new Dictionary<string, EntityControlMap>();
+
+            foreach (var entMap in config.EntityConfigs)
+            {
+                mapDictionary.Add(entMap.FullName, controlBuilder.BuildMap(entMap));
+            }
+
+            return mapDictionary;
+        }
+
+        public static string GenerateCheckboxList(this ControlInfo ctrlInfo, EntityMap entityMap)
+        {
+            string ctrlText="";
+            switch (ctrlInfo.DbType)
+            {
+                    
+            }
+
+            return ctrlText;
+        }
+
+        /// <summary>
+        /// Builds the control map.
+        /// </summary>
+        /// <param name="entMap">The ent map.</param>
+        /// <returns></returns>
+        public static EntityControlMap BuildControlMap(this EntityMap entMap)
+        {
+            return controlBuilder.BuildMap(entMap);
         }
 
         static EntityViewInfo BuildViewFromReflection(TypeDefinition typedefinition)
@@ -204,7 +244,6 @@ namespace Goliath.Data.CodeGenerator
                 LabelResourceName = entityMap.PrintResourceName(ResourceItemType.Label),
                 DescriptionResourceName = entityMap.PrintResourceName(ResourceItemType.Description)
             };
-
 
             foreach (var prop in entityMap)
             {
