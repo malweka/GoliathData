@@ -47,7 +47,7 @@ namespace Goliath.Data.CodeGenerator.ViewBuilder
                 {
                     var pkCtrl = new ControlInfo(prop.PropertyName, prop.PropertyName)
                                  {
-                                     ControlType = ControlType.ReadOnlyTextbox,
+                                     ControlType = ControlType.ReadOnly,
                                      DbType = prop.DbType,
                                  };
                     ReplaceWithPreferredControlIfDefined(prop, pkCtrl);
@@ -67,7 +67,7 @@ namespace Goliath.Data.CodeGenerator.ViewBuilder
             {
                 if (!IsPropertyEditable(rel))
                 {
-                    var pkCtrl = new ControlInfo(rel.PropertyName, rel.PropertyName) { ControlType = ControlType.ReadOnlyTextbox };
+                    var pkCtrl = new ControlInfo(rel.PropertyName, rel.PropertyName) { ControlType = ControlType.ReadOnly };
                     ReplaceWithPreferredControlIfDefined(rel, pkCtrl);
                     controlMap.Add(pkCtrl);
                     continue;
@@ -98,6 +98,7 @@ namespace Goliath.Data.CodeGenerator.ViewBuilder
                 //case DbType.Byte:
                 //    break;
                 case DbType.Boolean:
+                    ctrl = new ControlInfo(prop.PropertyName, prop.PropertyName) { ControlType = ControlType.CheckBox };
                     break;
                 case DbType.Date:
                 case DbType.DateTime:
@@ -110,9 +111,10 @@ namespace Goliath.Data.CodeGenerator.ViewBuilder
                 case DbType.Double:
                 case DbType.Single:
                 case DbType.Currency:
-                    ctrl = new NumericControlInfo(prop.PropertyName, prop.PropertyName) { ControlType = ControlType.NumericOnlyTextBox };
+                    ctrl = new NumericControlInfo(prop.PropertyName, prop.PropertyName) { ControlType = ControlType.NumericTextBox };
                     break;
                 case DbType.Guid:
+                    ctrl = new ControlInfo(prop.PropertyName, prop.PropertyName) { ControlType = ControlType.TextBox };
                     break;
                 case DbType.Int16:
                 case DbType.Int32:
@@ -120,7 +122,7 @@ namespace Goliath.Data.CodeGenerator.ViewBuilder
                 case DbType.UInt16:
                 case DbType.UInt32:
                 case DbType.UInt64:
-                    ctrl = new NumericControlInfo(prop.PropertyName, prop.PropertyName) { ControlType = ControlType.NumericTickUpDown };
+                    ctrl = new NumericControlInfo(prop.PropertyName, prop.PropertyName) { ControlType = ControlType.TickUpDown };
                     SetMinAndMaxIfExist(prop, ctrl);
                     break;
                 //case DbType.Object:
@@ -131,6 +133,7 @@ namespace Goliath.Data.CodeGenerator.ViewBuilder
                 case DbType.String:
                 case DbType.AnsiStringFixedLength:
                 case DbType.StringFixedLength:
+                    ctrl = new ControlInfo(prop.PropertyName, prop.PropertyName) { ControlType = ControlType.TextBox };
                     break;
                 case DbType.Time:
                     ctrl = new ControlInfo(prop.PropertyName, prop.PropertyName) { ControlType = ControlType.TimePicker };
@@ -140,7 +143,7 @@ namespace Goliath.Data.CodeGenerator.ViewBuilder
                     ctrl = new ControlInfo(prop.PropertyName, prop.PropertyName) { ControlType = ControlType.TextArea };
                     break;
                 default:
-                    ctrl = new ControlInfo(prop.PropertyName, prop.PropertyName) { ControlType = ControlType.Textbox };
+                    ctrl = new ControlInfo(prop.PropertyName, prop.PropertyName) { ControlType = ControlType.TextBox };
                     break;
             }
 
@@ -156,6 +159,8 @@ namespace Goliath.Data.CodeGenerator.ViewBuilder
             if (prop.Length > 0)
             {
                 ctrl.MaxLength = prop.Length;
+                if(prop.Length>499)
+                    ctrl.ControlType = ControlType.TextArea;
             }
         }
 
@@ -189,19 +194,19 @@ namespace Goliath.Data.CodeGenerator.ViewBuilder
                 switch (pref)
                 {
                     case "checkbox":
-                        ctrl.ControlType = ControlType.CheckBoxList;
+                        ctrl.ControlType = ControlType.CheckBox;
                         break;
                     case "radio":
                         ctrl.ControlType = ControlType.RadioButtonList;
                         break;
                     case "text":
-                        ctrl.ControlType = ControlType.Textbox;
+                        ctrl.ControlType = ControlType.TextBox;
                         break;
                     case "readonly":
-                        ctrl.ControlType = ControlType.ReadOnlyTextbox;
+                        ctrl.ControlType = ControlType.ReadOnly;
                         break;
                     case "numeric":
-                        ctrl.ControlType = ControlType.NumericOnlyTextBox;
+                        ctrl.ControlType = ControlType.NumericTextBox;
                         break;
                     case "editor":
                         ctrl.ControlType = ControlType.TextEditor;

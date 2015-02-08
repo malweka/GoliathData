@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using Goliath.Data.CodeGenerator.ViewBuilder;
@@ -81,17 +82,6 @@ namespace Goliath.Data.CodeGenerator
             }
 
             return mapDictionary;
-        }
-
-        public static string GenerateCheckboxList(this ControlInfo ctrlInfo, EntityMap entityMap)
-        {
-            string ctrlText="";
-            switch (ctrlInfo.DbType)
-            {
-                    
-            }
-
-            return ctrlText;
         }
 
         /// <summary>

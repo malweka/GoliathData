@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Goliath.Data;
+using Goliath.Data.CodeGenerator.ViewBuilder;
 using Goliath.Data.Mapping;
 using Goliath.Data.Providers;
 using Goliath.Data.Utils;
@@ -230,6 +231,15 @@ namespace Goliath.Data.CodeGenerator
             if (entity == null) throw new ArgumentNullException("entity");
 
             var rname = string.Format("{0}_{1}", entity.FullName.Replace(".", "_").ToLower(), prop.Name.ToLower());
+            return GetResourceName(rname, resourceType);
+        }
+
+        public static string PrintResourceName(this ControlInfo controlInfo, EntityMap entity, ResourceItemType resourceType)
+        {
+            if (controlInfo == null) throw new ArgumentNullException("controlInfo");
+            if (entity == null) throw new ArgumentNullException("entity");
+
+            var rname = string.Format("{0}_{1}", entity.FullName.Replace(".", "_").ToLower(), controlInfo.PropertyName.ToLower());
             return GetResourceName(rname, resourceType);
         }
 
