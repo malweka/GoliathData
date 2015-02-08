@@ -21,6 +21,7 @@ These attributes are only useful during view or control generations
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
+| display_description| string | entity or property description |
 | display_order | int | A numerical value to set the display order |
 | display_groupname | string | For fields that need to be grouped together for display purpose |
 | display_propmpt | string | prompt |

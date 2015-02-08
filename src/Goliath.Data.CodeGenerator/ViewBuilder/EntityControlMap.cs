@@ -49,12 +49,13 @@ namespace Goliath.Data.CodeGenerator.ViewBuilder
 
     public enum ControlType
     {
-        Textbox = 0,
-        ReadOnlyTextbox,
-        NumericTickUpDown,
-        NumericOnlyTextBox,
+        TextBox = 0,
+        ReadOnly,
+        TickUpDown,
+        NumericTextBox,
         DropDown,
         TextArea,
+        CheckBox,
         CheckBoxList,
         RadioButtonList,
         TextEditor,
