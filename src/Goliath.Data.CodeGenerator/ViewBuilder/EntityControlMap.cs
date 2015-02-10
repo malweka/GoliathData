@@ -65,5 +65,6 @@ namespace Goliath.Data.CodeGenerator.ViewBuilder
         TimePicker,
         ColorPicker,
         Hidden,
+        Password
     }
 }

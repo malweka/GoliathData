@@ -232,6 +232,9 @@ namespace Goliath.Data.CodeGenerator.ViewBuilder
                     case "hidden":
                         ctrl.ControlType = ControlType.Hidden;
                         break;
+                    case "password":
+                        ctrl.ControlType = ControlType.Password;
+                        break;
                     default: throw new Exception(string.Format("Control {0} is not supported", pref));
                 }
             }

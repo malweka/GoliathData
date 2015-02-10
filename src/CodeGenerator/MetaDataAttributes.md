@@ -25,4 +25,4 @@ These attributes are only useful during view or control generations
 | display_order | int | A numerical value to set the display order |
 | display_groupname | string | For fields that need to be grouped together for display purpose |
 | display_propmpt | string | prompt |
-| display_prefctrl | string | prefered control type. Valid values should be *checkbox*, *radio*, *text*, *readonly*, *numeric*, *editor*, *dropdown*, *date*, *time*, *textarea*, *label*, *color* |
+| display_prefctrl | string | prefered control type. Valid values should be *checkbox*, *radio*, *text*, *readonly*, *numeric*, *editor*, *dropdown*, *date*, *time*, *textarea*, *label*, *password*, *color* |
