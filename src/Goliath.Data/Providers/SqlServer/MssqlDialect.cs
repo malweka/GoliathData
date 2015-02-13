@@ -85,18 +85,19 @@ namespace Goliath.Data.Providers.SqlServer
         /// <returns></returns>
         public override string QueryWithPaging(SqlQueryBody queryBody, PagingInfo pagingInfo)
         {
-            StringBuilder sb = new StringBuilder("SELECT * \nFROM SELECT ROW_NUMBER() OVER");
+            StringBuilder sb = new StringBuilder("SELECT * \nFROM \n\t\t( SELECT ROW_NUMBER() OVER");
             sb.AppendFormat(" (ORDER BY {0}) AS __RowNum, {1}", queryBody.SortExpression, queryBody.ColumnEnumeration);
-            sb.AppendFormat("\nFROM {0}", queryBody.From);
+            sb.AppendFormat("\n\t\tFROM {0} ", queryBody.From);
 
             if (!string.IsNullOrWhiteSpace(queryBody.JoinEnumeration))
                 sb.Append(queryBody.JoinEnumeration);
+
             if (!string.IsNullOrWhiteSpace(queryBody.WhereExpression))
-                sb.AppendFormat("\nWHERE {0}\n", queryBody.WhereExpression);
+                sb.AppendFormat("\n\t\tWHERE {0}\n", queryBody.WhereExpression);
             sb.Append(") AS RowConstrainedResult");
             sb.AppendFormat("\nWHERE __RowNum >= {0}", pagingInfo.Offset);
-            sb.AppendFormat("\nAND __RowNum < {0}", pagingInfo.Offset + pagingInfo.Limit);
-            sb.Append("ORDER BY __RowNum)");
+            sb.AppendFormat("\nAND __RowNum < {0}", pagingInfo.Offset +  pagingInfo.Limit);
+            sb.Append("\nORDER BY __RowNum");
 
             return sb.ToString();
         }
