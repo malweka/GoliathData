@@ -160,6 +160,7 @@ namespace Goliath.Data.Entity
                 if (changeList.TryGetValue(propertyName, out item))
                 {
                     item.Value = value;
+                    item.InitialValue = value;
                     item.Version = Version;
                     return true;
                 }
