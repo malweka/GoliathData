@@ -4,6 +4,7 @@ using System.Text;
 using NUnit.Framework;
 using System.IO;
 using System.Linq;
+using Goliath.Data.Entity;
 
 namespace Goliath.Data.Tests
 {
@@ -132,6 +133,228 @@ namespace Goliath.Data.Tests
             config.Load(testMapfile);
 
             Assert.Fail("should have thrown an exception: Statements/query does not have a name.");
+        }
+    }
+
+    [TestFixture]
+    public class ChangeTrackerTests
+    {
+        [Test]
+        public void Changed_boolean_TrackableShould_be_dirty()
+        {
+            var m = new ChangeModelTester(false);
+
+            m.IsBool = true;
+            m.ChangeTracker.Init();
+            m.ChangeTracker.LoadInitialValue("IsBool", true);
+            m.ChangeTracker.Start();
+            m.IsBool = false;
+
+            Assert.IsTrue(m.IsDirty);
+        }
+
+        [Test]
+        public void no_Change_boolean_Trackable_Should_not_be_dirty()
+        {
+            var m = new ChangeModelTester(false);
+
+            m.IsBool = true;
+            m.ChangeTracker.Init();
+            m.ChangeTracker.LoadInitialValue("IsBool", true);
+            m.ChangeTracker.Start();
+            m.IsBool = true;
+
+            Assert.IsFalse(m.IsDirty);
+        }
+
+
+        [Test]
+        public void Changed_null_boolean_TrackableShould_be_dirty()
+        {
+            var m = new ChangeModelTester(false);
+
+            m.IsNullableBool = true;
+            m.ChangeTracker.Init();
+            m.ChangeTracker.LoadInitialValue("IsNullableBool", true);
+            m.ChangeTracker.Start();
+            m.IsNullableBool = false;
+
+            Assert.IsTrue(m.IsDirty);
+        }
+
+        [Test]
+        public void no_Change_nullable_boolean_Trackable_Should_not_be_dirty()
+        {
+            var m = new ChangeModelTester(false);
+
+            m.IsNullableBool = true;
+            m.ChangeTracker.Init();
+            m.ChangeTracker.LoadInitialValue("IsNullableBool", true);
+            m.ChangeTracker.Start();
+            m.IsNullableBool = true;
+
+            Assert.IsFalse(m.IsDirty);
+        }
+
+        [Test]
+        public void Changed_date_TrackableShould_be_dirty()
+        {
+            var m = new ChangeModelTester(false);
+
+            var initVal = DateTime.Now;
+
+            m.TheDateTime = initVal;
+            m.ChangeTracker.Init();
+            m.ChangeTracker.LoadInitialValue("TheDateTime", initVal);
+            m.ChangeTracker.Start();
+            m.TheDateTime = DateTime.Now.AddMinutes(5);
+
+            Assert.IsTrue(m.IsDirty);
+        }
+
+        [Test]
+        public void no_Change__date_Trackable_Should_not_be_dirty()
+        {
+            var m = new ChangeModelTester(false);
+            var initVal = DateTime.Now;
+            m.TheDateTime = initVal;
+            m.ChangeTracker.Init();
+            m.ChangeTracker.LoadInitialValue("TheDateTime", initVal);
+            m.ChangeTracker.Start();
+            m.TheDateTime = initVal;
+
+            Assert.IsFalse(m.IsDirty);
+        }
+
+        [Test]
+        public void Changed_int_TrackableShould_be_dirty()
+        {
+            var m = new ChangeModelTester(false);
+
+            var initVal = 2;
+
+            m.Dummy = initVal;
+            m.ChangeTracker.Init();
+            m.ChangeTracker.LoadInitialValue("Dummy", initVal);
+            m.ChangeTracker.Start();
+            m.Dummy = 5;
+
+            Assert.IsTrue(m.IsDirty);
+        }
+
+        [Test]
+        public void no_Change__int_Trackable_Should_not_be_dirty()
+        {
+            var m = new ChangeModelTester(false);
+            var initVal = 2;
+            m.Dummy = initVal;
+            m.ChangeTracker.Init();
+            m.ChangeTracker.LoadInitialValue("Dummy", initVal);
+            m.ChangeTracker.Start();
+            m.Dummy = initVal;
+
+            Assert.IsFalse(m.IsDirty);
+        }
+
+    }
+
+    class ChangeModelTester : ITrackable
+    {
+        private bool isbool;
+
+        public bool IsBool
+        {
+            get { return isbool; }
+            set
+            {
+                isbool = value;
+                NotifyChange("IsBool", value);
+            }
+        }
+
+        private bool? nullableBool;
+
+        public bool? IsNullableBool
+        {
+            get
+            {
+                return nullableBool;
+            }
+            set
+            {
+                nullableBool = value;
+                NotifyChange("IsNullableBool", value);
+            }
+        }
+
+        private DateTime dd;
+
+        public DateTime TheDateTime
+        {
+            get { return dd; }
+            set
+            {
+                dd = value;
+                NotifyChange("TheDateTime", value);
+            }
+        }
+
+        private int dum;
+
+        public int Dummy
+        {
+            get
+            {
+                return dum;
+            }
+            set
+            {
+                dum = value;
+                NotifyChange("Dummy", value);
+            }
+        }
+
+        readonly IChangeTracker changeTracker;
+
+        protected void NotifyChange(string propName, object value)
+        {
+            ChangeTracker.Track(propName, value);
+        }
+
+        public bool IsDirty
+        {
+            get
+            {
+                return ChangeTracker != null && ChangeTracker.HasChanges;
+            }
+        }
+        public IChangeTracker ChangeTracker
+        {
+            get { return changeTracker; }
+        }
+
+        public long Version { get; set; }
+
+        static IDictionary<string, object> LoadInitialValues()
+        {
+            var initValues = new Dictionary<string, object>
+			{
+				{"IsBool", false},
+				{"IsNullableBool", default(bool?)},
+				{"TheDateTime", default(DateTime)},
+				{"Dummy", default(int)},
+			};
+
+            return initValues;
+        }
+
+        public ChangeModelTester(bool startTrackingOnInit)
+        {
+            changeTracker = new ChangeTracker(LoadInitialValues);
+            if (!startTrackingOnInit) return;
+            changeTracker.Init();
+            changeTracker.Start();
+            Version = changeTracker.Version;
         }
     }
 }

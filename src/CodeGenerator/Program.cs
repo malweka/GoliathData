@@ -24,6 +24,7 @@ namespace Goliath.Data.CodeGenerator
             Console.WriteLine("Press enter to continue.");
             Console.ReadLine();
 #endif
+ 
 
             var opts = AppOptionHandler.ParseOptions(args);
 
