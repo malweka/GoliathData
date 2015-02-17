@@ -66,14 +66,14 @@ namespace Goliath.Data.DataAccess
                     statement.InputParametersMap.Add("a", statement.DependsOnEntity);
                 }
 
-                //int counter = 0;
+                int counter = 0;
                 var inParameters = new Dictionary<string, StatementInputParam>();
 
                 foreach (var kpair in statement.InputParametersMap)
                 {
-                    inParameters.Add(kpair.Key, new StatementInputParam() { Name = kpair.Key, Type = inputParams[0].GetType().FullName, ClrType = inputParams[0].GetType() });
-                    inObjects.Add(kpair.Key, inputParams[0]);
-                    //counter++;
+                    inParameters.Add(kpair.Key, new StatementInputParam() { Name = kpair.Key, Type = inputParams[counter].GetType().FullName, ClrType = inputParams[counter].GetType() });
+                    inObjects.Add(kpair.Key, inputParams[counter]);
+                    counter++;
                 }
 
                 var compiledStatement = statementParser.Parse(session.SessionFactory.DbSettings.SqlDialect, session.SessionFactory.DbSettings.Map, inParameters, statement.Body.Trim());

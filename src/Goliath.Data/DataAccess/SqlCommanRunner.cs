@@ -354,7 +354,7 @@ namespace Goliath.Data.DataAccess
         {
             bool ownTransaction = false;
             var dbConn = session.ConnectionManager.OpenConnection();
-            
+
             try
             {
                 if ((session.CurrentTransaction == null) || !session.CurrentTransaction.IsStarted)
@@ -363,7 +363,7 @@ namespace Goliath.Data.DataAccess
                     session.BeginTransaction();
                 }
 
-                int value = session.DataAccess.ExecuteNonQuery(dbConn, sql, paramArray);
+                int value = session.DataAccess.ExecuteNonQuery(dbConn, session.CurrentTransaction, sql, paramArray);
 
                 if (ownTransaction)
                     session.CommitTransaction();
