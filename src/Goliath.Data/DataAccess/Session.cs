@@ -170,12 +170,12 @@ namespace Goliath.Data.DataAccess
 
                 return returnValue;
             }
-            catch (GoliathDataException)
-            {
-                throw;
-            }
+
             catch (Exception ex)
             {
+                if (ex is GoliathDataException)
+                    throw;
+
                 throw new GoliathDataException(string.Format("Error running mapped statement {0}.", statementName));
             }
         }
@@ -199,12 +199,10 @@ namespace Goliath.Data.DataAccess
                     return statementRunner.RunListStatement<T>(this, statementName, paramArray);
                 }
             }
-            catch (GoliathDataException)
-            {
-                throw;
-            }
             catch (Exception ex)
             {
+                if (ex is GoliathDataException)
+                    throw;
                 throw new GoliathDataException(string.Format("Error running mapped statement {0}.", statementName));
             }
         }
@@ -228,12 +226,10 @@ namespace Goliath.Data.DataAccess
                     return statementRunner.RunNonQueryMappedStatement(this, statementName, paramArray);
                 }
             }
-            catch (GoliathDataException)
-            {
-                throw;
-            }
             catch (Exception ex)
             {
+                if (ex is GoliathDataException)
+                    throw;
                 throw new GoliathDataException(string.Format("Error running mapped statement {0}.", statementName));
             }
         }
