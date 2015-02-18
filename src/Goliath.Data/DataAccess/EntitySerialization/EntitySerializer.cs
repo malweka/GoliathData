@@ -332,6 +332,39 @@ namespace Goliath.Data.DataAccess
             return func;
         }
 
+        //This method below in case we want to implement eager loading.
+        bool CheckAndRemoveDupes(EntityMap entityMap, EntityAccessor accessor, object entity, Dictionary<object, object> resultStore)
+        {
+            if (entityMap.PrimaryKey != null)
+            {
+                var k = entityMap.PrimaryKey.Keys[0].Key;
+                PropertyAccessor propAccessor = accessor.GetPropertyAccessor(k.PropertyName);
+                var keyVal = propAccessor.GetMethod(entity);
+                object storedEntity;
+                if (resultStore.TryGetValue(keyVal, out storedEntity))
+                {
+                    //we have duplicate due to eager-loaded relations
+                    foreach (var rel in entityMap.Relations)
+                    {
+                        if (!rel.LazyLoad)
+                        {
+                            var rPropAccessor = accessor.GetPropertyAccessor(rel.PropertyName);
+                            var collection = rPropAccessor.GetMethod(storedEntity);
+                            var newCollection = rPropAccessor.GetMethod(entity);
+
+                            rPropAccessor.PropertyType.GetMethod("AddRange").Invoke(collection, new[] { newCollection });
+                        }
+                    }
+                }
+                else
+                {
+                    resultStore.Add(keyVal, entity);
+                }
+                return true;
+            }
+            return false;
+        }
+
         internal static Dictionary<string, int> GetColumnNames(DbDataReader dbReader, string tableAlias)
         {
             var columns = new Dictionary<string, int>();
