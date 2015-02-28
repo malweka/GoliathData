@@ -65,8 +65,8 @@ namespace Goliath.Data.DataAccess
                         var qp = new QueryParam(ParameterNameBuilderHelper.ColumnQueryName(rel.MapColumn, mapTableMap.TableAlias)) { Value = val };
 
                         var sqlBuilder = new SelectSqlBuilder(sqlDialect, mapTableMap)
-                            .AddJoin(new SqlJoin(mapTableMap, JoinType.Inner).OnTable(relEntMap).OnLeftColumn(leftColumn1).OnRightColumn(rel.ReferenceColumn))
-                            .AddJoin(new SqlJoin(mapTableMap, JoinType.Inner).OnTable(currEntMap).OnLeftColumn(leftcolumn2).OnRightColumn(rel.ColumnName))
+                            .AddJoin(new SqlJoin(mapTableMap, JoinType.Inner).OnTable(relEntMap).OnLeftColumn(leftcolumn2).OnRightColumn(rel.ReferenceColumn))
+                            .AddJoin(new SqlJoin(mapTableMap, JoinType.Inner).OnTable(currEntMap).OnLeftColumn(leftColumn1).OnRightColumn(rel.ColumnName))
                             .Where(new WhereStatement(ParameterNameBuilderHelper.ColumnWithTableAlias(mapTableMap.TableAlias, rel.MapColumn))
                             .Equals(sqlDialect.CreateParameterName(qp.Name)));
 
