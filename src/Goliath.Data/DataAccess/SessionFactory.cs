@@ -30,7 +30,8 @@ namespace Goliath.Data.DataAccess
 
         public IDatabaseSettings DbSettings { get; private set; }
 
-        private IConnectionManager connectionManager;
+        private readonly IConnectionManager connectionManager;
+
         public SessionFactory(IDatabaseSettings settings, Func<MapConfig, IEntitySerializer, IDataAccessAdapterFactory> adapterFactoryFactoryMethod, IEntitySerializer serializer)
         {
             if (settings == null)
@@ -47,11 +48,6 @@ namespace Goliath.Data.DataAccess
             connectionManager = new ConnectionManager(DbSettings.Connector, DbSettings.Connector.AllowMultipleConnections);
         }
 
-        //ISession CreateSession(IConnectionProvider connProvider)
-        //{
-        //    return new Session(this, connProvider);
-        //}
-
         #region ISessionFactory Members
 
         public ISession OpenSession(System.Data.Common.DbConnection connection)
@@ -67,6 +63,15 @@ namespace Goliath.Data.DataAccess
         {
             var sess = new Session(this, connectionManager);
             return sess;
+        }
+
+        /// <summary>
+        /// Resets the connection string.
+        /// </summary>
+        /// <param name="connectionString">The connection string.</param>
+        public void ResetConnectionString(string connectionString)
+        {
+            DbSettings.ResetConnection(connectionString);
         }
 
         #endregion

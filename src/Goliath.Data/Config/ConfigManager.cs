@@ -16,6 +16,7 @@ namespace Goliath.Data.Config
         Func<MapConfig, IEntitySerializer, IDataAccessAdapterFactory> dataAccessAdapterFactory;
         ITypeConverterStore typeConverterStore;
         IEntitySerializer entitySerializerFactory;
+
         internal Func<Type, ILogger> LoggerFactory { get; set; }
 
         /// <summary>
@@ -252,6 +253,7 @@ namespace Goliath.Data.Config
             {
                 if (this.connector == null)
                     connector = this.DbProvider.GetDatabaseConnector(mainMap.Settings.ConnectionString);
+
                 return connector;
             }
         }
@@ -268,5 +270,18 @@ namespace Goliath.Data.Config
         }
 
         #endregion
+
+        public void ResetConnection(string connectionString)
+        {
+            if (!Map.Settings.SupportConnectionReset) return;
+
+            Map.Settings.ConnectionString = connectionString;
+            connector = null;
+            dbAccess = null;
+
+            var db = DbAccess;
+            if (db == null)
+                throw new GoliathDataException("couldn't reset connection ");
+        }
     }
 }

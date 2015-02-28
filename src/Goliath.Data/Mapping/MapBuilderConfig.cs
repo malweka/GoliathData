@@ -71,16 +71,17 @@ namespace Goliath.Data.Mapping
         /// <summary>
         /// Initializes a new instance of the <see cref="MapConfig"/> class.
         /// </summary>
-        public MapConfig()
-            : this(new ProjectSettings() { InternallyManaged = true, Platform = RdbmsBackend.SupportedSystemNames.Sqlite3 })
+        public MapConfig(params IKeyGenerator[] generators)
+            : this(new ProjectSettings() { InternallyManaged = true, Platform = RdbmsBackend.SupportedSystemNames.Sqlite3 }, generators)
         {
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="MapConfig"/> class.
+        /// Initializes a new instance of the <see cref="MapConfig" /> class.
         /// </summary>
         /// <param name="settings">The settings.</param>
-        public MapConfig(ProjectSettings settings)
+        /// <param name="generators">The generators.</param>
+        public MapConfig(ProjectSettings settings, params IKeyGenerator[] generators)
         {
             EntityConfigs = new EntityCollection();
             ComplexTypes = new ComplexTypeCollection();
@@ -89,6 +90,12 @@ namespace Goliath.Data.Mapping
             Settings = settings;
 
             PrimaryKeyGeneratorStore = new KeyGeneratorStore { new Generators.GuidCombGenerator(), new Generators.AutoIncrementGenerator() };
+
+            if (generators == null) return;
+            foreach (var keyGenerator in generators)
+            {
+                PrimaryKeyGeneratorStore.Add(keyGenerator);
+            }
         }
 
         /// <summary>
@@ -215,7 +222,7 @@ namespace Goliath.Data.Mapping
 
             foreach (var complexType in config.ComplexTypes)
             {
-                if(ComplexTypes.Contains(complexType.FullName))
+                if (ComplexTypes.Contains(complexType.FullName))
                     continue;
                 ComplexTypes.Add(complexType);
             }
@@ -318,10 +325,11 @@ namespace Goliath.Data.Mapping
         /// </summary>
         /// <param name="filename">The filename.</param>
         /// <param name="includeMetadataAttributes">if set to <c>true</c> [include metadata attributes].</param>
+        /// <param name="generators">The generators.</param>
         /// <returns></returns>
-        public static MapConfig Create(string filename, bool includeMetadataAttributes = false)
+        public static MapConfig Create(string filename, bool includeMetadataAttributes = false, params IKeyGenerator[] generators)
         {
-            return Create(filename, null, includeMetadataAttributes);
+            return Create(filename, null, includeMetadataAttributes, generators);
         }
 
 
@@ -331,16 +339,17 @@ namespace Goliath.Data.Mapping
         /// <param name="filename">The filename.</param>
         /// <param name="settings">The settings.</param>
         /// <param name="includeMetadataAttributes">if set to <c>true</c> [include metadata attributes].</param>
+        /// <param name="generators">The generators.</param>
         /// <returns></returns>
         /// <exception cref="System.ArgumentNullException">filename</exception>
-        public static MapConfig Create(string filename, ProjectSettings settings, bool includeMetadataAttributes = false)
+        public static MapConfig Create(string filename, ProjectSettings settings, bool includeMetadataAttributes = false, params IKeyGenerator[] generators)
         {
             if (string.IsNullOrWhiteSpace(filename))
                 throw new ArgumentNullException("filename");
 
             using (var filestream = File.Open(filename, FileMode.Open, FileAccess.Read))
             {
-                return Create(filestream, settings, includeMetadataAttributes);
+                return Create(filestream, settings, includeMetadataAttributes, generators);
             }
         }
 
@@ -349,10 +358,11 @@ namespace Goliath.Data.Mapping
         /// </summary>
         /// <param name="xmlStream">The XML stream.</param>
         /// <param name="includeMetadataAttributes">if set to <c>true</c> [include metadata attributes].</param>
+        /// <param name="generators">The generators.</param>
         /// <returns></returns>
-        public static MapConfig Create(Stream xmlStream, bool includeMetadataAttributes = false)
+        public static MapConfig Create(Stream xmlStream, bool includeMetadataAttributes = false, params IKeyGenerator[] generators)
         {
-            return Create(xmlStream, null, includeMetadataAttributes);
+            return Create(xmlStream, null, includeMetadataAttributes, generators);
         }
 
         /// <summary>
@@ -361,10 +371,11 @@ namespace Goliath.Data.Mapping
         /// <param name="xmlStream">The XML stream.</param>
         /// <param name="settings">The settings.</param>
         /// <param name="includeMetadataAttributes">if set to <c>true</c> [include metadata attributes].</param>
+        /// <param name="generators">The generators.</param>
         /// <returns></returns>
-        public static MapConfig Create(Stream xmlStream, ProjectSettings settings, bool includeMetadataAttributes = false)
+        public static MapConfig Create(Stream xmlStream, ProjectSettings settings, bool includeMetadataAttributes = false, params IKeyGenerator[] generators)
         {
-            MapConfig config = new MapConfig();
+            var config = new MapConfig(generators);
             config.Load(xmlStream, includeMetadataAttributes);
 
             if (settings != null)
