@@ -21,6 +21,14 @@ namespace Goliath.Data.Mapping
         public string Version { get; internal set; }
 
         /// <summary>
+        /// Gets a value indicating whether [support connection reset].
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if [support connection reset]; otherwise, <c>false</c>.
+        /// </value>
+        public bool SupportConnectionReset { get; private set; }
+
+        /// <summary>
         /// Gets or sets the connection string.
         /// </summary>
         /// <value>
@@ -98,11 +106,12 @@ namespace Goliath.Data.Mapping
         internal Dictionary<string, string> Properties { get { return properties; } }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ProjectSettings"/> class.
+        /// Initializes a new instance of the <see cref="ProjectSettings" /> class.
         /// </summary>
-        public ProjectSettings()
+        /// <param name="supportConnectionResets">if set to <c>true</c> [support connection resets].</param>
+        public ProjectSettings(bool supportConnectionResets = false)
         {
-            //SetPropety(ProjectSettings.PropertyNames.SaveAllDateUTC, true);
+            SupportConnectionReset = supportConnectionResets;
         }
 
 

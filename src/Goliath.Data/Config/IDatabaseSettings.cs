@@ -43,5 +43,7 @@ namespace Goliath.Data
         /// </summary>
         /// <returns></returns>
         DbAccess CreateAccessor();
+
+        void ResetConnection(string connectionString);
     }
 }

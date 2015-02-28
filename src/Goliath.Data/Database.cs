@@ -18,7 +18,7 @@ namespace Goliath.Data
         /// <param name="mapFile">The map file.</param>
         /// <param name="sessionStore">The session store.</param>
         /// <returns></returns>
-		public IConfigurationManager Configure(string mapFile, ISessionStore sessionStore = null)
+        public IConfigurationManager Configure(string mapFile, ISessionStore sessionStore = null, params IKeyGenerator[] generators)
         {
             return Configure(mapFile, null, sessionStore);
         }
@@ -30,30 +30,30 @@ namespace Goliath.Data
         /// <param name="settings">The settings.</param>
         /// <param name="sessionStore">The session store.</param>
         /// <returns></returns>
-        public IConfigurationManager Configure(string mapFile, ProjectSettings settings, ISessionStore sessionStore = null)
+        public IConfigurationManager Configure(string mapFile, ProjectSettings settings, ISessionStore sessionStore = null, params IKeyGenerator[] generators)
         {
-			if(string.IsNullOrWhiteSpace(mapFile))
-				throw new ArgumentNullException("mapFile");
-			
+            if (string.IsNullOrWhiteSpace(mapFile))
+                throw new ArgumentNullException("mapFile");
+
             MapConfig map;
             if (settings != null)
-                map = MapConfig.Create(mapFile, settings);
+                map = MapConfig.Create(mapFile, settings, false, generators);
             else
-                map = MapConfig.Create(mapFile);
+                map = MapConfig.Create(mapFile, false, generators);
 
             return Configure(map, sessionStore);
         }
 
-        public IConfigurationManager Configure(Stream mapStream, ProjectSettings settings, ISessionStore sessionStore = null)
+        public IConfigurationManager Configure(Stream mapStream, ProjectSettings settings, ISessionStore sessionStore = null, params IKeyGenerator[] generators)
         {
             if (mapStream == null)
                 throw new ArgumentNullException("mapStream");
 
             MapConfig map;
             if (settings != null)
-                map = MapConfig.Create(mapStream, settings);
+                map = MapConfig.Create(mapStream, settings, false, generators);
             else
-                map = MapConfig.Create(mapStream);
+                map = MapConfig.Create(mapStream, false, generators);
 
             return Configure(map, sessionStore);
         }

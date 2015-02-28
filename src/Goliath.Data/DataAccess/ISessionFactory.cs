@@ -38,5 +38,11 @@ namespace Goliath.Data
         /// <returns></returns>
         ISession OpenSession();
 
+        /// <summary>
+        /// Resets the connection string.
+        /// </summary>
+        /// <param name="connectionString">The connection string.</param>
+        void ResetConnectionString(string connectionString);
+
     }
 }
