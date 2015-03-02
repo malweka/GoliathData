@@ -107,7 +107,19 @@ namespace Goliath.Data
         /// <returns></returns>
         public ICollection<TEntity> FetchAll(int limit, int offset)
         {
-            return Select().Take(limit, offset).FetchAll();
+            var query = Select();
+
+            IOrderByDirection<TEntity> sortedClause;
+            if ((entityMap.PrimaryKey != null) && (entityMap.PrimaryKey.Keys.Count > 0))
+            {
+                sortedClause = query.OrderBy(entityMap.PrimaryKey.Keys[0].Key.PropertyName).Asc();
+            }
+            else
+            {
+                throw new GoliathDataException("cannot use limit and offset when entity has no primary key");
+            }
+
+            return sortedClause.Take(limit, offset).FetchAll();
         }
 
         /// <summary>
@@ -119,7 +131,19 @@ namespace Goliath.Data
         /// <returns></returns>
         public ICollection<TEntity> FetchAll(int limit, int offset, out long total)
         {
-            return Select().Take(limit, offset).FetchAll(out total);
+            var query = Select();
+
+            IOrderByDirection<TEntity> sortedClause;
+            if ((entityMap.PrimaryKey != null) && (entityMap.PrimaryKey.Keys.Count > 0))
+            {
+                sortedClause = query.OrderBy(entityMap.PrimaryKey.Keys[0].Key.PropertyName).Asc();
+            }
+            else
+            {
+                throw new GoliathDataException("cannot use limit and offset when entity has no primary key");
+            }
+
+            return sortedClause.Take(limit, offset).FetchAll(out total);
         }
 
         int ExecuteUpdateOrDeleteEntity(INonQuerySqlBuilder<TEntity> sqlBuilder, TEntity entity)
