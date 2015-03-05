@@ -78,7 +78,7 @@ namespace Goliath.Data.Sql
         IOrderByDirection Asc();
     }
 
-    public interface IOrderByDirection
+    public interface IOrderByDirection : IQueryFetchable
     {
         ISorterClause OrderBy(string propertyName);
         ISorterClause OrderBy(string tableAlias, string propertyName);
