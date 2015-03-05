@@ -14,6 +14,8 @@ namespace Goliath.Data.Sql
         IJoinable<T, TRelation> RightJoin<TRelation>();
 
         IFilterClause<T, TProperty> Where<TProperty>(Expression<Func<T, TProperty>> property);
+
+        IFilterClause Where(string propertyName);
     }
 
 

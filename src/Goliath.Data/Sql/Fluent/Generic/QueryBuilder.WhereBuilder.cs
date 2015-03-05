@@ -6,8 +6,8 @@ using System.Linq.Expressions;
 
 namespace Goliath.Data.Sql
 {
-	partial class QueryBuilder<T>
-	{
+    partial class QueryBuilder<T>
+    {
         WhereClauseBuilderWrapper<T, TProperty> BuildWhereClause<TProperty>(SqlOperator preOperator, Expression<Func<T, TProperty>> property)
         {
             var prop = ExtractProperty(property);
@@ -41,5 +41,10 @@ namespace Goliath.Data.Sql
         }
 
         #endregion
-	}
+
+        public IFilterClause Where(string propertyName)
+        {
+            return innerBuilder.Where(propertyName);
+        }
+    }
 }
