@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.Common;
 using System.Linq;
 using System.Text;
@@ -174,7 +175,7 @@ where c.contype = 'f'";
             var columnList = new Dictionary<string, Property>();
             //var references = new Dictionary<string, Property>();
 
-            using (var reader = db.ExecuteReader(Connection, SELECT_COLUMNS, new QueryParam("tableName", table.TableName)))
+            using (var reader = db.ExecuteReader(Connection, SELECT_COLUMNS, new QueryParam("tableName", table.TableName, DbType.String)))
             {
                 var columnMap = new List<string>();
                 int countOrder = 0;

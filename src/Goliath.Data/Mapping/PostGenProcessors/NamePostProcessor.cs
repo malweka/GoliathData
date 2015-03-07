@@ -76,7 +76,7 @@ namespace Goliath.Data.Mapping
             foreach (var table in entities.Values)
             {
                 table.Name = GetRename(tableNamer.Transform(table, table.Name), entityRenames);
-                table.TableAlias = tableAbbreviator.Abbreviate(table.Name);
+                table.TableAlias = tableAbbreviator.Abbreviate(table.Name).ToLower();
                 var propertyListClone = table.ToArray();
 
                 foreach (var prop in propertyListClone)

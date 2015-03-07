@@ -68,7 +68,7 @@ namespace Goliath.Data.Providers.Sqlite
         /// <param name="parameterName">Name of the parameter.</param>
         /// <param name="value">The value.</param>
         /// <returns></returns>
-        public override System.Data.Common.DbParameter CreateParameter(string parameterName, object value)
+        public override System.Data.Common.DbParameter CreateParameter(string parameterName, object value, DbType? dbType)
         {
             if (string.IsNullOrEmpty(parameterName))
                 throw new ArgumentNullException("parameterName");

@@ -13,6 +13,7 @@ namespace Goliath.Data.Sql
         {
             LeftColumn = property.ColumnName;
             this.nonQueryBuilder = nonQueryBuilder;
+            PropDbType = property.DbType;
         }
 
         #region IFilterNonQueryClause<T,TProperty> Members

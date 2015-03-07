@@ -169,8 +169,8 @@ namespace Goliath.Data.Sql
                                 rel.ReferenceProperty, relMap.FullName, item.GetType().FullName));
                     }
 
-                    var relParam = new QueryParam(rel.MapReferenceColumn) { Value = relPropInfo.GetMethod(item) };
-                    var propParm = new QueryParam(rel.MapColumn) { Value = propValue };
+                    var relParam = new QueryParam(rel.MapReferenceColumn, rel.DbType) { Value = relPropInfo.GetMethod(item) };
+                    var propParm = new QueryParam(rel.MapColumn, rel.DbType) { Value = propValue };
                     var dialect = session.SessionFactory.DbSettings.SqlDialect;
                     if (isInsertStatement)
                     {

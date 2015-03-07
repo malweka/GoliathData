@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using Npgsql;
@@ -34,15 +35,33 @@ namespace Goliath.Data.Providers.Postgres
         /// </summary>
         /// <param name="parameterName">Name of the parameter.</param>
         /// <param name="value">The value.</param>
+        /// <param name="dbType"></param>
         /// <returns></returns>
         /// <exception cref="System.ArgumentNullException">parameterName</exception>
-        public override System.Data.Common.DbParameter CreateParameter(string parameterName, object value)
+        public override System.Data.Common.DbParameter CreateParameter(string parameterName, object value, DbType? dbType)
         {
             if (string.IsNullOrEmpty(parameterName))
                 throw new ArgumentNullException("parameterName");
 
             if (value == null)
+            {
                 value = DBNull.Value;
+            }
+            else
+            {
+                Type type = value.GetType();
+                if (type.IsEnum)
+                {
+                    if(dbType.HasValue && (dbType == DbType.String || dbType==DbType.StringFixedLength||dbType== DbType.AnsiString || dbType == DbType.AnsiStringFixedLength))
+                    {
+                        string realValue = value.ToString();
+                        return new NpgsqlParameter(string.Format("@{0}", parameterName), realValue);
+                    }
+
+                    return new NpgsqlParameter(string.Format("@{0}", parameterName), (int)value);
+                }
+            }
+
             var param = new NpgsqlParameter(string.Format("@{0}", parameterName), value);
             return param;
         }

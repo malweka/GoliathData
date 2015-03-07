@@ -59,8 +59,9 @@ namespace Goliath.Data
         /// </summary>
         /// <param name="parameterName">Name of the parameter.</param>
         /// <param name="value">The value.</param>
+        /// <param name="dbType">Type of the database.</param>
         /// <returns></returns>
-        DbParameter CreateParameter(string parameterName, object value);
+        DbParameter CreateParameter(string parameterName, object value, DbType? dbType);
 
 
     }

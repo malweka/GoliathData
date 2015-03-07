@@ -68,7 +68,7 @@ namespace Goliath.Data.Providers
         /// <param name="parameterName">Name of the parameter.</param>
         /// <param name="value">The value.</param>
         /// <returns></returns>
-        public abstract DbParameter CreateParameter(string parameterName, object value);
+        public abstract DbParameter CreateParameter(string parameterName, object value, DbType? dbType);
 
         #endregion
 

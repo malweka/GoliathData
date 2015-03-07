@@ -41,7 +41,8 @@ namespace Goliath.Data.DataAccess
                     var val = dbReader[ordinal];
                     if (val != null)
                     {
-                        QueryParam qp = new QueryParam(ParameterNameBuilderHelper.ColumnQueryName(relEntMap.TableAlias + rel.InternalIndex, rel.ReferenceColumn)) { Value = val };
+                        var relProp = relEntMap.GetProperty(rel.ReferenceProperty);
+                        QueryParam qp = new QueryParam(ParameterNameBuilderHelper.ColumnQueryName(relEntMap.TableAlias + rel.InternalIndex, rel.ReferenceColumn), relProp.DbType) { Value = val };
 
                         SelectSqlBuilder sqlBuilder = new SelectSqlBuilder(sqlDialect, relEntMap)
                            .Where(new WhereStatement(ParameterNameBuilderHelper.ColumnWithTableAlias(relEntMap.TableAlias + rel.InternalIndex, rel.ReferenceColumn))

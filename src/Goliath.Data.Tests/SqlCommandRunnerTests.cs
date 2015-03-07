@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using NUnit.Framework;
@@ -35,7 +36,7 @@ namespace Goliath.Data.Tests
 
             for (int i = 1; i < 6; i++)
             {
-                session.DataAccess.ExecuteNonQuery(dbConn, transaction, string.Format(insertStatementFormat, tableName), new QueryParam("prop1") { Value = string.Format("val{0}", i) }, new QueryParam("prop2") { Value = DateTime.Now.AddDays(i) });
+                session.DataAccess.ExecuteNonQuery(dbConn, transaction, string.Format(insertStatementFormat, tableName), new QueryParam("prop1", DbType.String) { Value = string.Format("val{0}", i) }, new QueryParam("prop2", DbType.DateTime) { Value = DateTime.Now.AddDays(i) });
             }
 
             session.CommitTransaction();

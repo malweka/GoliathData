@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using NUnit.Framework;
 using System.Collections.Generic;
+using System.Data;
 
 namespace Goliath.Data.Tests
 {
@@ -99,7 +100,7 @@ namespace Goliath.Data.Tests
             StatementMap statement;
             config.MappedStatements.TryGetValue("querySupergloo", out statement);
             StatementMapParser parser = new StatementMapParser();
-            var compiled = parser.Parse(new SqliteDialect(), config, null, statement.Body, new QueryParam("p1"), new QueryParam("p2"));
+            var compiled = parser.Parse(new SqliteDialect(), config, null, statement.Body, new QueryParam("p1", DbType.String), new QueryParam("p2", DbType.Boolean));
             Console.WriteLine(compiled.Body.Trim());
             Assert.AreEqual(verify, compiled.Body.Trim());
         }

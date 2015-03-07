@@ -186,7 +186,7 @@ namespace Goliath.Data.DataAccess
                         PropertyAccessor pInfo;
                         if (getSetInfo.Properties.TryGetValue(inParam.Property.PropName, out pInfo))
                         {
-                            QueryParam dbParam = new QueryParam(inParam.QueryParamName);
+                            QueryParam dbParam = new QueryParam(inParam.QueryParamName, null);
                             dbParam.Value = pInfo.GetMethod(paramObj);
                             if (!dbParams.ContainsKey(inParam.QueryParamName))
                             {
