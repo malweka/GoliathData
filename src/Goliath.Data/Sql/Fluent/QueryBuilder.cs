@@ -20,12 +20,12 @@ namespace Goliath.Data.Sql
         readonly SqlDialect dialect;
         string tableName;
         string alias;
-        int limit=-1;
-        int offset=-1;
+        int limit = -1;
+        int offset = -1;
         ISession session;
         public List<string> ColumNames { get { return columnNames; } }
 
-        internal  Dictionary<string, JoinBuilder> Joins
+        internal Dictionary<string, JoinBuilder> Joins
         {
             get { return joins; }
         }
@@ -142,7 +142,7 @@ namespace Goliath.Data.Sql
 
         public int Count()
         {
-            if(ColumNames.Count < 1) throw new InvalidOperationException("no columns has been selected");
+            if (ColumNames.Count < 1) throw new InvalidOperationException("no columns has been selected");
 
             var query = Build(true);
             var runner = new SqlCommandRunner();
@@ -185,7 +185,7 @@ namespace Goliath.Data.Sql
             if (selectCount)
             {
                 var countFunction = dialect.GetFunction(FunctionNames.Count);
-                var sql = countFunction.ToSqlStatement(new QueryParam("*"));
+                var sql = countFunction.ToSqlStatement(new QueryParam("*", null));
                 queryBody.ColumnEnumeration = sql;
             }
 

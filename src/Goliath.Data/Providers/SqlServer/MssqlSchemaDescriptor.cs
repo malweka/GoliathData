@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.Common;
 using Goliath.Data.Diagnostics;
 using Goliath.Data.Mapping;
@@ -188,7 +189,7 @@ and ep.minor_id = c.colid";
         protected virtual Dictionary<string, Property> ProcessColumns(EntityMap table)
         {
             Dictionary<string, Property> columnList = new Dictionary<string, Property>();
-            using (DbDataReader reader = db.ExecuteReader(Connection, SELECT_COLUMNS, new QueryParam("tableName", table.TableName)))
+            using (DbDataReader reader = db.ExecuteReader(Connection, SELECT_COLUMNS, new QueryParam("tableName", table.TableName, DbType.String)))
             {
                 int countOrder = 0;
                 while (reader.Read())
@@ -262,7 +263,7 @@ and ep.minor_id = c.colid";
         protected virtual void ProcessConstraints(EntityMap table, Dictionary<string, Property> columnList)
         {
             List<string> constraints = new List<string>();
-            using (var reader = db.ExecuteReader(Connection, SELECT_CONSTRAINTS, new QueryParam("tableName", table.TableName)))
+            using (var reader = db.ExecuteReader(Connection, SELECT_CONSTRAINTS, new QueryParam("tableName", table.TableName, DbType.String)))
             {
                 while (reader.Read())
                 {
@@ -294,7 +295,7 @@ and ep.minor_id = c.colid";
         /// <param name="columns">The columns.</param>
         protected virtual void ProcessReferences(EntityMap table, Dictionary<string, Property> columns)
         {
-            using (var reader = db.ExecuteReader(Connection, SELECT_REFERENCES, new QueryParam("tableName", table.TableName)))
+            using (var reader = db.ExecuteReader(Connection, SELECT_REFERENCES, new QueryParam("tableName", table.TableName, DbType.String)))
             {
                 while (reader.Read())
                 {
@@ -331,7 +332,7 @@ and ep.minor_id = c.colid";
 
         void ProcessForeignKeys(EntityMap table)
         {
-            using (var reader = db.ExecuteReader(Connection, FIND_FOREIGN_KEYS, new QueryParam("tableName", table.TableName)))
+            using (var reader = db.ExecuteReader(Connection, FIND_FOREIGN_KEYS, new QueryParam("tableName", table.TableName, DbType.String)))
             {
                 while (reader.Read())
                 {
@@ -403,7 +404,7 @@ and ep.minor_id = c.colid";
 
             foreach (var tb in tables.Values)
             {
-                using (DbDataReader reader = db.ExecuteReader(connection, colDescriptionScript, new QueryParam("tableId", tb.Id)))
+                using (DbDataReader reader = db.ExecuteReader(connection, colDescriptionScript, new QueryParam("tableId", tb.Id, DbType.Int64)))
                 {
                     while (reader.Read())
                     {

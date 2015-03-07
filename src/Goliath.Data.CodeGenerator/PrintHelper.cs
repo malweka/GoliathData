@@ -352,14 +352,18 @@ namespace Goliath.Data.CodeGenerator
             {
                 foreach (var inputParam in stat.InputParametersMap)
                 {
-                    parameters.Add(string.Format("new QueryParam(\"{0}\", {0})", inputParam.Key));
+                    parameters.Add(string.Format("new QueryParam(\"{0}\", {0}, null)", inputParam.Key));
                 }
             }
             else if (stat.DbParametersMap.Count > 0)
             {
                 foreach (var dbParam in stat.DbParametersMap)
                 {
-                    parameters.Add(string.Format("new QueryParam(\"{0}\", {0})", dbParam.Key));
+                    string dbtype = string.Empty;
+                    if (dbParam.Value.HasValue)
+                        dbtype = string.Format(", System.Data.DbType.{0}", dbParam.Value);
+
+                    parameters.Add(string.Format("new QueryParam(\"{0}\", {0}{1})", dbParam.Key, dbtype));
                 }
             }
 

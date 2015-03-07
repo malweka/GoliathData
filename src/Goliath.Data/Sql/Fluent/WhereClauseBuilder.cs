@@ -19,6 +19,8 @@ namespace Goliath.Data.Sql
 
         public string RightColumn { get; set; }
 
+        public System.Data.DbType? PropDbType { get; set; }
+
         public SqlOperator PreOperator { get; set; }
 
         public ComparisonOperator BinaryOperation { get; set; }
@@ -116,7 +118,7 @@ namespace Goliath.Data.Sql
             sql.AppendFormat("{0} ", op);
             if (!string.IsNullOrWhiteSpace(RightColumn))
             {
-                if(!string.IsNullOrWhiteSpace(RightColumnTableAlias))
+                if (!string.IsNullOrWhiteSpace(RightColumnTableAlias))
                     sql.AppendFormat("{0}.{1} ", RightColumnTableAlias, RightColumn);
                 else
                     sql.AppendFormat("{0} ", RightColumn);
@@ -124,7 +126,7 @@ namespace Goliath.Data.Sql
             else if (ParamValue != null)
             {
                 string paramName = string.Format("qPm{0}", seed);
-                parameter = new QueryParam(paramName) { Value = ParamValue };
+                parameter = new QueryParam(paramName, PropDbType) { Value = ParamValue };
                 sql.Append(dialect.CreateParameterName(paramName));
             }
 

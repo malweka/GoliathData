@@ -56,7 +56,7 @@ namespace Goliath.Data.Transformers
             }
 
             if (IsReservedWord(abbr))
-                abbr = abbr + "XZ";
+                abbr = abbr + "g_x";
 
             return abbr;
         }

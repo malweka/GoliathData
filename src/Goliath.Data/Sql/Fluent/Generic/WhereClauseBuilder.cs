@@ -19,6 +19,7 @@ namespace Goliath.Data.Sql
             LeftColumn = property;
             this.whereClause = whereClause;
             this.queryBuilder = queryBuilder;
+            whereClause.PropDbType = property.DbType;
         }
 
         IBinaryOperation<T> BuildBinaryOperation(ComparisonOperator binaryOp, Expression<Func<T, TProperty>> property)

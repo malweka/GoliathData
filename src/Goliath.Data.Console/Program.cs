@@ -286,7 +286,7 @@ namespace WebZoo.Data
                 var leftcolumn2 = new Relation() { ColumnName = "AnimalId", PropertyName = "AnimalId" };
 
                 var mapTableMap = UnMappedTableMap.Create("animals_handlers", leftColumn1, leftcolumn2);
-                mapTableMap.TableAlias = "mX1";
+                mapTableMap.TableAlias = "m_x1";
 
                 var currEntMap = UnMappedTableMap.Create(animalEntMap.TableName);
 

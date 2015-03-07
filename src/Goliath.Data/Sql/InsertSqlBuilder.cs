@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data;
 using Goliath.Data;
 using Goliath.Data.Mapping;
 using Goliath.Data.DataAccess;
@@ -67,7 +68,7 @@ namespace Goliath.Data.Sql
             var entityAccessor = entityAccessorStore.GetEntityAccessor(entityType, entityMap);
             var converterStore = session.SessionFactory.DbSettings.ConverterStore;
 
-            Tuple<string, PropertyAccessor> pkTuple = null;
+            Tuple<string, PropertyAccessor, DbType?> pkTuple = null;
             if (entityMap.PrimaryKey != null)
             {
                 pkTuple = ProcessPrimaryKey(entity, entityType, entityMap, info, entityAccessor, executionList, session);
@@ -110,7 +111,7 @@ namespace Goliath.Data.Sql
                     QueryParam pkQueryParam;
                     if (!info.Parameters.TryGetValue(pkTuple.Item1, out pkQueryParam))
                     {
-                        pkQueryParam = new QueryParam(pkTuple.Item1);
+                        pkQueryParam = new QueryParam(pkTuple.Item1, pkTuple.Item3);
                     }
 
                     pkQueryParam.Value = pkValue;
@@ -137,23 +138,25 @@ namespace Goliath.Data.Sql
             }
         }
 
-        Tuple<string, PropertyAccessor> ProcessPrimaryKey(object entity, Type entityType, EntityMap entityMap, InsertSqlInfo info, EntityAccessor entityAccessor, InsertSqlExecutionList executionList, ISession session)
+        Tuple<string, PropertyAccessor, DbType?> ProcessPrimaryKey(object entity, Type entityType, EntityMap entityMap, InsertSqlInfo info, EntityAccessor entityAccessor, InsertSqlExecutionList executionList, ISession session)
         {
             var dialect = session.SessionFactory.DbSettings.SqlDialect;
             var converterStore = session.SessionFactory.DbSettings.ConverterStore;
             PropertyAccessor pinf = null;
             string paramName = null;
-
+            DbType? dbType = null;
             //TODO: remove support for multiple keys for one entity
 
             foreach (var pk in entityMap.PrimaryKey.Keys)
             {
                 var rel = pk.Key as Relation;
+                dbType = pk.Key.DbType;
+
                 if (rel != null)
                 {
                     var relEntMap = session.SessionFactory.DbSettings.Map.GetEntityMap(rel.ReferenceEntityName);
                     paramName = ParameterNameBuilderHelper.QueryParamName(relEntMap, rel.ReferenceColumn);
-                    var pkQueryParam = new QueryParam(paramName);
+                    var pkQueryParam = new QueryParam(paramName, dbType);
                     info.Parameters.Add(paramName, pkQueryParam);
                     info.Columns.Add(paramName, pk.Key.ColumnName);
                     Build(entity, entityType, relEntMap, executionList, session);
@@ -169,7 +172,7 @@ namespace Goliath.Data.Sql
                 if (pk.KeyGenerator == null)
                 {
                     //no generator was specified so assume the entity has primary key
-                    var keyParam = new QueryParam(paramName, pinf.GetMethod(entity));
+                    var keyParam = new QueryParam(paramName, pinf.GetMethod(entity), dbType);
                     info.Parameters.Add(paramName, keyParam);
                     info.Columns.Add(paramName, pk.Key.ColumnName);
                     info.DelayExecute = true;
@@ -180,7 +183,7 @@ namespace Goliath.Data.Sql
                 {
                     info.DelayExecute = true;
 
-                    var pkQueryParam = new QueryParam(paramName);
+                    var pkQueryParam = new QueryParam(paramName, dbType);
 
                     object pkValue;
                     if (HasUnsavedValue(pk, pinf, entity, converterStore, out pkValue))
@@ -206,7 +209,7 @@ namespace Goliath.Data.Sql
                 }
             }
 
-            return Tuple.Create(paramName, pinf);
+            return Tuple.Create(paramName, pinf, dbType);
         }
 
         bool HasUnsavedValue(PrimaryKeyProperty pk, PropertyAccessor pinf, object entity, ITypeConverterStore converterStore, out object pkValue)
@@ -264,7 +267,7 @@ namespace Goliath.Data.Sql
 
                             var manyToManyInfo = new InsertSqlInfo { DelayExecute = true, TableName = rel.MapTableName };
 
-                            var param1 = new QueryParam(mapParamName) { Value = relPinf.GetMethod(relObj) };
+                            var param1 = new QueryParam(mapParamName, pk.Key.DbType) { Value = relPinf.GetMethod(relObj) };
                             manyToManyInfo.Columns.Add(mapParamName, rel.MapReferenceColumn);
                             manyToManyInfo.Parameters.Add(mapParamName, param1);
 
@@ -272,7 +275,7 @@ namespace Goliath.Data.Sql
                             if (!entityAccessor.Properties.TryGetValue(rel.MapPropertyName, out mappedPinf))
                                 throw new GoliathDataException("Property " + rel.MapPropertyName + " not found in entity" + entityMap.FullName + ".");
 
-                            var param2 = new QueryParam(paramName) { Value = mappedPinf.GetMethod(entity) };
+                            var param2 = new QueryParam(paramName, rel.DbType) { Value = mappedPinf.GetMethod(entity) };
                             manyToManyInfo.Columns.Add(paramName, rel.MapColumn);
                             manyToManyInfo.Parameters.Add(paramName, param2);
 
@@ -321,7 +324,7 @@ namespace Goliath.Data.Sql
                         QueryParam qParam;
                         if (!info.Parameters.TryGetValue(paramName, out qParam))
                         {
-                            qParam = new QueryParam(paramName);
+                            qParam = new QueryParam(paramName, rel.DbType);
                             info.Columns.Add(paramName, rel.ColumnName);
                             info.Parameters.Add(paramName, qParam);
                         }

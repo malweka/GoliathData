@@ -35,8 +35,10 @@ namespace Goliath.Data.Providers.SqlServer
         /// </summary>
         /// <param name="parameterName">Name of the parameter.</param>
         /// <param name="value">The value.</param>
+        /// <param name="dbType"></param>
         /// <returns></returns>
-        public override DbParameter CreateParameter(string parameterName, object value)
+        /// <exception cref="System.ArgumentNullException">parameterName</exception>
+        public override DbParameter CreateParameter(string parameterName, object value, System.Data.DbType? dbType)
         {
             if (string.IsNullOrEmpty(parameterName))
                 throw new ArgumentNullException("parameterName");

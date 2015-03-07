@@ -4,15 +4,17 @@ using Goliath.Data.Providers;
 
 namespace Goliath.Data.Sql
 {
-    public class NonQueryFilterClauseBase
+    public abstract class NonQueryFilterClauseBase
     {
         public string LeftColumn { get; protected set; }
         public string RightColumnName { get; protected set; }
         public object RightParamValue { get; protected set; }
+
+        public System.Data.DbType? PropDbType { get; set; }
         public ComparisonOperator BinaryOperation { get; protected set; }
         public SqlOperator PreOperator { get; set; }
 
-        public Tuple<string, QueryParam> BuildSqlString(SqlDialect dialect, int seed=0)
+        public Tuple<string, QueryParam> BuildSqlString(SqlDialect dialect, int seed = 0)
         {
             QueryParam parameter = null;
             var sql = new StringBuilder();
@@ -64,7 +66,7 @@ namespace Goliath.Data.Sql
             else if (RightParamValue != null)
             {
                 string paramName = string.Format("qPm{0}", seed);
-                parameter = new QueryParam(paramName) { Value = RightParamValue };
+                parameter = new QueryParam(paramName, PropDbType) { Value = RightParamValue };
                 sql.Append(dialect.CreateParameterName(paramName));
             }
 

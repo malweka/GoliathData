@@ -79,7 +79,7 @@ namespace Goliath.Data
                 {
                     for (int i = 0; i < parameters.Length; i++)
                     {
-                        var dbParam = dbConnector.CreateParameter(parameters[i].Name, parameters[i].Value);
+                        var dbParam = dbConnector.CreateParameter(parameters[i].Name, parameters[i].Value, parameters[i].PropertyDbType);
                         cmd.Parameters.Add(dbParam);
                     }
                 }
@@ -125,7 +125,7 @@ namespace Goliath.Data
                 {
                     for (int i = 0; i < parameters.Length; i++)
                     {
-                        var dbParam = dbConnector.CreateParameter(parameters[i].Name, parameters[i].Value);
+                        var dbParam = dbConnector.CreateParameter(parameters[i].Name, parameters[i].Value, parameters[i].PropertyDbType);
                         cmd.Parameters.Add(dbParam);
                     }
                 }
@@ -172,7 +172,7 @@ namespace Goliath.Data
                 {
                     for (int i = 0; i < parameters.Length; i++)
                     {
-                        var dbParam = dbConnector.CreateParameter(parameters[i].Name, parameters[i].Value);
+                        var dbParam = dbConnector.CreateParameter(parameters[i].Name, parameters[i].Value, parameters[i].PropertyDbType);
                         cmd.Parameters.Add(dbParam);
                     }
                 }

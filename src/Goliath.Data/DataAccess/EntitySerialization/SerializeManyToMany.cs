@@ -6,6 +6,7 @@ using Goliath.Data.Mapping;
 using Goliath.Data.Providers;
 using Goliath.Data.Sql;
 using Goliath.Data.Utils;
+using Microsoft.Win32;
 
 namespace Goliath.Data.DataAccess
 {
@@ -62,7 +63,7 @@ namespace Goliath.Data.DataAccess
 
                         var currEntMap = UnMappedTableMap.Create(entityMap.TableName);
 
-                        var qp = new QueryParam(ParameterNameBuilderHelper.ColumnQueryName(rel.MapColumn, mapTableMap.TableAlias)) { Value = val };
+                        var qp = new QueryParam(ParameterNameBuilderHelper.ColumnQueryName(rel.MapColumn, mapTableMap.TableAlias), rel.DbType) { Value = val };
 
                         var sqlBuilder = new SelectSqlBuilder(sqlDialect, mapTableMap)
                             .AddJoin(new SqlJoin(mapTableMap, JoinType.Inner).OnTable(relEntMap).OnLeftColumn(leftcolumn2).OnRightColumn(rel.ReferenceColumn))
