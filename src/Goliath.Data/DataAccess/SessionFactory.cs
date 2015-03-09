@@ -61,7 +61,7 @@ namespace Goliath.Data.DataAccess
 
         public ISession OpenSession()
         {
-            var sess = new Session(this, connectionManager);
+            var sess = new Session(this, new ConnectionManager(DbSettings.Connector, DbSettings.Connector.AllowMultipleConnections));
             return sess;
         }
 
