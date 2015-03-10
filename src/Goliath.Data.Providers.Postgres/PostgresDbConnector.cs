@@ -30,6 +30,11 @@ namespace Goliath.Data.Providers.Postgres
             return connection;
         }
 
+        public override bool AllowMultipleConnections
+        {
+            get { return true; }
+        }
+
         /// <summary>
         /// Creates the parameter.
         /// </summary>

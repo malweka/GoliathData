@@ -45,7 +45,7 @@ namespace Goliath.Data.DataAccess
             this.adapterFactoryFactoryMethod = adapterFactoryFactoryMethod;
             DbSettings = settings;
 
-            connectionManager = new ConnectionManager(DbSettings.Connector, DbSettings.Connector.AllowMultipleConnections);
+            connectionManager = new ConnectionManager(DbSettings.Connector, !DbSettings.Connector.AllowMultipleConnections);
         }
 
         #region ISessionFactory Members
@@ -55,13 +55,13 @@ namespace Goliath.Data.DataAccess
             if (connection == null)
                 throw new ArgumentNullException("connection");
 
-            var sess = new Session(this, new ConnectionManager(DbSettings.Connector, connection, DbSettings.Connector.AllowMultipleConnections));
+            var sess = new Session(this, new ConnectionManager(DbSettings.Connector, connection, !DbSettings.Connector.AllowMultipleConnections));
             return sess;
         }
 
         public ISession OpenSession()
         {
-            var sess = new Session(this, new ConnectionManager(DbSettings.Connector, DbSettings.Connector.AllowMultipleConnections));
+            var sess = new Session(this, new ConnectionManager(DbSettings.Connector, !DbSettings.Connector.AllowMultipleConnections));
             return sess;
         }
 
