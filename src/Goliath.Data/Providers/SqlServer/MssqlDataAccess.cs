@@ -20,6 +20,11 @@ namespace Goliath.Data.Providers.SqlServer
         }
 
         //dispose of created connection? pool them if need be?
+        public override bool AllowMultipleConnections
+        {
+            get { return true; }
+        }
+
         /// <summary>
         /// Creates the new connection.
         /// </summary>

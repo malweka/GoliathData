@@ -40,7 +40,7 @@ namespace Goliath.Data.Providers
         /// <value>
         /// 	<c>true</c> if [allow multiple connections]; otherwise, <c>false</c>.
         /// </value>
-        public virtual bool AllowMultipleConnections { get; protected set; }
+        public abstract bool AllowMultipleConnections { get;  }
 
         #endregion
 
@@ -83,7 +83,6 @@ namespace Goliath.Data.Providers
         {
             ConnectionString = connectionString;
             DatabaseProviderName = databaseProviderName;
-            AllowMultipleConnections = true;
         }
 
         #endregion
