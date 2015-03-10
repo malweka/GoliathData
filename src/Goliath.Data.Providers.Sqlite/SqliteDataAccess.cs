@@ -12,9 +12,8 @@ namespace Goliath.Data.Providers.Sqlite
     public class SqliteDbConnector : DbConnector
     {
         static ILogger logger;
+        static SQLiteConnection connection;
 
-
-        /// <summary>
         /// Gets or sets a value indicating whether [allow multiple connections].
         /// </summary>
         /// <value>
@@ -25,10 +24,6 @@ namespace Goliath.Data.Providers.Sqlite
             get
             {
                 return false;
-            }
-            protected set
-            {
-
             }
         }
 
@@ -53,7 +48,29 @@ namespace Goliath.Data.Providers.Sqlite
         /// <returns></returns>
         public override System.Data.Common.DbConnection CreateNewConnection()
         {
-            var connection = new SQLiteConnection(ConnectionString);
+            if (connection == null)
+                connection = new SQLiteConnection(ConnectionString);
+
+            if (connection.State == ConnectionState.Broken)
+            {
+                try
+                {
+                    connection.Close();
+                    connection.Dispose();
+                }
+                catch (Exception ex)
+                {
+                    logger.LogException("could not close broken connection", ex);
+                }
+
+                connection = new SQLiteConnection(ConnectionString);
+            }
+
+            if (connection.State == ConnectionState.Closed)
+            {
+                connection = new SQLiteConnection(ConnectionString);
+            }
+
             return connection;
         }
 
