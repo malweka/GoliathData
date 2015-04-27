@@ -81,7 +81,15 @@ namespace Goliath.Data.DataAccess
                 if (!userProvidedConnection)
                     currentConn = dbConnector.CreateNewConnection();
 
-                currentConn.Open();
+                if (currentConn.State == ConnectionState.Open)
+                {
+                    logger.Log(LogLevel.Info, "Current connection is already open.");
+                }
+                else
+                {
+                    currentConn.Open();
+                }
+                
                 HasOpenConnection = true;
             }
             else
