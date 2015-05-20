@@ -15,7 +15,7 @@ namespace Goliath.Data.Mapping
     public partial class MapConfig
     {
         internal const string XmlNameSpace = "http://schemas.hamsman.com/goliath/data/1.1";
-        List<StatementMap> unprocessedStatements = new List<StatementMap>();
+        private List<StatementMap> unprocessedStatements = new List<StatementMap>();
 
         /// <summary>
         /// Gets the unprocessed statements.
@@ -23,9 +23,13 @@ namespace Goliath.Data.Mapping
         /// <value>
         /// The unprocessed statements.
         /// </value>
-        public List<StatementMap> UnprocessedStatements { get { return unprocessedStatements; } }
+        public List<StatementMap> UnprocessedStatements
+        {
+            get { return unprocessedStatements; }
+        }
 
         #region Properties
+
         /// <summary>
         /// Gets or sets the entity maps.
         /// </summary>
@@ -72,7 +76,9 @@ namespace Goliath.Data.Mapping
         /// Initializes a new instance of the <see cref="MapConfig"/> class.
         /// </summary>
         public MapConfig(params IKeyGenerator[] generators)
-            : this(new ProjectSettings() { InternallyManaged = true, Platform = RdbmsBackend.SupportedSystemNames.Sqlite3 }, generators)
+            : this(
+                new ProjectSettings() {InternallyManaged = true, Platform = RdbmsBackend.SupportedSystemNames.Sqlite3},
+                generators)
         {
         }
 
@@ -89,7 +95,11 @@ namespace Goliath.Data.Mapping
             MappedStatements = new StatementStore(settings.Platform);
             Settings = settings;
 
-            PrimaryKeyGeneratorStore = new KeyGeneratorStore { new Generators.GuidCombGenerator(), new Generators.AutoIncrementGenerator() };
+            PrimaryKeyGeneratorStore = new KeyGeneratorStore
+            {
+                new Generators.GuidCombGenerator(),
+                new Generators.AutoIncrementGenerator()
+            };
 
             if (generators == null) return;
             foreach (var keyGenerator in generators)
@@ -160,7 +170,10 @@ namespace Goliath.Data.Mapping
         public void LoadMappedStatements(string filename)
         {
             if (!canSetExternalMapStatements)
-                throw new InvalidOperationException(string.Format("MapConfig not initialized properly. No Platform has been defined. Cannot load statements from {0}.", filename));
+                throw new InvalidOperationException(
+                    string.Format(
+                        "MapConfig not initialized properly. No Platform has been defined. Cannot load statements from {0}.",
+                        filename));
 
             if (!File.Exists(filename))
                 throw new FileNotFoundException("Cannot load File. File not found.", filename);
@@ -195,7 +208,8 @@ namespace Goliath.Data.Mapping
             if (statements == null) throw new ArgumentNullException("statements");
 
             if (!canSetExternalMapStatements)
-                throw new InvalidOperationException("MapConfig not initialized properly. No Platform has been defined. Cannot load statements.");
+                throw new InvalidOperationException(
+                    "MapConfig not initialized properly. No Platform has been defined. Cannot load statements.");
 
             foreach (var statementMap in statements)
             {
@@ -254,7 +268,19 @@ namespace Goliath.Data.Mapping
             }
         }
 
-        /// <summary>
+        private bool isSorted;
+
+        public void Sort()
+        {
+            if(isSorted || !IsLoaded)return;
+
+            var sorter = new MapSorter();
+            var sortedList = sorter.Sort(EntityConfigs);
+            EntityConfigs = sortedList;
+            isSorted = true;
+        }
+
+    /// <summary>
         /// Loads the specified XML stream.
         /// </summary>
         /// <param name="xmlStream">The XML stream.</param>

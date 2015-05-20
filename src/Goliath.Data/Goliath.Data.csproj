@@ -220,6 +220,7 @@
     <Compile Include="Sql\Fluent\WhereClauseBuilder.cs" />
     <Compile Include="Sql\WhereStatement.cs" />
     <Compile Include="Utilities\EntityAccessor.cs" />
+    <Compile Include="Mapping\MapSorter.cs" />
     <Compile Include="Utilities\PropertyAccessor.cs" />
     <Compile Include="Utilities\EntityAccessorStore.cs" />
     <Compile Include="Utilities\ReflectionHelper.cs" />
