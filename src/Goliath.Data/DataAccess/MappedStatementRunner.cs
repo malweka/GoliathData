@@ -82,6 +82,15 @@ namespace Goliath.Data.DataAccess
             else
             {
                 logger.Log(LogLevel.Debug, string.Format("Statement {0} do not require Parsing: IsParsingRequired={1} && IsReady={2}", statement.Name, statement.IsParsingRequired, statement.IsReady));
+                
+                if (inputParams == null) return statement;
+
+                var counter = 0;
+                foreach (var kpair in statement.InputParametersMap)
+                {
+                    inObjects.Add(kpair.Key, inputParams[counter]);
+                    counter++;
+                }
             }
 
             return statement;
