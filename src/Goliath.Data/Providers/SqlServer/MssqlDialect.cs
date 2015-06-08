@@ -42,7 +42,7 @@ namespace Goliath.Data.Providers.SqlServer
         {
             base.OnRegisterTypes();
 
-            RegisterType(DbType.Byte, "tinyint");
+            RegisterType(DbType.Int32, "tinyint");
             RegisterType(DbType.DateTimeOffset, "datetimeoffset");
             RegisterType(DbType.String, "ntext");
             RegisterType(DbType.Int16, "smallint");
