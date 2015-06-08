@@ -99,7 +99,7 @@ namespace Goliath.Data.Mapping
                             rel.MapPropertyName = mapPropName;
                         }
 
-                        if (!string.Equals(rel.ColumnName, name) && !rel.IsPrimaryKey)
+                        if ( !rel.IsPrimaryKey)
                         {
                             if (rel.RelationType == RelationshipType.ManyToOne)
                             {
