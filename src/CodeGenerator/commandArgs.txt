@@ -1,0 +1,5 @@
+-namespace="Testingo.Core" -baseModel="C:\junk\BaseModel.map.xml" -connectionstring="Data Source=localhost;Initial Catalog=DbZoo;Integrated Security=True" -templateFolder="C:\Development\Me\Sandbox\IrtDeploymentManager\CodeGenerator\Templates" -workingFolder="C:\junk\Goliath"
+
+-generateEntities -namespace="Testingo.Core" -baseModel="C:\junk\BaseModel.map.xml" -connectionstring="Data Source=localhost;Initial Catalog=DbZoo;Integrated Security=True" -templateFolder="C:\Development\Me\Sandbox\IrtDeploymentManager\CodeGenerator\Templates" -workingFolder="C:\junk\Goliath"
+
+-generate -in="EntityResource.razt" -out="EntityResources.resx" -namespace="Testingo.Core" -baseModel="C:\junk\BaseModel.map.xml" -connectionstring="Data Source=localhost;Initial Catalog=DbZoo;Integrated Security=True" -templateFolder="C:\Development\Me\Sandbox\IrtDeploymentManager\CodeGenerator\Templates" -workingFolder="C:\junk\Goliath"

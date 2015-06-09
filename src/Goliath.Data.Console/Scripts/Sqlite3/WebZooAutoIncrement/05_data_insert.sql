@@ -1,0 +1,21 @@
+INSERT INTO zoos (Name,City) VALUES ('Lufkin','New Albany');
+INSERT INTO zoos (Name,City) VALUES ('Canton','Oil City');
+INSERT INTO zoos (Name,City) VALUES ('Laguna Woods','Lawton');
+INSERT INTO zoos (Name,City) VALUES ('Sandpoint','Atlantic City');
+INSERT INTO zoos (Name,City) VALUES ('Green River','Claremont');
+INSERT INTO zoos (Name,City) VALUES ('Easthampton','Bozeman');
+INSERT INTO zoos (Name,City) VALUES ('Clovis','Harrisburg');
+INSERT INTO zoos (Name,City) VALUES ('Areceibo','Brooklyn Park');
+INSERT INTO zoos (Name,City) VALUES ('Champaign','Pottsville');
+INSERT INTO zoos (Name,City) VALUES ('Portsmouth','Huntington Park');
+INSERT INTO zoos (Name,City) VALUES ('Hot Springs','Terre Haute');
+INSERT INTO zoos (Name,City) VALUES ('International Falls','Huntsville');
+
+INSERT INTO animals (Name,Age,Location,ReceivedOn,ZooId) VALUES ('Alan',38,'L9Q 7S9',date('now', '-144 days'),1);
+INSERT INTO animals (Name,Age,Location,ReceivedOn,ZooId) VALUES ('Amir',30,'K4T 0G4',date('now', '-414 days'),1);
+INSERT INTO animals (Name,Age,Location,ReceivedOn,ZooId) VALUES ('Bruno',35,'T5J 5O6',date('now', '-714 days'),2);
+INSERT INTO animals (Name,Age,Location,ReceivedOn,ZooId) VALUES ('Vaughan',10,'V7U 1F3',date('now', '-156 days'),2);
+INSERT INTO animals (Name,Age,Location,ReceivedOn,ZooId) VALUES ('Acton',1,'G8S 0B9',date('now', '-64 days'),1);
+INSERT INTO animals (Name,Age,Location,ReceivedOn,ZooId) VALUES ('Sylvester',5,'U1S 4E7',date('now', '-614 days'),3);
+INSERT INTO animals (Name,Age,Location,ReceivedOn,ZooId) VALUES ('Emery',5,'X1G 6P4',date('now', '-96 days'),3);
+INSERT INTO animals (Name,Age,Location,ReceivedOn,ZooId) VALUES ('Rafael',17,'I7N 5I1',date('now', '-38 days'),4);
