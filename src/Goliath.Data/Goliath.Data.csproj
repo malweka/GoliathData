@@ -118,6 +118,7 @@
     <Compile Include="Collections\LazyList.cs" />
     <Compile Include="Generators\IKeyGenerator.cs" />
     <Compile Include="Generators\KeyGeneratorStore.cs" />
+    <Compile Include="JoinColumnQueryMap.cs" />
     <Compile Include="Mapping\MapBuilderConfig.Read.cs" />
     <Compile Include="Mapping\MapBuilderConfig.Write.cs" />
     <Compile Include="Mapping\MappingException.cs" />
@@ -126,6 +127,7 @@
     <Compile Include="Mapping\Enums.cs" />
     <Compile Include="Mapping\Models\ConfigProperty.cs" />
     <Compile Include="Mapping\Models\DynamicEntityMap.cs" />
+    <Compile Include="Mapping\Models\IEntityMap.cs" />
     <Compile Include="Mapping\Models\RelationCollection.cs" />
     <Compile Include="Mapping\Models\StatementMap.cs" />
     <Compile Include="Mapping\Models\StatementStore.cs" />
@@ -219,6 +221,7 @@
     <Compile Include="Sql\Fluent\UpdateSqlBuilder.cs" />
     <Compile Include="Sql\Fluent\WhereClauseBuilder.cs" />
     <Compile Include="Sql\WhereStatement.cs" />
+    <Compile Include="TableQueryMap.cs" />
     <Compile Include="Utilities\EntityAccessor.cs" />
     <Compile Include="Mapping\MapSorter.cs" />
     <Compile Include="Utilities\PropertyAccessor.cs" />

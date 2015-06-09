@@ -21,7 +21,7 @@ namespace Goliath.Data.DataAccess
 
         static ILogger logger;
         internal ITypeConverterStore TypeConverterStore { get; set; }
-        readonly EntityAccessorStore EntityAccessorStore = new EntityAccessorStore();
+        readonly EntityAccessorStore entityAccessorStore = new EntityAccessorStore();
         readonly IDatabaseSettings settings;
 
         MapConfig Map
@@ -60,7 +60,7 @@ namespace Goliath.Data.DataAccess
                 typeConverterStore = new TypeConverterStore();
 
             this.settings = settings;
-            this.TypeConverterStore = typeConverterStore;
+            TypeConverterStore = typeConverterStore;
         }
 
         public T CreateNewInstance<T>()
@@ -103,7 +103,7 @@ namespace Goliath.Data.DataAccess
             else
                 instance = Activator.CreateInstance(type);
 
-            var getSetInfo = EntityAccessorStore.GetEntityAccessor(type, entityMap);
+            var getSetInfo = entityAccessorStore.GetEntityAccessor(type, entityMap);
 
             //load collections
             foreach (var rel in entityMap.Relations)
@@ -179,7 +179,7 @@ namespace Goliath.Data.DataAccess
             if (dataReader.HasRows)
             {
                 Dictionary<string, int> columns = GetColumnNames(dataReader, entityMap.TableAlias);
-                var entityAccessor = EntityAccessorStore.GetEntityAccessor(typeOfInstance, entityMap);
+                var entityAccessor = entityAccessorStore.GetEntityAccessor(typeOfInstance, entityMap);
                 dataReader.Read();
                 SerializeSingle(instanceToHydrate, typeOfInstance, entityMap, entityAccessor, columns, dataReader);     
             }
@@ -195,7 +195,7 @@ namespace Goliath.Data.DataAccess
         {
             Type typeOfInstance = entity.GetType();
             var entityMap = Map.GetEntityMap(typeOfInstance.FullName);
-            var entityAccessor = EntityAccessorStore.GetEntityAccessor(typeOfInstance, entityMap);
+            var entityAccessor = entityAccessorStore.GetEntityAccessor(typeOfInstance, entityMap);
             PropertyAccessor pInfo;
             if (entityAccessor.Properties.TryGetValue(propertyName, out pInfo))
             {
@@ -301,7 +301,7 @@ namespace Goliath.Data.DataAccess
                     }
                     else
                     {
-                        entityAccessor = EntityAccessorStore.GetEntityAccessor(type, entityMap);
+                        entityAccessor = entityAccessorStore.GetEntityAccessor(type, entityMap);
                     }
 
                     while (dbReader.Read())
@@ -316,7 +316,7 @@ namespace Goliath.Data.DataAccess
                 {
                     var complexType = (ComplexType)model;
                     columns = GetColumnNames(dbReader, null);
-                    entityAccessor = EntityAccessorStore.GetEntityAccessor(type, complexType);
+                    entityAccessor = entityAccessorStore.GetEntityAccessor(type, complexType);
 
                     while (dbReader.Read())
                     {
@@ -433,15 +433,15 @@ namespace Goliath.Data.DataAccess
                         switch (rel.RelationType)
                         {
                             case RelationshipType.ManyToOne:
-                                var manyToOneHelper = new SerializeManyToOne(SqlDialect, EntityAccessorStore);
+                                var manyToOneHelper = new SerializeManyToOne(SqlDialect, entityAccessorStore);
                                 manyToOneHelper.Serialize(settings, this, rel, instanceEntity, keyVal.Value, entityMap, entityAccessor, columns, dbReader);
                                 break;
                             case RelationshipType.OneToMany:
-                                var oneToManyHelper = new SerializeOneToMany(SqlDialect, EntityAccessorStore);
+                                var oneToManyHelper = new SerializeOneToMany(SqlDialect, entityAccessorStore);
                                 oneToManyHelper.Serialize(settings, this, rel, instanceEntity, keyVal.Value, entityMap, entityAccessor, columns, dbReader);
                                 break;
                             case RelationshipType.ManyToMany:
-                                var manyToMany = new SerializeManyToMany(SqlDialect, EntityAccessorStore);
+                                var manyToMany = new SerializeManyToMany(SqlDialect, entityAccessorStore);
                                 manyToMany.Serialize(settings, this, rel, instanceEntity, keyVal.Value, entityMap, entityAccessor, columns, dbReader);
                                 break;
                         }
