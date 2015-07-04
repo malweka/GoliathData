@@ -13,8 +13,11 @@ namespace Goliath.Data.Sql
     {
         ISession session;
         QueryBuilder innerBuilder;
+        private TableQueryMap queryMap;
+
         public EntityMap Table { get; private set; }
         public EntityMap Extends { get; private set; }
+
         public QueryBuilder InnerBuilder { get { return innerBuilder; } }
 
         public QueryBuilder(ISession session)
@@ -29,6 +32,7 @@ namespace Goliath.Data.Sql
                 throw new ArgumentNullException("session");
 
             this.session = session;
+            
             Load(propertyNames);
         }
 
@@ -51,6 +55,7 @@ namespace Goliath.Data.Sql
                 if (!rel.LazyLoad)
                 {
                     var relEntity = session.SessionFactory.DbSettings.Map.GetEntityMap(rel.ReferenceEntityName);
+
                     JoinBuilder jn;
                     if (!innerBuilder.Joins.TryGetValue(relEntity.TableAlias, out jn))
                     {
@@ -113,8 +118,10 @@ namespace Goliath.Data.Sql
         {
             string typeFullName = typeof(T).FullName;
             Table = session.SessionFactory.DbSettings.Map.GetEntityMap(typeFullName);
+            queryMap = new TableQueryMap(Table);
+
             innerBuilder = new QueryBuilder(session, propertyNames);
-            innerBuilder.From(Table.TableName, Table.TableAlias);
+            innerBuilder.From(Table.TableName, queryMap.Prefix);
 
             if (propertyNames == null)
                 propertyNames = new List<string>();
