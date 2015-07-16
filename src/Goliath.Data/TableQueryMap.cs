@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using Goliath.Data.Mapping;
+using Goliath.Data.Sql;
 
 namespace Goliath.Data
 {
@@ -23,7 +26,7 @@ namespace Goliath.Data
         /// </summary>
         /// <param name="entityMap">The entity map.</param>
         /// <param name="recursion">The recursion.</param>
-        public TableQueryMap(IEntityMap entityMap, int recursion = 0) : this(entityMap.TableName, recursion) { }
+        public TableQueryMap(EntityMap entityMap, int recursion = 0) : this(entityMap.TableName, recursion) { }
 
         public string Table { get; private set; }
 
@@ -33,7 +36,7 @@ namespace Goliath.Data
 
         public IDictionary<string, JoinColumnQueryMap> ReferenceColumns { get; private set; }
 
-        public void LoadColumns(IEntityMap entityMap, ISession session)
+        public void LoadColumns(EntityMap entityMap, ISession session, IQueryBuilder queryBuilder, IList<string> columnSelectList)
         {
             if (entityMap == null)
                 throw new ArgumentNullException("entityMap");
@@ -41,12 +44,17 @@ namespace Goliath.Data
             if (session == null)
                 throw new ArgumentNullException("session");
 
+            if (columnSelectList == null)
+                throw new ArgumentNullException("columnSelectList");
+
             if (entityMap.Properties != null)
             {
                 for (var i = 0; i < entityMap.Properties.Count; i++)
                 {
                     var prop = entityMap.Properties[i];
                     var columnKey = PrintColumnKey(Prefix, prop.ColumnName);
+
+                    columnSelectList.Add(columnKey);
                     Columns.Add(columnKey, prop.PropertyName);
                 }
             }
@@ -54,14 +62,36 @@ namespace Goliath.Data
             if (entityMap.Relations == null) return;
 
             var map = session.SessionFactory.DbSettings.Map;
+            int counter = 0;
             for (var i = 0; i < entityMap.Relations.Count; i++)
             {
                 var rel = entityMap.Relations[i];
 
-                var relTAble = map.GetEntityMap(rel.ReferenceEntityName);
+                if (rel.LazyLoad) continue;
+
+                var relTable = map.GetEntityMap(rel.ReferenceEntityName);
 
                 var jcolumn = new JoinColumnQueryMap(rel.PropertyName, i + 1, recursion + 1);
-                jcolumn.LoadColumns(relTAble, session);
+                queryBuilder.LeftJoin(relTable.TableName, jcolumn.Prefix)
+                    .On(Prefix, rel.ReferenceColumn)
+                    .EqualTo(rel.ColumnName);
+
+                jcolumn.LoadColumns(relTable, session, queryBuilder, columnSelectList);
+                ReferenceColumns.Add(jcolumn.ColumnName, jcolumn);
+
+                counter++;
+            }
+
+            if (entityMap.IsSubClass)
+            {
+                var extends = session.SessionFactory.DbSettings.Map.GetEntityMap(entityMap.Extends);
+                var pk = extends.PrimaryKey.Keys.First();
+
+                var jcolumn = new JoinColumnQueryMap(pk.Key.PropertyName, counter + 1, recursion + 1);
+                queryBuilder.LeftJoin(extends.TableName, jcolumn.Prefix)
+                    .On(Prefix, pk.Key.ColumnName)
+                    .EqualTo(pk.Key.ColumnName);
+                jcolumn.LoadColumns(extends, session, queryBuilder, columnSelectList);
                 ReferenceColumns.Add(jcolumn.ColumnName, jcolumn);
             }
 
@@ -85,20 +115,22 @@ namespace Goliath.Data
         /// </exception>
         public static string CreatePrefix(int iteration = 0, int recursion = 0)
         {
+            if (iteration < 0)
+                iteration = 0;
+
             const string alphas = "abcdefghijklmnopqrstuvwxyz";
 
-            int index = (iteration / alphas.Length);
+            int index = (iteration / alphas.Length) + 1;
 
-            if (iteration < 0 || index >= alphas.Length)
-                throw new ArgumentOutOfRangeException("iteration");
 
             if (recursion < 0)
                 throw new ArgumentOutOfRangeException("recursion");
 
-            var s = alphas.Substring(0, index + 1) + iteration + recursion;
+            StringBuilder sb = new StringBuilder();
 
-            return s;
-
+            sb.Append(alphas[index]);
+            sb.Append(iteration);
+            return sb.ToString();
         }
     }
 }
