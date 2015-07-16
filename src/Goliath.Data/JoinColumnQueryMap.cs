@@ -1,10 +1,13 @@
-﻿using Goliath.Data.Mapping;
+﻿using System.Collections.Generic;
+using Goliath.Data.Mapping;
+using Goliath.Data.Sql;
 
 namespace Goliath.Data
 {
     class JoinColumnQueryMap
     {
         private int iteration, recursion;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="JoinColumnQueryMap"/> class.
         /// </summary>
@@ -20,10 +23,10 @@ namespace Goliath.Data
         }
 
 
-        internal void LoadColumns(IEntityMap entityMap, ISession session)
+        internal void LoadColumns(EntityMap entityMap, ISession session, IQueryBuilder queryBuilder, IList<string> columnSelectList)
         {
             JoinTable = new TableQueryMap(entityMap, recursion);
-            JoinTable.LoadColumns(entityMap, session);
+            JoinTable.LoadColumns(entityMap, session, queryBuilder, columnSelectList);
         }
 
         public string ColumnName { get; private set; }
