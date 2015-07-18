@@ -22,15 +22,16 @@ namespace Goliath.Data.DataAccess
         /// <param name="instanceToHydrate">The instance to hydrate.</param>
         /// <param name="typeOfInstance">The type of instance.</param>
         /// <param name="entityMap">The entity map.</param>
+        /// <param name="queryMap">The query map.</param>
         /// <param name="dataReader">The data reader.</param>
-        void Hydrate(object instanceToHydrate, Type typeOfInstance, EntityMap entityMap, DbDataReader dataReader);
+        void Hydrate(object instanceToHydrate, Type typeOfInstance, EntityMap entityMap, TableQueryMap queryMap, DbDataReader dataReader);
 
         /// <summary>
         /// Registers the data hydrator.
         /// </summary>
         /// <typeparam name="TEntity">The type of the entity.</typeparam>
         /// <param name="factoryMethod">The factory method.</param>
-        void RegisterDataHydrator<TEntity>(Func<DbDataReader, IEntityMap, TEntity> factoryMethod);
+        void RegisterDataHydrator<TEntity>(Func<DbDataReader, IEntityMap, TableQueryMap, IList<TEntity>> factoryMethod);
 
         /// <summary>
         /// Serializes all.
@@ -38,8 +39,9 @@ namespace Goliath.Data.DataAccess
         /// <typeparam name="TEntity">The type of the entity.</typeparam>
         /// <param name="dataReader">The data reader.</param>
         /// <param name="entityMap">The entity map.</param>
+        /// <param name="queryMap">The query map.</param>
         /// <returns></returns>
-        IList<TEntity> SerializeAll<TEntity>(DbDataReader dataReader, IEntityMap entityMap);
+        IList<TEntity> SerializeAll<TEntity>(DbDataReader dataReader, IEntityMap entityMap, TableQueryMap queryMap = null);
 
         /// <summary>
         /// Reads the field data.

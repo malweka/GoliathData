@@ -290,36 +290,36 @@ namespace WebZoo.Data
 
                 var currEntMap = UnMappedTableMap.Create(animalEntMap.TableName);
 
-                SelectSqlBuilder manytomanySql = new SelectSqlBuilder(mapper, mapTableMap)
-                       .AddJoin(new SqlJoin(mapTableMap, JoinType.Inner).OnTable(employeeMap).OnLeftColumn(leftColumn1).OnRightColumn("Id"))
-                       .AddJoin(new SqlJoin(mapTableMap, JoinType.Inner).OnTable(currEntMap).OnLeftColumn(leftcolumn2).OnRightColumn("Id"));
+                //SelectSqlBuilder manytomanySql = new SelectSqlBuilder(mapper, mapTableMap)
+                //       .AddJoin(new SqlJoin(mapTableMap, JoinType.Inner).OnTable(employeeMap).OnLeftColumn(leftColumn1).OnRightColumn("Id"))
+                //       .AddJoin(new SqlJoin(mapTableMap, JoinType.Inner).OnTable(currEntMap).OnLeftColumn(leftcolumn2).OnRightColumn("Id"));
 
-                string sql = manytomanySql.ToSqlString();
+                //string sql = manytomanySql.ToSqlString();
 
-                var animalQuery = new SelectSqlBuilder(mapper, animalEntMap).WithPaging(15, 0).ToSqlString();
-                var zooQuery = new SelectSqlBuilder(mapper, zooEntMap).ToSqlString();
+                //var animalQuery = new SelectSqlBuilder(mapper, animalEntMap).WithPaging(15, 0).ToSqlString();
+                //var zooQuery = new SelectSqlBuilder(mapper, zooEntMap).ToSqlString();
 
-                var serializer = sess.SessionFactory.DataSerializer;
+                //var serializer = sess.SessionFactory.DataSerializer;
 
-                var dataReader = dbAccess.ExecuteReader(conn, animalQuery);
-                var animals = serializer.SerializeAll<Animal>(dataReader, animalEntMap);
-                dataReader.Dispose();
+                //var dataReader = dbAccess.ExecuteReader(conn, animalQuery);
+                //var animals = serializer.SerializeAll<Animal>(dataReader, animalEntMap);
+                //dataReader.Dispose();
 
-                dataReader = dbAccess.ExecuteReader(conn, zooQuery);
-                var zoos = serializer.SerializeAll<WebZoo.Data.Zoo>(dataReader, zooEntMap);
-                dataReader.Dispose();
+                //dataReader = dbAccess.ExecuteReader(conn, zooQuery);
+                //var zoos = serializer.SerializeAll<WebZoo.Data.Zoo>(dataReader, zooEntMap);
+                //dataReader.Dispose();
 
-                dataReader = dbAccess.ExecuteReader(conn, animalQuery);
-                serializer.SerializeAll<WebZoo.Data.Animal>(dataReader, animalEntMap);
-                dataReader.Dispose();
+                //dataReader = dbAccess.ExecuteReader(conn, animalQuery);
+                //serializer.SerializeAll<WebZoo.Data.Animal>(dataReader, animalEntMap);
+                //dataReader.Dispose();
 
-                var m1 = animals[1];
-                m1.Name = "Just_Updated";
-                m1.Location = "UP345";
+                //var m1 = animals[1];
+                //m1.Name = "Just_Updated";
+                //m1.Location = "UP345";
 
-                Console.WriteLine(m1.EmployeesOnAnimalsHandler_AnimalId.Count);
-                var aniAdapter = sess.GetEntityDataAdapter<Animal>();
-                aniAdapter.Update(m1);
+                //Console.WriteLine(m1.EmployeesOnAnimalsHandler_AnimalId.Count);
+                //var aniAdapter = sess.GetEntityDataAdapter<Animal>();
+                //aniAdapter.Update(m1);
 
             }
 

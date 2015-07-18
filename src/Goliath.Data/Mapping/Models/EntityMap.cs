@@ -93,12 +93,12 @@ namespace Goliath.Data.Mapping
         [DataMember]
         public string SchemaName { get; set; }
 
-        ///// <summary>
-        ///// Gets or sets the table alias.
-        ///// </summary>
-        ///// <value>The table alias.</value>
-        //[DataMember]
-        //public string TableAlias { get; set; }
+        /// <summary>
+        /// Gets or sets the table alias.
+        /// </summary>
+        /// <value>The table alias.</value>
+        [DataMember]
+        public string TableAlias { get; set; }
 
         string extends;
         /// <summary>
