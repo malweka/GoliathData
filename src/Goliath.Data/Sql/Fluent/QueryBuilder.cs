@@ -14,6 +14,7 @@ namespace Goliath.Data.Sql
     {
         readonly List<string> columnNames = new List<string>();
         readonly List<QueryParam> parameters = new List<QueryParam>();
+
         readonly Dictionary<string, JoinBuilder> joins = new Dictionary<string, JoinBuilder>();
         SqlSelectColumnFormatter columnFormatter = new SqlSelectColumnFormatter();
 
@@ -24,6 +25,8 @@ namespace Goliath.Data.Sql
         int offset = -1;
         ISession session;
         public List<string> ColumNames { get { return columnNames; } }
+
+        public TableQueryMap QueryMap { get; set; }
 
         internal Dictionary<string, JoinBuilder> Joins
         {
@@ -56,17 +59,23 @@ namespace Goliath.Data.Sql
             this.session = session;
             dialect = session.SessionFactory.DataSerializer.SqlDialect;
 
+            
+
         }
 
         #region ITableNameBuilder Members
 
         public IQueryBuilder From(string tableName)
         {
+            QueryMap = new TableQueryMap(tableName);
             return From(tableName, null);
         }
 
         public IQueryBuilder From(string tableName, string alias)
         {
+            QueryMap = new TableQueryMap(tableName);
+            QueryMap.Prefix = alias;
+
             this.tableName = tableName;
             this.alias = alias;
             return this;
@@ -161,7 +170,7 @@ namespace Goliath.Data.Sql
 
         public SqlQueryBody Build(bool selectCount = false)
         {
-            SqlQueryBody queryBody = new SqlQueryBody();
+            SqlQueryBody queryBody = new SqlQueryBody(){ QueryMap = QueryMap};
 
             if (string.IsNullOrEmpty(alias))
             {
@@ -213,7 +222,15 @@ namespace Goliath.Data.Sql
                     }
 
                     joinBuilder.AppendFormat("{0} {1} {2} ON ", jtype, join.JoinTableName, join.JoinTableAlias);
-                    joinBuilder.AppendFormat("{0}.{1} = {2}.{3} ", join.JoinLeftTableAlias, join.JoinRightColumn, join.JoinTableAlias, join.JoinLeftColumn);
+
+                    if (join.JoinRightColumn.Contains("."))
+                    {
+                        joinBuilder.AppendFormat("{0} = {1}.{2} ", join.JoinRightColumn, join.JoinTableAlias, join.JoinLeftColumn);
+                    }
+                    else
+                    {
+                        joinBuilder.AppendFormat("{0}.{1} = {2}.{3} ", join.JoinLeftTableAlias, join.JoinRightColumn, join.JoinTableAlias, join.JoinLeftColumn);
+                    }
                 }
 
                 queryBody.JoinEnumeration = joinBuilder.ToString().Trim();

@@ -20,6 +20,11 @@ namespace Goliath.Data.Sql
 
         public QueryBuilder InnerBuilder { get { return innerBuilder; } }
 
+        public TableQueryMap QueryMap
+        {
+            get { return queryMap; }
+        }
+
         //public QueryBuilder(ISession session)
         //    : this(session, new List<string>() { })
         //{
@@ -96,6 +101,9 @@ namespace Goliath.Data.Sql
             innerBuilder = new QueryBuilder(session, columnList);
             innerBuilder.From(Table.TableName, queryMap.Prefix);
             queryMap.LoadColumns(Table, session, innerBuilder, columnList);
+
+            innerBuilder.QueryMap = QueryMap;
+
             //load relationships
 
 
@@ -131,20 +139,27 @@ namespace Goliath.Data.Sql
         {
             JoinBuilder jbuilder = new JoinBuilder(innerBuilder, Table.TableName, null, null);
             var map = GetMapConfig();
+
             EntityMap joinMap = map.GetEntityMap(typeof(TRelation).FullName);
+
+            var count = Table.Relations.Count;
+            if (Table.IsSubClass)
+                count = count + 1;
+
+            var prefix = TableQueryMap.CreatePrefix(count + 1, 2);
 
             switch (joinType)
             {
                 case JoinType.Inner:
-                    innerBuilder.InnerJoin(joinMap.TableName, joinMap.TableAlias);
+                    innerBuilder.InnerJoin(joinMap.TableName, prefix);
                     break;
                 case JoinType.Full:
                     break;
                 case JoinType.Left:
-                    innerBuilder.LeftJoin(joinMap.TableName, joinMap.TableAlias);
+                    innerBuilder.LeftJoin(joinMap.TableName, prefix);
                     break;
                 case JoinType.Right:
-                    innerBuilder.RightJoin(joinMap.TableName, joinMap.TableAlias);
+                    innerBuilder.RightJoin(joinMap.TableName, prefix);
                     break;
             }
             return new JoinBuilder<T, TRelation>(this, jbuilder, joinMap);

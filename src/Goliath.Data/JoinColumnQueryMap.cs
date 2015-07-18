@@ -4,7 +4,7 @@ using Goliath.Data.Sql;
 
 namespace Goliath.Data
 {
-    class JoinColumnQueryMap
+    public class JoinColumnQueryMap
     {
         private int iteration, recursion;
 
@@ -23,10 +23,13 @@ namespace Goliath.Data
         }
 
 
-        internal void LoadColumns(EntityMap entityMap, ISession session, IQueryBuilder queryBuilder, IList<string> columnSelectList)
+        internal void LoadColumns(EntityMap entityMap, ISession session, IQueryBuilder queryBuilder, IList<string> columnSelectList, bool loadColumns = true)
         {
             JoinTable = new TableQueryMap(entityMap, recursion);
-            JoinTable.LoadColumns(entityMap, session, queryBuilder, columnSelectList);
+            JoinTable.Prefix = Prefix;
+
+            if (loadColumns)
+                JoinTable.LoadColumns(entityMap, session, queryBuilder, columnSelectList);
         }
 
         public string ColumnName { get; private set; }

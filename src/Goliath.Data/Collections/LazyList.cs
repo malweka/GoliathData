@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Goliath.Data.DataAccess;
 using Goliath.Data.Diagnostics;
@@ -15,11 +16,12 @@ namespace Goliath.Data.Collections
     {
         IList<T> list;
         bool isLoaded;
-        SqlOperationInfo query;
+        private QueryBuilder queryBuilder;
+        ISession session;
         EntityMap entityMap;
-        IEntitySerializer factory;
+        IEntitySerializer serializer;
         static ILogger logger;
-        IDatabaseSettings settings;
+        
 
         //create list for tracking that will be helpful for updates of one to many and many to many relations
         List<T> deletedItems = new List<T>();
@@ -43,26 +45,13 @@ namespace Goliath.Data.Collections
             logger = Logger.GetLogger(typeof(LazyList<T>));
         }
 
-        //public LazyList()
-        //{
-        //    list = new List<T>();
-        //    isLoaded = true;
-        //    IsTracking = true;
-        //}
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="LazyList&lt;T&gt;"/> class.
-        /// </summary>
-        /// <param name="query">The query.</param>
-        /// <param name="entityMap">The entity map.</param>
-        /// <param name="factory">The factory.</param>
-        /// <param name="settings">The settings.</param>
-        public LazyList(SqlOperationInfo query, EntityMap entityMap, IEntitySerializer factory, IDatabaseSettings settings)
+        public LazyList(QueryBuilder queryBuilder, EntityMap entityMap, IEntitySerializer serializer, ISession session)
         {
-            this.query = query;
+            
             this.entityMap = entityMap;
-            this.factory = factory;
-            this.settings = settings;
+            this.serializer = serializer;
+            this.session = session;
+            this.queryBuilder = queryBuilder;
             IsTracking = true;
             list = new List<T>();
         }
@@ -96,40 +85,34 @@ namespace Goliath.Data.Collections
 
         void LoadMe()
         {
-            if (!isLoaded)
+            if (isLoaded) return;
+
+            logger.Log(LogLevel.Debug, "Opening connection for lazy collection query");
+            var sqlbody = queryBuilder.Build();
+            var dbConn = session.ConnectionManager.OpenConnection();
+
+            using (
+                var dataReader = session.DataAccess.ExecuteReader(dbConn, session.CurrentTransaction, sqlbody.ToString(),
+                    queryBuilder.Parameters.ToArray()))
             {
-                logger.Log(LogLevel.Debug, "Opening connection for lazy collection query");
-                var dbAccess = settings.CreateAccessor();
-                using (var connManager = new ConnectionManager(settings.Connector, !settings.Connector.AllowMultipleConnections))
+                try
                 {
-                    QueryParam[] parameters = null;
-
-                    if (query.Parameters == null)
-                    {
-                        query.Parameters = new QueryParam[] { };
-                    }
-                    else
-                        parameters = query.Parameters.ToArray();
-
-                    logger.Log(LogLevel.Debug, string.Format("Executing query {0}", query.SqlText));
-                    var dataReader = dbAccess.ExecuteReader(connManager.OpenConnection(), query.SqlText, parameters);
-                    list = factory.SerializeAll<T>(dataReader, entityMap);
-                   
-                    connManager.CloseConnection();
+                    list = serializer.SerializeAll<T>(dataReader, entityMap, sqlbody.QueryMap);
                 }
-                isLoaded = true;
-                CleanUp();
+                catch (Exception ex)
+                {
+                    logger.LogException("serialization failed", ex);
+                }
             }
+                
+            isLoaded = true;
+            CleanUp();
         }
 
         void CleanUp()
         {
-            EntityMap entMapRef = entityMap;
-            entityMap = null;
-            IEntitySerializer serializerRef = factory;
-            factory = null;
-            IDatabaseSettings settingsRef = settings;
-            settings = null;
+            if(session!=null)
+                session.Dispose();
         }
 
         
