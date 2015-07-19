@@ -13,7 +13,7 @@ namespace Goliath.Data
         private int iteration;
         private int recursion;
 
-        public struct ColumnInfo
+        public class ColumnInfo
         {
             public string PropertyName;
             public int Index;
