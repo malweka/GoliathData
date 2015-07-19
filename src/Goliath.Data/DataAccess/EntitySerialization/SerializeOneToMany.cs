@@ -35,7 +35,7 @@ namespace Goliath.Data.DataAccess
             var relEntMap = settings.Map.GetEntityMap(rel.ReferenceEntityName);
 
             Type refEntityType = propType.GetGenericArguments().FirstOrDefault();
-            var prop = entityMap.Properties.FirstOrDefault(c => c.ColumnName == rel.ColumnName);
+            var prop = entityMap.FirstOrDefault(c => rel.ColumnName.Equals(c.ColumnName));
 
             if (prop == null)
                 throw new GoliathDataException(string.Format("{0}: Reference {1} does not have matching property.", entityMap.FullName, rel.PropertyName));

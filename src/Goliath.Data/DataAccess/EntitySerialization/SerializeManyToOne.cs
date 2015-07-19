@@ -27,7 +27,7 @@ namespace Goliath.Data.DataAccess
             var relQueryMap = new TableQueryMap(relMap);
             QueryBuilder q = new QueryBuilder(session, relCols);
             relQueryMap.LoadColumns(relMap, session, q, relCols);
-            var prop = entityMap.Properties.FirstOrDefault(c => c.ColumnName == rel.ColumnName);
+            var prop = entityMap.FirstOrDefault(c => c.ColumnName == rel.ColumnName);
 
             if (prop == null)
                 throw new GoliathDataException(string.Format("{0}: Reference {1} does not have matching property.", entityMap.FullName, rel.PropertyName));
