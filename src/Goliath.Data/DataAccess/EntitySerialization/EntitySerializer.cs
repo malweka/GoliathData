@@ -195,7 +195,7 @@ namespace Goliath.Data.DataAccess
                 dataReader.Read();
 
                 int count = 0;
-                SerializeSingle(instanceToHydrate, typeOfInstance, entityMap, entityAccessor, queryMap, dataReader, ref count);
+                SerializeSingle(instanceToHydrate, typeOfInstance, entityMap, entityAccessor, queryMap, dataReader);
             }
         }
 
@@ -300,7 +300,7 @@ namespace Goliath.Data.DataAccess
                 Type type = typeof(TEntity);
 
                 EntityAccessor entityAccessor;
-                Dictionary<string, int> columns = null;
+                //Dictionary<string, int> columns = null;
 
                 if (model is EntityMap)
                 {
@@ -309,7 +309,7 @@ namespace Goliath.Data.DataAccess
                     if (queryMap == null)
                         queryMap = new TableQueryMap(entityMap);
 
-                    //columns = GetColumnNames(dbReader, queryMap.Prefix);
+                    LoadColumnIndexes(dbReader, queryMap);
 
                     //TODO: should we cache everything?
                     if (entityMap is DynamicEntityMap)
@@ -327,7 +327,7 @@ namespace Goliath.Data.DataAccess
                         var instanceEntity = CreateNewInstance(type, entityMap);
 
                         int counter = 0;
-                        SerializeSingle(instanceEntity, type, entityMap, entityAccessor, queryMap, dbReader, ref counter);
+                        SerializeSingle(instanceEntity, type, entityMap, entityAccessor, queryMap, dbReader);
 
                         list.Add((TEntity)instanceEntity);
                     }
@@ -336,15 +336,20 @@ namespace Goliath.Data.DataAccess
                 {
                     var complexType = (ComplexType)model;
 
-                    columns = GetColumnNames(dbReader, null);
-                    entityAccessor = entityAccessorStore.GetEntityAccessor(type, complexType);
+                    if (queryMap == null)
+                        queryMap = new TableQueryMap(complexType.FullName);
 
-                    while (dbReader.Read())
-                    {
-                        var instanceEntity = Activator.CreateInstance(type);
-                        SerializeSingle(instanceEntity, type, complexType, entityAccessor, columns, dbReader);
-                        list.Add((TEntity)instanceEntity);
-                    }
+                    throw new NotSupportedException("Serializing of complex types not yet supported.");
+
+                    //LoadColumnIndexes(dbReader, queryMap);
+                   // entityAccessor = entityAccessorStore.GetEntityAccessor(type, complexType);
+
+                    //while (dbReader.Read())
+                    //{
+                    //    var instanceEntity = Activator.CreateInstance(type);
+                    //    SerializeSingle(instanceEntity, type, complexType, entityAccessor, queryMap, dbReader);
+                    //    list.Add((TEntity)instanceEntity);
+                    //}
                 }
 
                 return list;
@@ -387,36 +392,54 @@ namespace Goliath.Data.DataAccess
             return false;
         }
 
-        internal static Dictionary<string, int> GetColumnNames(DbDataReader dbReader, string tableAlias)
-        {
-            var columns = new Dictionary<string, int>();
+        //internal static Dictionary<string, int> GetColumnNames(DbDataReader dbReader, string tableAlias)
+        //{
+        //    var columns = new Dictionary<string, int>();
 
+        //    for (var i = 0; i < dbReader.FieldCount; i++)
+        //    {
+        //        var fieldName = dbReader.GetName(i);
+
+        //        if (!string.IsNullOrWhiteSpace(tableAlias))
+        //        {
+        //            var tabb = string.Format("{0}_", tableAlias);
+        //            if (fieldName.StartsWith(tabb))
+        //            {
+        //                var colName = ParameterNameBuilderHelper.GetPropNameFromQueryName(fieldName, tableAlias);
+        //                columns.Add(colName, i);
+        //            }
+        //        }
+        //        else
+        //        {
+        //            columns.Add(fieldName, i);
+        //        }
+        //    }
+
+        //    return columns;
+        //}
+
+        internal static void LoadColumnIndexes(DbDataReader dbReader, TableQueryMap queryMap)
+        {
             for (var i = 0; i < dbReader.FieldCount; i++)
             {
                 var fieldName = dbReader.GetName(i);
+                TableQueryMap.ColumnInfo propName;
 
-                if (!string.IsNullOrWhiteSpace(tableAlias))
+                if (queryMap.Columns.TryGetValue(fieldName, out propName))
                 {
-                    var tabb = string.Format("{0}_", tableAlias);
-                    if (fieldName.StartsWith(tabb))
-                    {
-                        var colName = ParameterNameBuilderHelper.GetPropNameFromQueryName(fieldName, tableAlias);
-                        columns.Add(colName, i);
-                    }
+                    propName.Index = i;
                 }
                 else
                 {
-                    columns.Add(fieldName, i);
+                    queryMap.Columns.Add(fieldName, new TableQueryMap.ColumnInfo { Index = i, PropertyName = fieldName });
                 }
             }
-            return columns;
         }
 
-        internal bool SerializeSingle(object instanceEntity, Type type, EntityMap entityMap,
-            EntityAccessor entityAccessor, TableQueryMap queryMap, DbDataReader dbReader, ref int counter)
+        internal void SerializeSingle(object instanceEntity, Type type, EntityMap entityMap,
+            EntityAccessor entityAccessor, TableQueryMap queryMap, DbDataReader dbReader)
         {
             var trackable = instanceEntity as ITrackable;
-            bool pkHasValue = false;
 
             if (trackable != null)
             {
@@ -424,54 +447,64 @@ namespace Goliath.Data.DataAccess
                 trackable.ChangeTracker.Init();
             }
 
-
-            if (entityMap.PrimaryKey != null)
+            foreach (var columnInfo in queryMap.Columns)
             {
-                foreach (var key in entityMap.PrimaryKey.Keys)
+                var prop = entityMap.GetProperty(columnInfo.Value.PropertyName);
+                ReadField(instanceEntity, trackable, entityAccessor, prop, type, columnInfo.Value.Index, dbReader);
+            }
+
+            int count = 0;
+
+            foreach (var joinColumnQueryMap in queryMap.ReferenceColumns)
+            {
+                var joinTable = settings.Map.GetEntityMap(joinColumnQueryMap.Value.JoinTable.Table);
+
+                if (entityMap.IsSubClass && count == 0)
                 {
-                    var prop = key.Key;
-
-                    ReadField(instanceEntity, trackable, entityAccessor, prop, type, counter, dbReader);
-                    counter++;
-                    pkHasValue = true;
+                    //super class 
+                    SerializeSingle(instanceEntity, type, joinTable, entityAccessor, queryMap, dbReader);
                 }
-            }
+                else
+                {
+                    var rel = entityMap.GetProperty(joinColumnQueryMap.Value.ColumnName) as Relation;
+                    if (rel == null) throw new GoliathDataException("Relation not found");
 
-            foreach (var prop in entityMap.Properties)
-            {
-                ReadField(instanceEntity, trackable, entityAccessor, prop, type, counter, dbReader);
-                counter++;
-            }
+                    var accessor = entityAccessor.Properties[rel.PropertyName];
+                    Type relType = accessor.PropertyType;
 
-            if (entityMap.IsSubClass)
-            {
-                var extends = settings.Map.GetEntityMap(entityMap.Extends);
-                SerializeSingle(instanceEntity, type, extends, entityAccessor, queryMap, dbReader, ref counter);
+                    var relEntityAccessor = entityAccessorStore.GetEntityAccessor(relType, joinTable);
+                    var relInstance = CreateNewInstance(relType, joinTable);
+
+                    SerializeSingle(relInstance, relType, joinTable, relEntityAccessor, queryMap, dbReader);
+                    accessor.SetMethod(instanceEntity, relInstance);
+                }
+
+                count++;
             }
 
             foreach (var rel in entityMap.Relations)
             {
-                if (rel.RelationType == RelationshipType.ManyToOne)
-                {
-                    var relMap = settings.Map.GetEntityMap(rel.ReferenceEntityName);
-                    var accessor = entityAccessor.Properties[rel.PropertyName];
-                    Type relType = accessor.PropertyType;
+                var accessor = entityAccessor.Properties[rel.PropertyName];
 
-                    if (!rel.LazyLoad)
-                    {
-                        var relEntityAccessor = entityAccessorStore.GetEntityAccessor(relType, relMap);
-                        var relInstance = CreateNewInstance(relType, relMap);
-                        SerializeSingle(relInstance, relType, relMap, relEntityAccessor, queryMap, dbReader, ref counter);
-                    }
-                    else
-                    {
+                switch (rel.RelationType)
+                {
+                    case RelationshipType.ManyToOne:
+
+                        if (!rel.LazyLoad)
+                            continue;
                         var serializeManyToOne = new SerializeManyToOne(SqlDialect, entityAccessorStore);
                         serializeManyToOne.Serialize(settings, this, rel, instanceEntity, accessor, entityMap, entityAccessor, dbReader);
-                    }
+                        break;
+                    case RelationshipType.OneToMany:
+                        var serializeOneToMany = new SerializeOneToMany(SqlDialect, entityAccessorStore);
+                        serializeOneToMany.Serialize(settings, this, rel, instanceEntity, accessor, entityMap, entityAccessor, dbReader);
+                        break;
+                    case RelationshipType.ManyToMany:
+                        var serializeManyToMany = new SerializeManyToMany(SqlDialect, entityAccessorStore);
+                        serializeManyToMany.Serialize(settings, this, rel, instanceEntity, accessor, entityMap, entityAccessor, dbReader);
+                        break;
                 }
             }
-
-            return pkHasValue;
         }
 
         void ReadField(object instanceEntity, ITrackable trackable, EntityAccessor entityAccessor, Property prop, Type type, int ordinal, DbDataReader dbReader)
