@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
 using Goliath.Data.Mapping;
 using Goliath.Data.Sql;
 
@@ -9,27 +11,31 @@ namespace Goliath.Data
         private int iteration, recursion;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="JoinColumnQueryMap"/> class.
+        /// Initializes a new instance of the <see cref="JoinColumnQueryMap" /> class.
         /// </summary>
+        /// <param name="usedPrefixes">The used prefixes.</param>
+        /// <param name="tableName">Name of the table.</param>
         /// <param name="columnName">Name of the column.</param>
         /// <param name="iteration">The iteration.</param>
         /// <param name="recursion">The recursion.</param>
-        public JoinColumnQueryMap(string columnName, int iteration, int recursion)
+        public JoinColumnQueryMap(Dictionary<string, string> usedPrefixes, string tableName, string columnName, TableQueryMap.RecursionCounter recInfo)
         {
             ColumnName = columnName;
             this.iteration = iteration;
             this.recursion = recursion;
-            Prefix = TableQueryMap.CreatePrefix(iteration, recursion);
+            JoinTable = new TableQueryMap(usedPrefixes, tableName, recInfo);
+            Prefix = JoinTable.Prefix;
+
         }
 
 
         internal void LoadColumns(EntityMap entityMap, ISession session, IQueryBuilder queryBuilder, IList<string> columnSelectList, bool loadColumns = true)
         {
-            JoinTable = new TableQueryMap(entityMap, recursion);
-            JoinTable.Prefix = Prefix;
+            //JoinTable = new TableQueryMap(entityMap.FullName, ref recursion, ref iteration);
+            //JoinTable.Prefix = Prefix;
 
             if (loadColumns)
-                JoinTable.LoadColumns(entityMap, session, queryBuilder, columnSelectList);
+                JoinTable.LoadColumns(entityMap, session, queryBuilder, columnSelectList, true);
         }
 
         public string ColumnName { get; private set; }
@@ -37,6 +43,8 @@ namespace Goliath.Data
         public string Prefix { get; set; }
 
         public TableQueryMap JoinTable { get; set; }
+
+
     }
 }
 

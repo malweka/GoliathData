@@ -24,7 +24,11 @@ namespace Goliath.Data.DataAccess
             var relCols = new List<string>();
             var session = serializer.SessionCreator();
 
-            var relQueryMap = new TableQueryMap(relMap);
+            int iteration = 0;
+            int recursion = 0;
+
+            var relQueryMap = new TableQueryMap(relMap.FullName,ref recursion,ref iteration);
+
             QueryBuilder q = new QueryBuilder(session, relCols);
             relQueryMap.LoadColumns(relMap, session, q, relCols);
             var prop = entityMap.FirstOrDefault(c => c.ColumnName == rel.ColumnName);

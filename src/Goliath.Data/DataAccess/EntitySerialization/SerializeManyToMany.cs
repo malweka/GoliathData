@@ -50,7 +50,10 @@ namespace Goliath.Data.DataAccess
                     var relCols = new List<string>();
                     var session = serializer.SessionCreator();
 
-                    var relQueryMap = new TableQueryMap(relEntMap);
+                    int iteration = 0;
+                    int recursion = 0;
+
+                    var relQueryMap = new TableQueryMap(relEntMap.FullName, ref recursion, ref iteration);
                     QueryBuilder q = new QueryBuilder(session, relCols);
                     
                     relQueryMap.LoadColumns(relEntMap, session, q, relCols);

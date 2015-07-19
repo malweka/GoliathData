@@ -307,7 +307,11 @@ namespace Goliath.Data.DataAccess
                     var entityMap = (EntityMap)model;
 
                     if (queryMap == null)
-                        queryMap = new TableQueryMap(entityMap);
+                    {
+                        int iteration = 0;
+                        int recursion = 0;
+                        queryMap = new TableQueryMap(entityMap.FullName, ref recursion, ref iteration);
+                    }
 
                     LoadColumnIndexes(dbReader, queryMap);
 
@@ -337,12 +341,14 @@ namespace Goliath.Data.DataAccess
                     var complexType = (ComplexType)model;
 
                     if (queryMap == null)
-                        queryMap = new TableQueryMap(complexType.FullName);
+                    {
+                        //queryMap = new TableQueryMap(complexType.FullName);
+                    }
 
                     throw new NotSupportedException("Serializing of complex types not yet supported.");
 
                     //LoadColumnIndexes(dbReader, queryMap);
-                   // entityAccessor = entityAccessorStore.GetEntityAccessor(type, complexType);
+                    // entityAccessor = entityAccessorStore.GetEntityAccessor(type, complexType);
 
                     //while (dbReader.Read())
                     //{
@@ -439,71 +445,85 @@ namespace Goliath.Data.DataAccess
         internal void SerializeSingle(object instanceEntity, Type type, EntityMap entityMap,
             EntityAccessor entityAccessor, TableQueryMap queryMap, DbDataReader dbReader)
         {
-            var trackable = instanceEntity as ITrackable;
-
-            if (trackable != null)
+            try
             {
-                trackable.ChangeTracker.StopAndClear();
-                trackable.ChangeTracker.Init();
-            }
+                var trackable = instanceEntity as ITrackable;
 
-            foreach (var columnInfo in queryMap.Columns)
-            {
-                var prop = entityMap.GetProperty(columnInfo.Value.PropertyName);
-                ReadField(instanceEntity, trackable, entityAccessor, prop, type, columnInfo.Value.Index, dbReader);
-            }
-
-            int count = 0;
-
-            foreach (var joinColumnQueryMap in queryMap.ReferenceColumns)
-            {
-                var joinTable = settings.Map.GetEntityMap(joinColumnQueryMap.Value.JoinTable.Table);
-
-                if (entityMap.IsSubClass && count == 0)
+                if (trackable != null)
                 {
-                    //super class 
-                    SerializeSingle(instanceEntity, type, joinTable, entityAccessor, queryMap, dbReader);
-                }
-                else
-                {
-                    var rel = entityMap.GetProperty(joinColumnQueryMap.Value.ColumnName) as Relation;
-                    if (rel == null) throw new GoliathDataException("Relation not found");
-
-                    var accessor = entityAccessor.Properties[rel.PropertyName];
-                    Type relType = accessor.PropertyType;
-
-                    var relEntityAccessor = entityAccessorStore.GetEntityAccessor(relType, joinTable);
-                    var relInstance = CreateNewInstance(relType, joinTable);
-
-                    SerializeSingle(relInstance, relType, joinTable, relEntityAccessor, queryMap, dbReader);
-                    accessor.SetMethod(instanceEntity, relInstance);
+                    trackable.ChangeTracker.StopAndClear();
+                    trackable.ChangeTracker.Init();
                 }
 
-                count++;
-            }
-
-            foreach (var rel in entityMap.Relations)
-            {
-                var accessor = entityAccessor.Properties[rel.PropertyName];
-
-                switch (rel.RelationType)
+                foreach (var columnInfo in queryMap.Columns)
                 {
-                    case RelationshipType.ManyToOne:
+                    var prop = entityMap.GetProperty(columnInfo.Value.PropertyName);
+                    if (prop == null)
+                        continue;
 
-                        if (!rel.LazyLoad)
+                    ReadField(instanceEntity, trackable, entityAccessor, prop, type, columnInfo.Value.Index, dbReader);
+                }
+
+                int count = 0;
+
+                foreach (var joinColumnQueryMap in queryMap.ReferenceColumns)
+                {
+                    var joinTable = settings.Map.GetEntityMap(joinColumnQueryMap.Value.JoinTable.Table);
+
+                    if (entityMap.IsSubClass && count == 0)
+                    {
+                        //super class 
+                        SerializeSingle(instanceEntity, type, joinTable, entityAccessor, queryMap, dbReader);
+                    }
+                    else
+                    {
+                        var rel = entityMap.GetProperty(joinColumnQueryMap.Value.ColumnName) as Relation;
+                        if (rel == null) 
                             continue;
-                        var serializeManyToOne = new SerializeManyToOne(SqlDialect, entityAccessorStore);
-                        serializeManyToOne.Serialize(settings, this, rel, instanceEntity, accessor, entityMap, entityAccessor, dbReader);
-                        break;
-                    case RelationshipType.OneToMany:
-                        var serializeOneToMany = new SerializeOneToMany(SqlDialect, entityAccessorStore);
-                        serializeOneToMany.Serialize(settings, this, rel, instanceEntity, accessor, entityMap, entityAccessor, dbReader);
-                        break;
-                    case RelationshipType.ManyToMany:
-                        var serializeManyToMany = new SerializeManyToMany(SqlDialect, entityAccessorStore);
-                        serializeManyToMany.Serialize(settings, this, rel, instanceEntity, accessor, entityMap, entityAccessor, dbReader);
-                        break;
+
+                        var accessor = entityAccessor.Properties[rel.PropertyName];
+                        Type relType = accessor.PropertyType;
+
+                        var relEntityAccessor = entityAccessorStore.GetEntityAccessor(relType, joinTable);
+                        var relInstance = CreateNewInstance(relType, joinTable);
+
+                        SerializeSingle(relInstance, relType, joinTable, relEntityAccessor, queryMap, dbReader);
+                        accessor.SetMethod(instanceEntity, relInstance);
+                    }
+
+                    count++;
                 }
+
+                foreach (var rel in entityMap.Relations)
+                {
+                    var accessor = entityAccessor.Properties[rel.PropertyName];
+
+                    switch (rel.RelationType)
+                    {
+                        case RelationshipType.ManyToOne:
+
+                            if (!rel.LazyLoad)
+                                continue;
+                            var serializeManyToOne = new SerializeManyToOne(SqlDialect, entityAccessorStore);
+                            serializeManyToOne.Serialize(settings, this, rel, instanceEntity, accessor, entityMap,
+                                entityAccessor, dbReader);
+                            break;
+                        case RelationshipType.OneToMany:
+                            var serializeOneToMany = new SerializeOneToMany(SqlDialect, entityAccessorStore);
+                            serializeOneToMany.Serialize(settings, this, rel, instanceEntity, accessor, entityMap,
+                                entityAccessor, dbReader);
+                            break;
+                        case RelationshipType.ManyToMany:
+                            var serializeManyToMany = new SerializeManyToMany(SqlDialect, entityAccessorStore);
+                            //serializeManyToMany.Serialize(settings, this, rel, instanceEntity, accessor, entityMap,
+                            //    entityAccessor, dbReader);
+                            break;
+                    }
+                }
+            }
+            catch (Exception exception)
+            {
+                throw new GoliathDataException("Error trying to serialize " + entityMap.FullName + ".", exception);
             }
         }
 

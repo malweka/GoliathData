@@ -18,6 +18,7 @@ namespace Goliath.Data.Sql
         readonly Dictionary<string, JoinBuilder> joins = new Dictionary<string, JoinBuilder>();
         SqlSelectColumnFormatter columnFormatter = new SqlSelectColumnFormatter();
 
+
         readonly SqlDialect dialect;
         string tableName;
         string alias;
@@ -28,7 +29,7 @@ namespace Goliath.Data.Sql
 
         public TableQueryMap QueryMap { get; set; }
 
-        internal Dictionary<string, JoinBuilder> Joins
+        public Dictionary<string, JoinBuilder> Joins
         {
             get { return joins; }
         }
@@ -67,13 +68,18 @@ namespace Goliath.Data.Sql
 
         public IQueryBuilder From(string tableName)
         {
-            QueryMap = new TableQueryMap(tableName);
+            int iteration = 0;
+            int recursion = 0;
+
+            QueryMap = new TableQueryMap(tableName, ref recursion, ref iteration);
             return From(tableName, null);
         }
 
         public IQueryBuilder From(string tableName, string alias)
         {
-            QueryMap = new TableQueryMap(tableName);
+            int iteration = 0;
+            int recursion = 0;
+            QueryMap = new TableQueryMap(tableName, ref recursion, ref iteration);
             QueryMap.Prefix = alias;
 
             this.tableName = tableName;
