@@ -82,7 +82,7 @@ namespace Goliath.Data.Sql
 
         public string BuildColumnSelectString(string columnName, string tableAbbreviation)
         {
-            return string.Format("{2}.{0} AS {1}", columnName, ParameterNameBuilderHelper.ColumnQueryName(columnName, tableAbbreviation), tableAbbreviation);
+            return string.Format("{1}.{0} AS {1}.{0}", columnName, tableAbbreviation);
         }
 
 
@@ -92,7 +92,9 @@ namespace Goliath.Data.Sql
             string typeFullName = typeof(T).FullName;
 
             Table = session.SessionFactory.DbSettings.Map.GetEntityMap(typeFullName);
-            queryMap = new TableQueryMap(Table);
+            int iteration = 0;
+            int recursion = 0;
+            queryMap = new TableQueryMap(Table.FullName, ref recursion,ref iteration);
 
             var columnList = new List<string>();
 

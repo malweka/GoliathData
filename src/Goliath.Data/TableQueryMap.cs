@@ -10,8 +10,9 @@ namespace Goliath.Data
 {
     public class TableQueryMap
     {
-        private int iteration;
-        private int recursion;
+        private RecursionCounter recInfo;
+
+        private Dictionary<string, string> usedPrefixes;
 
         public class ColumnInfo
         {
@@ -19,21 +20,47 @@ namespace Goliath.Data
             public int Index;
         }
 
-        public TableQueryMap(string tableName, int recursion = 0)
+        //public TableQueryMap(string tableName )
+        //{
+        //    Columns = new Dictionary<string, ColumnInfo>();
+        //    ReferenceColumns = new Dictionary<string, JoinColumnQueryMap>();
+        //    Table = tableName;
+        //    this.iteration = 0;
+        //    this.recursion = 1;
+        //    Prefix = CreatePrefix(iteration, recursion);
+        //}
+
+        public TableQueryMap(string tableName, ref int recursion, ref int iteration)
+            : this(new Dictionary<string, string>(), tableName, new RecursionCounter{Recursion = recursion, Iteration = iteration})
+        {
+        }
+
+        internal TableQueryMap(Dictionary<string, string> usedPrefixes, string tableName, RecursionCounter recInfo)
         {
             Columns = new Dictionary<string, ColumnInfo>();
             ReferenceColumns = new Dictionary<string, JoinColumnQueryMap>();
             Table = tableName;
-            Prefix = CreatePrefix(iteration, recursion);
-            this.recursion = recursion;
+
+            if(recInfo==null)
+                recInfo = new RecursionCounter();
+
+            this.recInfo = recInfo;
+
+            if (usedPrefixes == null)
+                usedPrefixes = new Dictionary<string, string>();
+
+            this.usedPrefixes = usedPrefixes;
+
+            Prefix = GetNextPrefix(usedPrefixes, tableName, recInfo);
         }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="TableQueryMap" /> class.
-        /// </summary>
-        /// <param name="entityMap">The entity map.</param>
-        /// <param name="recursion">The recursion.</param>
-        public TableQueryMap(EntityMap entityMap, int recursion = 0) : this(entityMap.FullName, recursion) { }
+        ///// <summary>
+        ///// Initializes a new instance of the <see cref="TableQueryMap" /> class.
+        ///// </summary>
+        ///// <param name="entityMap">The entity map.</param>
+        ///// <param name="recursion">The recursion.</param>
+        ///// <param name="iteration">The iteration.</param>
+        //public TableQueryMap(EntityMap entityMap, int recursion = 0, int iteration=0) : this(entityMap.FullName,ref recursion,ref iteration) { }
 
         public string Table { get; private set; }
 
@@ -44,7 +71,7 @@ namespace Goliath.Data
         public IDictionary<string, JoinColumnQueryMap> ReferenceColumns { get; private set; }
 
 
-        public void LoadColumns(EntityMap entityMap, ISession session, IQueryBuilder queryBuilder, IList<string> columnSelectList)
+        public void LoadColumns(EntityMap entityMap, ISession session, IQueryBuilder queryBuilder, IList<string> columnSelectList, bool lazyLoadManytoOne=false)
         {
             if (entityMap == null)
                 throw new ArgumentNullException("entityMap");
@@ -64,7 +91,7 @@ namespace Goliath.Data
                     var columnKey = PrintColumnKey(Prefix, prop.ColumnName);
 
                     columnSelectList.Add(columnKey);
-                    Columns.Add(columnKey, new ColumnInfo{ PropertyName = prop.PropertyName, Index = -1});
+                    Columns.Add(columnKey, new ColumnInfo { PropertyName = prop.PropertyName, Index = -1 });
                 }
             }
 
@@ -80,19 +107,19 @@ namespace Goliath.Data
                 }
             }
 
-            int counter = 0;
 
             if (entityMap.IsSubClass)
             {
-                counter++;
+                recInfo.Recursion = recInfo.Iteration + 1;
 
                 var extends = session.SessionFactory.DbSettings.Map.GetEntityMap(entityMap.Extends);
                 var pk = extends.PrimaryKey.Keys.First();
+                var jcolumn = new JoinColumnQueryMap(usedPrefixes, extends.FullName, pk.Key.PropertyName, recInfo);
 
-                var jcolumn = new JoinColumnQueryMap(pk.Key.PropertyName, counter, recursion + 1);
                 queryBuilder.LeftJoin(extends.TableName, jcolumn.Prefix)
                     .On(Prefix, pk.Key.ColumnName)
                     .EqualTo(pk.Key.ColumnName);
+
                 jcolumn.LoadColumns(extends, session, queryBuilder, columnSelectList);
                 ReferenceColumns.Add(jcolumn.ColumnName, jcolumn);
             }
@@ -100,18 +127,32 @@ namespace Goliath.Data
             if (entityMap.Relations == null) return;
 
             var map = session.SessionFactory.DbSettings.Map;
-            
+
             for (var i = 0; i < entityMap.Relations.Count; i++)
             {
                 var rel = entityMap.Relations[i];
 
-                if(rel.RelationType != RelationshipType.ManyToOne)
+                if (rel.RelationType != RelationshipType.ManyToOne || rel.LazyLoad || lazyLoadManytoOne)
                     continue;
+
+                 
 
                 var relTable = map.GetEntityMap(rel.ReferenceEntityName);
 
-                counter++;
-                var jcolumn = new JoinColumnQueryMap(rel.PropertyName, counter, recursion + 1);
+                recInfo.Recursion = recInfo.Iteration + 1;
+
+
+                var jcolumn = new JoinColumnQueryMap(usedPrefixes, relTable.FullName, rel.PropertyName, recInfo);
+
+                //var qb = queryBuilder as QueryBuilder;
+
+                //if (qb != null && qb.Joins.ContainsKey(jcolumn.Prefix))
+                //{
+                //    counter = counter + 26;
+                //    jcolumn.Prefix = CreatePrefix(counter, recursion + 1);
+                //    jcolumn.JoinTable.Prefix = jcolumn.Prefix;
+                //}
+
                 queryBuilder.LeftJoin(relTable.TableName, jcolumn.Prefix)
                     .On(Prefix, rel.ReferenceColumn)
                     .EqualTo(rel.ColumnName);
@@ -119,10 +160,10 @@ namespace Goliath.Data
                 jcolumn.LoadColumns(relTable, session, queryBuilder, columnSelectList, !rel.LazyLoad);
                 ReferenceColumns.Add(jcolumn.ColumnName, jcolumn);
 
-                
+
             }
 
-            
+
 
         }
 
@@ -131,7 +172,7 @@ namespace Goliath.Data
             return string.Format("{0}.{1}", tablePrefix, columnName);
         }
 
-        const string Alphas = "abcdefghijklmnopqrstuvwxyz";
+        internal const string Alphas = "abcdefghijklmnopqrstuvwxyz";
 
         /// <summary>
         /// Creates the prefix.
@@ -158,10 +199,44 @@ namespace Goliath.Data
             StringBuilder sb = new StringBuilder();
 
             sb.Append(Alphas[index]);
+
+            if (recursion > 0)
+            {
+                sb.Append(Alphas[index]);
+            }
+
             sb.Append(iteration);
+            sb.AppendFormat("_{0}", recursion);
             return sb.ToString();
         }
 
+        static string GetNextPrefix(Dictionary<string, string> usedPrefixes, string tableName, RecursionCounter recInfo)
+        {
+            
+            if (recInfo.Iteration>= 650)
+            {
+                recInfo.Iteration = 0;
+                recInfo.Recursion = recInfo.Recursion + 1;
+            }
+            var pref = CreatePrefix(recInfo.Iteration, recInfo.Recursion);
+
+            while (usedPrefixes.ContainsKey(pref))
+            {
+                recInfo.Iteration = recInfo.Iteration+1;
+                if (recInfo.Iteration >= 650)
+                {
+                    recInfo.Iteration = 0;
+                    recInfo.Recursion = recInfo.Recursion + 1;
+                }
+
+                pref = CreatePrefix(recInfo.Iteration, recInfo.Recursion);
+            }
+
+            usedPrefixes.Add(pref, tableName);
+            return pref;
+        }
+
+        
         //static ConcurrentDictionary<string, string> tablePrefixes = new ConcurrentDictionary<string, string>();
 
         //public static string CreateUniquePrefix(string tableName)
@@ -171,5 +246,13 @@ namespace Goliath.Data
         //        return prefix;
 
         //}
+
+     public   class RecursionCounter
+        {
+            public int Iteration;
+            public int Recursion;
+        }
     }
+
+   
 }
