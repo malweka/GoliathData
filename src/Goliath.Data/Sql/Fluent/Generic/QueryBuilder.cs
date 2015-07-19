@@ -103,36 +103,6 @@ namespace Goliath.Data.Sql
             queryMap.LoadColumns(Table, session, innerBuilder, columnList);
 
             innerBuilder.QueryMap = QueryMap;
-
-            //load relationships
-
-
-
-            //if (propertyNames == null)
-            //    propertyNames = new List<string>();
-
-            //if (propertyNames.Count == 0)
-            //{
-            //    LoadColumns(Table, Table.TableAlias, propertyNames);
-            //}
-
-            //if (Table.IsSubClass)
-            //{
-            //    if (Table.PrimaryKey == null)
-            //        throw new GoliathDataException(string.Format("Cannot resolve innheritance between {0} and {1}. Not primary key is defined.", typeFullName, Table.Extends));
-
-            //    //let's get parent and add joins
-            //    Extends = session.SessionFactory.DbSettings.Map.GetEntityMap(Table.Extends);
-
-            //    foreach (var pk in Extends.PrimaryKey.Keys)
-            //    {
-            //        var k = Table.PrimaryKey.Keys[pk.Key.Name];
-            //        innerBuilder.InnerJoin(Extends.TableName, Extends.TableAlias).On(Table.TableAlias, k.Key.ColumnName).EqualTo(pk.Key.ColumnName);
-            //    }
-
-            //}
-
-
         }
 
         JoinBuilder<T, TRelation> BuildJoinBuilder<TRelation>(JoinType joinType)

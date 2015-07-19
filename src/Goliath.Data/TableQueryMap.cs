@@ -13,9 +13,15 @@ namespace Goliath.Data
         private int iteration;
         private int recursion;
 
+        public struct ColumnInfo
+        {
+            public string PropertyName;
+            public int Index;
+        }
+
         public TableQueryMap(string tableName, int recursion = 0)
         {
-            Columns = new Dictionary<string, string>();
+            Columns = new Dictionary<string, ColumnInfo>();
             ReferenceColumns = new Dictionary<string, JoinColumnQueryMap>();
             Table = tableName;
             Prefix = CreatePrefix(iteration, recursion);
@@ -27,13 +33,13 @@ namespace Goliath.Data
         /// </summary>
         /// <param name="entityMap">The entity map.</param>
         /// <param name="recursion">The recursion.</param>
-        public TableQueryMap(EntityMap entityMap, int recursion = 0) : this(entityMap.TableName, recursion) { }
+        public TableQueryMap(EntityMap entityMap, int recursion = 0) : this(entityMap.FullName, recursion) { }
 
         public string Table { get; private set; }
 
         public string Prefix { get; internal set; }
 
-        public IDictionary<string, string> Columns { get; private set; }
+        public IDictionary<string, ColumnInfo> Columns { get; private set; }
 
         public IDictionary<string, JoinColumnQueryMap> ReferenceColumns { get; private set; }
 
@@ -54,10 +60,11 @@ namespace Goliath.Data
                 for (var i = 0; i < entityMap.PrimaryKey.Keys.Count; i++)
                 {
                     Property prop = entityMap.PrimaryKey.Keys[i].Key;
+
                     var columnKey = PrintColumnKey(Prefix, prop.ColumnName);
 
                     columnSelectList.Add(columnKey);
-                    Columns.Add(prop.PropertyName, columnKey);
+                    Columns.Add(columnKey, new ColumnInfo{ PropertyName = prop.PropertyName, Index = -1});
                 }
             }
 
@@ -69,7 +76,7 @@ namespace Goliath.Data
                     var columnKey = PrintColumnKey(Prefix, prop.ColumnName);
 
                     columnSelectList.Add(columnKey);
-                    Columns.Add(prop.PropertyName, columnKey);
+                    Columns.Add(columnKey, new ColumnInfo { PropertyName = prop.PropertyName, Index = -1 });
                 }
             }
 
@@ -141,8 +148,6 @@ namespace Goliath.Data
         {
             if (iteration < 0)
                 iteration = 0;
-
-
 
             int index = (iteration / Alphas.Length) + 1;
 
