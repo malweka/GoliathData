@@ -233,14 +233,19 @@ namespace Goliath.Data.Sql
 
                     joinBuilder.AppendFormat("{0} {1} {2} ON ", jtype, join.JoinTableName, join.JoinTableAlias);
 
+                    string leftSide = string.Format("{0}.{1}", join.JoinLeftTableAlias, join.JoinRightColumn);
                     if (join.JoinRightColumn.Contains("."))
                     {
-                        joinBuilder.AppendFormat("{0} = {1}.{2} ", join.JoinRightColumn, join.JoinTableAlias, join.JoinLeftColumn);
+                        leftSide = join.JoinRightColumn;
                     }
-                    else
+
+                    string rightSide = string.Format("{0}.{1}", join.JoinTableAlias, join.JoinLeftColumn);
+                    if (join.JoinLeftColumn.Contains("."))
                     {
-                        joinBuilder.AppendFormat("{0}.{1} = {2}.{3} ", join.JoinLeftTableAlias, join.JoinRightColumn, join.JoinTableAlias, join.JoinLeftColumn);
+                        rightSide = join.JoinLeftColumn;
                     }
+
+                    joinBuilder.AppendFormat("{0} = {1} ", leftSide, rightSide);
                 }
 
                 queryBody.JoinEnumeration = joinBuilder.ToString().Trim();
