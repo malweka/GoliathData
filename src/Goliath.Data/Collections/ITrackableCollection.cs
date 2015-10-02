@@ -8,25 +8,23 @@ namespace Goliath.Data.Collections
     /// </summary>
     public interface ITrackableCollection<T> : ITrackableCollection, ICollection<T>
     {
-#pragma warning disable CS0108 // Member hides inherited member; missing new keyword
-
         /// <summary>
         /// Gets the deleted items.
         /// </summary>
         /// <value>The deleted items.</value>
         ICollection<T> DeletedItems { get; }
+
         /// <summary>
         /// Gets the inserted items.
         /// </summary>
         /// <value>The inserted items.</value>
         ICollection<T> InsertedItems { get; }
-#pragma warning restore CS0108 // Member hides inherited member; missing new keyword
     }
 
     /// <summary>
     /// 
     /// </summary>
-    public interface ITrackableCollection : System.Collections.IEnumerable
+    public interface ITrackableCollection: System.Collections.IEnumerable
     {
         /// <summary>
         /// Starts the tracking.

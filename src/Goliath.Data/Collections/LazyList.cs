@@ -91,9 +91,8 @@ namespace Goliath.Data.Collections
             var sqlbody = queryBuilder.Build();
 
             var dbConn = session.ConnectionManager.OpenConnection();
-            var queryBody = sqlbody.ToString();
 
-            using (var dataReader = session.DataAccess.ExecuteReader(dbConn, session.CurrentTransaction, queryBody,
+            using (var dataReader = session.DataAccess.ExecuteReader(dbConn, session.CurrentTransaction, sqlbody.ToString(),
                     queryBuilder.Parameters.ToArray()))
             {
                 try
