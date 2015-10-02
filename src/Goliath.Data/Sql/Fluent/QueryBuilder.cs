@@ -14,8 +14,10 @@ namespace Goliath.Data.Sql
     {
         readonly List<string> columnNames = new List<string>();
         readonly List<QueryParam> parameters = new List<QueryParam>();
+
         readonly Dictionary<string, JoinBuilder> joins = new Dictionary<string, JoinBuilder>();
         SqlSelectColumnFormatter columnFormatter = new SqlSelectColumnFormatter();
+
 
         readonly SqlDialect dialect;
         string tableName;
@@ -25,7 +27,9 @@ namespace Goliath.Data.Sql
         ISession session;
         public List<string> ColumNames { get { return columnNames; } }
 
-        internal Dictionary<string, JoinBuilder> Joins
+        public TableQueryMap QueryMap { get; set; }
+
+        public Dictionary<string, JoinBuilder> Joins
         {
             get { return joins; }
         }
@@ -56,17 +60,32 @@ namespace Goliath.Data.Sql
             this.session = session;
             dialect = session.SessionFactory.DataSerializer.SqlDialect;
 
+
+
         }
 
         #region ITableNameBuilder Members
 
         public IQueryBuilder From(string tableName)
         {
+            int iteration = 0;
+            int recursion = 0;
+            if (QueryMap == null)
+                QueryMap = new TableQueryMap(tableName, ref recursion, ref iteration);
+
             return From(tableName, null);
         }
 
         public IQueryBuilder From(string tableName, string alias)
         {
+            int iteration = 0;
+            int recursion = 0;
+            if (QueryMap == null)
+            {
+                QueryMap = new TableQueryMap(tableName, ref recursion, ref iteration);
+                QueryMap.Prefix = alias;
+            }
+
             this.tableName = tableName;
             this.alias = alias;
             return this;
@@ -161,7 +180,7 @@ namespace Goliath.Data.Sql
 
         public SqlQueryBody Build(bool selectCount = false)
         {
-            SqlQueryBody queryBody = new SqlQueryBody();
+            SqlQueryBody queryBody = new SqlQueryBody() { QueryMap = QueryMap };
 
             if (string.IsNullOrEmpty(alias))
             {
@@ -213,7 +232,15 @@ namespace Goliath.Data.Sql
                     }
 
                     joinBuilder.AppendFormat("{0} {1} {2} ON ", jtype, join.JoinTableName, join.JoinTableAlias);
-                    joinBuilder.AppendFormat("{0}.{1} = {2}.{3} ", join.JoinLeftTableAlias, join.JoinRightColumn, join.JoinTableAlias, join.JoinLeftColumn);
+
+                    if (join.JoinRightColumn.Contains("."))
+                    {
+                        joinBuilder.AppendFormat("{0} = {1}.{2} ", join.JoinRightColumn, join.JoinTableAlias, join.JoinLeftColumn);
+                    }
+                    else
+                    {
+                        joinBuilder.AppendFormat("{0}.{1} = {2}.{3} ", join.JoinLeftTableAlias, join.JoinRightColumn, join.JoinTableAlias, join.JoinLeftColumn);
+                    }
                 }
 
                 queryBody.JoinEnumeration = joinBuilder.ToString().Trim();

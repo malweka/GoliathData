@@ -13,23 +13,32 @@ namespace Goliath.Data.Sql
     {
         ISession session;
         QueryBuilder innerBuilder;
+        private TableQueryMap queryMap;
+
         public EntityMap Table { get; private set; }
-        public EntityMap Extends { get; private set; }
+        //public EntityMap Extends { get; private set; }
+
         public QueryBuilder InnerBuilder { get { return innerBuilder; } }
 
-        public QueryBuilder(ISession session)
-            : this(session, new List<string>() { })
+        public TableQueryMap QueryMap
         {
-
+            get { return queryMap; }
         }
 
-        public QueryBuilder(ISession session, List<string> propertyNames)
+        //public QueryBuilder(ISession session)
+        //    : this(session, new List<string>() { })
+        //{
+
+        //}
+
+        public QueryBuilder(ISession session)
         {
             if (session == null)
                 throw new ArgumentNullException("session");
 
             this.session = session;
-            Load(propertyNames);
+
+            Load();
         }
 
         MapConfig GetMapConfig()
@@ -45,121 +54,84 @@ namespace Goliath.Data.Sql
             if (prop == null)
                 throw new GoliathDataException(string.Format("Could not find property {0}. {0} was not mapped properly.", propertName));
 
-            if (prop is Relation)
-            {
-                Relation rel = (Relation)prop;
-                if (!rel.LazyLoad)
-                {
-                    var relEntity = session.SessionFactory.DbSettings.Map.GetEntityMap(rel.ReferenceEntityName);
-                    JoinBuilder jn;
-                    if (!innerBuilder.Joins.TryGetValue(relEntity.TableAlias, out jn))
-                    {
-                        innerBuilder.LeftJoin(relEntity.TableName, relEntity.TableAlias + rel.InternalIndex).On(Table.TableAlias, prop.ColumnName).EqualTo(rel.ReferenceColumn);
-                    }
-                    //else
-                    //{
-                    //    if(!prop.ColumnName.Equals(jn.JoinLeftColumn))
-                    //    {
+            //if (prop is Relation)
+            //{
+            //    Relation rel = (Relation)prop;
+            //    if (!rel.LazyLoad)
+            //    {
+            //        var relEntity = session.SessionFactory.DbSettings.Map.GetEntityMap(rel.ReferenceEntityName);
 
-                    //    }
+            //        JoinBuilder jn;
+            //        if (!innerBuilder.Joins.TryGetValue(relEntity.TableAlias, out jn))
+            //        {
+            //            innerBuilder.LeftJoin(relEntity.TableName, relEntity.TableAlias + rel.InternalIndex).On(Table.TableAlias, prop.ColumnName).EqualTo(rel.ReferenceColumn);
+            //        }
+            //        //else
+            //        //{
+            //        //    if(!prop.ColumnName.Equals(jn.JoinLeftColumn))
+            //        //    {
 
-                    //}
-                }
-            }
+            //        //    }
+
+            //        //}
+            //    }
+            //}
 
             return prop;
         }
 
         public string BuildColumnSelectString(string columnName, string tableAbbreviation)
         {
-            return string.Format("{2}.{0} AS {1}", columnName, ParameterNameBuilderHelper.ColumnQueryName(columnName, tableAbbreviation), tableAbbreviation);
+            return string.Format("{1}.{0} AS {1}.{0}", columnName, tableAbbreviation);
         }
 
-        void LoadColumns(EntityMap entityMap, string tableAlias, List<string> propertyNames)
-        {
-            var cols = new Dictionary<string, string>();
 
-            foreach (var prop in entityMap)
-            {
-                if (prop is Relation)
-                {
-                    Relation rel = (Relation)prop;
-                    if (rel.RelationType == RelationshipType.ManyToOne)
-                    {
-                        if (!cols.ContainsKey(rel.ColumnName))
-                            cols.Add(rel.ColumnName, BuildColumnSelectString(rel.ColumnName, tableAlias));
 
-                        if (!rel.LazyLoad)
-                        {
-                            var relEnt = session.SessionFactory.DbSettings.Map.GetEntityMap(rel.ReferenceEntityName);
-                            if (!innerBuilder.Joins.ContainsKey(relEnt.TableAlias))
-                            {
-                                innerBuilder.LeftJoin(relEnt.TableName, relEnt.TableAlias + rel.InternalIndex).On(tableAlias, rel.ReferenceColumn).EqualTo(prop.ColumnName);
-                            }
-
-                            LoadColumns(relEnt, relEnt.TableAlias+rel.InternalIndex, propertyNames);
-
-                        }
-                    }
-                }
-                else
-                    cols.Add(prop.ColumnName, BuildColumnSelectString(prop.ColumnName, tableAlias));
-            }
-
-            propertyNames.AddRange(cols.Values);
-        }
-
-        void Load(List<string> propertyNames)
+        void Load()
         {
             string typeFullName = typeof(T).FullName;
+
             Table = session.SessionFactory.DbSettings.Map.GetEntityMap(typeFullName);
-            innerBuilder = new QueryBuilder(session, propertyNames);
-            innerBuilder.From(Table.TableName, Table.TableAlias);
+            int iteration = 0;
+            int recursion = 0;
+            queryMap = new TableQueryMap(Table.FullName, ref recursion,ref iteration);
 
-            if (propertyNames == null)
-                propertyNames = new List<string>();
+            var columnList = new List<string>();
 
-            if (propertyNames.Count == 0)
-            {
-                LoadColumns(Table, Table.TableAlias, propertyNames);
-            }
+            //queryMap.LoadColumns(Table, session, columnList);
 
-            if (Table.IsSubClass)
-            {
-                if (Table.PrimaryKey == null)
-                    throw new GoliathDataException(string.Format("Cannot resolve innheritance between {0} and {1}. Not primary key is defined.", typeFullName, Table.Extends));
+            innerBuilder = new QueryBuilder(session, columnList);
+            innerBuilder.From(Table.TableName, queryMap.Prefix);
+            queryMap.LoadColumns(Table, session, innerBuilder, columnList);
 
-                //let's get parent and add joins
-                Extends = session.SessionFactory.DbSettings.Map.GetEntityMap(Table.Extends);
-
-                foreach (var pk in Extends.PrimaryKey.Keys)
-                {
-                    var k = Table.PrimaryKey.Keys[pk.Key.Name];
-                    innerBuilder.InnerJoin(Extends.TableName, Extends.TableAlias).On(Table.TableAlias, k.Key.ColumnName).EqualTo(pk.Key.ColumnName);
-                }
-
-            }
-
-
+            innerBuilder.QueryMap = QueryMap;
         }
 
         JoinBuilder<T, TRelation> BuildJoinBuilder<TRelation>(JoinType joinType)
         {
             JoinBuilder jbuilder = new JoinBuilder(innerBuilder, Table.TableName, null, null);
             var map = GetMapConfig();
+
             EntityMap joinMap = map.GetEntityMap(typeof(TRelation).FullName);
+
+            var count = Table.Relations.Count;
+            if (Table.IsSubClass)
+                count = count + 1;
+
+            var prefix = TableQueryMap.CreatePrefix(count + 1, 2);
+
             switch (joinType)
             {
                 case JoinType.Inner:
-                    innerBuilder.InnerJoin(joinMap.TableName, joinMap.TableAlias);
+                    innerBuilder.InnerJoin(joinMap.TableName, prefix);
                     break;
                 case JoinType.Full:
                     break;
                 case JoinType.Left:
-                    innerBuilder.LeftJoin(joinMap.TableName, joinMap.TableAlias);
+                    innerBuilder.LeftJoin(joinMap.TableName, prefix);
                     break;
                 case JoinType.Right:
-                    innerBuilder.RightJoin(joinMap.TableName, joinMap.TableAlias);
+                    innerBuilder.RightJoin(joinMap.TableName, prefix);
                     break;
             }
             return new JoinBuilder<T, TRelation>(this, jbuilder, joinMap);
@@ -185,7 +157,7 @@ namespace Goliath.Data.Sql
 
         public IFetchableWithOutput<T> Take(int limit, int offset)
         {
-            innerBuilder.Take(limit,offset);
+            innerBuilder.Take(limit, offset);
             return this;
         }
 

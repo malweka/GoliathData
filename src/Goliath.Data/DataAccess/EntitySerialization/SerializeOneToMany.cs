@@ -29,45 +29,51 @@ namespace Goliath.Data.DataAccess
         /// <param name="columns">The columns.</param>
         /// <param name="dbReader">The db reader.</param>
         /// <exception cref="MappingException"></exception>
-        public override void Serialize(IDatabaseSettings settings, EntitySerializer serializer, Relation rel, object instanceEntity, PropertyAccessor pInfo, EntityMap entityMap, EntityAccessor entityAccessor, Dictionary<string, int> columns, DbDataReader dbReader)
+        public override void Serialize(IDatabaseSettings settings, EntitySerializer serializer, Relation rel, object instanceEntity, PropertyAccessor pInfo, EntityMap entityMap, EntityAccessor entityAccessor, DbDataReader dbReader)
         {
             var propType = pInfo.PropertyType;
-            var relEntMap = entityMap.Parent.GetEntityMap(rel.ReferenceEntityName);
+            var relEntMap = settings.Map.GetEntityMap(rel.ReferenceEntityName);
+
             Type refEntityType = propType.GetGenericArguments().FirstOrDefault();
+            var prop = entityMap.FirstOrDefault(c => rel.ColumnName.Equals(c.ColumnName));
+
+            if (prop == null)
+                throw new GoliathDataException(string.Format("{0}: Reference {1} does not have matching property.", entityMap.FullName, rel.PropertyName));
 
             if (refEntityType == null)
             {
                 throw new MappingException(string.Format("property type mismatch: {0} should be IList<T>", rel.PropertyName));
             }
 
-            //if (propType.Equals(typeof(IList<>).MakeGenericType(new Type[] { refEntityType })))
             if (propType == typeof(IList<>).MakeGenericType(new Type[] { refEntityType }))
             {
-                int ordinal;
-                if (columns.TryGetValue(rel.ColumnName, out ordinal))
+                var valAccessor = entityAccessor.GetPropertyAccessor(prop.PropertyName);
+                var val = valAccessor.GetMethod(instanceEntity);
+
+                if (val != null)
                 {
-                    var val = dbReader[ordinal];
-                    if (val != null)
-                    {
-                        var relProp = relEntMap.GetProperty(rel.ReferenceProperty);
-                        var qp = new QueryParam(ParameterNameBuilderHelper.ColumnQueryName(relEntMap.TableAlias, rel.ReferenceColumn), relProp.DbType) { Value = val };
-                        var sqlBuilder = new SelectSqlBuilder(sqlDialect, relEntMap)
-                       .Where(new WhereStatement(ParameterNameBuilderHelper.ColumnWithTableAlias(relEntMap.TableAlias, rel.ReferenceColumn))
-                                .Equals(sqlDialect.CreateParameterName(qp.Name)));
+                    var relCols = new List<string>();
+                    var session = serializer.SessionCreator();
 
-                        var qInfo = new SqlOperationInfo() { CommandType = SqlStatementType.Select };
-                        qInfo.SqlText = sqlBuilder.ToSqlString();
-                        qInfo.Parameters = new QueryParam[] { qp };
+                    int iteration = 0;
+                    int recursion = 0;
+                    var relQueryMap = new TableQueryMap(relEntMap.FullName, ref recursion, ref iteration);
 
-                        var collectionType = typeof(Collections.LazyList<>).MakeGenericType(new Type[] { refEntityType });
-                        var lazyCol = Activator.CreateInstance(collectionType, qInfo, relEntMap, serializer, settings);
-                        pInfo.SetMethod(instanceEntity, lazyCol);
-                    }
-                    else
-                    {
-                        var collectionType = typeof(List<>).MakeGenericType(new Type[] { refEntityType });
-                        pInfo.SetMethod(instanceEntity, Activator.CreateInstance(collectionType));
-                    }
+                    QueryBuilder q = new QueryBuilder(session, relCols);
+                    relQueryMap.LoadColumns(relEntMap, session, q, relCols, true);
+                    q.QueryMap = relQueryMap;
+
+                    var queryBuilder = q.From(relEntMap.TableName, relQueryMap.Prefix)
+                        .Where(rel.ReferenceColumn).EqualToValue(val) as QueryBuilder;
+
+                    var collectionType = typeof(Collections.LazyList<>).MakeGenericType(new Type[] { refEntityType });
+                    var lazyCol = Activator.CreateInstance(collectionType, queryBuilder, relEntMap, serializer, session);
+                    pInfo.SetMethod(instanceEntity, lazyCol);
+                }
+                else
+                {
+                    var collectionType = typeof(List<>).MakeGenericType(new Type[] { refEntityType });
+                    pInfo.SetMethod(instanceEntity, Activator.CreateInstance(collectionType));
                 }
             }
             else

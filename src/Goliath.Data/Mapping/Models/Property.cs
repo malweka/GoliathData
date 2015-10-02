@@ -162,14 +162,7 @@ namespace Goliath.Data.Mapping
             }
 
             throw new GoliathDataException(string.Format("Could not find CLR type for {0}.", PropertyName));
-            //if (ClrType == null)
-            //    return string.Empty;
-            //else
-            //{
 
-
-            //    return ToPrintString(ClrType);
-            //}
         }
 
         /// <summary>
@@ -206,14 +199,6 @@ namespace Goliath.Data.Mapping
         {
             return Providers.SqlDialect.PrintClrTypeToString(type, nullable);
         }
-
-        internal string GetQueryName(EntityMap map)
-        {
-            if (map == null)
-                throw new ArgumentNullException("map");
-            return ParameterNameBuilderHelper.ColumnQueryName(map.TableAlias, PropertyName);
-        }
-
 
 
         /// <summary>

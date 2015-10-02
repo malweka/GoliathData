@@ -162,17 +162,17 @@ namespace Goliath.Data.Mapping
             }
         }
 
-        string IEntityMap.TableAlias
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-            set
-            {
-                throw new NotImplementedException();
-            }
-        }
+        //string IEntityMap.TableAlias
+        //{
+        //    get
+        //    {
+        //        throw new NotImplementedException();
+        //    }
+        //    set
+        //    {
+        //        throw new NotImplementedException();
+        //    }
+        //}
 
         string IEntityMap.Extends
         {

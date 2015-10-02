@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -19,6 +19,8 @@
     </SccAuxPath>
     <SccProvider>
     </SccProvider>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -29,6 +31,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <PlatformTarget>AnyCPU</PlatformTarget>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -38,6 +41,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>bin\Release\Goliath.Data.XML</DocumentationFile>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -118,6 +122,7 @@
     <Compile Include="Collections\LazyList.cs" />
     <Compile Include="Generators\IKeyGenerator.cs" />
     <Compile Include="Generators\KeyGeneratorStore.cs" />
+    <Compile Include="JoinColumnQueryMap.cs" />
     <Compile Include="Mapping\MapBuilderConfig.Read.cs" />
     <Compile Include="Mapping\MapBuilderConfig.Write.cs" />
     <Compile Include="Mapping\MappingException.cs" />
@@ -126,6 +131,7 @@
     <Compile Include="Mapping\Enums.cs" />
     <Compile Include="Mapping\Models\ConfigProperty.cs" />
     <Compile Include="Mapping\Models\DynamicEntityMap.cs" />
+    <Compile Include="Mapping\Models\IEntityMap.cs" />
     <Compile Include="Mapping\Models\RelationCollection.cs" />
     <Compile Include="Mapping\Models\StatementMap.cs" />
     <Compile Include="Mapping\Models\StatementStore.cs" />
@@ -209,16 +215,13 @@
     <Compile Include="Sql\ISqlFunction.cs" />
     <Compile Include="Sql\OrderBy.cs" />
     <Compile Include="Sql\ParameterNameBuilderHelper.cs" />
-    <Compile Include="Sql\SelectSqlBuilder.cs" />
-    <Compile Include="Sql\SqlBuilder.cs" />
-    <Compile Include="Sql\SqlBuilderExtensions.cs" />
     <Compile Include="Sql\SqlFunction.cs" />
-    <Compile Include="Sql\SqlJoin.cs" />
     <Compile Include="Sql\SqlQueryBody.cs" />
     <Compile Include="Sql\SqlStatement.cs" />
     <Compile Include="Sql\Fluent\UpdateSqlBuilder.cs" />
     <Compile Include="Sql\Fluent\WhereClauseBuilder.cs" />
     <Compile Include="Sql\WhereStatement.cs" />
+    <Compile Include="TableQueryMap.cs" />
     <Compile Include="Utilities\EntityAccessor.cs" />
     <Compile Include="Mapping\MapSorter.cs" />
     <Compile Include="Utilities\PropertyAccessor.cs" />

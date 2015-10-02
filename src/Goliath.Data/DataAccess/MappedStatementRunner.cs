@@ -146,7 +146,7 @@ namespace Goliath.Data.DataAccess
             if ((statement.OperationType == MappedStatementType.ExecuteScalar) || (statement.OperationType == MappedStatementType.Query))
             {
                 SqlCommandRunner runner = new SqlCommandRunner();
-                var result = runner.Run<T>(session, statement.Body.Trim(), parameters);
+                var result = runner.Run<T>(session, statement.Body.Trim(),null, parameters);
                 return result;
             }
             throw new GoliathDataException(string.Format("Operation {1} not supported on {0}. Use another Run method.", statement.Name, statement.OperationType));
@@ -158,7 +158,7 @@ namespace Goliath.Data.DataAccess
             if ((statement.OperationType == MappedStatementType.ExecuteScalar) || (statement.OperationType == MappedStatementType.Query))
             {
                 var runner = new SqlCommandRunner();
-                var result = runner.RunList<T>(session, statement.Body.Trim(), parameters);
+                var result = runner.RunList<T>(session, statement.Body.Trim(),null, parameters);
                 return result;
             }
 
