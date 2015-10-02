@@ -11,7 +11,7 @@ namespace Goliath.Data.Sql
     {
 
         WhereClauseBuilder whereClause;
-        QueryBuilder<T> queryBuilder;
+        QueryBuilder<T> queryBuilder; 
         public Property LeftColumn { get; private set; }
 
         public WhereClauseBuilderWrapper(Property property, QueryBuilder<T> queryBuilder, WhereClauseBuilder whereClause)
@@ -31,24 +31,13 @@ namespace Goliath.Data.Sql
             if (prop is Relation)
             {
                 Relation rel = (Relation)prop;
-
-                JoinColumnQueryMap joinMap;
-                if (queryBuilder.QueryMap.ReferenceColumns.TryGetValue(rel.PropertyName, out joinMap))
-                {
-                    tableAlias = joinMap.Prefix;
-                    columnName = rel.ColumnName;
-                }
-                else
-                {
-                    throw new GoliathDataException(
-                        string.Format("Could not find {0} in QueryMap.ReferenceColumns for entity {1}", rel.PropertyName,
-                            queryBuilder.Table.FullName));
-                }
-
+                var relEntityMap = queryBuilder.Table.Parent.GetEntityMap(rel.ReferenceEntityName);
+                tableAlias = relEntityMap.TableAlias;
+                columnName = rel.ColumnName;
             }
             else
             {
-                tableAlias = queryBuilder.QueryMap.Prefix;
+                tableAlias = queryBuilder.Table.TableAlias;
                 columnName = prop.ColumnName;
             }
 

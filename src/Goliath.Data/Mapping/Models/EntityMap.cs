@@ -11,7 +11,7 @@ namespace Goliath.Data.Mapping
     [System.Diagnostics.DebuggerDisplay("Entity = {Name}, Table = {TableName}")]
     [Serializable]
     [DataContract]
-    public class EntityMap : IEntityMap, IEquatable<EntityMap>, ICollection<Property>
+    public class EntityMap : IEntityMap, IEquatable<EntityMap>, IEnumerable<Property>, ICollection<Property>
     {
 
         MapConfig parent;
@@ -71,28 +71,24 @@ namespace Goliath.Data.Mapping
         /// <value>The namespace.</value>
         [DataMember]
         public string Namespace { get; set; }
-
         /// <summary>
         /// Gets or sets the name of the assembly.
         /// </summary>
         /// <value>The name of the assembly.</value>
         [DataMember]
         public string AssemblyName { get; set; }
-
         /// <summary>
         /// Gets or sets the name of the table.
         /// </summary>
         /// <value>The name of the table.</value>
         [DataMember]
         public string TableName { get; set; }
-
         /// <summary>
         /// Gets or sets the name of the schema.
         /// </summary>
         /// <value>The name of the schema.</value>
         [DataMember]
         public string SchemaName { get; set; }
-
         /// <summary>
         /// Gets or sets the table alias.
         /// </summary>

@@ -11,14 +11,11 @@ namespace Goliath.Data.Sql
         WhereClauseBuilderWrapper<T, TProperty> BuildWhereClause<TProperty>(SqlOperator preOperator, Expression<Func<T, TProperty>> property)
         {
             var prop = ExtractProperty(property);
-
             WhereClauseBuilder wcBuilder;
-
             if (preOperator == SqlOperator.AND)
-                wcBuilder = innerBuilder.And(queryMap.Prefix, prop.ColumnName) as WhereClauseBuilder;
-
+                wcBuilder = innerBuilder.And(Table.TableAlias, prop.ColumnName) as WhereClauseBuilder;
             else
-                wcBuilder = innerBuilder.Or(queryMap.Prefix, prop.ColumnName) as WhereClauseBuilder;
+                wcBuilder = innerBuilder.Or(Table.TableAlias, prop.ColumnName) as WhereClauseBuilder;
 
             WhereClauseBuilderWrapper<T, TProperty> whereBuilder = new WhereClauseBuilderWrapper<T, TProperty>(prop, this, wcBuilder);
 

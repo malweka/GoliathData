@@ -8,7 +8,7 @@ namespace Goliath.Data.DataAccess
     {
         readonly Func<MapConfig, IEntitySerializer, IDataAccessAdapterFactory> adapterFactoryFactoryMethod;
         IDataAccessAdapterFactory adapterFactory;
-        IEntitySerializer serializer;
+        readonly IEntitySerializer serializer;
 
 
         public IEntitySerializer DataSerializer
@@ -42,14 +42,6 @@ namespace Goliath.Data.DataAccess
                 throw new ArgumentNullException("serializer");
 
             this.serializer = serializer;
-
-            EntitySerializer entitySerializer = serializer as EntitySerializer;
-
-            if (entitySerializer != null)
-            {
-                entitySerializer.SessionCreator = OpenSession;
-            }
-
             this.adapterFactoryFactoryMethod = adapterFactoryFactoryMethod;
             DbSettings = settings;
 
@@ -91,14 +83,7 @@ namespace Goliath.Data.DataAccess
         /// </summary>
         public void Dispose()
         {
-            EntitySerializer entitySerializer = serializer as EntitySerializer;
 
-            if (entitySerializer != null)
-            {
-                entitySerializer.SessionCreator = null;
-            }
-
-            serializer = null;
         }
 
         #endregion
