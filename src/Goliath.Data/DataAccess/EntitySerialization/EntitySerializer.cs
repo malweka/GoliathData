@@ -527,8 +527,8 @@ namespace Goliath.Data.DataAccess
                             break;
                         case RelationshipType.ManyToMany:
                             var serializeManyToMany = new SerializeManyToMany(SqlDialect, entityAccessorStore);
-                            //serializeManyToMany.Serialize(settings, this, rel, instanceEntity, accessor, entityMap,
-                            //    entityAccessor, dbReader);
+                            serializeManyToMany.Serialize(settings, this, rel, instanceEntity, accessor, entityMap,
+                                entityAccessor, dbReader);
                             break;
                     }
                 }

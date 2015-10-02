@@ -54,17 +54,18 @@ namespace Goliath.Data.DataAccess
                     int recursion = 0;
 
                     var relQueryMap = new TableQueryMap(relEntMap.FullName, ref recursion, ref iteration);
-                    QueryBuilder q = new QueryBuilder(session, relCols);
-                    
-                    relQueryMap.LoadColumns(relEntMap, session, q, relCols);
 
-                   var queryBuilder = q.From(relEntMap.TableName, relQueryMap.Prefix)
+                    QueryBuilder q = new QueryBuilder(session, relCols);                    
+                    relQueryMap.LoadColumns(relEntMap, session, q, relCols);
+                    q.QueryMap = relQueryMap;
+
+                    var queryBuilder = q.From(relEntMap.TableName, relQueryMap.Prefix)
                         .InnerJoin(rel.MapTableName, "m_t1")
-                        .On("m_t1", rel.MapReferenceColumn)
-                        .EqualTo(rel.MapPropertyName)
+                            .On(relQueryMap.Prefix, rel.MapReferenceColumn)
+                            .EqualTo(rel.MapPropertyName)
                         .InnerJoin(entityMap.TableName, "e_t1")
-                        .On("m_t1", rel.MapColumn)
-                        .EqualTo("e_t1." + rel.MapPropertyName)
+                            .On("m_t1", "m_t1." + rel.MapColumn)
+                            .EqualTo("e_t1." + rel.MapPropertyName)
                         .Where("m_t1", rel.MapColumn).EqualToValue(val) as QueryBuilder;
 
 
