@@ -443,7 +443,7 @@ namespace Goliath.Data.DataAccess
         }
 
         internal void SerializeSingle(object instanceEntity, Type type, EntityMap entityMap,
-            EntityAccessor entityAccessor, TableQueryMap queryMap, DbDataReader dbReader, bool iterate = true)
+            EntityAccessor entityAccessor, TableQueryMap queryMap, DbDataReader dbReader)
         {
 
             try
