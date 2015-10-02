@@ -58,8 +58,11 @@ namespace Goliath.Data.DataAccess
                     int iteration = 0;
                     int recursion = 0;
                     var relQueryMap = new TableQueryMap(relEntMap.FullName, ref recursion, ref iteration);
+
                     QueryBuilder q = new QueryBuilder(session, relCols);
-                    relQueryMap.LoadColumns(relEntMap, session, q, relCols,true);
+                    relQueryMap.LoadColumns(relEntMap, session, q, relCols, true);
+                    q.QueryMap = relQueryMap;
+
                     var queryBuilder = q.From(relEntMap.TableName, relQueryMap.Prefix)
                         .Where(rel.ReferenceColumn).EqualToValue(val) as QueryBuilder;
 

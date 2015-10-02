@@ -27,7 +27,7 @@ namespace Goliath.Data.DataAccess
             int iteration = 0;
             int recursion = 0;
 
-            var relQueryMap = new TableQueryMap(relMap.FullName,ref recursion,ref iteration);
+            var relQueryMap = new TableQueryMap(relMap.FullName, ref recursion, ref iteration);
 
             QueryBuilder q = new QueryBuilder(session, relCols);
             relQueryMap.LoadColumns(relMap, session, q, relCols);
@@ -41,8 +41,8 @@ namespace Goliath.Data.DataAccess
 
             var queryBuilder = q.From(relMap.TableName, relQueryMap.Prefix)
                 .Where(rel.ReferenceColumn).EqualToValue(val);
-            IProxyHydrator hydrator = new ProxyHydrator(queryBuilder as QueryBuilder, pInfo.PropertyType, relMap, serializer,
-                session);
+
+            IProxyHydrator hydrator = new ProxyHydrator(queryBuilder as QueryBuilder, pInfo.PropertyType, relMap, serializer, session);
 
             ProxyBuilder pbuilder = new ProxyBuilder();
             var proxyType = pbuilder.CreateProxyType(pInfo.PropertyType, relMap);

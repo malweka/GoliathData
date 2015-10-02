@@ -60,7 +60,7 @@ namespace Goliath.Data.Sql
             this.session = session;
             dialect = session.SessionFactory.DataSerializer.SqlDialect;
 
-            
+
 
         }
 
@@ -70,8 +70,9 @@ namespace Goliath.Data.Sql
         {
             int iteration = 0;
             int recursion = 0;
+            if (QueryMap == null)
+                QueryMap = new TableQueryMap(tableName, ref recursion, ref iteration);
 
-            QueryMap = new TableQueryMap(tableName, ref recursion, ref iteration);
             return From(tableName, null);
         }
 
@@ -79,8 +80,11 @@ namespace Goliath.Data.Sql
         {
             int iteration = 0;
             int recursion = 0;
-            QueryMap = new TableQueryMap(tableName, ref recursion, ref iteration);
-            QueryMap.Prefix = alias;
+            if (QueryMap == null)
+            {
+                QueryMap = new TableQueryMap(tableName, ref recursion, ref iteration);
+                QueryMap.Prefix = alias;
+            }
 
             this.tableName = tableName;
             this.alias = alias;
@@ -176,7 +180,7 @@ namespace Goliath.Data.Sql
 
         public SqlQueryBody Build(bool selectCount = false)
         {
-            SqlQueryBody queryBody = new SqlQueryBody(){ QueryMap = QueryMap};
+            SqlQueryBody queryBody = new SqlQueryBody() { QueryMap = QueryMap };
 
             if (string.IsNullOrEmpty(alias))
             {

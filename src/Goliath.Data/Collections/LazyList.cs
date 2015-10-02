@@ -89,10 +89,10 @@ namespace Goliath.Data.Collections
 
             logger.Log(LogLevel.Debug, "Opening connection for lazy collection query");
             var sqlbody = queryBuilder.Build();
+
             var dbConn = session.ConnectionManager.OpenConnection();
 
-            using (
-                var dataReader = session.DataAccess.ExecuteReader(dbConn, session.CurrentTransaction, sqlbody.ToString(),
+            using (var dataReader = session.DataAccess.ExecuteReader(dbConn, session.CurrentTransaction, sqlbody.ToString(),
                     queryBuilder.Parameters.ToArray()))
             {
                 try
