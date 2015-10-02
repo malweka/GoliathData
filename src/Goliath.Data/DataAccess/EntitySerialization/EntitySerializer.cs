@@ -443,11 +443,13 @@ namespace Goliath.Data.DataAccess
         }
 
         internal void SerializeSingle(object instanceEntity, Type type, EntityMap entityMap,
-            EntityAccessor entityAccessor, TableQueryMap queryMap, DbDataReader dbReader)
+            EntityAccessor entityAccessor, TableQueryMap queryMap, DbDataReader dbReader, bool iterate = true)
         {
+
             try
             {
                 var trackable = instanceEntity as ITrackable;
+
 
                 if (trackable != null)
                 {
@@ -455,13 +457,18 @@ namespace Goliath.Data.DataAccess
                     trackable.ChangeTracker.Init();
                 }
 
+                Dictionary<string, object> readContent = new Dictionary<string, object>();
+
                 foreach (var columnInfo in queryMap.Columns)
                 {
                     var prop = entityMap.GetProperty(columnInfo.Value.PropertyName);
+
                     if (prop == null)
                         continue;
 
-                    ReadField(instanceEntity, trackable, entityAccessor, prop, type, columnInfo.Value.Index, dbReader);
+                    var v = ReadField(instanceEntity, trackable, entityAccessor, prop, type, columnInfo.Value.Index, dbReader);
+                    readContent.Add(string.Concat(entityMap.TableName, ".", prop.ColumnName), v);
+
                 }
 
                 int count = 0;
@@ -478,7 +485,8 @@ namespace Goliath.Data.DataAccess
                     else
                     {
                         var rel = entityMap.GetProperty(joinColumnQueryMap.Value.ColumnName) as Relation;
-                        if (rel == null) 
+
+                        if ((rel == null) || (rel.RelationType != RelationshipType.ManyToOne) || rel.LazyLoad)
                             continue;
 
                         var accessor = entityAccessor.Properties[rel.PropertyName];
@@ -487,8 +495,13 @@ namespace Goliath.Data.DataAccess
                         var relEntityAccessor = entityAccessorStore.GetEntityAccessor(relType, joinTable);
                         var relInstance = CreateNewInstance(relType, joinTable);
 
-                        SerializeSingle(relInstance, relType, joinTable, relEntityAccessor, queryMap, dbReader);
-                        accessor.SetMethod(instanceEntity, relInstance);
+                        object readValue;
+                        if(readContent.TryGetValue(string.Concat(entityMap.TableName, ".", rel.ReferenceColumn), out readValue) && readValue!=null)
+                        {
+                            SerializeSingle(relInstance, relType, joinTable, relEntityAccessor, queryMap, dbReader);
+                            accessor.SetMethod(instanceEntity, relInstance);
+                        }
+                            
                     }
 
                     count++;
@@ -501,7 +514,6 @@ namespace Goliath.Data.DataAccess
                     switch (rel.RelationType)
                     {
                         case RelationshipType.ManyToOne:
-
                             if (!rel.LazyLoad)
                                 continue;
                             var serializeManyToOne = new SerializeManyToOne(SqlDialect, entityAccessorStore);
@@ -527,7 +539,7 @@ namespace Goliath.Data.DataAccess
             }
         }
 
-        void ReadField(object instanceEntity, ITrackable trackable, EntityAccessor entityAccessor, Property prop, Type type, int ordinal, DbDataReader dbReader)
+        object ReadField(object instanceEntity, ITrackable trackable, EntityAccessor entityAccessor, Property prop, Type type, int ordinal, DbDataReader dbReader)
         {
             var accessor = entityAccessor.Properties[prop.PropertyName];
             if (accessor == null)
@@ -536,16 +548,21 @@ namespace Goliath.Data.DataAccess
             var val = dbReader[ordinal];
             var fieldType = dbReader.GetFieldType(ordinal);
 
+            if (val == DBNull.Value || val == null)
+                return null;
+
             if ((fieldType == accessor.PropertyType) && (val != DBNull.Value))
             {
                 accessor.SetMethod(instanceEntity, val);
                 LoadInitialValueForInTracker(trackable, prop.PropertyName, val);
+                return val;
             }
             else if (accessor.PropertyType.IsEnum)
             {
                 var enumVal = TypeConverterStore.ConvertToEnum(accessor.PropertyType, val);
                 accessor.SetMethod(instanceEntity, enumVal);
                 LoadInitialValueForInTracker(trackable, prop.PropertyName, enumVal);
+                return enumVal;
             }
             else
             {
@@ -553,7 +570,10 @@ namespace Goliath.Data.DataAccess
                 var convertedValue = converter.Invoke(val);
                 accessor.SetMethod(instanceEntity, convertedValue);
                 LoadInitialValueForInTracker(trackable, prop.PropertyName, convertedValue);
+                return convertedValue;
             }
+
+
         }
 
         //internal bool SerializeSingle(object instanceEntity, Type type, EntityMap entityMap,
