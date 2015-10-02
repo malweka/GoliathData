@@ -126,10 +126,10 @@ namespace Goliath.Data.DataAccess
 
         IList<T> RunList<T>(SqlQueryBody sql, int limit, int offset, params QueryParam[] paramArray);
         IList<T> RunList<T>(SqlQueryBody sql, int limit, int offset, out long total, params QueryParam[] paramArray);
-        IList<T> RunList<T>(string sql,TableQueryMap queryMap, params QueryParam[] paramArray);
+        IList<T> RunList<T>(string sql, params QueryParam[] paramArray);
         IList<T> RunList<T>(SqlQueryBody sql, params QueryParam[] paramArray);
 
-        T Run<T>(string sql,TableQueryMap queryMap, params QueryParam[] paramArray);
+        T Run<T>(string sql, params QueryParam[] paramArray);
         T Run<T>(SqlQueryBody sql, params QueryParam[] paramArray);
         int RunNonQuery(string sql, params QueryParam[] paramArray);
 

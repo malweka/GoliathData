@@ -44,7 +44,7 @@ namespace Goliath.Data.Tests
             DynamicEntityMap dmap = new DynamicEntityMap(null, tableName, typeof(SqlCommandRunnerTestsFake1));
             SqlCommandRunner runner = new SqlCommandRunner();
 
-            SqlCommandRunnerTestsFake1 ent1 = runner.ExecuteReader<SqlCommandRunnerTestsFake1>(dmap, dbConn, session, query, null).FirstOrDefault();
+            SqlCommandRunnerTestsFake1 ent1 = runner.ExecuteReader<SqlCommandRunnerTestsFake1>(dmap, dbConn, session, query).FirstOrDefault();
             Assert.AreEqual("val2", ent1.Prop1);
 
         }

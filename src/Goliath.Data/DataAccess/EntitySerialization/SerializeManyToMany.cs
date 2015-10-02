@@ -22,8 +22,20 @@ namespace Goliath.Data.DataAccess
         {
         }
 
-
-        public override void Serialize(IDatabaseSettings settings, EntitySerializer serializer, Relation rel, object instanceEntity, PropertyAccessor pInfo, EntityMap entityMap, EntityAccessor entityAccessor, DbDataReader dbReader)
+        /// <summary>
+        /// Serializes the specified settings.
+        /// </summary>
+        /// <param name="settings">The settings.</param>
+        /// <param name="serializer">The serializer.</param>
+        /// <param name="rel">The rel.</param>
+        /// <param name="instanceEntity">The instance entity.</param>
+        /// <param name="pInfo">The p info.</param>
+        /// <param name="entityMap">The entity map.</param>
+        /// <param name="entityAccessor">The entity accessor.</param>
+        /// <param name="columns">The columns.</param>
+        /// <param name="dbReader">The db reader.</param>
+        /// <exception cref="MappingException"></exception>
+        public override void Serialize(IDatabaseSettings settings, EntitySerializer serializer, Relation rel, object instanceEntity, PropertyAccessor pInfo, EntityMap entityMap, EntityAccessor entityAccessor, Dictionary<string, int> columns, DbDataReader dbReader)
         {
             var propType = pInfo.PropertyType;
             var relEntMap = entityMap.Parent.GetEntityMap(rel.ReferenceEntityName);
@@ -34,49 +46,47 @@ namespace Goliath.Data.DataAccess
                 throw new MappingException(string.Format("property type mismatch: {0} should be IList<T>", rel.PropertyName));
             }
 
-            var prop = entityMap.FirstOrDefault(c => c.ColumnName == rel.ColumnName);
-
-            if (prop == null)
-                throw new GoliathDataException(string.Format("{0}: Reference {1} does not have matching property.", entityMap.FullName, rel.PropertyName));
-
-
             if (propType == typeof(IList<>).MakeGenericType(new Type[] { refEntityType }))
             {
-                var valAccessor = entityAccessor.GetPropertyAccessor(prop.PropertyName);
-                var val = valAccessor.GetMethod(instanceEntity);
-
-                if (val != null)
+                int ordinal;
+                if (columns.TryGetValue(rel.ColumnName, out ordinal))
                 {
-                    var relCols = new List<string>();
-                    var session = serializer.SessionCreator();
+                    var val = dbReader[ordinal];
 
-                    int iteration = 0;
-                    int recursion = 0;
+                    if (val != null)
+                    {
+                        var leftColumn1 = new Relation() { ColumnName = rel.MapColumn, PropertyName = rel.MapColumn };
+                        var leftcolumn2 = new Relation() { ColumnName = rel.MapReferenceColumn, PropertyName = rel.MapReferenceColumn };
 
-                    var relQueryMap = new TableQueryMap(relEntMap.FullName, ref recursion, ref iteration);
-                    QueryBuilder q = new QueryBuilder(session, relCols);
-                    
-                    relQueryMap.LoadColumns(relEntMap, session, q, relCols);
+                        var mapTableMap = UnMappedTableMap.Create(rel.MapTableName, leftColumn1, leftcolumn2);
+                        mapTableMap.TableAlias = "mX1";
 
-                   var queryBuilder = q.From(relEntMap.TableName, relQueryMap.Prefix)
-                        .InnerJoin(rel.MapTableName, "m_t1")
-                        .On("m_t1", rel.MapReferenceColumn)
-                        .EqualTo(rel.MapPropertyName)
-                        .InnerJoin(entityMap.TableName, "e_t1")
-                        .On("m_t1", rel.MapColumn)
-                        .EqualTo("e_t1." + rel.MapPropertyName)
-                        .Where("m_t1", rel.MapColumn).EqualToValue(val) as QueryBuilder;
+                        var currEntMap = UnMappedTableMap.Create(entityMap.TableName);
 
+                        var qp = new QueryParam(ParameterNameBuilderHelper.ColumnQueryName(rel.MapColumn, mapTableMap.TableAlias), rel.DbType) { Value = val };
 
+                        var sqlBuilder = new SelectSqlBuilder(sqlDialect, mapTableMap)
+                            .AddJoin(new SqlJoin(mapTableMap, JoinType.Inner).OnTable(relEntMap).OnLeftColumn(leftcolumn2).OnRightColumn(rel.ReferenceColumn))
+                            .AddJoin(new SqlJoin(mapTableMap, JoinType.Inner).OnTable(currEntMap).OnLeftColumn(leftColumn1).OnRightColumn(rel.ColumnName))
+                            .Where(new WhereStatement(ParameterNameBuilderHelper.ColumnWithTableAlias(mapTableMap.TableAlias, rel.MapColumn))
+                            .Equals(sqlDialect.CreateParameterName(qp.Name)));
 
-                    var collectionType = typeof(Collections.LazyList<>).MakeGenericType(new Type[] { refEntityType });
-                    var lazyCol = Activator.CreateInstance(collectionType, queryBuilder, relEntMap, serializer, session);
-                    pInfo.SetMethod(instanceEntity, lazyCol);
-                }
-                else
-                {
-                    var collectionType = typeof(List<>).MakeGenericType(new Type[] { refEntityType });
-                    pInfo.SetMethod(instanceEntity, Activator.CreateInstance(collectionType));
+                        var qInfo = new SqlOperationInfo
+                                        {
+                                            CommandType = SqlStatementType.Select,
+                                            SqlText = sqlBuilder.ToSqlString(),
+                                            Parameters = new QueryParam[] {qp}
+                                        };
+
+                        var collectionType = typeof(Collections.LazyList<>).MakeGenericType(new Type[] { refEntityType });
+                        var lazyCol = Activator.CreateInstance(collectionType, qInfo, relEntMap, serializer, settings);
+                        pInfo.SetMethod(instanceEntity, lazyCol);
+                    }
+                    else
+                    {
+                        var collectionType = typeof(List<>).MakeGenericType(new Type[] { refEntityType });
+                        pInfo.SetMethod(instanceEntity, Activator.CreateInstance(collectionType));
+                    }
                 }
             }
             else

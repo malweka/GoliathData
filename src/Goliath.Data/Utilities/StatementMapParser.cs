@@ -193,7 +193,7 @@ namespace Goliath.Data.Utils
             }
             else
             {
-                columnText = string.Format("{0}.{1} AS {0}.{1} ", prop.ColumnName, entMap.TableAlias);
+                columnText = string.Format("{0} as {1}", prop.ColumnName, ParameterNameBuilderHelper.ColumnQueryName(prop.ColumnName, entMap.TableAlias));
 
             }
 

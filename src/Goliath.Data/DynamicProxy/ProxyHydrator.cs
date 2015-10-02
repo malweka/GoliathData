@@ -9,43 +9,51 @@ namespace Goliath.Data.DynamicProxy
 {
     class ProxyHydrator : IProxyHydrator
     {
-
+        SqlOperationInfo query;
         Type type;
         EntityMap entityMap;
         IEntitySerializer serializer;
         static ILogger logger;
-        private ISession session;
-        private QueryBuilder queryBuilder;
+        IDatabaseSettings settings;
 
-        /// <summary>
-        /// Initializes the <see cref="ProxyHydrator"/> class.
-        /// </summary>
         static ProxyHydrator()
         {
             logger = Logger.GetLogger(typeof(ProxyHydrator));
         }
 
-
-        public ProxyHydrator(QueryBuilder queryBuilder, Type type, EntityMap entityMap, IEntitySerializer serializer, ISession session)
+        public ProxyHydrator(SqlOperationInfo query, Type type, EntityMap entityMap, IEntitySerializer serializer, IDatabaseSettings settings)
         {
+            this.query = query;
             this.type = type;
             this.entityMap = entityMap;
             this.serializer = serializer;
-            this.session = session;
-            this.queryBuilder = queryBuilder;
+            this.settings = settings;
         }
 
         public void Hydrate(object instance, Type type)
         {
             logger.Log(LogLevel.Debug, "opening connection for proxy query");
-
-            var sqlbody = queryBuilder.Build();
-            var dbConn = session.ConnectionManager.OpenConnection();
-            using (
-                var dataReader = session.DataAccess.ExecuteReader(dbConn, session.CurrentTransaction, sqlbody.ToString(),
-                    queryBuilder.Parameters.ToArray()))
+            var dbAccess = settings.CreateAccessor();
+            using (var connManager = new ConnectionManager(settings.Connector, !settings.Connector.AllowMultipleConnections))
             {
-                try { serializer.Hydrate(instance, type, entityMap, sqlbody.QueryMap, dataReader); }
+                try
+                {
+                    QueryParam[] parameters;
+                    if (query.Parameters == null)
+                    {
+                        parameters = new QueryParam[] { };
+                    }
+                    else
+                        parameters = query.Parameters.ToArray();
+
+                    logger.Log(LogLevel.Debug, string.Format("executing query {0}", query.SqlText));
+                    var dataReader = dbAccess.ExecuteReader(connManager.OpenConnection(), query.SqlText, parameters);
+                    //logger.Log(LogLevel.Debug, string.Format("datareader has row? {0}", dataReader.HasRows));
+                    serializer.Hydrate(instance, type, entityMap, dataReader);
+                    dataReader.Dispose();
+
+                    connManager.CloseConnection();
+                }
                 catch (Exception ex)
                 {
                     logger.LogException("Hydrate failed", ex);
@@ -58,9 +66,12 @@ namespace Goliath.Data.DynamicProxy
         public void Dispose()
         {
             logger.Log(LogLevel.Debug, "Disposing of proxy");
-
-            if (session != null)
-                session.Dispose();
+            EntityMap entMapRef = entityMap;
+            entityMap = null;
+            IEntitySerializer serializerRef = serializer;
+            serializer = null;
+            IDatabaseSettings settingsRef = settings;
+            settings = null;
         }
 
         #endregion
