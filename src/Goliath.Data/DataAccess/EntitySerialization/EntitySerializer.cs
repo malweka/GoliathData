@@ -437,7 +437,8 @@ namespace Goliath.Data.DataAccess
                 }
                 else
                 {
-                    queryMap.Columns.Add(fieldName, new TableQueryMap.ColumnInfo { Index = i, PropertyName = fieldName });
+                    string propertyName = fieldName.Replace(string.Concat(queryMap.Prefix, "."), string.Empty);
+                    queryMap.Columns.Add(fieldName, new TableQueryMap.ColumnInfo { Index = i, PropertyName = propertyName });
                 }
             }
         }

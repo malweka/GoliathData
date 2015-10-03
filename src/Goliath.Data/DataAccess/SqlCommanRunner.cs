@@ -310,6 +310,14 @@ namespace Goliath.Data.DataAccess
 
                     if (map.EntityConfigs.TryGetValue(instanceType.FullName, out entMap))
                     {
+                        if (queryMap == null)
+                        {
+                            int iteration = 0;
+                            int recursion = 0;
+                            queryMap = new TableQueryMap(entMap.TableName, ref recursion, ref iteration);
+                            queryMap.Prefix = entMap.TableAlias;
+                        }
+
                         value = ExecuteReader<T>(entMap, dbConn, session, sql, queryMap, paramArray).FirstOrDefault();
                     }
                     else if (map.ComplexTypes.TryGetValue(instanceType.FullName, out complexType))
@@ -584,6 +592,14 @@ namespace Goliath.Data.DataAccess
 
                     if (map.EntityConfigs.TryGetValue(instanceType.FullName, out entMap))
                     {
+                        if (queryMap == null)
+                        {
+                            int iteration = 0;
+                            int recursion = 0;
+                            queryMap = new TableQueryMap(entMap.TableName, ref recursion, ref iteration);
+                            queryMap.Prefix = entMap.TableAlias;
+                        }
+
                         list = ExecuteReader<T>(entMap, dbConn, session, sql, queryMap, paramArray);
                     }
                     else if (map.ComplexTypes.TryGetValue(instanceType.FullName, out complexType))
