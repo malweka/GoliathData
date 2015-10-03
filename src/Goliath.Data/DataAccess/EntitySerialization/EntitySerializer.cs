@@ -533,6 +533,12 @@ namespace Goliath.Data.DataAccess
                             break;
                     }
                 }
+
+                if (trackable != null)
+                {
+                    trackable.ChangeTracker.Start();
+                    trackable.Version = trackable.ChangeTracker.Version;
+                }
             }
             catch (Exception exception)
             {
