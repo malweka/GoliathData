@@ -1,10 +1,9 @@
 glob:bin/**
 glob:obj/**
 glob:Bin/**
-glob:Uploads/Goliath_Publishing/**
 glob:*.user
 glob:*.suo
-glob:*.nhibernate.config
+glob:packages/**
 glob:TestResults/**
 glob:.DS_Store
 glob:src/Build/**
