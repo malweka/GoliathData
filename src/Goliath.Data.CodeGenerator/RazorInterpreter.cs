@@ -4,6 +4,8 @@ using Goliath.Data.Generators;
 using RazorEngine;
 using Goliath.Data.Utils;
 using Encoding = System.Text.Encoding;
+using RazorEngine.Configuration;
+using RazorEngine.Templating;
 
 namespace Goliath.Data.CodeGenerator
 {
@@ -37,7 +39,12 @@ namespace Goliath.Data.CodeGenerator
         /// <param name="mapfile">The mapfile.</param>
         public void Generate<TModel>(string templateText, Stream outputStream, TModel mapfile)
         {
-            string result = Razor.Parse(templateText, mapfile);
+            var config = new TemplateServiceConfiguration();
+            config.DisableTempFileLocking = true; // loads the files in-memory (gives the templates full-trust permissions)
+            config.CachingProvider = new DefaultCachingProvider(t => { }); //disables the warnings
+
+            var service = RazorEngineService.Create(config);
+            var result = service.RunCompile(templateText, "key", typeof(TModel), mapfile);
             byte[] fileArray = Encoding.UTF8.GetBytes(result);
             outputStream.Write(fileArray, 0, fileArray.Length);
         }
