@@ -437,6 +437,15 @@ namespace Goliath.Data.DataAccess
                 }
                 else
                 {
+                    foreach(var joinColumnQueryMap in queryMap.ReferenceColumns.Values)
+                    {
+                        if (joinColumnQueryMap.JoinTable.Columns.TryGetValue(fieldName, out propName))
+                        {
+                            propName.Index = i;
+                            break;
+                        }
+                    }
+
                     string propertyName = fieldName.Replace(string.Concat(queryMap.Prefix, "."), string.Empty);
                     queryMap.Columns.Add(fieldName, new TableQueryMap.ColumnInfo { Index = i, PropertyName = propertyName });
                 }
@@ -481,7 +490,7 @@ namespace Goliath.Data.DataAccess
                     if (entityMap.IsSubClass && count == 0)
                     {
                         //super class 
-                        SerializeSingle(instanceEntity, type, joinTable, entityAccessor, queryMap, dbReader);
+                        SerializeSingle(instanceEntity, type, joinTable, entityAccessor, joinColumnQueryMap.Value.JoinTable, dbReader);
                     }
                     else
                     {
@@ -499,7 +508,7 @@ namespace Goliath.Data.DataAccess
                         object readValue;
                         if(readContent.TryGetValue(string.Concat(entityMap.TableName, ".", rel.ReferenceColumn), out readValue) && readValue!=null)
                         {
-                            SerializeSingle(relInstance, relType, joinTable, relEntityAccessor, queryMap, dbReader);
+                            SerializeSingle(relInstance, relType, joinTable, relEntityAccessor, joinColumnQueryMap.Value.JoinTable, dbReader);
                             accessor.SetMethod(instanceEntity, relInstance);
                         }
                             
