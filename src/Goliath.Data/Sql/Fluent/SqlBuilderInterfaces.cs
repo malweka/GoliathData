@@ -70,6 +70,9 @@ namespace Goliath.Data.Sql
         IBinaryOperation ILikeValue(object value);
         IBinaryOperation ILike(string propertyName);
         IBinaryOperation ILike(string tableAlias, string propertyName);
+
+        IBinaryOperation IsNull();
+        IBinaryOperation IsNotNull();
     }
 
     public interface ISorterClause
