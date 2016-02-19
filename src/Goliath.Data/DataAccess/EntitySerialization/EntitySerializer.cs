@@ -310,7 +310,7 @@ namespace Goliath.Data.DataAccess
                     {
                         int iteration = 0;
                         int recursion = 0;
-                        queryMap = new TableQueryMap(entityMap.FullName, ref recursion, ref iteration);
+                        queryMap = new TableQueryMap(entityMap.TableName, ref recursion, ref iteration) { Prefix = entityMap.TableAlias };
                     }
 
                     LoadColumnIndexes(dbReader, queryMap);
