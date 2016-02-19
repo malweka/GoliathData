@@ -263,6 +263,18 @@ namespace Goliath.Data.Sql
             return builder;
         }
 
+        public IBinaryOperation IsNull()
+        {
+            BuildColumnBinaryOperation(string.Empty, ComparisonOperator.IsNull);
+            return builder;
+        }
+
+        public IBinaryOperation IsNotNull()
+        {
+            BuildColumnBinaryOperation(string.Empty, ComparisonOperator.IsNotNull);
+            return builder;
+        }
+
         #endregion
 
 

@@ -102,10 +102,12 @@ namespace Goliath.Data.Sql
                     throw new NotSupportedException("IN is not supported");
                 //break;
                 case ComparisonOperator.IsNotNull:
-                    throw new NotSupportedException("Is Not Null is not supported");
+                    whereClause.IsNotNull();
+                    break;
                 //break;
                 case ComparisonOperator.IsNull:
-                    throw new NotSupportedException("Is Null is not supported");
+                    whereClause.IsNull();
+                    break;
                 //break;
                 case ComparisonOperator.Like:
                     whereClause.LikeValue(value);
@@ -200,6 +202,16 @@ namespace Goliath.Data.Sql
         public IBinaryOperation<T> ILike(Expression<Func<T, TProperty>> property)
         {
             return BuildBinaryOperation(ComparisonOperator.LikeNonCaseSensitive, property);
+        }
+
+        public IBinaryOperation<T> IsNotNull()
+        {
+            return BuildBinaryOperation(ComparisonOperator.IsNotNull, null);
+        }
+
+        public IBinaryOperation<T> IsNull()
+        {
+            return BuildBinaryOperation(ComparisonOperator.IsNull, null);
         }
 
         #endregion

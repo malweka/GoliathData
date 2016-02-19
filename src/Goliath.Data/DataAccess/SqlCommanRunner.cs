@@ -60,11 +60,11 @@ namespace Goliath.Data.DataAccess
             return list;
         }
 
-        internal IList<T> ExecuteReader<T>(IEntityMap entMap, DbConnection dbConn, ISession session, string sql, params QueryParam[] paramArray)
+        internal IList<T> ExecuteReader<T>(IEntityMap entMap, DbConnection dbConn, ISession session, string sql, TableQueryMap queryMap, params QueryParam[] paramArray)
         {
             using (var dataReader = session.DataAccess.ExecuteReader(dbConn, session.CurrentTransaction, sql, paramArray))
             {
-                var entities = session.SessionFactory.DataSerializer.SerializeAll<T>(dataReader, entMap);
+                var entities = session.SessionFactory.DataSerializer.SerializeAll<T>(dataReader, entMap, queryMap);
                 return entities;
             }
         }
@@ -73,7 +73,7 @@ namespace Goliath.Data.DataAccess
         {
             using (var dataReader = session.DataAccess.ExecuteReader(dbConn, session.CurrentTransaction, sql.ToString(session.SessionFactory.DbSettings.SqlDialect, new PagingInfo() { Limit = limit, Offset = offset }), paramArray))
             {
-                var entities = session.SessionFactory.DataSerializer.SerializeAll<T>(dataReader, entMap);
+                var entities = session.SessionFactory.DataSerializer.SerializeAll<T>(dataReader, entMap, sql.QueryMap);
                 return entities;
             }
         }
@@ -155,7 +155,7 @@ namespace Goliath.Data.DataAccess
 
                 //move to the next result set which contains the entities
                 dataReader.NextResult();
-                var entities = serializer.SerializeAll<T>(dataReader, entMap);
+                var entities = serializer.SerializeAll<T>(dataReader, entMap, sql.QueryMap);
 
                 return entities;
             }
@@ -275,7 +275,7 @@ namespace Goliath.Data.DataAccess
         /// <returns></returns>
         public T Run<T>(ISession session, SqlQueryBody sql, params QueryParam[] paramArray)
         {
-            return Run<T>(session, sql.ToString(), paramArray);
+            return Run<T>(session, sql.ToString(), sql.QueryMap, paramArray);
         }
 
         /// <summary>
@@ -284,9 +284,11 @@ namespace Goliath.Data.DataAccess
         /// <typeparam name="T"></typeparam>
         /// <param name="session">The session.</param>
         /// <param name="sql">The SQL.</param>
+        /// <param name="queryMap">The query map.</param>
         /// <param name="paramArray">The param array.</param>
         /// <returns></returns>
-        public T Run<T>(ISession session, string sql, params QueryParam[] paramArray)
+        /// <exception cref="GoliathDataException"></exception>
+        public T Run<T>(ISession session, string sql, TableQueryMap queryMap, params QueryParam[] paramArray)
         {
             Type instanceType = typeof(T);
             //bool ownTransaction = false;
@@ -295,12 +297,6 @@ namespace Goliath.Data.DataAccess
 
             try
             {
-                //if ((session.CurrentTransaction == null) || !session.CurrentTransaction.IsStarted)
-                //{
-                //    ownTransaction = true;
-                //    session.BeginTransaction();
-
-                //}
 
                 if (instanceType.IsPrimitive || typeof(string) == instanceType || typeof(Guid) == instanceType || typeof(DateTime) == instanceType || typeof(DateTimeOffset) == instanceType)
                 {
@@ -314,17 +310,25 @@ namespace Goliath.Data.DataAccess
 
                     if (map.EntityConfigs.TryGetValue(instanceType.FullName, out entMap))
                     {
-                        value = ExecuteReader<T>(entMap, dbConn, session, sql, paramArray).FirstOrDefault();
+                        if (queryMap == null)
+                        {
+                            int iteration = 0;
+                            int recursion = 0;
+                            queryMap = new TableQueryMap(entMap.TableName, ref recursion, ref iteration);
+                            queryMap.Prefix = entMap.TableAlias;
+                        }
+
+                        value = ExecuteReader<T>(entMap, dbConn, session, sql, queryMap, paramArray).FirstOrDefault();
                     }
                     else if (map.ComplexTypes.TryGetValue(instanceType.FullName, out complexType))
                     {
-                        value = ExecuteReader<T>(complexType, dbConn, session, sql, paramArray).FirstOrDefault();
+                        value = ExecuteReader<T>(complexType, dbConn, session, sql, queryMap, paramArray).FirstOrDefault();
                     }
                     else
                     {
                         //Build a dynamic entity
                         DynamicEntityMap dynEntMap = new DynamicEntityMap(instanceType);
-                        value = ExecuteReader<T>(dynEntMap, dbConn, session, sql, paramArray).FirstOrDefault();
+                        value = ExecuteReader<T>(dynEntMap, dbConn, session, sql, null, paramArray).FirstOrDefault();
                     }
                 }
 
@@ -550,7 +554,7 @@ namespace Goliath.Data.DataAccess
         /// <returns></returns>
         public IList<T> RunList<T>(ISession session, SqlQueryBody sql, params QueryParam[] paramArray)
         {
-            return RunList<T>(session, sql.ToString(), paramArray);
+            return RunList<T>(session, sql.ToString(), sql.QueryMap, paramArray);
         }
 
         /// <summary>
@@ -561,7 +565,7 @@ namespace Goliath.Data.DataAccess
         /// <param name="sql">The SQL.</param>
         /// <param name="paramArray">The param array.</param>
         /// <returns></returns>
-        public IList<T> RunList<T>(ISession session, string sql, params QueryParam[] paramArray)
+        public IList<T> RunList<T>(ISession session, string sql, TableQueryMap queryMap, params QueryParam[] paramArray)
         {
             Type instanceType = typeof(T);
             //bool ownTransaction = false;
@@ -588,17 +592,25 @@ namespace Goliath.Data.DataAccess
 
                     if (map.EntityConfigs.TryGetValue(instanceType.FullName, out entMap))
                     {
-                        list = ExecuteReader<T>(entMap, dbConn, session, sql, paramArray);
+                        if (queryMap == null)
+                        {
+                            int iteration = 0;
+                            int recursion = 0;
+                            queryMap = new TableQueryMap(entMap.TableName, ref recursion, ref iteration);
+                            queryMap.Prefix = entMap.TableAlias;
+                        }
+
+                        list = ExecuteReader<T>(entMap, dbConn, session, sql, queryMap, paramArray);
                     }
                     else if (map.ComplexTypes.TryGetValue(instanceType.FullName, out complexType))
                     {
-                        list = ExecuteReader<T>(complexType, dbConn, session, sql, paramArray);
+                        list = ExecuteReader<T>(complexType, dbConn, session, sql, queryMap, paramArray);
                     }
                     else
                     {
                         //Build a dynamic entity
                         DynamicEntityMap dynEntMap = new DynamicEntityMap(instanceType);
-                        list = ExecuteReader<T>(dynEntMap, dbConn, session, sql, paramArray);
+                        list = ExecuteReader<T>(dynEntMap, dbConn, session, sql, null, paramArray);
                     }
                 }
 
