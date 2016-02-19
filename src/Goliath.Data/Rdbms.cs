@@ -26,7 +26,7 @@ namespace Goliath.Data
         /// <returns></returns>
         public static bool TryGetBackend(string key, out Lazy<RdbmsBackend> item)
         {
-            if (string.IsNullOrWhiteSpace(key)) throw new ArgumentNullException("key");
+            if(string.IsNullOrWhiteSpace(key)) throw new ArgumentNullException("key");
             return supportedRdbms.TryGetValue(key.ToUpper(), out item);
         }
 
