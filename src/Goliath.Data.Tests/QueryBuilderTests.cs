@@ -23,7 +23,7 @@ namespace Goliath.Data.Tests
         [Test]
         public void BuildSql_build_valid_select_with_joins()
         {
-            string statement = "SELECT Id, Name, Age FROM tb_fakeTable ftb INNER JOIN tb_join1 j1 ON ftb.jid = j1.jcol1 LEFT JOIN tb_join2 j2 ON ftb.j2id = j2.jcol2";
+            string statement = "SELECT Id AS \"Id\", Name AS \"Name\", Age AS \"Age\" FROM tb_fakeTable ftb INNER JOIN tb_join1 j1 ON ftb.jid = j1.jcol1 LEFT JOIN tb_join2 j2 ON ftb.j2id = j2.jcol2";
             var query = session
                 .Select("Id", "Name", "Age")
                 .From("tb_fakeTable", "ftb");
@@ -42,7 +42,7 @@ namespace Goliath.Data.Tests
         [Test]
         public void BuildSql_with_where_should_compose_sql_with_where_statement()
         {
-            string stat = "SELECT id, name, age, location FROM tb_fakeTable fkt WHERE fkt.name LIKE $qPm0 AND fkt.age > $qPm1 OR fkt.location = $qPm2";
+            string stat = "SELECT id AS \"id\", name AS \"name\", age AS \"age\", location AS \"location\" FROM tb_fakeTable fkt WHERE fkt.name LIKE $qPm0 AND fkt.age > $qPm1 OR fkt.location = $qPm2";
 
             var query = session.Select("id", "name", "age", "location").From("tb_fakeTable", "fkt");
 

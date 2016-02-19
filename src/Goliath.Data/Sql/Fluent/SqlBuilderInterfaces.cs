@@ -17,7 +17,7 @@ namespace Goliath.Data.Sql
         IJoinable InnerJoin(string tableName, string alias);
         IJoinable LeftJoin(string tableName, string alias);
         IJoinable RightJoin(string tableName, string alias);
-
+        
         IFilterClause Where(string propertyName);
         IFilterClause Where(string tableAlias, string propertyName);
     }

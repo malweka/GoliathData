@@ -7,7 +7,7 @@ namespace Goliath.Data.Mapping.Fluent
     /// </summary>
     public class PrimaryKeyMap : IMap<PrimaryKeyMap>
     {
-        PrimaryKey primaryKey;
+         
 
         /// <summary>
         /// Columns the name.

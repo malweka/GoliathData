@@ -120,18 +120,18 @@ namespace Goliath.Data.DataAccess
             return commandRunner.RunList<T>(this, sql, limit, offset, out total, paramArray);
         }
 
-        public IList<T> RunList<T>(string sql, params QueryParam[] paramArray)
+        public IList<T> RunList<T>(string sql,TableQueryMap queryMap, params QueryParam[] paramArray)
         {
-            return commandRunner.RunList<T>(this, sql, paramArray);
+            return commandRunner.RunList<T>(this, sql,queryMap, paramArray);
         }
         public IList<T> RunList<T>(SqlQueryBody sql, params QueryParam[] paramArray)
         {
             return commandRunner.RunList<T>(this, sql, paramArray);
         }
 
-        public T Run<T>(string sql, params QueryParam[] paramArray)
+        public T Run<T>(string sql,TableQueryMap queryMap, params QueryParam[] paramArray)
         {
-            return commandRunner.Run<T>(this, sql, paramArray);
+            return commandRunner.Run<T>(this, sql,queryMap, paramArray);
         }
 
         public T Run<T>(SqlQueryBody sql, params QueryParam[] paramArray)
