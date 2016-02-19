@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.Common;
+using System.Linq;
 using Goliath.Data.DynamicProxy;
 using Goliath.Data.Mapping;
 using Goliath.Data.Providers;
@@ -17,49 +18,36 @@ namespace Goliath.Data.DataAccess
         {
         }
 
-        public override void Serialize(IDatabaseSettings settings, EntitySerializer serializer, Relation rel, object instanceEntity, PropertyAccessor pInfo, EntityMap entityMap, EntityAccessor entityAccessor, Dictionary<string, int> columns, DbDataReader dbReader)
+        public override void Serialize(IDatabaseSettings settings, EntitySerializer serializer, Relation rel, object instanceEntity, PropertyAccessor pInfo, EntityMap entityMap, EntityAccessor entityAccessor, DbDataReader dbReader)
         {
-            if (!rel.LazyLoad)
-            {
-                var relEntMap = entityMap.Parent.GetEntityMap(rel.ReferenceEntityName);
-                var relColumns = EntitySerializer.GetColumnNames(dbReader, relEntMap.TableAlias + rel.InternalIndex);
-                Type relType = pInfo.PropertyType;
-                var relEntAccessor = store.GetEntityAccessor(relType, relEntMap);
-                object relIstance = serializer.CreateNewInstance(relType, relEntMap);
+            var relMap = settings.Map.GetEntityMap(rel.ReferenceEntityName);
+            var relCols = new List<string>();
+            var session = serializer.SessionCreator();
 
-                if(serializer.SerializeSingle(relIstance, relType, relEntMap, relEntAccessor, relColumns, dbReader))
-                    pInfo.SetMethod(instanceEntity, relIstance);
-            }
-            else
-            {
-                ProxyBuilder pbuilder = new ProxyBuilder();
-                int ordinal;
+            int iteration = 0;
+            int recursion = 0;
 
-                var relEntMap = entityMap.Parent.GetEntityMap(rel.ReferenceEntityName);
-                if (columns.TryGetValue(rel.ColumnName, out ordinal))
-                {
-                    var val = dbReader[ordinal];
-                    if (val != null)
-                    {
-                        var relProp = relEntMap.GetProperty(rel.ReferenceProperty);
-                        QueryParam qp = new QueryParam(ParameterNameBuilderHelper.ColumnQueryName(relEntMap.TableAlias + rel.InternalIndex, rel.ReferenceColumn), relProp.DbType) { Value = val };
+            var relQueryMap = new TableQueryMap(relMap.FullName, ref recursion, ref iteration);
 
-                        SelectSqlBuilder sqlBuilder = new SelectSqlBuilder(sqlDialect, relEntMap)
-                           .Where(new WhereStatement(ParameterNameBuilderHelper.ColumnWithTableAlias(relEntMap.TableAlias + rel.InternalIndex, rel.ReferenceColumn))
-                                    .Equals(sqlDialect.CreateParameterName(qp.Name)));
+            QueryBuilder q = new QueryBuilder(session, relCols);
+            relQueryMap.LoadColumns(relMap, session, q, relCols);
+            var prop = entityMap.FirstOrDefault(c => c.ColumnName == rel.ColumnName);
 
-                        SqlOperationInfo qInfo = new SqlOperationInfo() { CommandType = SqlStatementType.Select };
-                        qInfo.SqlText = sqlBuilder.ToSqlString();
-                        qInfo.Parameters = new QueryParam[] { qp };
+            if (prop == null)
+                throw new GoliathDataException(string.Format("{0}: Reference {1} does not have matching property.", entityMap.FullName, rel.PropertyName));
 
-                        IProxyHydrator hydrator = new ProxyHydrator(qInfo, pInfo.PropertyType, relEntMap, serializer, settings);
-                        var proxyType = pbuilder.CreateProxyType(pInfo.PropertyType, relEntMap);
-                        object proxyobj = Activator.CreateInstance(proxyType, new object[] { pInfo.PropertyType, hydrator });
-                        pInfo.SetMethod(instanceEntity, proxyobj);
+            var valAccessor = entityAccessor.GetPropertyAccessor(prop.PropertyName);
+            var val = valAccessor.GetMethod(instanceEntity);
 
-                    }
-                }
-            }
+            var queryBuilder = q.From(relMap.TableName, relQueryMap.Prefix)
+                .Where(rel.ReferenceColumn).EqualToValue(val);
+
+            IProxyHydrator hydrator = new ProxyHydrator(queryBuilder as QueryBuilder, pInfo.PropertyType, relMap, serializer, session);
+
+            ProxyBuilder pbuilder = new ProxyBuilder();
+            var proxyType = pbuilder.CreateProxyType(pInfo.PropertyType, relMap);
+            object proxyobj = Activator.CreateInstance(proxyType, new object[] { pInfo.PropertyType, hydrator });
+            pInfo.SetMethod(instanceEntity, proxyobj);
         }
     }
 }

@@ -9,6 +9,8 @@ namespace Goliath.Data
     [System.Diagnostics.DebuggerDisplay("{ColumnEnumeration} {From} {JoinEnumeration} ...")]
     public struct SqlQueryBody
     {
+        public TableQueryMap QueryMap { get; set; }
+
         /// <summary>
         /// Gets or sets the column enumeration.
         /// </summary>

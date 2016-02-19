@@ -33,7 +33,7 @@ namespace Goliath.Data.Sql
 
         protected virtual string PrintColumnName(string columnName, string tableAlias)
         {
-            return string.Format("{1}", tableAlias, columnName);
+            return string.Format("{1} AS \"{1}\"", tableAlias, columnName);
         }
 
     }
