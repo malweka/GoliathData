@@ -196,7 +196,8 @@ namespace Goliath.Data.Utils
             else
             {
                 //var clmn = dialect.Escape(string.Format("{0}.{1}", entMap.TableAlias, prop.ColumnName));
-                columnText = string.Format("{0}.{1} AS \"{0}.{1}\" ", entMap.TableAlias, prop.ColumnName);
+                //TODO: regex to read content between SELECT and FROM and build TableQueryMap
+                columnText = string.Format("{0}.{1} AS \"{0}.{2}\" ", entMap.TableAlias, prop.ColumnName, prop.PropertyName);
 
             }
 
