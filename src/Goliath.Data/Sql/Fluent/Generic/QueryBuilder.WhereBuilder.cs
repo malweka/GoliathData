@@ -47,7 +47,9 @@ namespace Goliath.Data.Sql
 
         public IFilterClause Where(string propertyName)
         {
-            return innerBuilder.Where(propertyName);
+            var prop = Table[propertyName];
+            var columnName = prop.ColumnName ?? propertyName;
+            return innerBuilder.Where(columnName);
         }
     }
 }
