@@ -73,6 +73,7 @@
     <Compile Include="DynamicProxy\ILazyObject.cs" />
     <Compile Include="DynamicProxy\IProxyBuilder.cs" />
     <Compile Include="Entity\IChangeTracker.cs" />
+    <Compile Include="Entity\ICreatable.cs" />
     <Compile Include="Entity\ITrackedItem.cs" />
     <Compile Include="Entity\TrackedItem.cs" />
     <Compile Include="Entity\ChangeTracker.cs" />
