@@ -24,11 +24,10 @@ namespace Goliath.Data.Tests
             Assert.AreEqual("Prop3", dmap["Prop3"].ColumnName);
         }
 
-        [Test,  ExpectedException(typeof(ArgumentNullException))]
+        [Test]
         public void Ctor_null_type_should_throw()
         {
-            DynamicEntityMap dmap = new DynamicEntityMap("tb", "tableFake", null);
-            Assert.Fail("Should have thrown, type is null");
+            Assert.Throws<ArgumentNullException>(() => new DynamicEntityMap("tb", "tableFake", null));
         }
     }
 

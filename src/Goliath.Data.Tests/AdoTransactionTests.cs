@@ -28,19 +28,18 @@ namespace Goliath.Data.Tests
            
         }
 
-        [Test, ExpectedException(typeof(System.ArgumentNullException))]
+        [Test]
         public void Constructor_null_session_throws()
         {
-            AdoTransaction transaction = new AdoTransaction(null);
-            Assert.Fail("should have thrown a null argument exception");
+            Assert.Throws<ArgumentNullException>(() => new AdoTransaction(null));
         }
 
-        [Test, ExpectedException(typeof(DataAccessException))]
+        [Test]
         public void Commit_transaction_needs_to_be_started_before_commit_throws()
         {
             AdoTransaction transaction = new AdoTransaction(session);
             transaction.Commit();
-            Assert.Fail("should have thrown a DataAccessException");
+            Assert.Throws<DataAccessException>(() => transaction.Commit());
         }
     }
 }

@@ -13,37 +13,24 @@ namespace Goliath.Data.Tests
     [TestFixture]
     public class MappedStatementRunnerTests
     {
-        [Test, ExpectedException(typeof(ArgumentNullException))]
+        [Test]
         public void RunStatement_null_session_should_throw()
         {
-            try
-            {
-                MappedStatementRunner runner = new MappedStatementRunner();
-                runner.RunStatement<int>(null, "countZooStatement");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex);
-                throw;
-            }
-            Assert.Fail("The session variable was null, it should have thrown an exception.");
+            MappedStatementRunner runner = new MappedStatementRunner();
+            Assert.Throws<ArgumentNullException>(() => runner.RunStatement<int>(null, "countZooStatement"));
         }
 
-        [Test, ExpectedException(typeof(GoliathDataException))]
+        [Test]
         public void RunStatement_session_trying_to_run_non_query_should_throw_when_picking_wrong_method()
         {
-            try
-            { 
-                var session = SessionHelper.Factory.OpenSession();
-                MappedStatementRunner runner = new MappedStatementRunner();
-                runner.RunStatement<int>(session, "insertZoos", null, new Zoo() { Name = "zooblar", AcceptNewAnimals = true, City = "Kosovo" }, new Zoo() { Name = "Trenton", City = "Trenton", AcceptNewAnimals = false });
-            }
-            catch (Exception ex)
+            var session = SessionHelper.Factory.OpenSession();
+            MappedStatementRunner runner = new MappedStatementRunner();
+            Assert.Throws<GoliathDataException>(() => runner.RunStatement<int>(session, "insertZoos", null, new Zoo()
             {
-                Console.WriteLine(ex);
-                throw;
-            }
-            Assert.Fail("insertZoos statement is non query.");
+                Name = "zooblar",
+                AcceptNewAnimals = true,
+                City = "Kosovo"
+            }, new Zoo() { Name = "Trenton", City = "Trenton", AcceptNewAnimals = false }));
         }
 
         [Test]

@@ -34,7 +34,7 @@ namespace Goliath.Data.Tests
             Assert.AreEqual(3, statement.ParamPropertyMap.Count);
         }
 
-        [Test, ExpectedException(typeof(GoliathDataException))]
+        [Test]
         public void Parse_not_supported_entityMap_property_should_throw()
         {
             string template = "INSERT INTO @{AssemblyName}(@{col:Name},@{col:City},@{col:AcceptNewAnimals}) VALUES(@{prop:Name},@{prop:City},@{prop:AcceptNewAnimals})";
@@ -47,12 +47,11 @@ namespace Goliath.Data.Tests
                     .FirstOrDefault();
 
             StatementMapParser parser = new StatementMapParser();
-            var statement = parser.Parse(new SqliteDialect(), zooEntMap, template, null);
 
-            Assert.Fail("Should have thrown, AssemblyName property is not supported ");
+            Assert.Throws<GoliathDataException>(() => parser.Parse(new SqliteDialect(), zooEntMap, template, null));
         }
 
-        [Test, ExpectedException(typeof(GoliathDataException))]
+        [Test]
         public void Parse_non_existing_column_should_throw()
         {
             string template = "INSERT INTO @{TableName}(@{col:WaterPressure},@{col:City},@{col:AcceptNewAnimals}) VALUES(@{prop:Name},@{prop:City},@{prop:AcceptNewAnimals})";
@@ -64,9 +63,7 @@ namespace Goliath.Data.Tests
                     .FirstOrDefault();
 
             StatementMapParser parser = new StatementMapParser();
-            var statement = parser.Parse(new SqliteDialect(), zooEntMap, template, null);
-
-            Assert.Fail("Should have thrown, column WaterPressure doesn't exist");
+            Assert.Throws<GoliathDataException>(() => parser.Parse(new SqliteDialect(), zooEntMap, template, null));
         }
 
         [Test]

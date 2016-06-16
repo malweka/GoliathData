@@ -23,14 +23,13 @@ namespace Goliath.Data.Tests
 			Assert.AreEqual(2, config.EntityConfigs.Count);
 		}
 
-		[Test, ExpectedException(typeof(MappingException))]
+		[Test]
 		public void Load_xml_config_with_entity_non_existing_map_should_throw()
 		{
 			string testMapfile = Path.Combine(SessionHelper.BaseDirectory, "TestFiles", "MapConfigTests", "Test002.data.xml");
 			MapConfig config = new MapConfig();
-			config.Load(testMapfile);
+		    Assert.Throws<MappingException>(() => config.Load(testMapfile));
 
-			Assert.Fail("should have thrown");
 		}
 
 		[Test]
@@ -114,26 +113,22 @@ namespace Goliath.Data.Tests
 			Assert.AreEqual(System.Data.DbType.Int32, rel.DbType);
 		}
 
-		[Test, ExpectedException(typeof(MappingSerializationException))]
+		[Test]
 		public void Load_generic_statement_without_operation_type_should_throw()
 		{
 			string testMapfile = Path.Combine(SessionHelper.BaseDirectory, "TestFiles", "MapConfigTests", "Test_statement_invalid_statement_operationType.xml");
 			MapConfig config = new MapConfig();
-			config.Load(testMapfile);
-
-			Assert.Fail("should have thrown an exception; map is invalid");
+            Assert.Throws<MappingSerializationException>(() => config.Load(testMapfile));
 		}
 
 
-		[Test, ExpectedException(typeof(MappingSerializationException))]
+		[Test]
 		public void Load_statement_not_depending_on_entity_with_no_name_should_throw()
 		{
 			string testMapfile = Path.Combine(SessionHelper.BaseDirectory, "TestFiles", "MapConfigTests", "Test_statement_invalid_missing_name.xml");
 			MapConfig config = new MapConfig();
-			config.Load(testMapfile);
-
-			Assert.Fail("should have thrown an exception: Statements/query does not have a name.");
-		}
+            Assert.Throws<MappingSerializationException>(() => config.Load(testMapfile));
+        }
 	}
 
 	[TestFixture]

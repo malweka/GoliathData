@@ -39,7 +39,7 @@ namespace Goliath.Data.Tests
             Assert.AreEqual(verify, res);
         }
 
-        [Test, ExpectedException(typeof(DataAccessException))]
+        [Test]
         public void Build_statement_with_no_where_should_throw()
         {
             var columns = new List<string>() { "col1", "col2", "col3" };
@@ -50,8 +50,7 @@ namespace Goliath.Data.Tests
                                      new QueryParam("col3", null)
                                  };
             var builder = new UpdateSqlBuilder("faketable", session, columns, parameters);
-            builder.Build();
-            Assert.Fail("there was no where specified, should have thrown");
+            Assert.Throws<DataAccessException>(() => builder.Build());
         }
 
         [Test]

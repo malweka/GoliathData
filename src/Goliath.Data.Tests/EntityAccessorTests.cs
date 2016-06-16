@@ -12,19 +12,17 @@ namespace Goliath.Data.Tests
     [TestFixture]
     public class EntityAccessorTests
     {
-        [Test, ExpectedException(typeof(ArgumentNullException))]
+        [Test]
         public void Ctor_with_null_type_should_throw()
         {
-            var accessor = new EntityAccessor(null);
-            Assert.Fail("Type was null, should have thrown null argument exception");
+            Assert.Throws<ArgumentNullException>(() => new EntityAccessor(null));
         }
 
-        [Test, ExpectedException(typeof(ArgumentNullException))]
+        [Test]
         public void Load_with_null_entityMap_should_throw()
         {
             var accessor = new EntityAccessor(typeof(Zoo));
-            accessor.Load(null);
-            Assert.Fail("entityMap was null should have thrown");
+            Assert.Throws<ArgumentNullException>(() => accessor.Load(null));
         }
 
         [Test]

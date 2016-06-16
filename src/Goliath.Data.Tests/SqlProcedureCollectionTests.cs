@@ -12,11 +12,10 @@ namespace Goliath.Data.Tests
     public class SqlProcedureCollectionTests
     {
 
-        [Test, ExpectedException(typeof(GoliathDataException))]
+        [Test]
         public void Ctor_Unsupported_platform_should_throw_exception()
         {
-            StatementStore col = new StatementStore("RamenNoodleDB");
-            Assert.Fail("should have thrown an exception because RamenNoodleDB is not supported");
+            Assert.Throws<GoliathDataException>(() => new StatementStore("RamenNoodleDB"));
         }
 
         [Test]

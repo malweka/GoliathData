@@ -11,11 +11,11 @@ namespace Goliath.Data.Tests
     [TestFixture]
     public class EntityAccessorStoreTests
     {
-        [Test, ExpectedException(typeof(ArgumentNullException))]
+        [Test]
         public void GetEntityAccessor_with_null_entityType_should_throw()
         {
             var store = new EntityAccessorStore();
-            store.GetEntityAccessor(null);
+            Assert.Throws<ArgumentNullException>(() => store.GetEntityAccessor(null));
             Assert.Fail("entityType was null. Should have thrown an exception.");
         }
 
