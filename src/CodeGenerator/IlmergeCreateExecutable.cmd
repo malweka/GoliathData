@@ -1,0 +1,2 @@
+cd %~dp0\bin\Release
+"C:\Program Files (x86)\Microsoft\ILMerge\ILMerge.exe" /target:winexe /targetplatform:"v4,c:\windows\Microsoft.NET\Framework\v4.0.30319" /out:GoliathCodeGen.exe Goliath.Data.CodeGenerator.Console.exe Goliath.Data.CodeGenerator.dll Goliath.Data.dll Mono.Cecil.dll RazorEngine.dll System.Web.Razor.dll Goliath.Data.Providers.Postgres.dll Goliath.Data.Providers.Sqlite.dll 
