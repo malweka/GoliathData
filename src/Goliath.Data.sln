@@ -1,6 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
+# Visual Studio 14
+VisualStudioVersion = 14.0.25123.0
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Goliath.Data", "Goliath.Data\Goliath.Data.csproj", "{B3FC3122-EF38-45D1-8019-4D889283B4DC}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Goliath.Data.Console", "Goliath.Data.Console\Goliath.Data.Console.csproj", "{02080BC5-4BB4-4D48-B132-57BCEC010387}"
