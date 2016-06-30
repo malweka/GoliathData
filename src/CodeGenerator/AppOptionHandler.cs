@@ -195,12 +195,12 @@ namespace Goliath.Data.CodeGenerator
                                     var key = entParts[0].Trim();
                                     if (!opts.MetadataDictionary.ContainsKey(key))
                                     {
-                                        var lst = new List<Tuple<string, string>> { Tuple.Create(entParts[0].Trim(), value) };
+                                        var lst = new List<Tuple<string, string>> { Tuple.Create(entParts[1].Trim(), value) };
                                         opts.MetadataDictionary.Add(key, lst);
                                     }
                                     else
                                     {
-                                        opts.MetadataDictionary[key].Add(Tuple.Create(entParts[0].Trim(), value));
+                                        opts.MetadataDictionary[key].Add(Tuple.Create(entParts[1].Trim(), value));
                                     }
                                 }
                             }
