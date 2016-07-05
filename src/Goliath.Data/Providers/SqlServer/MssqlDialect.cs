@@ -95,8 +95,8 @@ namespace Goliath.Data.Providers.SqlServer
             if (!string.IsNullOrWhiteSpace(queryBody.WhereExpression))
                 sb.AppendFormat("\n\t\tWHERE {0}\n", queryBody.WhereExpression);
             sb.Append(") AS RowConstrainedResult");
-            sb.AppendFormat("\nWHERE __RowNum >= {0}", pagingInfo.Offset);
-            sb.AppendFormat("\nAND __RowNum < {0}", pagingInfo.Offset +  pagingInfo.Limit);
+            sb.AppendFormat("\nWHERE __RowNum > {0}", pagingInfo.Offset);
+            sb.AppendFormat("\nAND __RowNum <= {0}", pagingInfo.Offset +  pagingInfo.Limit);
             sb.Append("\nORDER BY __RowNum");
 
             return sb.ToString();

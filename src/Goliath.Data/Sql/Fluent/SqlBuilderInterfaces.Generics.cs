@@ -3,14 +3,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Linq.Expressions;
+using Goliath.Data.Mapping;
 
 namespace Goliath.Data.Sql
 {
 
     public interface IQueryBuilder<T> : IQueryFetchable<T>, IOrderByDirection<T>
     {
+        EntityMap Table { get; }
         IJoinable<T, TRelation> InnerJoin<TRelation>();
+
         IJoinable<T, TRelation> LeftJoin<TRelation>();
+
         IJoinable<T, TRelation> RightJoin<TRelation>();
 
         IFilterClause<T, TProperty> Where<TProperty>(Expression<Func<T, TProperty>> property);
