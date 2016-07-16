@@ -143,7 +143,7 @@ namespace Goliath.Data.DataAccess
 
         T RunStatementInternal<T>(StatementMap statement, ISession session, QueryParam[] parameters)
         {
-            if ((statement.OperationType == MappedStatementType.ExecuteScalar) || (statement.OperationType == MappedStatementType.Query))
+            if ((statement.OperationType == MappedStatementType.ExecuteScalar) || (statement.OperationType == MappedStatementType.Query) || (statement.OperationType == MappedStatementType.Insert))
             {
                 SqlCommandRunner runner = new SqlCommandRunner();
                 var result = runner.Run<T>(session, statement.Body.Trim(),null, parameters);
