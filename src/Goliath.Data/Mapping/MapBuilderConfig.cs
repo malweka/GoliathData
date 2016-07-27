@@ -16,6 +16,12 @@ namespace Goliath.Data.Mapping
     {
         internal const string XmlNameSpace = "http://schemas.hamsman.com/goliath/data/1.1";
         private List<StatementMap> unprocessedStatements = new List<StatementMap>();
+        static ILogger logger;
+
+        static MapConfig()
+        {
+            logger = Logger.GetLogger(typeof(MapConfig));
+        }
 
         /// <summary>
         /// Gets the unprocessed statements.
@@ -77,7 +83,7 @@ namespace Goliath.Data.Mapping
         /// </summary>
         public MapConfig(params IKeyGenerator[] generators)
             : this(
-                new ProjectSettings() {InternallyManaged = true, Platform = RdbmsBackend.SupportedSystemNames.Sqlite3},
+                new ProjectSettings() { InternallyManaged = true, Platform = RdbmsBackend.SupportedSystemNames.Sqlite3 },
                 generators)
         {
         }
@@ -122,34 +128,18 @@ namespace Goliath.Data.Mapping
             return ent;
         }
 
-        /// <summary>
-        /// Saves the model into the specified stream.
-        /// </summary>
-        /// <param name="stream">The stream.</param>
-        public void Save(Stream stream)
-        {
-            Save(stream, false);
-        }
-
-        /// <summary>
-        /// Saves model into the specified file as xml.
-        /// </summary>
-        /// <param name="filename">The filename.</param>
-        public void Save(string filename)
-        {
-            Save(filename, false);
-        }
 
         /// <summary>
         /// Saves model into the specified file as xml.
         /// </summary>
         /// <param name="filename">The filename.</param>
         /// <param name="readable">if set to <c>true</c> the file will be formated to be readable by humans.</param>
-        public void Save(string filename, bool readable)
+        /// <param name="topSorted">if set to <c>true</c> [top sorted].</param>
+        public void Save(string filename, bool readable = false, bool topSorted = false)
         {
             using (var fileStream = File.Open(filename, FileMode.Create, FileAccess.Write))
             {
-                Save(fileStream, readable);
+                Save(fileStream, readable, topSorted);
             }
         }
 
@@ -159,7 +149,7 @@ namespace Goliath.Data.Mapping
         /// <value>
         ///   <c>true</c> if this instance is loaded; otherwise, <c>false</c>.
         /// </value>
-        public bool IsLoaded { get; private set; }
+        public bool IsLoaded { get; internal set; }
 
         /// <summary>
         /// Loads the mapped statements.
@@ -270,17 +260,25 @@ namespace Goliath.Data.Mapping
 
         private bool isSorted;
 
+        /// <summary>
+        /// Sorts this instance.
+        /// </summary>
         public void Sort()
         {
-            if(isSorted || !IsLoaded)return;
+            if (isSorted || !IsLoaded) return;
 
             var sorter = new MapSorter();
+
+            logger.Log(LogLevel.Debug, "Applying TopSort");
+
             var sortedList = sorter.Sort(EntityConfigs);
             EntityConfigs = sortedList;
             isSorted = true;
+
+            logger.Log(LogLevel.Debug, "EntityConfigs sorted.");
         }
 
-    /// <summary>
+        /// <summary>
         /// Loads the specified XML stream.
         /// </summary>
         /// <param name="xmlStream">The XML stream.</param>

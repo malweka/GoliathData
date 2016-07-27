@@ -24,7 +24,7 @@ namespace Goliath.Data.CodeGenerator
             Console.WriteLine("Press enter to continue.");
             Console.ReadLine();
 #endif
- 
+
 
             var opts = AppOptionHandler.ParseOptions(args);
 
@@ -72,13 +72,13 @@ namespace Goliath.Data.CodeGenerator
             Console.WriteLine("\n\nLoading settings...");
 
             var codeGenRunner = new CodeGenRunner(rdbms, new GenericCodeGenerator())
-                                {
-                                    TemplateFolder = opts.TemplateFolder,
-                                    ScriptFolder = AppDomain.CurrentDomain.BaseDirectory,
-                                    DatabaseFolder = AppDomain.CurrentDomain.BaseDirectory,
-                                    WorkingFolder = opts.WorkingFolder,
-                                    QueryProviderName = opts.QueryProviderName,
-                                    Settings =
+            {
+                TemplateFolder = opts.TemplateFolder,
+                ScriptFolder = AppDomain.CurrentDomain.BaseDirectory,
+                DatabaseFolder = AppDomain.CurrentDomain.BaseDirectory,
+                WorkingFolder = opts.WorkingFolder,
+                QueryProviderName = opts.QueryProviderName,
+                Settings =
                                     {
                                         Namespace = opts.Namespace,
                                         AssemblyName = opts.AssemblyName,
@@ -86,7 +86,7 @@ namespace Goliath.Data.CodeGenerator
                                         Platform = rdbms.ToString()
 
                                     }
-                                };
+            };
 
 
             var action = opts.ActionName.ToUpper();
@@ -349,11 +349,11 @@ namespace Goliath.Data.CodeGenerator
                         var contentLog = sr.ReadToEnd();
                         if (!string.IsNullOrWhiteSpace(contentLog))
                         {
-                            var split = contentLog.Split(new string[] {"\n", "\r"}, StringSplitOptions.RemoveEmptyEntries);
+                            var split = contentLog.Split(new string[] { "\n", "\r" }, StringSplitOptions.RemoveEmptyEntries);
                             for (var i = 0; i < split.Length; i++)
                             {
                                 var tbName = split[i];
-                                previousOrderDict.Add(tbName, Tuple.Create(i+1, tbName));
+                                previousOrderDict.Add(tbName, Tuple.Create(i + 1, tbName));
                             }
 
                             orderCount = split.Length;
@@ -412,12 +412,12 @@ namespace Goliath.Data.CodeGenerator
 
                 }
 
-                map.Save(mapFileName, true);
+                map.Save(mapFileName, true, true);
                 using (var file = new StreamWriter(prima_orda))
                 {
                     foreach (var tbOrder in previousOrderDict.Keys)
                     {
-                       file.WriteLine(tbOrder);
+                        file.WriteLine(tbOrder);
                     }
                 }
             }
