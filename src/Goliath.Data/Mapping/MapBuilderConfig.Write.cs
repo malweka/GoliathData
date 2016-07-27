@@ -3,6 +3,7 @@ using System.Text;
 using System.Xml;
 using System.Collections.Generic;
 using System.Linq;
+using Goliath.Data.Diagnostics;
 
 namespace Goliath.Data.Mapping
 {
@@ -14,8 +15,14 @@ namespace Goliath.Data.Mapping
         /// </summary>
         /// <param name="stream">The stream.</param>
         /// <param name="readable">if set to <c>true</c> the file will be formated to be readable by humans.</param>
-        public void Save(Stream stream, bool readable)
+        /// <param name="topSorted">if set to <c>true</c> [top sorted].</param>
+        public void Save(Stream stream, bool readable = false, bool topSorted = false)
         {
+            logger.Log(LogLevel.Debug, "Saving Map...");
+
+            if (topSorted)
+                Sort();
+
             using (XmlTextWriter xmlWriter = new XmlTextWriter(stream, Encoding.UTF8))
             {
                 if (readable)
@@ -93,7 +100,7 @@ namespace Goliath.Data.Mapping
                         xmlWriter.WriteEndAttribute();
                     }
 
-                    if(entity.Order>0)
+                    if (entity.Order > 0)
                     {
                         xmlWriter.WriteStartAttribute("order");
                         xmlWriter.WriteString(entity.Order.ToString());

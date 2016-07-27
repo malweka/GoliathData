@@ -76,6 +76,7 @@ namespace Goliath.Data.Mapping
                 MapPrimaryKey(ent);
             }
 
+            builder.IsLoaded = true;
             Console.WriteLine("we found {0} tables", tables.Count);
 
             return builder;

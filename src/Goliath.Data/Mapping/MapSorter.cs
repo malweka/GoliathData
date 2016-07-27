@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Goliath.Data.Diagnostics;
 
 namespace Goliath.Data.Mapping
 {
@@ -13,9 +14,16 @@ namespace Goliath.Data.Mapping
         private int numVerts;
         private int[] sortedArray;
 
+        static ILogger logger;
+        static MapSorter()
+        {
+            logger = Logger.GetLogger(typeof(MapSorter));
+        }
+
         public EntityCollection Sort(EntityCollection tableCollection)
         {
-            if (tableCollection == null) throw new ArgumentNullException("tableCollection");
+            if (tableCollection == null)
+                throw new ArgumentNullException("tableCollection");
 
             if (tableCollection.Count <= 2)
                 return tableCollection;
@@ -51,7 +59,8 @@ namespace Goliath.Data.Mapping
 
                 foreach (var rf in tbl.Relations)
                 {
-                    AddEdge(indexes[rf.ReferenceTable], i);
+                    if (rf.RelationType == RelationshipType.ManyToOne)
+                        AddEdge(indexes[rf.ReferenceTable], i);
                 }
             }
 
@@ -59,9 +68,11 @@ namespace Goliath.Data.Mapping
 
             var sortedDictionary = new EntityCollection();
 
-            foreach (var t in sortedIndex)
+            for (var t = sortedIndex.Length; t-- > 0;)
             {
-                var tbl = tableCollection[t];
+                var indx = sortedIndex[t];
+                var tbl = tableCollection[indx];
+                logger.Log(LogLevel.Debug, string.Format("Sort index:{0} table:{1}", indx, tbl.Name));
                 sortedDictionary.Add(tbl);
             }
 
