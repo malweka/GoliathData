@@ -54,13 +54,24 @@ namespace Goliath.Data.Mapping
             for (var i = 0; i < count; i++)
             {
                 var tbl = tableCollection[i];
+                //var idx = indexes[tbl.TableName];
 
                 if (tbl.Relations.Count <= 0) continue;
 
+                if (tbl.IsLinkTable)
+                {
+                    foreach (var pk in tbl.PrimaryKey.Keys)
+                    {
+                        var rel = pk.Key as Relation;
+                        AddEdge(indexes, tbl, rel, i);
+                    }
+
+                    continue;
+                }
+
                 foreach (var rf in tbl.Relations)
                 {
-                    if (rf.RelationType == RelationshipType.ManyToOne)
-                        AddEdge(indexes[rf.ReferenceTable], i);
+                    AddEdge(indexes, tbl, rf, i);
                 }
             }
 
@@ -68,13 +79,19 @@ namespace Goliath.Data.Mapping
 
             var sortedDictionary = new EntityCollection();
 
-            for (var t = sortedIndex.Length; t-- > 0;)
+            for (var j = 0; j < sortedIndex.Length; j++)
             {
-                var indx = sortedIndex[t];
-                var tbl = tableCollection[indx];
-                logger.Log(LogLevel.Debug, string.Format("Sort index:{0} table:{1}", indx, tbl.Name));
+                var tbl = tableCollection[sortedIndex[j]];
                 sortedDictionary.Add(tbl);
             }
+
+            //for (var t = sortedIndex.Length; t-- > 0;)
+            //{
+            //    var indx = sortedIndex[t];
+            //    var tbl = tableCollection[indx];
+            //    logger.Log(LogLevel.Debug, string.Format("Sort index:{0} table:{1}", indx, tbl.Name));
+            //    sortedDictionary.Add(tbl);
+            //}
 
             vertices = null;
             matrix = null;
@@ -82,6 +99,14 @@ namespace Goliath.Data.Mapping
             sortedArray = null;
 
             return sortedDictionary;
+        }
+
+        void AddEdge(Dictionary<string, int> indexes, EntityMap tbl, Relation rf, int iteration)
+        {
+            if (rf.RelationType != RelationshipType.ManyToOne) return;
+
+            logger.Log(LogLevel.Debug, string.Format("tb:{0} -> edge:{1}", tbl.TableName, rf.ReferenceTable));
+            AddEdge(indexes[rf.ReferenceTable], iteration);
         }
 
         private int[] Sort()
