@@ -43,6 +43,7 @@ namespace Goliath.Data.Mapping
         /// <value><c>true</c> if [ignore on update]; otherwise, <c>false</c>.</value>
         [DataMember]
         public bool IgnoreOnUpdate { get; set; }
+
         /// <summary>
         /// Gets or sets a value indicating whether this instance is complex type.
         /// </summary>
@@ -51,6 +52,7 @@ namespace Goliath.Data.Mapping
         /// </value>
         [DataMember]
         public bool IsComplexType { get; set; }
+
         /// <summary>
         /// Gets or sets the name of the complex type.
         /// </summary>
