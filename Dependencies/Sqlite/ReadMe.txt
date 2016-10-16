@@ -1,1 +1,0 @@
-You'll need to download System.Data.SQLite from http://system.data.sqlite.org/index.html/doc/trunk/www/downloads.wiki

@@ -17,11 +17,3 @@ using System.Runtime.InteropServices;
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
 [assembly: Guid("c4b79ba9-ff70-45fe-8bdc-872113515445")]
-
-[assembly: AssemblyCompany("Hamsman")]
-[assembly: AssemblyProduct("CodeGenerator")]
-[assembly: AssemblyCopyright("Copyright © Emmanuel Hameyie 2013")]
-[assembly: AssemblyTrademark("")]
-
-[assembly: AssemblyVersion("2.0.0.0")]
-[assembly: AssemblyFileVersion("2.0.0.0")]
