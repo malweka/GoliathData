@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package >
   <metadata>
-    <id>Goliath.Data</id>
-	<title>Goliath.Data</title>
+    <id>Goliath.Data.CodeGen</id>
+	<title>Goliath.Data.CodeGen</title>
     <version>$version$</version>
     <authors>Emmanuel Hameyie</authors>
     <owners>Emmanuel Hameyie</owners>
@@ -13,11 +13,8 @@
     <releaseNotes> </releaseNotes>
     <copyright>Copyright ©2016 Emmanuel Hameyie</copyright>
     <tags>ORM SQL</tags>
-    <!--<dependencies>
-      <dependency id="SampleDependency" version="1.0" />
-    </dependencies>-->
   </metadata>
   <files>
-    <file src="build\GoliathData\**" target="" />
+    <file src="build\CodeGen\**" target="" />
   </files>
 </package>

@@ -86,8 +86,14 @@
   </Target>
 
   <Target Name="Packaging" DependsOnTargets="Build;Copy">
-    <Message Text="Packing GoliathData $(Version)" />
+    <Message Text="Packing Goliath Data $(Version)" />
     <Exec Command="&quot;$(NuGetPath)nuget.exe&quot; pack  &quot;$(MSBuildProjectDirectory)\Goliath.Data.nuspec&quot; -version $(Version) -outputdirectory &quot;$(BuildPath)&quot;" />
+	<Message Text="Packing Goliath CodeGen Tools $(Version)" />
+    <Exec Command="&quot;$(NuGetPath)nuget.exe&quot; pack  &quot;$(MSBuildProjectDirectory)\CodeGen.nuspec&quot; -version $(Version) -outputdirectory &quot;$(BuildPath)&quot;" />
+	<Message Text="Packing Postgres Provider $(Version)" />
+    <Exec Command="&quot;$(NuGetPath)nuget.exe&quot; pack  &quot;$(MSBuildProjectDirectory)\Goliath.Data.Providers.Postgres.nuspec&quot; -version $(Version) -outputdirectory &quot;$(BuildPath)&quot;" />
+	<Message Text="Packing Sqlite Provider $(Version)" />
+    <Exec Command="&quot;$(NuGetPath)nuget.exe&quot; pack  &quot;$(MSBuildProjectDirectory)\Goliath.Data.Providers.Sqlite.nuspec&quot; -version $(Version) -outputdirectory &quot;$(BuildPath)&quot;" />
   </Target>
 
 </Project>

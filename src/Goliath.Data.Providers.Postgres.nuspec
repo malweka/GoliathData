@@ -1,23 +1,24 @@
 <?xml version="1.0"?>
 <package >
   <metadata>
-    <id>Goliath.Data</id>
-	<title>Goliath.Data</title>
+    <id>Goliath.Data.Providers.Postgres</id>
+	<title>Goliath.Data.Providers.Postgres</title>
     <version>$version$</version>
     <authors>Emmanuel Hameyie</authors>
     <owners>Emmanuel Hameyie</owners>
     <licenseUrl>https://opensource.org/licenses/Apache-2.0</licenseUrl>
     <projectUrl>https://bitbucket.org/malweka/goliathdata</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>ORM and database tool</description>
+    <description>Goliath Data Postgres Driver</description>
     <releaseNotes> </releaseNotes>
     <copyright>Copyright ©2016 Emmanuel Hameyie</copyright>
-    <tags>ORM SQL</tags>
-    <!--<dependencies>
-      <dependency id="SampleDependency" version="1.0" />
-    </dependencies>-->
+    <tags>ORM SQL Postgres</tags>
+    <dependencies>
+      <dependency id="Goliath.Data" version="$version$" />
+	  <dependency id="Npgsql" version="3.1.3" />
+    </dependencies>
   </metadata>
   <files>
-    <file src="build\GoliathData\**" target="" />
+    <file src="build\Providers\Postgres\**" target="" />
   </files>
 </package>
