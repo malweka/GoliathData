@@ -303,25 +303,41 @@ namespace Goliath.Data.Mapping
             foreach (var entMap in EntityConfigs)
             {
                 if (entMap.IsLinkTable)
+                {
+                    foreach (var pk in entMap.PrimaryKey.Keys)
+                    {
+                        var rel = pk.Key as Relation;
+                        RetrieveAllRelationProperties(entMap, rel);
+                    }
+
                     continue;
+                }
 
                 foreach (var rel in entMap.Relations)
                 {
-                    var relEntMap = GetEntityMap(rel.ReferenceEntityName);
-                    if (relEntMap == null)
-                        throw new MappingException(string.Format("Could not find Mapped Entity {0} for property {1}.{2}", rel.ReferenceEntityName, entMap.Name, rel.PropertyName));
-
-                    rel.ReferenceTable = relEntMap.TableName;
-                    rel.ReferenceTableSchemaName = relEntMap.SchemaName;
-
-                    var refProperty = relEntMap.GetProperty(rel.ReferenceProperty);
-                    if (refProperty == null)
-                        throw new MappingException(string.Format("Could not find ReferenceProperty {0} for property {1}.{2}",
-                            rel.ReferenceProperty, entMap.Name, rel.PropertyName));
-
-                    rel.ReferenceColumn = refProperty.ColumnName;
+                    RetrieveAllRelationProperties(entMap, rel);
                 }
             }
+        }
+
+        void RetrieveAllRelationProperties(EntityMap entMap, Relation rel)
+        {
+            if (entMap == null) throw new ArgumentNullException(nameof(entMap));
+            if (rel == null) throw new ArgumentNullException(nameof(rel));
+
+            var relEntMap = GetEntityMap(rel.ReferenceEntityName);
+            if (relEntMap == null)
+                throw new MappingException(string.Format("Could not find Mapped Entity {0} for property {1}.{2}", rel.ReferenceEntityName, entMap.Name, rel.PropertyName));
+
+            rel.ReferenceTable = relEntMap.TableName;
+            rel.ReferenceTableSchemaName = relEntMap.SchemaName;
+
+            var refProperty = relEntMap.GetProperty(rel.ReferenceProperty);
+            if (refProperty == null)
+                throw new MappingException(string.Format("Could not find ReferenceProperty {0} for property {1}.{2}",
+                    rel.ReferenceProperty, entMap.Name, rel.PropertyName));
+
+            rel.ReferenceColumn = refProperty.ColumnName;
         }
 
         private bool canSetExternalMapStatements;

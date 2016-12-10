@@ -15,6 +15,7 @@ namespace Goliath.Data.Mapping
         private int[] sortedArray;
 
         static ILogger logger;
+
         static MapSorter()
         {
             logger = Logger.GetLogger(typeof(MapSorter));
@@ -56,8 +57,6 @@ namespace Goliath.Data.Mapping
                 var tbl = tableCollection[i];
                 //var idx = indexes[tbl.TableName];
 
-                if (tbl.Relations.Count <= 0) continue;
-
                 if (tbl.IsLinkTable)
                 {
                     foreach (var pk in tbl.PrimaryKey.Keys)
@@ -68,6 +67,9 @@ namespace Goliath.Data.Mapping
 
                     continue;
                 }
+
+                if (tbl.Relations.Count <= 0) continue;
+
 
                 foreach (var rf in tbl.Relations)
                 {
@@ -105,8 +107,20 @@ namespace Goliath.Data.Mapping
         {
             if (rf.RelationType != RelationshipType.ManyToOne) return;
 
+            if(tbl.FullName.Equals(rf.ReferenceEntityName)) return; // we don't care if an entity references itself
+            
+
             logger.Log(LogLevel.Debug, string.Format("tb:{0} -> edge:{1}", tbl.TableName, rf.ReferenceTable));
-            AddEdge(indexes[rf.ReferenceTable], iteration);
+
+            try
+            {
+                AddEdge(indexes[rf.ReferenceTable], iteration);
+            }
+            catch (Exception ex)
+            {
+                throw new GoliathDataException(string.Format("Could not add index for {0} ", rf.ReferenceTable), ex);
+            }
+            
         }
 
         private int[] Sort()

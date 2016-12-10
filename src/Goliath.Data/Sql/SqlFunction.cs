@@ -74,7 +74,7 @@ namespace Goliath.Data.Sql
                 }
             }
 
-            return string.Format("{0}({1})", Declaration, parameters.ToString());
+            return $"{Declaration}({parameters.ToString()})";
         }
 
         #endregion

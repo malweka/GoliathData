@@ -19,7 +19,7 @@ namespace Goliath.Data.CodeGenerator
         /// <param name="mapFile">The map file.</param>
         /// <param name="fileNameFunction">The file name function.</param>
         /// <param name="excludedTables">The excluded tables.</param>
-        void GenerateCodeForEachEntityMap(string templatefile, string workingFolder, string mapFile, Func<string, string> fileNameFunction = null, params string[] excludedTables);
+        void GenerateCodeForEachEntityMap(string templatefile, string workingFolder, string mapFile, Func<string,int?, string> fileNameFunction = null, params string[] excludedTables);
 
         /// <summary>
         /// Generates the code for each entity map.
@@ -29,7 +29,7 @@ namespace Goliath.Data.CodeGenerator
         /// <param name="config">The config.</param>
         /// <param name="fileNameFunction">The file name function.</param>
         /// <param name="excludedTables">The excluded tables.</param>
-        void GenerateCodeForEachEntityMap(string templatefile, string workingFolder, MapConfig config, Func<string, string> fileNameFunction = null, params string[] excludedTables);
+        void GenerateCodeForEachEntityMap(string templatefile, string workingFolder, MapConfig config, Func<string,int?, string> fileNameFunction = null, params string[] excludedTables);
 
         /// <summary>
         /// Generates the code from model.

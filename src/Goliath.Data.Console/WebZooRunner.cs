@@ -211,19 +211,19 @@ namespace Goliath.Data.CodeGen
         {
             var mapfile = Path.Combine(WorkingFolder, Constants.MapFileName);
             var templateFile = Path.Combine(TemplateFolder, "Class.razt");
-            codeGen.GenerateCodeForEachEntityMap(templateFile, WorkingFolder, mapfile, (name) => name + ".cs");
+            codeGen.GenerateCodeForEachEntityMap(templateFile, WorkingFolder, mapfile, (name,iteration) => name + ".cs");
         }
 
         public void GenerateClasses(string mapFile)
         {
             var templateFile = Path.Combine(TemplateFolder, "Class.razt");
-            codeGen.GenerateCodeForEachEntityMap(templateFile, WorkingFolder, mapFile, (name) => name + ".cs");
+            codeGen.GenerateCodeForEachEntityMap(templateFile, WorkingFolder, mapFile, (name,iteration) => name + ".cs");
         }
 
         public void GenerateClasses(MapConfig config)
         {
             var templateFile = Path.Combine(TemplateFolder, "Class.razt");
-            codeGen.GenerateCodeForEachEntityMap(templateFile, WorkingFolder, config, (name) => name + ".cs");
+            codeGen.GenerateCodeForEachEntityMap(templateFile, WorkingFolder, config, (name,iteration) => name + ".cs");
         }
     }
 
