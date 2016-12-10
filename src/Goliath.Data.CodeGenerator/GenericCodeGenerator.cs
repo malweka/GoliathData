@@ -48,7 +48,7 @@ namespace Goliath.Data.CodeGenerator
         /// <param name="mapfile">The mapfile.</param>
         /// <param name="fileNameFunction">The file name function.</param>
         /// <param name="excludedTables">The excluded tables.</param>
-        public void GenerateCodeForEachEntityMap(string templatefile, string workingFolder, string mapfile, Func<string, string> fileNameFunction = null, params string[] excludedTables)
+        public void GenerateCodeForEachEntityMap(string templatefile, string workingFolder, string mapfile, Func<string, int?, string> fileNameFunction = null, params string[] excludedTables)
         {
             var project = MapConfig.Create(mapfile, true);
             GenerateCodeForEachEntityMap(templatefile, workingFolder, project, fileNameFunction, excludedTables);
@@ -62,8 +62,9 @@ namespace Goliath.Data.CodeGenerator
         /// <param name="config">The config.</param>
         /// <param name="fileNameFunction">The file name function.</param>
         /// <param name="excludedTables">The excluded tables.</param>
-        public void GenerateCodeForEachEntityMap(string templatefile, string workingFolder, MapConfig config, Func<string, string> fileNameFunction = null, params string[] excludedTables)
+        public void GenerateCodeForEachEntityMap(string templatefile, string workingFolder, MapConfig config, Func<string, int?, string> fileNameFunction = null, params string[] excludedTables)
         {
+            var counter = 0;
             foreach (var table in config.EntityConfigs)
             {
                 if (table.IsLinkTable || SchemaDescriptor.IsExcludedEntity(excludedTables, table.Name))
@@ -71,10 +72,11 @@ namespace Goliath.Data.CodeGenerator
                 try
                 {
                     var name = table.Name + ".txt";
+                    counter++;
 
                     if (fileNameFunction != null)
                     {
-                        name = fileNameFunction(table.Name);
+                        name = fileNameFunction(table.Name, counter);
                     }
                     var fname = Path.Combine(workingFolder, name);
 
@@ -175,7 +177,7 @@ namespace Goliath.Data.CodeGenerator
             string mapfile;
             if (!Path.IsPathRooted(mapFileName))
                 mapfile = Path.Combine(workingFolder, mapFileName);
-            else 
+            else
                 mapfile = mapFileName;
 
             builder.Save(mapfile, true);

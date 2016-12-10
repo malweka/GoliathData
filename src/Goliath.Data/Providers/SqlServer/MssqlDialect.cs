@@ -136,7 +136,7 @@ namespace Goliath.Data.Providers.SqlServer
         /// </summary>
         /// <param name="fromType">From type.</param>
         /// <returns></returns>
-        protected override string OnTranslateToSqlTypeString(Goliath.Data.Mapping.Property fromType)
+        protected override string OnTranslateToSqlTypeString(Mapping.Property fromType)
         {
 
             StringBuilder sqlSb = new StringBuilder();
@@ -158,10 +158,15 @@ namespace Goliath.Data.Providers.SqlServer
             var sType = to ?? fromType.SqlType;
             sqlSb.AppendFormat(" {0}", sType);
 
-            if (fromType.IsPrimaryKey)
+            if (fromType.IsIdentity)
             {
-                sqlSb.AppendFormat(" {0}", PrimarykeySql().ToUpper());
+                sqlSb.AppendFormat(" IDENTITY(1,1)");
             }
+
+            //if (fromType.IsPrimaryKey)
+            //{
+            //    sqlSb.AppendFormat(" {0}", PrimarykeySql().ToUpper());
+            //}
             if (!string.IsNullOrWhiteSpace(fromType.DefaultValue))
             {
                 string dVal = fromType.DefaultValue;

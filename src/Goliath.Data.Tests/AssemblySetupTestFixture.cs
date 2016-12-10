@@ -13,7 +13,7 @@ using Goliath.Data;
 
 namespace Goliath.Data.Tests
 {
-    [SetUpFixture]
+
     public class AssemblySetupTestFixture
     {
         const string MapFileName = "GoData.Map.xml";

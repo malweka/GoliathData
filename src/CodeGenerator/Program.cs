@@ -31,6 +31,11 @@ namespace Goliath.Data.CodeGenerator
             Console.WriteLine("Starting application. Generated files will be saved on Folder: {0} ", opts.WorkingFolder);
             Console.WriteLine("Template Folder: {0} \n", opts.TemplateFolder);
 
+            //can we load sqlite
+            Console.WriteLine("Loading sqlite provider");
+            var sqlite = new Goliath.Data.Providers.Sqlite.SqliteDialect();
+            Console.WriteLine("Loading postgresql provider");
+            var postgres = new Goliath.Data.Providers.Postgres.PostgresDialect();
 
             SupportedRdbms rdbms;
 
@@ -225,18 +230,25 @@ namespace Goliath.Data.CodeGenerator
             map.Settings.AssemblyName = opts.AssemblyName;
             map.Settings.Namespace = opts.Namespace;
 
-            codeGenRunner.GenerateClassesFromTemplate(map, template, codeGenRunner.WorkingFolder, (name) => GetFileName(name, opts.OutputFile), opts.ExcludedArray);
+            codeGenRunner.GenerateClassesFromTemplate(map, template, codeGenRunner.WorkingFolder, (name,iteration) => GetFileName(name,iteration, opts.OutputFile), opts.ExcludedArray);
 
         }
 
-        static string GetFileName(string entityName, string outputFile)
+        static string GetFileName(string entityName,int? iteration, string outputFile)
         {
-            if (outputFile.Contains("(name)"))
+            string fileName;
+            if (outputFile.Contains("(name)") || outputFile.Contains("(iteration)"))
             {
-                return outputFile.Replace("(name)", entityName);
+                fileName = outputFile.Replace("(name)", entityName);
+                if (iteration.HasValue)
+                    fileName = fileName.Replace("(iteration)", $"{iteration.Value}");
             }
-
-            return string.Concat(entityName, outputFile);
+            else
+            {
+                fileName = string.Concat(entityName, outputFile);
+            }
+            
+            return fileName;
         }
 
         static void GenerateEntities(AppOptionInfo opts, ICodeGenRunner codeGenRunner)

@@ -196,7 +196,7 @@ and ep.minor_id = c.colid";
                 {
                     countOrder++;
                     string colName = reader.GetValueAsString("COLUMN_NAME");
-                    string dataType = reader.GetValueAsString("DATA_TYPE");
+                    string dataType = reader.GetValueAsString("DATA_TYPE").ToLower();
                     int? length = reader.GetValueAsInt("CHARACTER_MAXIMUM_LENGTH");
                     int? precision = reader.GetValueAsInt("NUMERIC_PRECISION");
                     int? scale = reader.GetValueAsInt("NUMERIC_SCALE");
@@ -207,7 +207,17 @@ and ep.minor_id = c.colid";
                     {
                         //col = new Property(table, colName, mapper.SqlStringToDbType(dataType), length.Value);
                         if (length < 0)
-                            length = 2000;
+                        {
+                            if (dataType.Equals("nvarchar") || dataType.Equals("nchar"))
+                                length = 4000;
+                            else if (dataType.Equals("varchar") || dataType.Equals("char"))
+                                length = 8000;
+                            
+                            else
+                            {
+                                length = 8000;
+                            }
+                        }
                         col = new Property(colName, colName, dialect.SqlStringToDbType(dataType)) { Length = length.Value };
                     }
                     else

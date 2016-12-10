@@ -144,7 +144,7 @@ namespace Goliath.Data.CodeGenerator
         public void GenerateClasses(string mapFile, params string[] excludedEntities)
         {
             var templateFile = Path.Combine(TemplateFolder, "TrackableClass.razt");
-            codeGen.GenerateCodeForEachEntityMap(templateFile, WorkingFolder, mapFile, (name) => name + ".cs", excludedEntities);
+            codeGen.GenerateCodeForEachEntityMap(templateFile, WorkingFolder, mapFile, (name,iteration) => name + ".cs", excludedEntities);
         }
 
         /// <summary>
@@ -155,7 +155,7 @@ namespace Goliath.Data.CodeGenerator
         public void GenerateClasses(MapConfig config, params string[] excludedEntities)
         {
             var templateFile = Path.Combine(TemplateFolder, "TrackableClass.razt");
-            codeGen.GenerateCodeForEachEntityMap(templateFile, WorkingFolder, config, (name) => name + ".cs", excludedEntities);
+            codeGen.GenerateCodeForEachEntityMap(templateFile, WorkingFolder, config, (name,iteration) => name + ".cs", excludedEntities);
         }
 
         /// <summary>
@@ -166,7 +166,7 @@ namespace Goliath.Data.CodeGenerator
         /// <param name="workingFolder">The working folder.</param>
         /// <param name="fileNameFunction">The file name function.</param>
         /// <param name="excludedEntities">The excluded entities.</param>
-        public void GenerateClassesFromTemplate(string mapFile, string templateFile, string workingFolder, Func<string, string> fileNameFunction = null, params string[] excludedEntities)
+        public void GenerateClassesFromTemplate(string mapFile, string templateFile, string workingFolder, Func<string, int?, string> fileNameFunction = null, params string[] excludedEntities)
         {
             codeGen.GenerateCodeForEachEntityMap(templateFile, workingFolder, mapFile, fileNameFunction, excludedEntities);
         }
@@ -179,7 +179,7 @@ namespace Goliath.Data.CodeGenerator
         /// <param name="workingFolder">The working folder.</param>
         /// <param name="fileNameFunction">The file name function.</param>
         /// <param name="excludedEntities">The excluded entities.</param>
-        public void GenerateClassesFromTemplate(MapConfig config, string templateFile, string workingFolder, Func<string, string> fileNameFunction = null, params string[] excludedEntities)
+        public void GenerateClassesFromTemplate(MapConfig config, string templateFile, string workingFolder, Func<string, int?, string> fileNameFunction = null, params string[] excludedEntities)
         {
             codeGen.GenerateCodeForEachEntityMap(templateFile, workingFolder, config, fileNameFunction, excludedEntities);
         }
