@@ -7,10 +7,22 @@ using Goliath.Data.Utilities;
 
 namespace Goliath.Data.Mapping
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public enum ExportType
     {
+        /// <summary>
+        /// The SQL
+        /// </summary>
         Sql,
+        /// <summary>
+        /// The XML
+        /// </summary>
         Xml,
+        /// <summary>
+        /// The excel
+        /// </summary>
         Excel
     }
 
@@ -19,6 +31,12 @@ namespace Goliath.Data.Mapping
     /// </summary>
     public class ExportModel
     {
+        /// <summary>
+        /// Gets or sets the dialect.
+        /// </summary>
+        /// <value>
+        /// The dialect.
+        /// </value>
         public SqlDialect Dialect { get; set; }
 
         /// <summary>
@@ -75,6 +93,11 @@ namespace Goliath.Data.Mapping
             return sqlQuery;
         }
 
+        /// <summary>
+        /// Lists the data for export.
+        /// </summary>
+        /// <param name="exportType">Type of the export.</param>
+        /// <returns></returns>
         public virtual IList<IDictionary<string, string>> ListDataForExport(ExportType exportType)
         {
             var list = new List<IDictionary<string, string>>();

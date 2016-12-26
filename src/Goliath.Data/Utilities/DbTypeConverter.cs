@@ -2,6 +2,9 @@ using System;
 
 namespace Goliath.Data.Utilities
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public static class DbTypeConverter
     {
         /// <summary>

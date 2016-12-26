@@ -11,8 +11,17 @@ namespace Goliath.Data.Collections
     /// <typeparam name="T"></typeparam>
     public abstract class BaseTrackableCollection<T> : IList<T>, ITrackableCollection<T>
     {
+        /// <summary>
+        /// The deleted items
+        /// </summary>
         protected List<T> deletedItems;
+        /// <summary>
+        /// The inserted items
+        /// </summary>
         protected List<T> insertedItems;
+        /// <summary>
+        /// The list
+        /// </summary>
         protected List<T> list;
 
         /// <summary>
@@ -153,19 +162,13 @@ namespace Goliath.Data.Collections
         /// Gets the number of elements contained in the <see cref="T:System.Collections.Generic.ICollection`1"></see>.
         /// </summary>
         /// <returns>The number of elements contained in the <see cref="T:System.Collections.Generic.ICollection`1"></see>.</returns>
-        public int Count
-        {
-            get { return list.Count; }
-        }
+        public int Count => list.Count;
 
         /// <summary>
         /// Gets a value indicating whether the <see cref="T:System.Collections.Generic.ICollection`1"></see> is read-only.
         /// </summary>
         /// <returns>true if the <see cref="T:System.Collections.Generic.ICollection`1"></see> is read-only; otherwise, false.</returns>
-        public bool IsReadOnly
-        {
-            get { return false; }
-        }
+        public bool IsReadOnly => false;
 
         /// <summary>
         /// Removes the first occurrence of a specific object from the <see cref="T:System.Collections.Generic.ICollection`1"></see>.
@@ -249,33 +252,21 @@ namespace Goliath.Data.Collections
         /// Gets the deleted items.
         /// </summary>
         /// <value>The deleted items.</value>
-        public ICollection<T> DeletedItems
-        {
-            get { return deletedItems; }
-        }
+        public ICollection<T> DeletedItems => deletedItems;
 
         /// <summary>
         /// Gets the inserted items.
         /// </summary>
         /// <value>The inserted items.</value>
-        public ICollection<T> InsertedItems
-        {
-            get { return insertedItems; }
-        }
+        public ICollection<T> InsertedItems => insertedItems;
 
         #endregion
 
         #region ITrackableCollection Members
 
-        System.Collections.IEnumerable ITrackableCollection.DeletedItems
-        {
-            get { return DeletedItems; }
-        }
+        System.Collections.IEnumerable ITrackableCollection.DeletedItems => DeletedItems;
 
-        System.Collections.IEnumerable ITrackableCollection.InsertedItems
-        {
-            get { return InsertedItems; }
-        }
+        System.Collections.IEnumerable ITrackableCollection.InsertedItems => InsertedItems;
 
         #endregion
     }

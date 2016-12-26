@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Data;
 using System.Text;
-using Goliath.Data.Sql;
+using Goliath.Data.Mapping;
+using Goliath.Data.Providers.Sqlite.Functions;
 
 namespace Goliath.Data.Providers.Sqlite
 {
@@ -61,7 +62,7 @@ namespace Goliath.Data.Providers.Sqlite
         /// <returns></returns>
         public override string CreateParameterName(string variableName)
         {
-            return string.Format("${0}", variableName);
+            return $"${variableName}";
         }
 
         public override string Escape(string value, EscapeValueType escapeValueType)
@@ -86,10 +87,10 @@ namespace Goliath.Data.Providers.Sqlite
         protected override string OnTranslateToSqlTypeString(Mapping.Property fromType)
         {
 
-            StringBuilder sqlSb = new StringBuilder();
+            var sqlSb = new StringBuilder();
             sqlSb.Append(Escape(fromType.ColumnName));
             string to = null;
-            string fType = fromType.SqlType.ToLower();
+            var fType = fromType.SqlType.ToLower();
             if (!string.IsNullOrWhiteSpace(fType))
             {
                 translationTypeMap.TryGetValue(fType, out to);
@@ -97,7 +98,7 @@ namespace Goliath.Data.Providers.Sqlite
                 {
                     if (!string.IsNullOrWhiteSpace(to) && !to.ToUpper().Equals("NTEXT"))
                     {
-                        to = string.Format("{0}({1})", to, fromType.Length);
+                        to = $"{to}({fromType.Length})";
                     }
                 }
             }
@@ -105,10 +106,10 @@ namespace Goliath.Data.Providers.Sqlite
             var sType = to ?? fromType.SqlType;
             sqlSb.AppendFormat(" {0}", sType);
 
-            if (fromType.IsIdentity)
-            {
-                //sqlSb.AppendFormat(" autoincrement");
-            }
+            //if (fromType.IsIdentity)
+            //{
+            //    //sqlSb.AppendFormat(" autoincrement");
+            //}
 
             //if (fromType.IsPrimaryKey)
             //{
@@ -128,38 +129,57 @@ namespace Goliath.Data.Providers.Sqlite
             }
 
             return sqlSb.ToString();
+        }
 
+        public override string GetValueAsSqlString(object value, Property prop)
+        {
+            if (value == null)
+                return "NULL";
+
+            switch (prop.DbType)
+            {
+                case DbType.AnsiString:
+                case DbType.AnsiStringFixedLength:
+                case DbType.String:
+                case DbType.StringFixedLength:
+                case DbType.Xml:
+                    return $"'{value.ToString().Replace("'", "''")}'";
+                case DbType.Int32:
+                case DbType.Int16:
+                case DbType.Int64:
+                case DbType.Decimal:
+                case DbType.Single:
+                case DbType.Currency:
+                case DbType.Binary:
+                case DbType.Byte:
+                case DbType.Double:
+                case DbType.UInt16:
+                case DbType.UInt32:
+                case DbType.UInt64:
+                case DbType.SByte:
+                case DbType.VarNumeric:
+                    return value.ToString();
+                case DbType.Boolean:
+                    bool boolVal;
+                    bool.TryParse(value.ToString(), out boolVal);
+                    return boolVal ? "1" : "0";
+                case DbType.Date:
+                case DbType.DateTime:
+                case DbType.DateTime2:
+                case DbType.DateTimeOffset:
+                    var datetime = (DateTime)value;
+                    if (DateTime.MinValue.Equals(datetime))
+                        return "NULL";
+                    var dateString = datetime.ToString("yyyy-MM-dd HH:mm:ss");
+                    return $"'{dateString}'";
+                case DbType.Guid:
+                case DbType.Object:
+                case DbType.Time:
+                    return $"'{value}'";
+                default:
+                    return $"'{value}'";
+            }
 
         }
     }
-
-    [Serializable]
-    class GetDate : SqlFunction
-    {
-        public GetDate()
-            : base(FunctionNames.GetDate, "date")
-        {
-        }
-
-        public override string ToSqlStatement(params QueryParam[] args)
-        {
-            return $"{Declaration}('now')";
-        }
-    }
-
-    [Serializable]
-    class GetUtcDate : SqlFunction
-    {
-        public GetUtcDate()
-            : base(FunctionNames.GetUtcDate, "date")
-        {
-
-        }
-
-        public override string ToSqlStatement(params QueryParam[] args)
-        {
-            return $"{Declaration}('now')";
-        }
-    }
-
 }
