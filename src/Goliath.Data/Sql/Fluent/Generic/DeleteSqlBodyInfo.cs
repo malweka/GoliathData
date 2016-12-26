@@ -9,6 +9,12 @@ namespace Goliath.Data.Sql
     public class DeleteSqlBodyInfo
     {
         readonly List<QueryParam> parameters = new List<QueryParam>();
+        /// <summary>
+        /// Gets the parameters.
+        /// </summary>
+        /// <value>
+        /// The parameters.
+        /// </value>
         public List<QueryParam> Parameters { get { return parameters; } }
 
         /// <summary>

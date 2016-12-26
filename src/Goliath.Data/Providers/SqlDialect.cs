@@ -13,18 +13,18 @@ namespace Goliath.Data.Providers
     [Serializable]
     public abstract class SqlDialect
     {
+        readonly Dictionary<string, DbTypeInfo> typeMap = new Dictionary<string, DbTypeInfo>();
 
-        Dictionary<string, DbTypeInfo> typeMap = new Dictionary<string, DbTypeInfo>();
-        //Dictionary<SqlStatement, string> statements = new Dictionary<SqlStatement, string>(Utils.EnumComparer<SqlStatement>.Instance);
         /// <summary>
         /// 
         /// </summary>
-        protected Dictionary<string, ISqlFunction> functionMap = new Dictionary<string, ISqlFunction>();
+        protected Dictionary<string, ISqlFunction> FunctionMap = new Dictionary<string, ISqlFunction>();
+
         /// <summary>
         /// 
         /// </summary>
         protected Dictionary<string, string> translationTypeMap;
-        static protected List<string> reservedWords = new List<string>();
+        protected static List<string> reservedWords = new List<string>();
 
         /// <summary>
         /// Gets the name of the database provider.
@@ -104,7 +104,7 @@ namespace Goliath.Data.Providers
         /// <returns></returns>
         public virtual string CreateParameterName(string variableName)
         {
-            return string.Format("@{0}", variableName);
+            return $"@{variableName}";
         }
 
         /// <summary>
@@ -113,10 +113,8 @@ namespace Goliath.Data.Providers
         /// <param name="wordList">The word list.</param>
         public virtual void RegisterReservedWords(IEnumerable<string> wordList)
         {
-            foreach (string word in wordList)
-            {
+            foreach (var word in wordList)
                 reservedWords.Add(word);
-            }
         }
 
         /// <summary>
@@ -132,22 +130,21 @@ namespace Goliath.Data.Providers
 
         void LoadSqlStringType()
         {
-            if (!canTranslate)
-            {
-                translationTypeMap = new Dictionary<string, string>();
-                canTranslate = true;
+            if (canTranslate) return;
 
-                RegisterTranslateType("integer", "integer");
-                RegisterTranslateType("int", "integer");
-                RegisterTranslateType("char", "char");
-                RegisterTranslateType("nvarchar", "nvarchar");
-                RegisterTranslateType("nchar", "nchar");
-                RegisterTranslateType("varchar", "varchar");
-                RegisterTranslateType("text", "text");
-                RegisterTranslateType("numeric", "numeric");
-                RegisterTranslateType("date", "date");
-                OnRegisterTranslationTypes();
-            }
+            translationTypeMap = new Dictionary<string, string>();
+            canTranslate = true;
+
+            RegisterTranslateType("integer", "integer");
+            RegisterTranslateType("int", "integer");
+            RegisterTranslateType("char", "char");
+            RegisterTranslateType("nvarchar", "nvarchar");
+            RegisterTranslateType("nchar", "nchar");
+            RegisterTranslateType("varchar", "varchar");
+            RegisterTranslateType("text", "text");
+            RegisterTranslateType("numeric", "numeric");
+            RegisterTranslateType("date", "date");
+            OnRegisterTranslationTypes();
         }
 
         /// <summary>
@@ -158,7 +155,7 @@ namespace Goliath.Data.Providers
         public string TranslateToSqlStringType(Property fromType)
         {
             if (fromType == null)
-                throw new ArgumentNullException("fromType");
+                throw new ArgumentNullException(nameof(fromType));
 
             LoadSqlStringType();
 
@@ -174,11 +171,11 @@ namespace Goliath.Data.Providers
         public virtual string PrintSqlTypeString(Property fromType)
         {
             if (fromType == null)
-                throw new ArgumentNullException("fromType");
+                throw new ArgumentNullException(nameof(fromType));
 
             LoadSqlStringType();
 
-            StringBuilder sqlSb = new StringBuilder();
+            var sqlSb = new StringBuilder();
 
             string to = null;
             string fType = fromType.SqlType.ToLower();
@@ -189,7 +186,7 @@ namespace Goliath.Data.Providers
                 {
                     if (!string.IsNullOrWhiteSpace(to) && !to.ToUpper().Equals("NTEXT"))
                     {
-                        to = string.Format("{0}({1})", to, fromType.Length);
+                        to = $"{to}({fromType.Length})";
                     }
                 }
             }
@@ -209,10 +206,14 @@ namespace Goliath.Data.Providers
         public ISqlFunction GetFunction(string functionName)
         {
             ISqlFunction func;
-            functionMap.TryGetValue(functionName, out func);
+            FunctionMap.TryGetValue(functionName, out func);
             return func;
         }
 
+        /// <summary>
+        /// Prints the case incensitive like.
+        /// </summary>
+        /// <returns></returns>
         public virtual string PrintCaseIncensitiveLike()
         {
             return "LIKE";
@@ -240,7 +241,7 @@ namespace Goliath.Data.Providers
                     {
                         return to;
                     }
-                    to = string.Format("{0}({1})", to, fromType.Length);
+                    to = $"{to}({fromType.Length})";
                 }
             }
 
@@ -253,20 +254,21 @@ namespace Goliath.Data.Providers
         /// Registers the functions.
         /// </summary>
         /// <param name="sqlFunction">The SQL function.</param>
+        /// <exception cref="ArgumentNullException"></exception>
         protected void RegisterFunctions(ISqlFunction sqlFunction)
         {
             if (sqlFunction == null)
-                throw new ArgumentNullException("sqlFunction");
+                throw new ArgumentNullException(nameof(sqlFunction));
 
-            ISqlFunction func;
             lock (lockFunctionMap)
             {
-                if (functionMap.TryGetValue(sqlFunction.Name, out func))
+                ISqlFunction func;
+                if (FunctionMap.TryGetValue(sqlFunction.Name, out func))
                 {
-                    functionMap.Remove(sqlFunction.Name);
+                    FunctionMap.Remove(sqlFunction.Name);
                 }
 
-                functionMap.Add(sqlFunction.Name, sqlFunction);
+                FunctionMap.Add(sqlFunction.Name, sqlFunction);
             }
         }
 
@@ -280,10 +282,10 @@ namespace Goliath.Data.Providers
             if (!canTranslate)
                 throw new GoliathDataException("Register translate type can only be called from within OnRegisterTranslationTypes");
 
-            string to;
             fromType = fromType.ToLower();
             lock (lockTransmap)
             {
+                string to;
                 if (translationTypeMap.TryGetValue(fromType, out to))
                 {
                     translationTypeMap.Remove(fromType);
@@ -369,7 +371,7 @@ namespace Goliath.Data.Providers
                 return dbInfo.DbType;
             }
 
-            throw new Exception(string.Format("could not find {0}. This type was not be registered", sqlType));
+            throw new Exception($"could not find {sqlType}. This type was not be registered");
         }
 
         /// <summary>
@@ -388,7 +390,7 @@ namespace Goliath.Data.Providers
         /// <returns></returns>
         public virtual string ForeignKeyReferenceSql(Relation reference)
         {
-            return string.Format("references {0} ({1}) ", reference.ReferenceTable, reference.ReferenceColumn);
+            return $"references {reference.ReferenceTable} ({reference.ReferenceColumn}) ";
         }
 
         /// <summary>
@@ -399,7 +401,14 @@ namespace Goliath.Data.Providers
         /// </value>
         public bool SupportIdentityColumns { get; set; }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether [strict case sensitivity].
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if [strict case sensitivity]; otherwise, <c>false</c>.
+        /// </value>
         public bool StrictCaseSensitivity { get; protected set; }
+
         /// <summary>
         /// Identities the SQL.
         /// </summary>
@@ -421,7 +430,7 @@ namespace Goliath.Data.Providers
         /// <returns></returns>
         public virtual string GetColumnCreateSql(Property column)
         {
-            StringBuilder builder = new StringBuilder(column.ColumnName);
+            var builder = new StringBuilder(column.ColumnName);
             //builder.Append(DbTypeToSqlString(column.Type));
             //if (column.Length > 0)
             //    builder.AppendFormat("({0} ", column.Length);
@@ -501,7 +510,7 @@ namespace Goliath.Data.Providers
             sb.AppendFormat("{0} SET ", Escape(updateStatement.TableName, EscapeValueType.TableName));
             try
             {
-                int counter = 0;
+                var counter = 0;
                 foreach (var col in updateStatement.Columns)
                 {
                     sb.AppendFormat("{0} = {1}", Escape(col.Key, EscapeValueType.Column), CreateParameterName(col.Value.Item1.Name));
@@ -551,7 +560,7 @@ namespace Goliath.Data.Providers
         /// <returns></returns>
         public virtual string Escape(string value, EscapeValueType escapeValueType)
         {
-            return string.Format("[{0}]", value);
+            return $"[{value}]";
         }
 
         /// <summary>
@@ -561,12 +570,7 @@ namespace Goliath.Data.Providers
         /// <returns></returns>
         public string EscapeIfReserveWord(string value)
         {
-            if (IsReservedWord(value.ToUpper()))
-            {
-                return Escape(value);
-            }
-            else
-                return value;
+            return IsReservedWord(value.ToUpper()) ? Escape(value) : value;
         }
 
         /// <summary>
@@ -587,9 +591,15 @@ namespace Goliath.Data.Providers
         /// <returns></returns>
         public virtual string QueryWithPaging(SqlQueryBody queryBody, PagingInfo pagingInfo)
         {
-            return string.Format("{0} LIMIT {1} OFFSET {2}", queryBody.ToString(), pagingInfo.Limit, pagingInfo.Offset);
+            return $"{queryBody} LIMIT {pagingInfo.Limit} OFFSET {pagingInfo.Offset}";
         }
 
+        /// <summary>
+        /// Prints the color type to string.
+        /// </summary>
+        /// <param name="type">The type.</param>
+        /// <param name="nullable">if set to <c>true</c> [nullable].</param>
+        /// <returns></returns>
         public static string PrintClrTypeToString(Type type, bool nullable = false)
         {
             string print = type.Name;
@@ -625,10 +635,7 @@ namespace Goliath.Data.Providers
                 return PrintClrTypeToString(args[0], true);
             }
 
-            if (nullable)
-                return string.Format("{0}?", print);
-
-            return print;
+            return nullable ? $"{print}?" : print;
         }
 
         /// <summary>
@@ -646,7 +653,7 @@ namespace Goliath.Data.Providers
             {
                 case DbType.AnsiString:
                 case DbType.AnsiStringFixedLength:
-                    return $"'{value.ToString().Replace("'","''")}'";
+                    return $"'{value.ToString().Replace("'", "''")}'";
                 case DbType.String:
                 case DbType.StringFixedLength:
                 case DbType.Xml:
@@ -658,6 +665,13 @@ namespace Goliath.Data.Providers
                 case DbType.Single:
                 case DbType.Currency:
                 case DbType.Binary:
+                case DbType.Byte:
+                case DbType.Double:
+                case DbType.UInt16:
+                case DbType.UInt32:
+                case DbType.UInt64:
+                case DbType.SByte:
+                case DbType.VarNumeric:
                     return value.ToString();
                 case DbType.Boolean:
                     bool boolVal;
@@ -667,11 +681,15 @@ namespace Goliath.Data.Providers
                 case DbType.DateTime:
                 case DbType.DateTime2:
                 case DbType.DateTimeOffset:
-                    var datetime = (DateTime) value;
+                    var datetime = (DateTime)value;
                     if (DateTime.MinValue.Equals(datetime))
                         return "NULL";
                     var dateString = datetime.ToString("yyyy-MM-dd HH:mm:ss");
                     return $"'{dateString}'";
+                case DbType.Guid:
+                case DbType.Object:
+                case DbType.Time:
+                    return $"'{value}'";
                 default:
                     return $"'{value}'";
             }

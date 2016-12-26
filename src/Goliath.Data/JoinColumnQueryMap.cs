@@ -6,6 +6,9 @@ using Goliath.Data.Sql;
 
 namespace Goliath.Data
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class JoinColumnQueryMap
     {
         private int iteration, recursion;
@@ -16,13 +19,10 @@ namespace Goliath.Data
         /// <param name="usedPrefixes">The used prefixes.</param>
         /// <param name="tableName">Name of the table.</param>
         /// <param name="columnName">Name of the column.</param>
-        /// <param name="iteration">The iteration.</param>
-        /// <param name="recursion">The recursion.</param>
+        /// <param name="recInfo">The record information.</param>
         public JoinColumnQueryMap(Dictionary<string, string> usedPrefixes, string tableName, string columnName, TableQueryMap.RecursionCounter recInfo)
         {
             ColumnName = columnName;
-            this.iteration = iteration;
-            this.recursion = recursion;
             JoinTable = new TableQueryMap(usedPrefixes, tableName, recInfo);
             Prefix = JoinTable.Prefix;
 
@@ -38,10 +38,28 @@ namespace Goliath.Data
                 JoinTable.LoadColumns(entityMap, session, queryBuilder, columnSelectList, true);
         }
 
+        /// <summary>
+        /// Gets the name of the column.
+        /// </summary>
+        /// <value>
+        /// The name of the column.
+        /// </value>
         public string ColumnName { get; private set; }
 
+        /// <summary>
+        /// Gets or sets the prefix.
+        /// </summary>
+        /// <value>
+        /// The prefix.
+        /// </value>
         public string Prefix { get; set; }
 
+        /// <summary>
+        /// Gets or sets the join table.
+        /// </summary>
+        /// <value>
+        /// The join table.
+        /// </value>
         public TableQueryMap JoinTable { get; set; }
 
 

@@ -165,7 +165,7 @@ namespace Goliath.Data.Mapping
         /// <value>
         /// The meta data attributes.
         /// </value>
-        public Dictionary<string, string> MetaDataAttributes { get { return metadataAttributes; } }
+        public Dictionary<string, string> MetaDataAttributes => metadataAttributes;
 
         IMapModel baseModel;
 
@@ -208,7 +208,7 @@ namespace Goliath.Data.Mapping
             get
             {
                 if (!string.IsNullOrWhiteSpace(Namespace))
-                    return string.Format("{0}.{1}", Namespace, Name);
+                    return $"{Namespace}.{Name}";
                 else
                     return Name;
             }
@@ -236,24 +236,12 @@ namespace Goliath.Data.Mapping
         /// <summary>
         /// Gets the <see cref="Goliath.Data.Mapping.Property"/> with the specified property name.
         /// </summary>
-        public Property this[string propertyName]
-        {
-            get
-            {
-                return GetProperty(propertyName);
-            }
-        }
+        public Property this[string propertyName] => GetProperty(propertyName);
 
         /// <summary>
         /// Gets the <see cref="Goliath.Data.Mapping.Property"/> at the specified index.
         /// </summary>
-        public Property this[int index]
-        {
-            get
-            {
-                return AllProperties[index];
-            }
-        }
+        public Property this[int index] => AllProperties[index];
 
         /// <summary>
         /// Gets or sets the order.
@@ -276,6 +264,12 @@ namespace Goliath.Data.Mapping
             return null;
         }
 
+        /// <summary>
+        /// Finds the name of the property by column.
+        /// </summary>
+        /// <param name="columnName">Name of the column.</param>
+        /// <returns></returns>
+        /// <exception cref="System.ArgumentNullException">columnName</exception>
         public Property FindPropertyByColumnName(string columnName)
         {
             if (columnName == null)

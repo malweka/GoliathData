@@ -5,11 +5,14 @@ using Goliath.Data.Providers;
 
 namespace Goliath.Data.DataAccess
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class DataExporterAdapter
     {
         private readonly SqlDialect dialect;
         private readonly IDbConnector dbConnector;
-        private ITypeConverterStore typeConverter;
+        private readonly ITypeConverterStore typeConverter;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DataExporterAdapter"/> class.

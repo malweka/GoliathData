@@ -17,7 +17,7 @@ namespace Goliath.Data.Entity
 
         readonly Dictionary<string, TrackedItem> changeList = new Dictionary<string, TrackedItem>();
         readonly List<string> changes = new List<string>();
-        private Func<IDictionary<string, object>> getInitialValuesMethod;
+        private readonly Func<IDictionary<string, object>> getInitialValuesMethod;
         bool tracking;
         private bool isInitialized;
 
@@ -27,10 +27,7 @@ namespace Goliath.Data.Entity
         /// <value>
         /// <c>true</c> if this instance is tracking; otherwise, <c>false</c>.
         /// </value>
-        public bool IsTracking
-        {
-            get { return tracking; }
-        }
+        public bool IsTracking => tracking;
 
         /// <summary>
         /// Gets the version.
@@ -51,8 +48,12 @@ namespace Goliath.Data.Entity
                 return hasChanges;
             }
         }
+
         #endregion
 
+        /// <summary>
+        /// Inits this instance.
+        /// </summary>
         public void Init()
         {
             if (isInitialized) return;
@@ -89,7 +90,7 @@ namespace Goliath.Data.Entity
         /// <param name="getInitialValuesMethod">The get initial values method.</param>
         public ChangeTracker(Func<IDictionary<string, object>> getInitialValuesMethod)
         {
-            if (getInitialValuesMethod == null) throw new ArgumentNullException("getInitialValuesMethod");
+            if (getInitialValuesMethod == null) throw new ArgumentNullException(nameof(getInitialValuesMethod));
             this.getInitialValuesMethod = getInitialValuesMethod;
             Version = DateTime.UtcNow.Ticks;
         }
@@ -180,33 +181,27 @@ namespace Goliath.Data.Entity
                 return;
 
             TrackedItem item;
-            if (changeList.TryGetValue(propertyName, out item))
-            {
-                if (object.Equals(item.Value, value))//(item.Value.Equals(value))
-                {
-                    return;
-                }
+            if (!changeList.TryGetValue(propertyName, out item)) return;
 
-                item.Value = value;
-                if (((item.InitialValue != null) && object.Equals(item.InitialValue, value)) || ((item.InitialValue == null) && (value == null)))
-                {
-                    item.Version = Version;
-                    if (changes.Contains(propertyName))
-                        changes.Remove(propertyName);
-                }
-                else
-                {
-                    //NOTE: we depend on the version to check what was updated. We need to increase the tick value so that it will always be greater than the version of when the tracker started.
-                    item.Version = DateTime.UtcNow.Ticks + 1;
-                    if (!changes.Contains(propertyName))
-                        changes.Add(propertyName);
-                }
+            if (object.Equals(item.Value, value))
+            {
+                return;
             }
-            //else
-            //{
-            //    item = new TrackedItem(propertyName, value) { Version = Version };
-            //    changeList.Add(propertyName, item);
-            //}
+
+            item.Value = value;
+            if (((item.InitialValue != null) && object.Equals(item.InitialValue, value)) || ((item.InitialValue == null) && (value == null)))
+            {
+                item.Version = Version;
+                if (changes.Contains(propertyName))
+                    changes.Remove(propertyName);
+            }
+            else
+            {
+                //NOTE: we depend on the version to check what was updated. We need to increase the tick value so that it will always be greater than the version of when the tracker started.
+                item.Version = DateTime.UtcNow.Ticks + 1;
+                if (!changes.Contains(propertyName))
+                    changes.Add(propertyName);
+            }
         }
 
         /// <summary>

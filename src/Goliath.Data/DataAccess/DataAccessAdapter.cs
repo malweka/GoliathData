@@ -9,6 +9,11 @@ using Goliath.Data.Utils;
 
 namespace Goliath.Data
 {
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <typeparam name="TEntity">The type of the entity.</typeparam>
+    /// <seealso cref="Goliath.Data.IDataAccessAdapter{TEntity}" />
     public class DataAccessAdapter<TEntity> : IDataAccessAdapter<TEntity>
     {
         /// <summary>
@@ -27,7 +32,7 @@ namespace Goliath.Data
         /// <value>
         /// The session.
         /// </value>
-        public ISession Session { get { return session; } }
+        public ISession Session => session;
 
         #region ctors
 
@@ -55,7 +60,7 @@ namespace Goliath.Data
         public DataAccessAdapter(EntityMap entityMap, IEntitySerializer serializer, ISession session)
         {
             if (session == null)
-                throw new ArgumentNullException("session");
+                throw new ArgumentNullException(nameof(session));
 
             this.serializer = serializer;
             this.session = session;
@@ -178,7 +183,7 @@ namespace Goliath.Data
         public int Update(TEntity entity)
         {
             if (entityMap.PrimaryKey == null)
-                throw new GoliathDataException(string.Format("Cannot update entity {0} because no primary key has been defined for table {1}", entityMap.FullName, entityMap.TableName));
+                throw new GoliathDataException($"Cannot update entity {entityMap.FullName} because no primary key has been defined for table {entityMap.TableName}");
             try
             {
                 INonQuerySqlBuilder<TEntity> updateBuilder = new UpdateSqlBuilder<TEntity>(session, entityMap, entity);
@@ -195,7 +200,7 @@ namespace Goliath.Data
             }
             catch (Exception exception)
             {
-                throw new GoliathDataException(string.Format("Error while trying to update mapped entity {0} of type {1}", entityMap.FullName, entity.GetType()), exception);
+                throw new GoliathDataException($"Error while trying to update mapped entity {entityMap.FullName} of type {entity.GetType()}", exception);
             }
 
         }
@@ -208,7 +213,7 @@ namespace Goliath.Data
         public int Delete(TEntity entity)
         {
             if (entityMap.PrimaryKey == null)
-                throw new GoliathDataException(string.Format("Cannot delete entity {0} because no primary key has been defined for table {1}", entityMap.FullName, entityMap.TableName));
+                throw new GoliathDataException($"Cannot delete entity {entityMap.FullName} because no primary key has been defined for table {entityMap.TableName}");
             try
             {
                 INonQuerySqlBuilder<TEntity> deleteBuilder = new DeleteSqlBuilder<TEntity>(session, entityMap, entity);
@@ -220,7 +225,7 @@ namespace Goliath.Data
             }
             catch (Exception exception)
             {
-                throw new GoliathDataException(string.Format("Error while trying to update mapped entity {0} of type {1}", entityMap.FullName, entity.GetType()), exception);
+                throw new GoliathDataException($"Error while trying to update mapped entity {entityMap.FullName} of type {entity.GetType()}", exception);
             }
         }
 
@@ -255,7 +260,7 @@ namespace Goliath.Data
             }
             catch (Exception exception)
             {
-                throw new GoliathDataException(string.Format("Error while trying to insert mapped entity {0} of type {1}", entityMap.FullName, entity.GetType()), exception);
+                throw new GoliathDataException($"Error while trying to insert mapped entity {entityMap.FullName} of type {entity.GetType()}", exception);
             }
 
         }

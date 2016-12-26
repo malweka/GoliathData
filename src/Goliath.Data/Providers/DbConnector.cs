@@ -52,7 +52,13 @@ namespace Goliath.Data.Providers
         /// <returns></returns>
         public abstract DbConnection CreateNewConnection();
 
-        public virtual IsolationLevel DefaultIsolationLevel { get { return IsolationLevel.ReadUncommitted;} }
+        /// <summary>
+        /// Gets the default isolation level.
+        /// </summary>
+        /// <value>
+        /// The default isolation level.
+        /// </value>
+        public virtual IsolationLevel DefaultIsolationLevel => IsolationLevel.ReadUncommitted;
 
         ///// <summary>
         ///// Creates the parameter.

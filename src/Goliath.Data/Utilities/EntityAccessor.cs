@@ -36,10 +36,7 @@ namespace Goliath.Data.Utils
         /// <value>
         /// The properties.
         /// </value>
-        public Dictionary<string, PropertyAccessor> Properties
-        {
-            get { return properties; }
-        }
+        public Dictionary<string, PropertyAccessor> Properties => properties;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="EntityAccessor" /> class.
@@ -49,7 +46,7 @@ namespace Goliath.Data.Utils
         public EntityAccessor(Type entityType)
         {
             if (entityType == null)
-                throw new ArgumentNullException("entityType");
+                throw new ArgumentNullException(nameof(entityType));
 
             EntityType = entityType;
         }
@@ -63,7 +60,7 @@ namespace Goliath.Data.Utils
         public void Load(IEntityMap entityMap, PropertyInfo[] propertiesInfo = null)
         {
             if (entityMap == null)
-                throw new ArgumentNullException("entityMap");
+                throw new ArgumentNullException(nameof(entityMap));
 
             if (IsReady)
                 return;
@@ -105,13 +102,19 @@ namespace Goliath.Data.Utils
             }
         }
 
+        /// <summary>
+        /// Gets the property accessor.
+        /// </summary>
+        /// <param name="propertyName">Name of the property.</param>
+        /// <returns></returns>
+        /// <exception cref="GoliathDataException"></exception>
         public PropertyAccessor GetPropertyAccessor(string propertyName)
         {
             PropertyAccessor propertyAccessor;
             if (properties.TryGetValue(propertyName, out propertyAccessor))
                 return propertyAccessor;
 
-            throw new GoliathDataException(string.Format("Could not find property named {0} in object {1}", propertyName, EntityType.FullName));
+            throw new GoliathDataException($"Could not find property named {propertyName} in object {EntityType.FullName}");
         }
     }
 }

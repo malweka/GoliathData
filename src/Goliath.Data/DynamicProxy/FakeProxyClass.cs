@@ -6,12 +6,22 @@ using Goliath.Data.Entity;
 namespace Goliath.Data.DynamicProxy
 {
     /* */
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <seealso cref="Goliath.Data.DynamicProxy.FakeBaseProxy" />
+    /// <seealso cref="Goliath.Data.DynamicProxy.ILazyObject" />
     public class FakeProxyClass : FakeBaseProxy, ILazyObject
     {
         Type _typeToProxy;
         bool _isLoaded;
         IProxyHydrator _proxyHydrator;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FakeProxyClass"/> class.
+        /// </summary>
+        /// <param name="typeToProxy">The type to proxy.</param>
+        /// <param name="proxyHydrator">The proxy hydrator.</param>
         public FakeProxyClass(Type typeToProxy, IProxyHydrator proxyHydrator)
         {
             _typeToProxy = typeToProxy;
@@ -19,6 +29,12 @@ namespace Goliath.Data.DynamicProxy
             _proxyHydrator = proxyHydrator;
         }
 
+        /// <summary>
+        /// Gets or sets the name.
+        /// </summary>
+        /// <value>
+        /// The name.
+        /// </value>
         public override string Name
         {
             get
@@ -32,6 +48,12 @@ namespace Goliath.Data.DynamicProxy
             }
         }
 
+        /// <summary>
+        /// Gets or sets the age.
+        /// </summary>
+        /// <value>
+        /// The age.
+        /// </value>
         public override double Age
         {
             get
@@ -59,11 +81,23 @@ namespace Goliath.Data.DynamicProxy
 
         #region ILazyObject Members
 
+        /// <summary>
+        /// Gets the proxy of.
+        /// </summary>
+        /// <value>
+        /// The proxy of.
+        /// </value>
         public Type ProxyOf
         {
             get { return _typeToProxy; }
         }
 
+        /// <summary>
+        /// Gets a value indicating whether this instance is proxy loaded.
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if this instance is proxy loaded; otherwise, <c>false</c>.
+        /// </value>
         public bool IsProxyLoaded
         {
             get { return _isLoaded; }
@@ -72,6 +106,13 @@ namespace Goliath.Data.DynamicProxy
         #endregion
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <seealso cref="Goliath.Data.DynamicProxy.FakeBaseProxy" />
+    /// <seealso cref="Goliath.Data.DynamicProxy.ILazyObject" />
+    /// <seealso cref="Goliath.Data.Entity.ITrackable" />
+    /// <seealso cref="System.ComponentModel.INotifyPropertyChanged" />
     public class FakeTrackableProxyClass : FakeBaseProxy, ILazyObject, ITrackable, INotifyPropertyChanged
     {
         Type _typeToProxy;
@@ -79,6 +120,11 @@ namespace Goliath.Data.DynamicProxy
         IChangeTracker _changeTracker;
         IProxyHydrator _proxyHydrator;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FakeTrackableProxyClass"/> class.
+        /// </summary>
+        /// <param name="typeToProxy">The type to proxy.</param>
+        /// <param name="proxyHydrator">The proxy hydrator.</param>
         public FakeTrackableProxyClass(Type typeToProxy, IProxyHydrator proxyHydrator)
         {
             _typeToProxy = typeToProxy;
@@ -95,6 +141,12 @@ namespace Goliath.Data.DynamicProxy
             return null;
         }
 
+        /// <summary>
+        /// Gets or sets the name.
+        /// </summary>
+        /// <value>
+        /// The name.
+        /// </value>
         public override string Name
         {
             get
@@ -113,6 +165,12 @@ namespace Goliath.Data.DynamicProxy
             }
         }
 
+        /// <summary>
+        /// Gets or sets the age.
+        /// </summary>
+        /// <value>
+        /// The age.
+        /// </value>
         public override double Age
         {
             get
@@ -154,11 +212,23 @@ namespace Goliath.Data.DynamicProxy
 
         #region ILazyObject Members
 
+        /// <summary>
+        /// Gets the proxy of.
+        /// </summary>
+        /// <value>
+        /// The proxy of.
+        /// </value>
         public Type ProxyOf
         {
             get { return _typeToProxy; }
         }
 
+        /// <summary>
+        /// Gets a value indicating whether this instance is proxy loaded.
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if this instance is proxy loaded; otherwise, <c>false</c>.
+        /// </value>
         public bool IsProxyLoaded
         {
             get { return _isLoaded; }
@@ -168,6 +238,12 @@ namespace Goliath.Data.DynamicProxy
 
         #region ITrackable Members
 
+        /// <summary>
+        /// Gets a value indicating whether this instance is dirty.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if this instance is dirty; otherwise, <c>false</c>.
+        /// </value>
         public bool IsDirty
         {
             get
@@ -184,6 +260,12 @@ namespace Goliath.Data.DynamicProxy
         }
 
         long version;
+        /// <summary>
+        /// Gets or sets the version.
+        /// </summary>
+        /// <value>
+        /// The version.
+        /// </value>
         public long Version
         {
             get
@@ -201,6 +283,12 @@ namespace Goliath.Data.DynamicProxy
             }
         }
 
+        /// <summary>
+        /// Gets the change set.
+        /// </summary>
+        /// <value>
+        /// The change set.
+        /// </value>
         public IChangeTracker ChangeTracker
         {
             get { return _changeTracker; }
@@ -210,14 +298,32 @@ namespace Goliath.Data.DynamicProxy
 
         #region INotifyPropertyChanged Members
 
+        /// <summary>
+        /// Occurs when a property value changes.
+        /// </summary>
         public event PropertyChangedEventHandler PropertyChanged;
 
         #endregion   
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
     public class FakeBaseProxy
     {
+        /// <summary>
+        /// Gets or sets the name.
+        /// </summary>
+        /// <value>
+        /// The name.
+        /// </value>
         public virtual string Name { get; set; }
+        /// <summary>
+        /// Gets or sets the age.
+        /// </summary>
+        /// <value>
+        /// The age.
+        /// </value>
         public virtual double Age { get; set; }
     }
     /* */

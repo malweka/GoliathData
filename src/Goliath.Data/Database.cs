@@ -33,7 +33,7 @@ namespace Goliath.Data
         public IConfigurationManager Configure(string mapFile, ProjectSettings settings, ISessionStore sessionStore = null, params IKeyGenerator[] generators)
         {
             if (string.IsNullOrWhiteSpace(mapFile))
-                throw new ArgumentNullException("mapFile");
+                throw new ArgumentNullException(nameof(mapFile));
 
             MapConfig map;
             if (settings != null)
@@ -44,16 +44,21 @@ namespace Goliath.Data
             return Configure(map, sessionStore);
         }
 
+        /// <summary>
+        /// Configures the specified map stream.
+        /// </summary>
+        /// <param name="mapStream">The map stream.</param>
+        /// <param name="settings">The settings.</param>
+        /// <param name="sessionStore">The session store.</param>
+        /// <param name="generators">The generators.</param>
+        /// <returns></returns>
+        /// <exception cref="System.ArgumentNullException">mapStream</exception>
         public IConfigurationManager Configure(Stream mapStream, ProjectSettings settings, ISessionStore sessionStore = null, params IKeyGenerator[] generators)
         {
             if (mapStream == null)
-                throw new ArgumentNullException("mapStream");
+                throw new ArgumentNullException(nameof(mapStream));
 
-            MapConfig map;
-            if (settings != null)
-                map = MapConfig.Create(mapStream, settings, false, generators);
-            else
-                map = MapConfig.Create(mapStream, false, generators);
+            var map = settings != null ? MapConfig.Create(mapStream, settings, false, generators) : MapConfig.Create(mapStream, false, generators);
 
             return Configure(map, sessionStore);
         }
@@ -67,7 +72,8 @@ namespace Goliath.Data
         public IConfigurationManager Configure(MapConfig map, ISessionStore sessionStore = null)
         {
             if (map == null)
-                throw new ArgumentNullException("map");
+                throw new ArgumentNullException(nameof(map));
+
             if (sessionStore == null)
             {
                 sessionStore = new ThreadStaticSessionStore();
@@ -75,13 +81,6 @@ namespace Goliath.Data
 
             configManager = new ConfigManager(map);
             return configManager;
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="Database"/> class.
-        /// </summary>
-        public Database()
-        {
         }
     }
 }
