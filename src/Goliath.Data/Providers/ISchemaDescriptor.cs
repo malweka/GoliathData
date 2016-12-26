@@ -16,21 +16,25 @@ namespace Goliath.Data.Providers
         /// The name of the database provider.
         /// </value>
         string DatabaseProviderName { get; }
+
         /// <summary>
         /// Gets the tables.
         /// </summary>
         /// <returns></returns>
         IDictionary<string, EntityMap> GetTables();
+
         /// <summary>
         /// Gets the views.
         /// </summary>
         /// <returns></returns>
         IDictionary<string, View> GetViews();
+
         /// <summary>
         /// Gets the stored procs.
         /// </summary>
         /// <returns></returns>
         IDictionary<string, StatementMap> GetStoredProcs();
+
         /// <summary>
         /// Gets or sets the project settings.
         /// </summary>

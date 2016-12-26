@@ -25,12 +25,25 @@ namespace Goliath.Data.CodeGenerator
                                    opts.ActionName = c;
                                    Console.WriteLine(c);
                                })
+                .Add("includeGeneratedColumns=", c =>
+                {
+                    bool includeGeneratedColumns;
+                    if (bool.TryParse(c, out includeGeneratedColumns))
+                        opts.ExportDatabaseGeneratedColumns = includeGeneratedColumns;
+                })
+                .Add("includeIdentityColumn=", c =>
+                {
+                    bool includeIdentityColumn;
+                    if (bool.TryParse(c, out includeIdentityColumn))
+                        opts.ExportIdentityColumn = includeIdentityColumn;
+                })
 
                 .Add("createMap", w => opts.ActionName = w)
                 .Add("combineMaps", w => opts.ActionName = w)
                 .Add("generate", w => opts.ActionName = w)
                 .Add("generateAll", w => opts.ActionName = w)
                 .Add("generateEntities", w => opts.ActionName = w)
+                .Add("export", w => opts.ActionName = w)
                 .Add("namespace=|n=", w => opts.Namespace = w)
                 .Add("baseModel=", w => opts.BaseModelXml = w)
                 .Add("exclude=", w => opts.Excluded = w)
@@ -72,7 +85,15 @@ namespace Goliath.Data.CodeGenerator
                 opts.MapFile = "data.map.xml";
 
             if (string.IsNullOrWhiteSpace(opts.WorkingFolder))
+            {
                 opts.WorkingFolder = AppDomain.CurrentDomain.BaseDirectory;
+            }
+            else
+            {
+                var isRooted = Path.IsPathRooted(opts.WorkingFolder);
+                if (!isRooted)
+                    opts.WorkingFolder = Path.GetFullPath(opts.WorkingFolder);
+            }
 
             if (string.IsNullOrWhiteSpace(opts.TemplateFolder))
                 opts.TemplateFolder = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Templates");
@@ -254,6 +275,8 @@ namespace Goliath.Data.CodeGenerator
         public string DefaultKeygen { get; set; }
         public string ComplexTypeMap { get; set; }
         public string ExtensionMap { get; set; }
+        public bool ExportDatabaseGeneratedColumns { get; set; }
+        public bool ExportIdentityColumn { get; set; }
 
         public string[] ExcludedArray { get; set; }
     }

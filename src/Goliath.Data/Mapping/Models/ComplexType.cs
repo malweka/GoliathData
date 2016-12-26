@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Runtime.Serialization;
 
 namespace Goliath.Data.Mapping
@@ -110,6 +112,51 @@ namespace Goliath.Data.Mapping
             return other.FullName.Equals(FullName);
         }
 
+        Property IEntityMap.GetProperty(string propertyName)
+        {
+            throw new NotImplementedException();
+        }
+
+        bool IEntityMap.ContainsProperty(string propertyName)
+        {
+            throw new NotImplementedException();
+        }
+
+        void ICollection<Property>.Add(Property item)
+        {
+            throw new NotImplementedException();
+        }
+
+        void ICollection<Property>.Clear()
+        {
+            throw new NotImplementedException();
+        }
+
+        bool ICollection<Property>.Contains(Property item)
+        {
+            throw new NotImplementedException();
+        }
+
+        void ICollection<Property>.CopyTo(Property[] array, int arrayIndex)
+        {
+            throw new NotImplementedException();
+        }
+
+        bool ICollection<Property>.Remove(Property item)
+        {
+            throw new NotImplementedException();
+        }
+
+        IEnumerator<Property> IEnumerable<Property>.GetEnumerator()
+        {
+            throw new NotImplementedException();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            throw new NotImplementedException();
+        }
+
         #endregion
 
         #region IEntityMap Members
@@ -213,6 +260,43 @@ namespace Goliath.Data.Mapping
         IMapModel IEntityMap.BaseModel
         {
             get { throw new NotImplementedException(); }
+        }
+
+        PropertyCollection IEntityMap.Properties
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+
+            set
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        string IEntityMap.FullName
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        int ICollection<Property>.Count
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        bool ICollection<Property>.IsReadOnly
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
         }
 
         #endregion

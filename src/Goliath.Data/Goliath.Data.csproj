@@ -62,6 +62,7 @@
     <Compile Include="Collections\BaseTrackableCollection.cs" />
     <Compile Include="Collections\TrackableList.cs" />
     <Compile Include="CompiledStatement.cs" />
+    <Compile Include="DataAccess\DataExporterAdapter.cs" />
     <Compile Include="DataAccess\EntitySerialization\IEntityFactory.cs" />
     <Compile Include="DataAccess\IConnectionManager.cs" />
     <Compile Include="DataAccess\ISqlInterface.cs" />
@@ -124,6 +125,8 @@
     <Compile Include="Generators\IKeyGenerator.cs" />
     <Compile Include="Generators\KeyGeneratorStore.cs" />
     <Compile Include="JoinColumnQueryMap.cs" />
+    <Compile Include="Mapping\ExportModel.cs" />
+    <Compile Include="Mapping\ExportOptions.cs" />
     <Compile Include="Mapping\MapBuilderConfig.Read.cs" />
     <Compile Include="Mapping\MapBuilderConfig.Write.cs" />
     <Compile Include="Mapping\MappingException.cs" />
@@ -223,6 +226,7 @@
     <Compile Include="Sql\Fluent\WhereClauseBuilder.cs" />
     <Compile Include="Sql\WhereStatement.cs" />
     <Compile Include="TableQueryMap.cs" />
+    <Compile Include="Utilities\DbTypeConverter.cs" />
     <Compile Include="Utilities\EntityAccessor.cs" />
     <Compile Include="Mapping\MapSorter.cs" />
     <Compile Include="Utilities\PropertyAccessor.cs" />
