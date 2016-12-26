@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Text;
+using Goliath.Data.Mapping;
 
 namespace Goliath.Data.Providers.SqlServer
 {
@@ -184,5 +185,8 @@ namespace Goliath.Data.Providers.SqlServer
 
 
         }
+
+
+       
     }
 }

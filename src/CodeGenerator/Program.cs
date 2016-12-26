@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using Goliath.Data.DataAccess;
 using Goliath.Data.Diagnostics;
 using Goliath.Data.Mapping;
 using Goliath.Data.Providers;
@@ -24,7 +25,8 @@ namespace Goliath.Data.CodeGenerator
             Console.WriteLine("Press enter to continue.");
             Console.ReadLine();
 #endif
-
+            //Console.WriteLine(1.ToString("D3"));
+            //Console.WriteLine(19.ToString("D3"));
 
             var opts = AppOptionHandler.ParseOptions(args);
 
@@ -76,22 +78,7 @@ namespace Goliath.Data.CodeGenerator
             Console.Write("Activated.");
             Console.WriteLine("\n\nLoading settings...");
 
-            var codeGenRunner = new CodeGenRunner(rdbms, new GenericCodeGenerator())
-            {
-                TemplateFolder = opts.TemplateFolder,
-                ScriptFolder = AppDomain.CurrentDomain.BaseDirectory,
-                DatabaseFolder = AppDomain.CurrentDomain.BaseDirectory,
-                WorkingFolder = opts.WorkingFolder,
-                QueryProviderName = opts.QueryProviderName,
-                Settings =
-                                    {
-                                        Namespace = opts.Namespace,
-                                        AssemblyName = opts.AssemblyName,
-                                        ConnectionString = opts.ConnectionString,
-                                        Platform = rdbms.ToString()
-
-                                    }
-            };
+            var codeGenRunner = new CodeGenRunner(rdbms, new GenericCodeGenerator()) {TemplateFolder = opts.TemplateFolder, ScriptFolder = AppDomain.CurrentDomain.BaseDirectory, DatabaseFolder = AppDomain.CurrentDomain.BaseDirectory, WorkingFolder = opts.WorkingFolder, QueryProviderName = opts.QueryProviderName, Settings = {Namespace = opts.Namespace, AssemblyName = opts.AssemblyName, ConnectionString = opts.ConnectionString, Platform = rdbms.ToString()}};
 
 
             var action = opts.ActionName.ToUpper();
@@ -103,7 +90,10 @@ namespace Goliath.Data.CodeGenerator
                         GenerateEntities(opts, codeGenRunner);
                         logger.Log(LogLevel.Debug, string.Format("Entities generated in work folder {0}.", opts.WorkingFolder));
                     }
-                    catch (Exception ex) { PrintError("Exception thrown while trying to generate entities.", ex); }
+                    catch (Exception ex)
+                    {
+                        PrintError("Exception thrown while trying to generate entities.", ex);
+                    }
                     break;
                 case "GENERATEALL":
                     try
@@ -111,29 +101,49 @@ namespace Goliath.Data.CodeGenerator
                         GenerateAllFromTemplate(opts, codeGenRunner);
                         logger.Log(LogLevel.Debug, string.Format("Generated all files based on templates in work folder {0}.", opts.WorkingFolder));
                     }
-                    catch (Exception ex) { PrintError("Exception thrown while trying to generate all.", ex); }
+                    catch (Exception ex)
+                    {
+                        PrintError("Exception thrown while trying to generate all.", ex);
+                    }
                     break;
                 case "COMBINEMAPS":
                     try
                     {
                         CombineMaps(opts, codeGenRunner);
-                        logger.Log(LogLevel.Debug, string.Format("Merging map {0} with {1}.", opts.TemplateName, opts.MapFile));
+                        logger.Log(LogLevel.Debug, $"Merging map {opts.TemplateName} with {opts.MapFile}.");
                     }
-                    catch (Exception ex) { PrintError("Exception thrown while trying to generate all.", ex); }
+                    catch (Exception ex)
+                    {
+                        PrintError("Exception thrown while trying to generate all.", ex);
+                    }
                     break;
                 case "GENERATE":
                     try
                     {
                         GenerateFromTemplate(opts, codeGenRunner);
-                        logger.Log(LogLevel.Debug, string.Format("File {0} generated in folder {1}.", opts.OutputFile, opts.WorkingFolder));
+                        logger.Log(LogLevel.Debug, $"File {opts.OutputFile} generated in folder {opts.WorkingFolder}.");
                     }
-                    catch (Exception ex) { PrintError("Exception thrown while trying to generate from template.", ex); }
+                    catch (Exception ex)
+                    {
+                        PrintError("Exception thrown while trying to generate from template.", ex);
+                    }
+                    break;
+                case "EXPORT":
+                    try
+                    {
+                        GenerateExportFromTemplate(opts, rdbms, codeGenRunner);
+                        logger.Log(LogLevel.Debug, $"File {opts.OutputFile} generated in folder {opts.WorkingFolder}.");
+                    }
+                    catch (Exception ex)
+                    {
+                        PrintError("Exception thrown while trying to generate from template.", ex);
+                    }
                     break;
                 default:
                     try
                     {
                         CreateMap(opts, rdbms, codeGenRunner);
-                        logger.Log(LogLevel.Debug, string.Format("\n\nMap {0} in {1} has been created.", opts.MapFile, opts.WorkingFolder));
+                        logger.Log(LogLevel.Debug, $"\n\nMap {opts.MapFile} in {opts.WorkingFolder} has been created.");
                     }
                     catch (Exception ex)
                     {
@@ -150,14 +160,14 @@ namespace Goliath.Data.CodeGenerator
         {
             string codeMapFile = opts.MapFile;
 
-            if (!File.Exists(opts.MapFile))
+            if (!Path.IsPathRooted(codeMapFile))
             {
-                codeMapFile = Path.Combine(opts.WorkingFolder, Path.GetFileName(opts.MapFile));
+                codeMapFile = Path.GetFullPath(codeMapFile);
             }
 
             Console.WriteLine("Reading Code Map file...");
             if (!File.Exists(codeMapFile) && throwIfNotExist)
-                throw new GoliathDataException(string.Format("Map file {0} not found.", codeMapFile));
+                throw new GoliathDataException($"Map file {codeMapFile} not found.");
 
             return codeMapFile;
         }
@@ -215,6 +225,74 @@ namespace Goliath.Data.CodeGenerator
             }
         }
 
+
+        static void GenerateExportFromTemplate(AppOptionInfo opts, SupportedRdbms rdbms, CodeGenRunner codeGenRunner)
+        {
+            var codeMapFile = GetCodeMapFile(opts);
+            var map = MapConfig.Create(codeMapFile, true);
+            map.Settings.AssemblyName = opts.AssemblyName;
+            map.Settings.Namespace = opts.Namespace;
+
+            var providerFactory = new ProviderFactory();
+
+            var dialect = providerFactory.CreateDialect(rdbms);
+            var dbConnector = providerFactory.CreateDbConnector(rdbms, opts.ConnectionString);
+
+            if (string.IsNullOrWhiteSpace(opts.TemplateName))
+                throw new GoliathDataException("Template file to use is required for generate operation. Please make sure that -in=\"Template_File_name.razt\" argument is passed in.");
+
+            var template = Path.Combine(codeGenRunner.TemplateFolder, opts.TemplateName);
+
+            if (!File.Exists(template))
+                throw new GoliathDataException(string.Format("template file {0} not found.", template));
+
+            if (string.IsNullOrWhiteSpace(opts.OutputFile))
+                throw new GoliathDataException("Output file is required for generate operation. Please make sure that -out=\"YOUR_FILE.EXT\" argument is passed in.");
+
+            DataExporterAdapter exporter = new DataExporterAdapter(dialect, dbConnector, new TypeConverterStore());
+
+            var counter =0;
+
+            List<string> errors = new List<string>();
+            foreach (var entityMap in map.EntityConfigs)
+            {
+                try
+                {
+                    counter++;
+                    var data = exporter.Export(entityMap, opts.ExportIdentityColumn, opts.ExportDatabaseGeneratedColumns);
+                    var fileName = GetFileName(entityMap.Name, counter, opts.OutputFile);
+
+                    if (data == null || data.DataBag.Count == 0)
+                    {
+                        continue;
+                    }
+
+                    codeGenRunner.GenerateCodeFromTemplate(data, template, codeGenRunner.WorkingFolder, fileName);
+                   
+                }
+                catch (Exception ex)
+                {
+                    errors.Add($"Error table [{entityMap.TableName}]: {ex.ToString()}");
+                }
+
+                
+            }
+
+            if (errors.Count > 0)
+            {
+                Console.WriteLine($"\n\nEncountered {errors.Count} Errors");
+                Console.ForegroundColor = ConsoleColor.Red;
+                foreach (var err in errors)
+                {
+                    Console.WriteLine(err);
+                }
+                
+                Console.ResetColor();
+               
+            }
+
+
+        }
         static void GenerateAllFromTemplate(AppOptionInfo opts, ICodeGenRunner codeGenRunner)
         {
             Console.WriteLine("\n\nGenerating for all entities...");
@@ -230,24 +308,24 @@ namespace Goliath.Data.CodeGenerator
             map.Settings.AssemblyName = opts.AssemblyName;
             map.Settings.Namespace = opts.Namespace;
 
-            codeGenRunner.GenerateClassesFromTemplate(map, template, codeGenRunner.WorkingFolder, (name,iteration) => GetFileName(name,iteration, opts.OutputFile), opts.ExcludedArray);
+            codeGenRunner.GenerateClassesFromTemplate(map, template, codeGenRunner.WorkingFolder, (name, iteration) => GetFileName(name, iteration, opts.OutputFile), opts.ExcludedArray);
 
         }
 
-        static string GetFileName(string entityName,int? iteration, string outputFile)
+        static string GetFileName(string entityName, int? iteration, string outputFile)
         {
             string fileName;
             if (outputFile.Contains("(name)") || outputFile.Contains("(iteration)"))
             {
                 fileName = outputFile.Replace("(name)", entityName);
                 if (iteration.HasValue)
-                    fileName = fileName.Replace("(iteration)", $"{iteration.Value}");
+                    fileName = fileName.Replace("(iteration)", $"{iteration.Value:D3}");
             }
             else
             {
                 fileName = string.Concat(entityName, outputFile);
             }
-            
+
             return fileName;
         }
 
@@ -325,7 +403,7 @@ namespace Goliath.Data.CodeGenerator
             Console.WriteLine("\n\nCreate Map...");
             var providerFactory = new ProviderFactory();
             ComplexType baseModel = null;
-            var mapFileName = GetCodeMapFile(opts, false);
+            var mapFileName = Path.Combine(opts.WorkingFolder, opts.MapFile);
 
             if (!string.IsNullOrWhiteSpace(opts.BaseModelXml) && File.Exists(opts.BaseModelXml))
             {

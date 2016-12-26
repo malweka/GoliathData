@@ -9,7 +9,7 @@ namespace Goliath.Data.DataAccess
     [Serializable]
     public class TypeConverterStore : ITypeConverterStore
     {
-        readonly Dictionary<Type, Func<Object, Object>> converters = new Dictionary<Type, Func<Object, Object>>();
+        readonly Dictionary<Type, Func<object, object>> converters = new Dictionary<Type, Func<object, object>>();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TypeConverterStore"/> class.
@@ -23,34 +23,34 @@ namespace Goliath.Data.DataAccess
         {
             AddConverter(typeof(string), ReadString);
             //Int16
-            AddConverter(typeof(Nullable<short>), ReadNullableInt16);
+            AddConverter(typeof(short?), ReadNullableInt16);
             AddConverter(typeof(short), ReadInt16);
             //Int32
-            AddConverter(typeof(Nullable<int>), ReadNullableInt32);
+            AddConverter(typeof(int?), ReadNullableInt32);
             AddConverter(typeof(int), ReadInt32);
             //Int64
-            AddConverter(typeof(Nullable<long>), ReadNullableInt64);
+            AddConverter(typeof(long?), ReadNullableInt64);
             AddConverter(typeof(long), ReadInt64);
             //Datetime
-            AddConverter(typeof(Nullable<DateTime>), ReadNullableDateTime);
+            AddConverter(typeof(DateTime?), ReadNullableDateTime);
             AddConverter(typeof(DateTime), ReadDateTime);
             //char
-            AddConverter(typeof(Nullable<char>), ReadNullableChar);
+            AddConverter(typeof(char?), ReadNullableChar);
             AddConverter(typeof(char), ReadChar);
             //boolean
-            AddConverter(typeof(Nullable<bool>), ReadNullableBoolean);
+            AddConverter(typeof(bool?), ReadNullableBoolean);
             AddConverter(typeof(bool), ReadBoolean);
             //Guids
-            AddConverter(typeof(Nullable<Guid>), ReadNullableGuid);
+            AddConverter(typeof(Guid?), ReadNullableGuid);
             AddConverter(typeof(Guid), ReadGuid);
             //single
-            AddConverter(typeof(Nullable<float>), ReadNullableSingle);
+            AddConverter(typeof(float?), ReadNullableSingle);
             AddConverter(typeof(float), ReadSingle);
             //double
-            AddConverter(typeof(Nullable<double>), ReadNullableDouble);
+            AddConverter(typeof(double?), ReadNullableDouble);
             AddConverter(typeof(double), ReadDouble);
             //decimal
-            AddConverter(typeof(Nullable<decimal>), ReadNullableDecimal);
+            AddConverter(typeof(decimal?), ReadNullableDecimal);
             AddConverter(typeof(decimal), ReadDecimal);
         }
 
@@ -59,13 +59,13 @@ namespace Goliath.Data.DataAccess
         /// </summary>
         /// <param name="toType">To type.</param>
         /// <param name="convertMethod">The convert method.</param>
-        public void AddConverter(Type toType, Func<Object, Object> convertMethod)
+        public void AddConverter(Type toType, Func<object, object> convertMethod)
         {
             if (convertMethod == null)
-                throw new ArgumentNullException("convertMethod");
+                throw new ArgumentNullException(nameof(convertMethod));
 
             if (toType == null)
-                throw new ArgumentNullException("toType");
+                throw new ArgumentNullException(nameof(toType));
 
             if (converters.ContainsKey(toType))
                 converters.Remove(toType);
@@ -82,7 +82,7 @@ namespace Goliath.Data.DataAccess
         public Func<Object, Object> GetConverterFactoryMethod(Type typeToConverTo)
         {
             if (typeToConverTo == null)
-                throw new ArgumentNullException("typeToConverTo");
+                throw new ArgumentNullException(nameof(typeToConverTo));
 
             Func<Object, Object> converter;
             if (converters.TryGetValue(typeToConverTo, out converter))
@@ -113,7 +113,7 @@ namespace Goliath.Data.DataAccess
         public static object ConvertValueToEnum(Type enumType, object value)
         {
             if (enumType == null)
-                throw new ArgumentNullException("enumType");
+                throw new ArgumentNullException(nameof(enumType));
 
             if (value == DBNull.Value)
                 return null;
@@ -138,8 +138,9 @@ namespace Goliath.Data.DataAccess
 
         static object ReadString(object value)
         {
-            if (value == DBNull.Value)
+            if (value == DBNull.Value || value == null)
                 return null;
+
 
             return value.ToString();
         }
@@ -148,7 +149,7 @@ namespace Goliath.Data.DataAccess
 
         static object ReadNullableInt16(object value)
         {
-            if (value == DBNull.Value)
+            if (value == DBNull.Value || value == null)
                 return null;
 
             if (value is short)
@@ -168,7 +169,7 @@ namespace Goliath.Data.DataAccess
 
         static object ReadNullableInt32(object value)
         {
-            if (value == DBNull.Value)
+            if (value == DBNull.Value || value == null)
                 return null;
 
             if (value is int)
@@ -188,7 +189,7 @@ namespace Goliath.Data.DataAccess
 
         static object ReadNullableInt64(object value)
         {
-            if (value == DBNull.Value)
+            if (value == DBNull.Value || value == null)
                 return null;
 
             if (value is long)
@@ -212,7 +213,7 @@ namespace Goliath.Data.DataAccess
 
         static object ReadNullableDateTime(object value)
         {
-            if (value == DBNull.Value)
+            if (value == DBNull.Value || value == null)
                 return null;
 
             if (value is DateTime)
@@ -241,7 +242,7 @@ namespace Goliath.Data.DataAccess
 
         static object ReadNullableChar(object value)
         {
-            if (value == DBNull.Value)
+            if (value == DBNull.Value || value == null)
                 return null;
             if (value is char)
                 return value;
@@ -263,7 +264,7 @@ namespace Goliath.Data.DataAccess
 
         static object ReadNullableSingle(object value)
         {
-            if (value == DBNull.Value)
+            if (value == DBNull.Value || value == null)
                 return null;
             if (value is float)
                 return value;
@@ -281,7 +282,7 @@ namespace Goliath.Data.DataAccess
 
         static object ReadNullableDouble(object value)
         {
-            if (value == DBNull.Value)
+            if (value == DBNull.Value || value == null)
                 return null;
             if (value is double)
                 return value;
@@ -298,7 +299,7 @@ namespace Goliath.Data.DataAccess
 
         static object ReadNullableDecimal(object value)
         {
-            if (value == DBNull.Value)
+            if (value == DBNull.Value || value == null)
                 return null;
             if (value is decimal)
                 return value;
@@ -324,7 +325,7 @@ namespace Goliath.Data.DataAccess
 
         static object ReadNullableGuid(object value)
         {
-            if (value == DBNull.Value)
+            if (value == DBNull.Value || value == null)
                 return null;
             if (value is Guid)
                 return value;
@@ -352,7 +353,7 @@ namespace Goliath.Data.DataAccess
 
         static object ReadNullableBoolean(object value)
         {
-            if (value == DBNull.Value)
+            if (value == DBNull.Value || value == null)
                 return null;
             if (value is bool)
                 return value;

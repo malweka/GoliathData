@@ -60,7 +60,7 @@ namespace Goliath.Data.Providers
             RegisterType(DbType.StringFixedLength, 4000, "nchar");
             RegisterType(DbType.String, 4000, "nvarchar");
             RegisterType(DbType.Binary, 8000, "varbinary");
-            RegisterType(DbType.String, "text");
+            RegisterType(DbType.AnsiString, "text");
             RegisterType(DbType.Single, "real");
             RegisterType(DbType.Time, "time");
             RegisterType(DbType.Decimal, "decimal");
@@ -629,6 +629,53 @@ namespace Goliath.Data.Providers
                 return string.Format("{0}?", print);
 
             return print;
+        }
+
+        /// <summary>
+        /// Gets the value as SQL string.
+        /// </summary>
+        /// <param name="value">The value.</param>
+        /// <param name="prop">The property.</param>
+        /// <returns></returns>
+        public virtual string GetValueAsSqlString(object value, Property prop)
+        {
+            if (value == null)
+                return "NULL";
+
+            switch (prop.DbType)
+            {
+                case DbType.AnsiString:
+                case DbType.AnsiStringFixedLength:
+                    return $"'{value.ToString().Replace("'","''")}'";
+                case DbType.String:
+                case DbType.StringFixedLength:
+                case DbType.Xml:
+                    return $"N'{value.ToString().Replace("'", "''")}'";
+                case DbType.Int32:
+                case DbType.Int16:
+                case DbType.Int64:
+                case DbType.Decimal:
+                case DbType.Single:
+                case DbType.Currency:
+                case DbType.Binary:
+                    return value.ToString();
+                case DbType.Boolean:
+                    bool boolVal;
+                    bool.TryParse(value.ToString(), out boolVal);
+                    return boolVal ? "1" : "0";
+                case DbType.Date:
+                case DbType.DateTime:
+                case DbType.DateTime2:
+                case DbType.DateTimeOffset:
+                    var datetime = (DateTime) value;
+                    if (DateTime.MinValue.Equals(datetime))
+                        return "NULL";
+                    var dateString = datetime.ToString("yyyy-MM-dd HH:mm:ss");
+                    return $"'{dateString}'";
+                default:
+                    return $"'{value}'";
+            }
+
         }
     }
 }

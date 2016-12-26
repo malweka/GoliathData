@@ -1,9 +1,11 @@
-﻿namespace Goliath.Data.Mapping
+﻿using System.Collections.Generic;
+
+namespace Goliath.Data.Mapping
 {
     /// <summary>
     /// 
     /// </summary>
-    public interface IEntityMap : IMapModel
+    public interface IEntityMap : IMapModel, ICollection<Property>
     {
         /// <summary>
         /// Gets or sets the parent.

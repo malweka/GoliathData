@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.Serialization;
 
 namespace Goliath.Data.Mapping
@@ -11,7 +12,7 @@ namespace Goliath.Data.Mapping
     [System.Diagnostics.DebuggerDisplay("Entity = {Name}, Table = {TableName}")]
     [Serializable]
     [DataContract]
-    public class EntityMap : IEntityMap, IEquatable<EntityMap>, ICollection<Property>
+    public class EntityMap : IEntityMap, IEquatable<EntityMap>
     {
 
         MapConfig parent;
@@ -53,10 +54,7 @@ namespace Goliath.Data.Mapping
         /// Gets the name of the db.
         /// </summary>
         /// <value>The name of the db.</value>
-        public string DbName
-        {
-            get { return TableName; }
-        }
+        public string DbName => TableName;
 
         /// <summary>
         /// Gets or sets the primary key.
@@ -125,16 +123,7 @@ namespace Goliath.Data.Mapping
         [DataMember]
         public bool IsLinkTable { get; set; }
 
-        internal bool IsSubClass
-        {
-            get
-            {
-                if (!string.IsNullOrWhiteSpace(Extends) && Parent.EntityConfigs.Contains(Extends))
-                    return true;
-                else
-                    return false;
-            }
-        }
+        internal bool IsSubClass => !string.IsNullOrWhiteSpace(Extends) && Parent.EntityConfigs.Contains(Extends);
 
         internal bool UseMappedInsert { get; set; }
         internal bool UseMappedUpdate { get; set; }
@@ -285,6 +274,14 @@ namespace Goliath.Data.Mapping
                 return AllProperties[propertyName];
 
             return null;
+        }
+
+        public Property FindPropertyByColumnName(string columnName)
+        {
+            if (columnName == null)
+                throw new ArgumentNullException(nameof(columnName));
+
+            return AllProperties.FirstOrDefault(c => columnName.Equals(c.ColumnName));
         }
 
         /// <summary>

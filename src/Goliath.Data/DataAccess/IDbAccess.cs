@@ -1,4 +1,5 @@
-﻿using System.Data.Common;
+﻿using System.Collections.Generic;
+using System.Data.Common;
 
 namespace Goliath.Data
 {
@@ -65,6 +66,24 @@ namespace Goliath.Data
         /// <param name="parameters">The parameters.</param>
         /// <returns></returns>
         DbDataReader ExecuteReader(DbConnection conn, ITransaction transaction, string sql, params QueryParam[] parameters);
+
+        /// <summary>
+        /// Executes the dynamic.
+        /// </summary>
+        /// <param name="conn">The connection.</param>
+        /// <param name="sql">The SQL.</param>
+        /// <param name="parameters">The parameters.</param>
+        /// <returns></returns>
+        IList<dynamic> ExecuteDynamic(DbConnection conn, string sql, params QueryParam[] parameters);
+
+        /// <summary>
+        /// Executes the dictionary.
+        /// </summary>
+        /// <param name="conn">The connection.</param>
+        /// <param name="sql">The SQL.</param>
+        /// <param name="parameters">The parameters.</param>
+        /// <returns></returns>
+        IList<IDictionary<string, object>> ExecuteDictionary(DbConnection conn, string sql, params QueryParam[] parameters);
 
         #endregion
     }
