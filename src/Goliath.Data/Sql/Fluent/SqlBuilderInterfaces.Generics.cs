@@ -107,14 +107,38 @@ namespace Goliath.Data.Sql
         IOrderByDirection<T> Asc();
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <seealso cref="Goliath.Data.Sql.IQueryFetchable{T}" />
     public interface IOrderByDirection<T> : IQueryFetchable<T>
     {
+        /// <summary>
+        /// Orders the by.
+        /// </summary>
+        /// <typeparam name="TProperty">The type of the property.</typeparam>
+        /// <param name="property">The property.</param>
+        /// <returns></returns>
         ISorterClause<T> OrderBy<TProperty>(Expression<Func<T, TProperty>> property);
+        /// <summary>
+        /// Orders the by.
+        /// </summary>
+        /// <param name="columnName">Name of the column.</param>
+        /// <returns></returns>
         ISorterClause<T> OrderBy(string columnName);
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public interface IFetchable<T>
     {
+        /// <summary>
+        /// Fetches all.
+        /// </summary>
+        /// <returns></returns>
         ICollection<T> FetchAll();
 
         T FetchOne();
@@ -122,6 +146,10 @@ namespace Goliath.Data.Sql
         int Count();
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public interface IFetchableWithOutput<T>
     {
         ICollection<T> FetchAll(out long total);
