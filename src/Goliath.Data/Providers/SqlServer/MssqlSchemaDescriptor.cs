@@ -13,18 +13,18 @@ namespace Goliath.Data.Providers.SqlServer
     [Serializable]
     public class MssqlSchemaDescriptor : SchemaDescriptor
     {
-        static ILogger logger;
-        IDbAccess db;
-        SqlDialect dialect;
-        IDbConnector dbConnector;
-        const string SELECT_TABLE_FROM_SCHEMA = "SELECT TABLE_NAME, TABLE_SCHEMA FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE' order by TABLE_NAME";
-        const string SELECT_COLUMNS = "SELECT *, COLUMNPROPERTY(OBJECT_ID(TABLE_SCHEMA + '.' + TABLE_NAME), COLUMN_NAME, 'IsIdentity') AS IsIdentity, IDENT_SEED(TABLE_NAME) AS IdentitySeed, IDENT_INCR(TABLE_NAME) AS IdentityIncrement FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = @tableName ORDER BY ORDINAL_POSITION";
-        const string SELECT_CONSTRAINTS = @"SELECT COLUMN_NAME, CONSTRAINT_TYPE, a.CONSTRAINT_NAME as ConstraintName,
+        static readonly ILogger logger;
+        readonly IDbAccess db;
+        readonly SqlDialect dialect;
+        readonly IDbConnector dbConnector;
+        const string SelectTableFromSchema = "SELECT TABLE_NAME, TABLE_SCHEMA FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE' order by TABLE_NAME";
+        const string SelectColumns = "SELECT *, COLUMNPROPERTY(OBJECT_ID(TABLE_SCHEMA + '.' + TABLE_NAME), COLUMN_NAME, 'IsIdentity') AS IsIdentity, IDENT_SEED(TABLE_NAME) AS IdentitySeed, IDENT_INCR(TABLE_NAME) AS IdentityIncrement FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = @tableName ORDER BY ORDINAL_POSITION";
+        const string SelectConstraints = @"SELECT COLUMN_NAME, CONSTRAINT_TYPE, a.CONSTRAINT_NAME as ConstraintName,
 	(SELECT COUNT(*) FROM INFORMATION_SCHEMA.CONSTRAINT_COLUMN_USAGE c WHERE a.CONSTRAINT_NAME = c.CONSTRAINT_NAME) AS ColumnCount
 FROM INFORMATION_SCHEMA.CONSTRAINT_COLUMN_USAGE a
 INNER JOIN INFORMATION_SCHEMA.TABLE_CONSTRAINTS b ON a.CONSTRAINT_NAME = b.CONSTRAINT_NAME
 WHERE a.TABLE_NAME = @tableName";
-        const string SELECT_REFERENCES = @"SELECT
+        const string SelectReferences = @"SELECT
 COLUMN_NAME = FK_COLS.COLUMN_NAME,
 REFERENCED_TABLE_NAME = PK.TABLE_NAME,
 REFERENCED_TABLE_SCHEMA = PK.TABLE_SCHEMA,
@@ -43,7 +43,7 @@ AND PK.CONSTRAINT_TYPE = 'PRIMARY KEY'
 INNER JOIN INFORMATION_SCHEMA.KEY_COLUMN_USAGE FK_COLS ON REF_CONST.CONSTRAINT_NAME = FK_COLS.CONSTRAINT_NAME
 INNER JOIN INFORMATION_SCHEMA.KEY_COLUMN_USAGE PK_COLS ON PK.CONSTRAINT_NAME = PK_COLS.CONSTRAINT_NAME
 WHERE FK.TABLE_NAME = @tableName";
-        const string FIND_FOREIGN_KEYS = @"SELECT
+        const string FindForeignKeys = @"SELECT
 CONSTRAINT_NAME = FK.CONSTRAINT_NAME,
 COLUMN_NAME = FK_COLS.COLUMN_NAME,
 REFERENCED_TABLE_NAME = PK.TABLE_NAME,
@@ -63,9 +63,9 @@ INNER JOIN INFORMATION_SCHEMA.KEY_COLUMN_USAGE FK_COLS ON REF_CONST.CONSTRAINT_N
 INNER JOIN INFORMATION_SCHEMA.KEY_COLUMN_USAGE PK_COLS ON PK.CONSTRAINT_NAME = PK_COLS.CONSTRAINT_NAME
 WHERE FK.TABLE_NAME = @tableName";
 
-        const string tableDescriptionScript = @"select t.id as TableId, t.name as TableName, t.uid, ep.name, ep.value as TableDescription from sysobjects t, sys.extended_properties ep
+        const string TableDescriptionScript = @"select t.id as TableId, t.name as TableName, t.uid, ep.name, ep.value as TableDescription from sysobjects t, sys.extended_properties ep
 where t.type = 'u' and t.id = ep.major_id and ep.minor_id = 0";
-        const string colDescriptionScript = @"select c.name as ColName, ep.value as ColDescription from sys.extended_properties ep, syscolumns c
+        const string ColDescriptionScript = @"select c.name as ColName, ep.value as ColDescription from sys.extended_properties ep, syscolumns c
 where  ep.major_id = @tableId
 and c.id = @tableId
 and ep.major_id = c.id
@@ -76,11 +76,9 @@ and ep.minor_id = c.colid";
         {
             get
             {
-                if (connection == null)
-                {
-                    connection = dbConnector.CreateNewConnection();
-                    connection.Open();
-                }
+                if (connection != null) return connection;
+                connection = dbConnector.CreateNewConnection();
+                connection.Open();
                 return connection;
             }
         }
@@ -116,7 +114,7 @@ and ep.minor_id = c.colid";
             var tables = new Dictionary<string, EntityMap>();
             try
             {
-                using (DbDataReader reader = db.ExecuteReader(Connection, SELECT_TABLE_FROM_SCHEMA))
+                using (DbDataReader reader = db.ExecuteReader(Connection, SelectTableFromSchema))
                 {
                     int counterOrder = 0;
                     while (reader.Read())
@@ -130,13 +128,15 @@ and ep.minor_id = c.colid";
                             continue;
 
                         string schemaName = reader.GetValueAsString("TABLE_SCHEMA");
-                        logger.Log(LogLevel.Info, string.Format("reading table {0}", name));
-                        EntityMap table = new EntityMap(name, name);
-                        table.Namespace = ProjectSettings.Namespace;
-                        table.SchemaName = schemaName;
-                        table.AssemblyName = ProjectSettings.AssemblyName;
-                        table.TableAlias = name;
-                        table.Order = counterOrder;
+                        logger.Log(LogLevel.Info, $"reading table {name}");
+                        var table = new EntityMap(name, name)
+                        {
+                            Namespace = ProjectSettings.Namespace,
+                            SchemaName = schemaName,
+                            AssemblyName = ProjectSettings.AssemblyName,
+                            TableAlias = name,
+                            Order = counterOrder
+                        };
                         tables.Add(name, table);
                     }
                 }
@@ -144,7 +144,7 @@ and ep.minor_id = c.colid";
 
                 foreach (var table in tables.Values)
                 {
-                    logger.Log(LogLevel.Info, string.Format("processing table {0}", table.Name));
+                    logger.Log(LogLevel.Info, $"processing table {table.Name}");
                     var columns = ProcessColumns(table);
                     ProcessConstraints(table, columns);
                     ProcessForeignKeys(table);
@@ -189,7 +189,7 @@ and ep.minor_id = c.colid";
         protected virtual Dictionary<string, Property> ProcessColumns(EntityMap table)
         {
             Dictionary<string, Property> columnList = new Dictionary<string, Property>();
-            using (DbDataReader reader = db.ExecuteReader(Connection, SELECT_COLUMNS, new QueryParam("tableName", table.TableName, DbType.String)))
+            using (DbDataReader reader = db.ExecuteReader(Connection, SelectColumns, new QueryParam("tableName", table.TableName, DbType.String)))
             {
                 int countOrder = 0;
                 while (reader.Read())
@@ -201,7 +201,7 @@ and ep.minor_id = c.colid";
                     int? precision = reader.GetValueAsInt("NUMERIC_PRECISION");
                     int? scale = reader.GetValueAsInt("NUMERIC_SCALE");
 
-                    logger.Log(LogLevel.Info, string.Format("\t column: {0} {1}({2})", colName, dataType, length ?? 0));
+                    logger.Log(LogLevel.Info, $"\t column: {colName} {dataType}({length ?? 0})");
                     Property col = null;
                     if (length.HasValue)
                     {
@@ -212,7 +212,7 @@ and ep.minor_id = c.colid";
                                 length = 4000;
                             else if (dataType.Equals("varchar") || dataType.Equals("char"))
                                 length = 8000;
-                            
+
                             else
                             {
                                 length = 8000;
@@ -272,8 +272,7 @@ and ep.minor_id = c.colid";
         /// <param name="columnList">The column list.</param>
         protected virtual void ProcessConstraints(EntityMap table, Dictionary<string, Property> columnList)
         {
-            List<string> constraints = new List<string>();
-            using (var reader = db.ExecuteReader(Connection, SELECT_CONSTRAINTS, new QueryParam("tableName", table.TableName, DbType.String)))
+            using (var reader = db.ExecuteReader(Connection, SelectConstraints, new QueryParam("tableName", table.TableName, DbType.String)))
             {
                 while (reader.Read())
                 {
@@ -281,19 +280,18 @@ and ep.minor_id = c.colid";
                     string constraintType = reader.GetValueAsString("CONSTRAINT_TYPE");
                     int? columnCount = reader.GetValueAsInt("ColumnCount");
 
-                    if (columnCount.HasValue && columnCount.Value > 0)
-                    {
-                        var col = columnList[colName];
-                        if (constraintType.ToUpper().Equals("UNIQUE"))
-                            col.IsUnique = true;
-                        else if (constraintType.ToUpper().Equals("PRIMARY KEY"))
-                        {
-                            col.IsPrimaryKey = true;
-                            col.IsUnique = true;
-                        }
+                    if (!columnCount.HasValue || columnCount.Value <= 0) continue;
 
-                        col.ConstraintName = reader.GetValueAsString("ConstraintName");
+                    var col = columnList[colName];
+                    if (constraintType.ToUpper().Equals("UNIQUE"))
+                        col.IsUnique = true;
+                    else if (constraintType.ToUpper().Equals("PRIMARY KEY"))
+                    {
+                        col.IsPrimaryKey = true;
+                        col.IsUnique = true;
                     }
+
+                    col.ConstraintName = reader.GetValueAsString("ConstraintName");
                 }
             }
         }
@@ -305,7 +303,7 @@ and ep.minor_id = c.colid";
         /// <param name="columns">The columns.</param>
         protected virtual void ProcessReferences(EntityMap table, Dictionary<string, Property> columns)
         {
-            using (var reader = db.ExecuteReader(Connection, SELECT_REFERENCES, new QueryParam("tableName", table.TableName, DbType.String)))
+            using (var reader = db.ExecuteReader(Connection, SelectReferences, new QueryParam("tableName", table.TableName, DbType.String)))
             {
                 while (reader.Read())
                 {
@@ -325,9 +323,7 @@ and ep.minor_id = c.colid";
                         rel.ReferenceConstraintName = refconstName;
                         rel.RelationType = RelationshipType.ManyToOne;
 
-                        rel.ReferenceEntityName = refTable;// entityNameTransformer.Transform(null, refTable);
-                        //namefactory.Transform(rel, colName);
-
+                        rel.ReferenceEntityName = refTable;
                         columns.Remove(colName);
                         columns.Add(colName, rel);
 
@@ -342,7 +338,7 @@ and ep.minor_id = c.colid";
 
         void ProcessForeignKeys(EntityMap table)
         {
-            using (var reader = db.ExecuteReader(Connection, FIND_FOREIGN_KEYS, new QueryParam("tableName", table.TableName, DbType.String)))
+            using (var reader = db.ExecuteReader(Connection, FindForeignKeys, new QueryParam("tableName", table.TableName, DbType.String)))
             {
                 while (reader.Read())
                 {
@@ -360,38 +356,36 @@ and ep.minor_id = c.colid";
         /// <returns></returns>
         protected virtual string ProcessDefaultValue(string defaultValue)
         {
-            if (!string.IsNullOrWhiteSpace(defaultValue))
+            if (string.IsNullOrWhiteSpace(defaultValue)) return defaultValue;
+
+            defaultValue = defaultValue.Replace("(", string.Empty)
+                .Replace(")", string.Empty);
+
+            switch (defaultValue.ToLower())
             {
-                defaultValue = defaultValue.Replace("(", string.Empty)
-                    .Replace(")", string.Empty);
-
-                switch (defaultValue.ToLower())
-                {
-                    case "newid":
-                        defaultValue = Sql.FunctionNames.NewGuid;
-                        break;
-                    case "getdate":
-                        defaultValue = Sql.FunctionNames.GetDate;
-                        break;
-                    case "getutcdate":
-                        defaultValue = Sql.FunctionNames.GetUtcDate;
-                        break;
-                    case "suser_sname":
-                        defaultValue = Sql.FunctionNames.GetUserName;
-                        break;
-                    case "host_name":
-                        defaultValue = Sql.FunctionNames.GetHostName;
-                        break;
-                    case "app_name":
-                        defaultValue = Sql.FunctionNames.GetAppName;
-                        break;
-                    case "db_name":
-                        defaultValue = Sql.FunctionNames.GetDatabaseName;
-                        break;
-                    default:
-                        break;
-                }
-
+                case "newid":
+                    defaultValue = Sql.FunctionNames.NewGuid;
+                    break;
+                case "getdate":
+                    defaultValue = Sql.FunctionNames.GetDate;
+                    break;
+                case "getutcdate":
+                    defaultValue = Sql.FunctionNames.GetUtcDate;
+                    break;
+                case "suser_sname":
+                    defaultValue = Sql.FunctionNames.GetUserName;
+                    break;
+                case "host_name":
+                    defaultValue = Sql.FunctionNames.GetHostName;
+                    break;
+                case "app_name":
+                    defaultValue = Sql.FunctionNames.GetAppName;
+                    break;
+                case "db_name":
+                    defaultValue = Sql.FunctionNames.GetDatabaseName;
+                    break;
+                default:
+                    break;
             }
             return defaultValue;
         }
@@ -400,21 +394,23 @@ and ep.minor_id = c.colid";
         {
             var tables = new Dictionary<string, TableMetaData>();
 
-            using (var reader = db.ExecuteReader(Connection, tableDescriptionScript))
+            using (var reader = db.ExecuteReader(Connection, TableDescriptionScript))
             {
                 while (reader.Read())
                 {
-                    TableMetaData tbMetadata = new TableMetaData();
-                    tbMetadata.Name = reader.GetValueAsString("TableName");
-                    tbMetadata.Id = reader.GetValueAsLong("TableId");
-                    tbMetadata.Description = reader.GetValueAsString("TableDescription");
+                    var tbMetadata = new TableMetaData
+                    {
+                        Name = reader.GetValueAsString("TableName"),
+                        Id = reader.GetValueAsLong("TableId"),
+                        Description = reader.GetValueAsString("TableDescription")
+                    };
                     tables.Add(tbMetadata.Name, tbMetadata);
                 }
             }
 
             foreach (var tb in tables.Values)
             {
-                using (DbDataReader reader = db.ExecuteReader(connection, colDescriptionScript, new QueryParam("tableId", tb.Id, DbType.Int64)))
+                using (DbDataReader reader = db.ExecuteReader(connection, ColDescriptionScript, new QueryParam("tableId", tb.Id, DbType.Int64)))
                 {
                     while (reader.Read())
                     {
@@ -452,10 +448,7 @@ and ep.minor_id = c.colid";
         /// </summary>
         public override void Dispose()
         {
-            if (connection != null)
-            {
-                connection.Dispose();
-            }
+            connection?.Dispose();
         }
 
         #endregion

@@ -32,6 +32,11 @@ namespace Goliath.Data.Utilities
                     return (T)ConvertToString(value);
                 }
 
+                else if (returnType == typeof(char) || returnType == typeof(char?))
+                {
+                    return (T)ConvertToChar(value);
+                }
+
                 else if (returnType == typeof(bool) || returnType == typeof(bool?))
                 {
                     return (T)ConvertToBoolean(value);
@@ -64,6 +69,11 @@ namespace Goliath.Data.Utilities
                 else if (returnType == typeof(DateTime) || returnType == typeof(DateTime?))
                 {
                     return (T)ConvertToDateTime(value);
+                }
+
+                else if (returnType == typeof(DateTimeOffset) || returnType == typeof(DateTimeOffset?))
+                {
+                    return (T)ConvertToDateTimeOffset(value);
                 }
 
                 else if (returnType == typeof(double) || returnType == typeof(double?))
@@ -103,10 +113,14 @@ namespace Goliath.Data.Utilities
 
         }
 
-
         static object ConvertToString(object value)
         {
             return value.ToString();
+        }
+
+        static object ConvertToChar(object value)
+        {
+            return Convert.ToChar(value);
         }
 
         static object ConvertToInt(object value)
@@ -116,10 +130,9 @@ namespace Goliath.Data.Utilities
 
         static object ConvertToGuid(object value)
         {
-            if (value is Guid)
-                return value;
             if (value is string)
                 return new Guid(value.ToString());
+
             if (value is byte[])
                 return new Guid((byte[])value);
 
@@ -138,7 +151,36 @@ namespace Goliath.Data.Utilities
 
         static object ConvertToDateTime(object value)
         {
+
+            if (value is long)
+                return Convert.ToDateTime((long)value);
+
             return Convert.ToDateTime(value);
+        }
+
+        static object ConvertToDateTimeOffset(object value)
+        {
+
+            DateTimeOffset date;
+
+            if (value is string)
+            {
+                DateTimeOffset.TryParse(value.ToString(), out date);
+            }
+            else if (value is long)
+            {
+                date = new DateTimeOffset((long)value, new TimeSpan(0, 0, 0));
+            }
+            else if (value is DateTime)
+            {
+                date = new DateTimeOffset((DateTime)value);
+            }
+            else
+            {
+                DateTimeOffset.TryParse(value.ToString(), out date);
+            }
+
+            return date;
         }
 
         static object ConvertToDouble(object value)
@@ -164,9 +206,16 @@ namespace Goliath.Data.Utilities
         static object ConvertToBoolean(object value)
         {
             if ("0".Equals(value)) return false;
-            else if ("1".Equals(value)) return true;
+
+            if ("1".Equals(value)) return true;
+
             return Convert.ToBoolean(value);
         }
+
+        //static object ConvertToByteArray(object value)
+        //{
+           
+        //}
 
         static object ConvertToEnum(Type enumType, object value)
         {

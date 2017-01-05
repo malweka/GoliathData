@@ -58,7 +58,7 @@ namespace Goliath.Data.Providers.SqlServer
             RegisterType(DbType.Xml, "xml");
             RegisterType(DbType.Currency, "money");
             RegisterType(DbType.Binary, 8000, "binary");
-
+            RegisterType(DbType.Binary, 8000, "varbinary");
 
         }
 
