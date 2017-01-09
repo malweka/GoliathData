@@ -7,8 +7,6 @@ namespace Goliath.Data.Mapping.Fluent
     /// </summary>
     public class PropertyMap : IMap<PropertyMap>
     {
-        Property property;
-        //..WithClrtType
         /// <summary>
         /// Columns the name.
         /// </summary>

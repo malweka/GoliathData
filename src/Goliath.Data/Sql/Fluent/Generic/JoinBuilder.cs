@@ -12,9 +12,9 @@ namespace Goliath.Data.Sql
 
     class JoinBuilder<T, TRelation> : IJoinable<T, TRelation>, IJoinOperation<T>
     {
-        QueryBuilder<T> queryBuilder;
-        JoinBuilder joinBuilder;
-        EntityMap joinMap;
+        readonly QueryBuilder<T> queryBuilder;
+        readonly JoinBuilder joinBuilder;
+        readonly EntityMap joinMap;
 
         public JoinBuilder(QueryBuilder<T> queryBuilder, JoinBuilder joinBuilder, EntityMap joinMap)
         {
@@ -36,8 +36,8 @@ namespace Goliath.Data.Sql
                 throw new GoliathDataException(string.Format("Could not find property {0}. {0} was not mapped properly.", propName));
 
             throw new Exception("Fix this");
-            //joinBuilder.On(prop.ColumnName);
-            return this;
+            ////joinBuilder.On(prop.ColumnName);
+            //return this;
 
         }
 

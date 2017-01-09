@@ -11,8 +11,6 @@ namespace Goliath.Data
     /// </summary>
     public class JoinColumnQueryMap
     {
-        private int iteration, recursion;
-
         /// <summary>
         /// Initializes a new instance of the <see cref="JoinColumnQueryMap" /> class.
         /// </summary>
