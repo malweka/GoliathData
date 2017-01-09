@@ -7,8 +7,7 @@ namespace Goliath.Data.Mapping.Fluent
     /// </summary>
     public class ReferenceMap : IMap<ReferenceMap>
     {
-        Relation relation;
-
+        
         /// <summary>
         /// Withes the type of the relatioship.
         /// </summary>

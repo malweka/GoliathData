@@ -13,7 +13,7 @@ namespace Goliath.Data.Entity
         /// <value>
         /// The created on.
         /// </value>
-        DateTime CreatedOn { get; set; }
+        DateTimeOffset CreatedOn { get; set; }
 
         /// <summary>
         /// Gets or sets the created by.
@@ -35,7 +35,7 @@ namespace Goliath.Data.Entity
         /// <value>
         /// The modified on.
         /// </value>
-        DateTime? ModifiedOn { get; set; }
+        DateTimeOffset ModifiedOn { get; set; }
 
         /// <summary>
         /// Gets or sets the modified by.

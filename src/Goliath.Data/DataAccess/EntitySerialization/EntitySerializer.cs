@@ -194,7 +194,6 @@ namespace Goliath.Data.DataAccess
                 var entityAccessor = entityAccessorStore.GetEntityAccessor(typeOfInstance, entityMap);
                 dataReader.Read();
 
-                int count = 0;
                 SerializeSingle(instanceToHydrate, typeOfInstance, entityMap, entityAccessor, queryMap, dataReader);
             }
         }
@@ -330,7 +329,6 @@ namespace Goliath.Data.DataAccess
                     {
                         var instanceEntity = CreateNewInstance(type, entityMap);
 
-                        int counter = 0;
                         SerializeSingle(instanceEntity, type, entityMap, entityAccessor, queryMap, dbReader);
 
                         list.Add((TEntity)instanceEntity);
