@@ -105,6 +105,12 @@ namespace Goliath.Data.Mapping
 
         void AddEdge(Dictionary<string, int> indexes, EntityMap tbl, Relation rf, int iteration)
         {
+            if (rf == null)
+            {
+                logger.Log(LogLevel.Debug, "Empty Relation.");
+                return;
+            }
+
             if (rf.RelationType != RelationshipType.ManyToOne) return;
 
             if(tbl.FullName.Equals(rf.ReferenceEntityName)) return; // we don't care if an entity references itself

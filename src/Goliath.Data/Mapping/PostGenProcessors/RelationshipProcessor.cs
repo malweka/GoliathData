@@ -23,7 +23,7 @@ namespace Goliath.Data.Mapping
                 {
                     //find link tables
                     if ((ent.Properties.Count == 0) && (ent.Relations.Count == 0)
-                       && (ent.PrimaryKey != null) && (ent.PrimaryKey.Keys.Count >= 2) && ent.PrimaryKey.Keys[0].Key.IsPrimaryKey && ent.PrimaryKey.Keys[1].Key.IsPrimaryKey)
+                       && (ent.PrimaryKey != null) && (ent.PrimaryKey.Keys.Count == 2) && ent.PrimaryKey.Keys[0].Key.IsPrimaryKey && ent.PrimaryKey.Keys[1].Key.IsPrimaryKey)
                     {
 
                         var aRel = ent.PrimaryKey.Keys[0].Key as Relation;
