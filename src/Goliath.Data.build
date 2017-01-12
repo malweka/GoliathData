@@ -11,8 +11,8 @@
     <sqliteSource>Goliath.Data.Providers.Sqlite</sqliteSource>
     <SourceExclusions>**\.svn\**\*.*;**\_svn\**\*.*;**\*.user;**\*.suo;**\*.db;**\bin\**\*.*;**\obj\**\*.*;</SourceExclusions>
     <ProjectName>$(MSBuildProjectName)</ProjectName>
-    <NuGetPath>tools\</NuGetPath>
-    <BuildTools>tools\build\</BuildTools>
+    <NuGetPath>tools</NuGetPath>
+    <BuildTools>tools\build</BuildTools>
     <!-- Build parameters provided by build server: values below are default values. They will be overwritten by the build service. -->
     <Version Condition="$(Version)==''">1.4.3.0</Version>
     <DataDestination>GoliathData</DataDestination>
@@ -25,7 +25,7 @@
 
   <Target Name="RestorePackages" Condition="Exists($(NuGetPath))">
     <Message Text="Restoring packages:  Solution ($(ProjectName).sln)" />
-    <Exec Command="&quot;$(NuGetPath)nuget.exe&quot; restore &quot;$(ProjectName).sln&quot;" />
+    <Exec Command="&quot;$(NuGetPath)\nuget.exe&quot; restore &quot;$(ProjectName).sln&quot;" />
   </Target>
 
   <Target Name="Build" DependsOnTargets="RestorePackages">
@@ -87,13 +87,13 @@
 
   <Target Name="Packaging" DependsOnTargets="Build;Copy">
     <Message Text="Packing Goliath Data $(Version)" />
-    <Exec Command="&quot;$(NuGetPath)nuget.exe&quot; pack  &quot;$(MSBuildProjectDirectory)\Goliath.Data.nuspec&quot; -version $(Version) -outputdirectory &quot;$(BuildPath)&quot;" />
+    <Exec Command="&quot;$(NuGetPath)\nuget.exe&quot; pack  &quot;$(MSBuildProjectDirectory)\Goliath.Data.nuspec&quot; -version $(Version) -outputdirectory &quot;$(BuildPath)&quot;" />
 	<Message Text="Packing Goliath CodeGen Tools $(Version)" />
-    <Exec Command="&quot;$(NuGetPath)nuget.exe&quot; pack  &quot;$(MSBuildProjectDirectory)\CodeGen.nuspec&quot; -version $(Version) -outputdirectory &quot;$(BuildPath)&quot;" />
+    <Exec Command="&quot;$(NuGetPath)\nuget.exe&quot; pack  &quot;$(MSBuildProjectDirectory)\CodeGen.nuspec&quot; -version $(Version) -outputdirectory &quot;$(BuildPath)&quot;" />
 	<Message Text="Packing Postgres Provider $(Version)" />
-    <Exec Command="&quot;$(NuGetPath)nuget.exe&quot; pack  &quot;$(MSBuildProjectDirectory)\Goliath.Data.Providers.Postgres.nuspec&quot; -version $(Version) -outputdirectory &quot;$(BuildPath)&quot;" />
+    <Exec Command="&quot;$(NuGetPath)\nuget.exe&quot; pack  &quot;$(MSBuildProjectDirectory)\Goliath.Data.Providers.Postgres.nuspec&quot; -version $(Version) -outputdirectory &quot;$(BuildPath)&quot;" />
 	<Message Text="Packing Sqlite Provider $(Version)" />
-    <Exec Command="&quot;$(NuGetPath)nuget.exe&quot; pack  &quot;$(MSBuildProjectDirectory)\Goliath.Data.Providers.Sqlite.nuspec&quot; -version $(Version) -outputdirectory &quot;$(BuildPath)&quot;" />
+    <Exec Command="&quot;$(NuGetPath)\nuget.exe&quot; pack  &quot;$(MSBuildProjectDirectory)\Goliath.Data.Providers.Sqlite.nuspec&quot; -version $(Version) -outputdirectory &quot;$(BuildPath)&quot;" />
   </Target>
 
 </Project>
