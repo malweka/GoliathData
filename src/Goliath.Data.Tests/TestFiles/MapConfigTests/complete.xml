@@ -1,0 +1,155 @@
+<goliath.data rdbms="Mssql2008R2" version="1.3.0.12" xmlns="http://schemas.hamsman.com/goliath/data/1.1">
+  <statements>
+    <query name="listAllDomains" canRunOn="Mssql2008R2"  resultMap="Goliath.SiteManager.Models.DomainModel">
+      select d.id as Id, d.domain_name as Name, d.created_on as CreatedOn, d.active as IsActive, COUNT(u.domain_id) as UserCount
+      from [domains]  d
+      left join users_domains u on u.domain_id = d.id
+      group by d.id, d.domain_name, d.created_on, d.active
+      order by d.domain_name, d.created_on, UserCount
+    </query>
+    <query name="listAllDomains" canRunOn="POSTGRESQL9" resultMap="Goliath.SiteManager.Models.DomainModel">
+      <![CDATA[
+      select d.id as "Id", d.domain_name as "Name", d.created_on as "CreatedOn", d.active as "IsActive", COUNT(u.domain_id) as UserCount
+      from domains  d
+      left join users_domains u on u.domain_id = d.id
+      group by d.id, d.domain_name, d.created_on, d.active
+      order by d.domain_name, d.created_on, UserCount
+    ]]>
+    </query>
+    <query name="filterDomainByName" canRunOn="Mssql2008R2" resultMap="Goliath.SiteManager.Models.DomainModel">
+      <dbParameters>
+        <param name="nameFragment" dbType="String"/>
+      </dbParameters>
+      select d.id as Id, d.domain_name as Name, d.created_on as CreatedOn, d.active as IsActive, COUNT(u.id) as UserCount
+      from [domains]  d
+      where d.domain_name like @{nameFragment}
+      left join users_domains u on u.domain_id = d.id
+      group by d.id, d.domain_name, d.created_on, d.active
+      order by d.domain_name, d.created_on, UserCount
+    </query>
+    <query name="filterDomainByName" canRunOn="POSTGRESQL9" resultMap="Goliath.SiteManager.Models.DomainModel">
+      <dbParameters>
+        <param name="nameFragment" dbType="String" />
+      </dbParameters>
+      <body>
+        <![CDATA[
+      select d.id as "Id", d.domain_name as "Name", d.created_on as "CreatedOn", d.active as "IsActive", COUNT(u.id)  "UserCount"
+      from domains  d
+      where d.domain_name like @{nameFragment}
+      left join users_domains u on u.domain_id = d.id
+      group by d.id, d.domain_name, d.created_on, d.active
+      order by d.domain_name, d.created_on, UserCount
+    ]]>
+      </body>
+    </query>
+    <query name="getAllDomainUsers" canRunOn="Mssql2008R2, POSTGRESQL9" resultMap="Goliath.SiteManager.Data.User">
+      <dbParameters>
+        <param name="domainId" dbType="Int64"/>
+      </dbParameters>
+      select @{sel:Id}, @{sel:Username}, @{sel:FirstName}, @{sel:LastName}, @{sel:Active}, @{sel:EmailAddress}, @{sel:CreatedOn},
+      @{sel:LastActivityOn}, @{sel:LastModifiedOn}, @{sel:Gid}
+      from @{TableName} u
+      join users_domains du on u.@{col:Id} = du.user_id
+      where du.domain_id = @domainId
+    </query>
+    <statement name="getInvitationCount" canRunOn="Mssql2008R2, POSTGRESQL9" resultMap="int" operationType="ExecuteScalar">
+      select count(i.Id) from invitation i
+    </statement>
+    <query name="getInvitationByNumber" canRunOn="Mssql2008R2" resultMap="Goliath.SiteManager.Models.InvitationNumberModel" >
+      <dbParameters>
+        <param name="invitNumber" dbType="String"/>
+      </dbParameters>
+      <![CDATA[select i.Id as Id, g.Id as GuestId, g.guest_name as GuestName, i.invitation_number as InvitationNumber, i.accepted as Accepted,
+  i.adult_count as Adults, i.child_count as Children
+  from invitation i
+  left join guests g on g.id = i.guest_id
+  where i.invitation_number = @invitNumber]]>
+    </query>
+    <query name="getInvitationByNumber" canRunOn="POSTGRESQL9" resultMap="Goliath.SiteManager.Models.InvitationNumberModel">
+      <dbParameters>
+        <param name="invitNumber" dbType="String" />
+      </dbParameters>
+      <body>
+        <![CDATA[select i.Id as "Id", g.Id as "GuestId", g.guest_name as "GuestName", i.invitation_number as "InvitationNumber", i.accepted as "Accepted",
+  i.adult_count  "Adults", i.child_count "Children"
+  from invitation i
+  left join guests g on g.id = i.guest_id
+  where i.invitation_number = @invitNumber]]>
+      </body>
+    </query>
+    <query name="getInvitationById" canRunOn="Mssql2008R2" resultMap="Goliath.SiteManager.Models.InvitationNumberModel" >
+      <dbParameters>
+        <param name="invitId" dbType="Int64"/>
+      </dbParameters>
+      <![CDATA[select i.Id as Id, g.Id as GuestId, g.guest_name as GuestName, i.invitation_number as InvitationNumber, i.accepted as Accepted,
+  i.adult_count as Adults, i.child_count as Children
+  from invitation i
+  left join guests g on g.id = i.guest_id
+  where i.id = @invitId]]>
+    </query>
+    <query name="getInvitationById" canRunOn="POSTGRESQL9" resultMap="Goliath.SiteManager.Models.InvitationNumberModel">
+      <dbParameters>
+        <param name="invitId" dbType="Int64" />
+      </dbParameters>
+      <body>
+        <![CDATA[sselect i.Id as "Id", g.Id as "GuestId", g.guest_name as "GuestName", i.invitation_number as "InvitationNumber", i.accepted as "Accepted",
+  i.adult_count  "Adults", i.child_count "Children"
+  from invitation i
+  left join guests g on g.id = i.guest_id
+  where i.id = @invitId]]>
+      </body>
+    </query>
+    <query name="getAllInvitationNumbers" canRunOn="Mssql2008R2" resultMap="Goliath.SiteManager.Models.InvitationNumberModel" >
+      <dbParameters>
+        <param name="limit" dbType="Int32"/>
+        <param name="offset" dbType="Int32"/>
+      </dbParameters>
+      <![CDATA[select *  from ( select i.Id as Id, g.guest_name as GuestName, i.invitation_number as InvitationNumber, i.accepted as Accepted, ROW_NUMBER()
+      over (order by i.Id ) AS RowNumber from invitation i
+      left join guests g on g.id = i.guest_id) c
+      where RowNumber >= @offset and RowNumber < (@limit + @offset)]]>
+    </query>
+    <query name="getAllInvitationNumbers" canRunOn="POSTGRESQL9" resultMap="Goliath.SiteManager.Models.InvitationNumberModel">
+      <dbParameters>
+        <param name="limit" dbType="Int32" />
+        <param name="offset" dbType="Int32" />
+      </dbParameters>
+      <body>
+        <![CDATA[select i.Id as "Id", g.guest_name as "GuestName", i.invitation_number as "InvitationNumber", i.accepted as "Accepted"
+from invitation i left join guests g on g.id = i.guest_id
+order by i."accepted", g.guest_name
+limit @limit OFFSET @offset]]>
+      </body>
+    </query>
+    <query name="getAllGuestFoodChoices"  resultMap="Goliath.SiteManager.Models.FoodCountModel">
+      <dbParameters>
+        <param name="chicken" dbType="Int64" />
+        <param name="fish" dbType="Int64" />
+        <param name="beef" dbType="Int64" />
+      </dbParameters>
+      select i.invitation_number as "InvitationNumber", g.guest_name as "GuestName",
+      (select COUNT(food_id) from guest_food_choices where food_id = @chicken and invitation_id = i.id) "Chicken",
+      (select COUNT(food_id) from guest_food_choices where food_id = @fish and invitation_id = i.id) "Fish",
+      (select COUNT(food_id) from guest_food_choices where food_id = @beef and invitation_id = i.id) "Beef"
+      from guest_food_choices c
+      left join invitation i on i.id = c.invitation_id
+      left join food_selections f on f.id = c.food_id
+      left join guests g on g.id = i.guest_id
+      group by i.invitation_number, g.guest_name,  i.id
+      order by g.guest_name
+    </query>
+    <query name="getAllFoodTotals"  resultMap="Goliath.SiteManager.Models.FoodTotalModel">
+      select food_id "FoodId", food_name "FoodName", count(food_id) "FoodCount", f."cost" "Cost"
+      from guest_food_choices c
+      LEFT JOIN food_selections f on f."id" = c.food_id
+      GROUP BY food_id, food_name, f."cost"
+    </query>
+    <query name="getFoodChoiceDuplicates"  resultMap="Goliath.SiteManager.Models.FoodOrderDuplicateModel">
+      select g.guest_name "GuestName", COUNT(c.id) "Ordered", i.invitation_number "InvitationNumber", i.id "InvitationId", i.adult_count as "AdultCount" from guest_food_choices c
+      left join invitation i on i."id" = c.invitation_id
+      left join guests g on g.id = i.guest_id
+      where (select COUNT(ccd.id) from guest_food_choices ccd where ccd.invitation_id = i.id) > i.adult_count
+      group by g.guest_name, i.adult_count, i.invitation_number, i.id
+    </query>
+  </statements>
+</goliath.data>

@@ -9,12 +9,10 @@ using Goliath.Data.Utils;
 
 namespace Goliath.Data.DataAccess
 {
-    [Serializable]
+
     class Session : ISession
     {
         static ILogger logger;
-        readonly string id;
-        ITransaction currentTransaction;
         readonly SqlCommandRunner commandRunner = new SqlCommandRunner();
         readonly IMappedStatementParser statementParser = new StatementMapParser();
         public IConnectionManager ConnectionManager { get; private set; }
@@ -34,10 +32,10 @@ namespace Goliath.Data.DataAccess
         /// <param name="connectionManager">The connection manager.</param>
         public Session(ISessionFactory sessionFactory, IConnectionManager connectionManager)
         {
-            if (sessionFactory == null) throw new ArgumentNullException("sessionFactory");
-            if (connectionManager == null) throw new ArgumentNullException("connectionManager");
+            if (sessionFactory == null) throw new ArgumentNullException(nameof(sessionFactory));
+            if (connectionManager == null) throw new ArgumentNullException(nameof(connectionManager));
 
-            id = Guid.NewGuid().ToString().Replace("-", string.Empty).ToLower();
+            Id = Guid.NewGuid().ToString().Replace("-", string.Empty).ToLower();
             SessionFactory = sessionFactory;
             ConnectionManager = connectionManager;
         }
@@ -54,25 +52,12 @@ namespace Goliath.Data.DataAccess
 
         #region Properties
 
-        public string Id
-        {
-            get { return id; }
-        }
+        public string Id { get; }
 
-        public IDbAccess DataAccess
-        {
-            get { return SessionFactory.DbSettings.DbAccess; }
-        }
+        public IDbAccess DataAccess => SessionFactory.DbSettings.DbAccess;
 
-        public ITransaction CurrentTransaction
-        {
-            get
-            {
-                //if (currentTransaction == null)
-                //    currentTransaction = new AdoTransaction(this);
-                return currentTransaction;
-            }
-        }
+        public ITransaction CurrentTransaction { get; private set; }
+
         #endregion
 
         #region Data Access
@@ -96,8 +81,8 @@ namespace Goliath.Data.DataAccess
 
         public ITableNameBuilder Select(string column, params string[] columns)
         {
-            var columnNames = new List<string>();
-            columnNames.Add(column);
+            var columnNames = new List<string> {column};
+
             if ((columns != null) && (columns.Length > 0))
             {
                 columnNames.AddRange(columns);
@@ -176,7 +161,7 @@ namespace Goliath.Data.DataAccess
                 if (ex is GoliathDataException)
                     throw;
 
-                throw new GoliathDataException(string.Format("Error running mapped statement {0}.", statementName));
+                throw new GoliathDataException($"Mapped statement {statementName} execution Failed. {ex.Message}", ex);
             }
         }
 
@@ -203,7 +188,8 @@ namespace Goliath.Data.DataAccess
             {
                 if (ex is GoliathDataException)
                     throw;
-                throw new GoliathDataException(string.Format("Error running mapped statement {0}.", statementName));
+
+                throw new GoliathDataException($"Mapped statement {statementName} execution Failed. {ex.Message}", ex);
             }
         }
 
@@ -230,7 +216,8 @@ namespace Goliath.Data.DataAccess
             {
                 if (ex is GoliathDataException)
                     throw;
-                throw new GoliathDataException(string.Format("Error running mapped statement {0}.", statementName));
+
+                throw new GoliathDataException($"Mapped statement {statementName} execution Failed. {ex.Message}", ex);
             }
         }
 
@@ -326,44 +313,44 @@ namespace Goliath.Data.DataAccess
 
         public ITransaction BeginTransaction(System.Data.IsolationLevel isolationLevel)
         {
-            if ((currentTransaction == null) || (!currentTransaction.IsStarted))
+            if ((CurrentTransaction == null) || (!CurrentTransaction.IsStarted))
             {
-                currentTransaction = new AdoTransaction(this);
+                CurrentTransaction = new AdoTransaction(this);
             }
-            else if (currentTransaction.IsStarted)
+            else if (CurrentTransaction.IsStarted)
             {
                 //TODO: throw exception here?
-                return currentTransaction;
+                return CurrentTransaction;
             }
 
-            currentTransaction.Begin(isolationLevel);
+            CurrentTransaction.Begin(isolationLevel);
             //TODO: set transaction lock on connection manager??
-            return currentTransaction;
+            return CurrentTransaction;
         }
 
         public ITransaction CommitTransaction()
         {
-            if ((currentTransaction == null) || (!currentTransaction.IsStarted))
-                throw new GoliathDataException("no transaction or not started yet");
+            if ((CurrentTransaction == null) || (!CurrentTransaction.IsStarted))
+                throw new GoliathDataException("No transaction or not started yet.");
 
-            currentTransaction.Commit();
-            currentTransaction.Dispose();
+            CurrentTransaction.Commit();
+            CurrentTransaction.Dispose();
 
-            ITransaction transRef = currentTransaction;
-            currentTransaction = null;
+            ITransaction transRef = CurrentTransaction;
+            CurrentTransaction = null;
             return transRef;
         }
 
         public ITransaction RollbackTransaction()
         {
-            if ((currentTransaction == null) || (!currentTransaction.IsStarted))
+            if ((CurrentTransaction == null) || (!CurrentTransaction.IsStarted))
                 return null;
 
-            currentTransaction.Rollback();
-            currentTransaction.Dispose();
+            CurrentTransaction.Rollback();
+            CurrentTransaction.Dispose();
 
-            ITransaction transRef = currentTransaction;
-            currentTransaction = null;
+            ITransaction transRef = CurrentTransaction;
+            CurrentTransaction = null;
             return transRef;
         }
 

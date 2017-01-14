@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Goliath.Data.Mapping;
 using Goliath.Data.Providers;
 
@@ -89,8 +90,8 @@ namespace Goliath.Data.CodeGenerator
         /// </exception>
         public MapConfig CreateMap(ISchemaDescriptor schemaDescriptor, ComplexType baseModel, string mapFilename)
         {
-            if (schemaDescriptor == null) throw new ArgumentNullException("schemaDescriptor");
-            if (string.IsNullOrWhiteSpace(mapFilename)) throw new ArgumentNullException("mapFilename");
+            if (schemaDescriptor == null) throw new ArgumentNullException(nameof(schemaDescriptor));
+            if (string.IsNullOrWhiteSpace(mapFilename)) throw new ArgumentNullException(nameof(mapFilename));
 
             var map = codeGen.GenerateMapping(WorkingFolder, schemaDescriptor, Settings, baseModel, rdbms, mapFilename);
             map.MapStatements(QueryProviderName);
@@ -101,6 +102,9 @@ namespace Goliath.Data.CodeGenerator
         {
             foreach (var stat in map.MappedStatements)
             {
+                if (string.IsNullOrWhiteSpace(stat.ResultMap))
+                    stat.ResultMap = "int"; //default is non query
+
                 if (!string.IsNullOrWhiteSpace(stat.DependsOnEntity)) continue;
 
                 EntityMap ent;
@@ -108,7 +112,15 @@ namespace Goliath.Data.CodeGenerator
                 {
                     //Console.WriteLine("ResultMap {0} is an entity - set dependance", stat.ResultMap);
                     stat.DependsOnEntity = ent.FullName;
-                    stat.Name = string.Format("{0}_{1}", ent.FullName, stat.Name);
+                    stat.Name = $"{ent.FullName}_{stat.Name}";
+                }
+                else if (stat.InputParametersMap.Count == 1)
+                {
+                    var param = stat.InputParametersMap.Values.First();
+                    if (!map.EntityConfigs.TryGetValue(param, out ent)) continue;
+
+                    stat.DependsOnEntity = ent.FullName;
+                    stat.Name = $"{ent.FullName}_{stat.Name}";
                 }
             }
         }
