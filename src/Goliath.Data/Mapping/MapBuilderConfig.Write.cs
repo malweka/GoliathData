@@ -257,7 +257,7 @@ namespace Goliath.Data.Mapping
             }
 
             string statName;
-            string resultMap = null;
+            string resultMap = statement.ResultMap; 
             if (entity != null)
             {
                 statName = statement.Name.Replace(entity.FullName + "_", string.Empty);
@@ -265,7 +265,7 @@ namespace Goliath.Data.Mapping
             else
             {
                 statName = statement.Name;
-                resultMap = statement.ResultMap;
+                //resultMap = statement.ResultMap;
             }
 
             xmlWriter.WriteStartElement(elementName);

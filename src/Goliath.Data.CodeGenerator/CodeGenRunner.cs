@@ -140,8 +140,8 @@ namespace Goliath.Data.CodeGenerator
         /// </exception>
         public MapConfig CreateMap(ISchemaDescriptor schemaDescriptor, IDictionary<string, string> entityRenames, ComplexType baseModel, string mapFilename)
         {
-            if (schemaDescriptor == null) throw new ArgumentNullException("schemaDescriptor");
-            if (string.IsNullOrWhiteSpace(mapFilename)) throw new ArgumentNullException("mapFilename");
+            if (schemaDescriptor == null) throw new ArgumentNullException(nameof(schemaDescriptor));
+            if (string.IsNullOrWhiteSpace(mapFilename)) throw new ArgumentNullException(nameof(mapFilename));
 
             var map = codeGen.GenerateMapping(WorkingFolder, schemaDescriptor, entityRenames, Settings, baseModel, rdbms, mapFilename);
             map.MapStatements(QueryProviderName);

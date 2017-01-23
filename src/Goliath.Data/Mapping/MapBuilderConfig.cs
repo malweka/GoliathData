@@ -160,10 +160,7 @@ namespace Goliath.Data.Mapping
         public void LoadMappedStatements(string filename)
         {
             if (!canSetExternalMapStatements)
-                throw new InvalidOperationException(
-                    string.Format(
-                        "MapConfig not initialized properly. No Platform has been defined. Cannot load statements from {0}.",
-                        filename));
+                throw new InvalidOperationException($"MapConfig not initialized properly. No Platform has been defined. Cannot load statements from {filename}.");
 
             if (!File.Exists(filename))
                 throw new FileNotFoundException("Cannot load File. File not found.", filename);
