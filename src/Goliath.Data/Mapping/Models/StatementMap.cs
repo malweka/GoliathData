@@ -12,9 +12,9 @@ namespace Goliath.Data.Mapping
     [System.Diagnostics.DebuggerDisplay("Name = {Name}, DbName = {DbName}")]
     public class StatementMap : IMapModel
     {
-        Dictionary<string, System.Data.DbType?> parameters = new Dictionary<string, System.Data.DbType?>();
-        Dictionary<string, string> inputParams = new Dictionary<string, string>();
-        Dictionary<string, StatementInputParam> paramPropertyMap = new Dictionary<string, StatementInputParam>();
+        readonly Dictionary<string, System.Data.DbType?> parameters = new Dictionary<string, System.Data.DbType?>();
+        readonly Dictionary<string, string> inputParams = new Dictionary<string, string>();
+        readonly Dictionary<string, StatementInputParam> paramPropertyMap = new Dictionary<string, StatementInputParam>();
         /// <summary>
         /// Gets a value indicating whether this instance is ready.
         /// </summary>
@@ -32,22 +32,13 @@ namespace Goliath.Data.Mapping
         /// </value>
         public bool IsParsingRequired { get; set; }
 
-        public Dictionary<string, StatementInputParam> ParamPropertyMap
-        {
-            get { return paramPropertyMap; }
-        }
+        public Dictionary<string, StatementInputParam> ParamPropertyMap => paramPropertyMap;
 
         /// <summary>
         /// Gets the parameters.
         /// </summary>
         /// <value>The parameters.</value>
-        public Dictionary<string, System.Data.DbType?> DbParametersMap
-        {
-            get
-            {
-                return parameters;
-            }
-        }
+        public Dictionary<string, System.Data.DbType?> DbParametersMap => parameters;
 
         /// <summary>
         /// Gets the input parameters map.

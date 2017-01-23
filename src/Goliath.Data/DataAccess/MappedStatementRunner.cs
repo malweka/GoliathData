@@ -37,7 +37,7 @@ namespace Goliath.Data.DataAccess
         StatementMap PrepareStatement(ISession session, string statementName, Dictionary<string, object> inObjects, params object[] inputParams)
         {
             if (session == null)
-                throw new ArgumentNullException("session");
+                throw new ArgumentNullException(nameof(session));
 
             StatementMap statement;
             if (!session.SessionFactory.DbSettings.Map.MappedStatements.TryGetValue(statementName, out statement))
@@ -59,7 +59,7 @@ namespace Goliath.Data.DataAccess
                 //parse it
 
                 if ((statement.InputParametersMap.Count > 1) && ((inputParams == null) || (inputParams.Length < statement.InputParametersMap.Count)))
-                    throw new GoliathDataException(string.Format("{0} requires {1} input paremeters.", statement.Name, statement.InputParametersMap.Count));
+                    throw new GoliathDataException($"{statement.Name} requires {statement.InputParametersMap.Count} input paremeters.");
 
                 if ((inputParams.Length > 0) && (statement.InputParametersMap.Count == 0) && !string.IsNullOrWhiteSpace(statement.DependsOnEntity))
                 {
