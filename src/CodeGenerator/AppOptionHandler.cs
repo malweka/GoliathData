@@ -61,6 +61,8 @@ namespace Goliath.Data.CodeGenerator
                 .Add("out=|o=", w => opts.OutputFile = w)
                 .Add("in=|i=", w => opts.TemplateName = w)
                 .Add("queryProvider=", w => opts.QueryProviderName = w)
+                .Add("importDialect=", w => opts.ImportSqlDialect = w)
+                .Add("exportDialect=", w => opts.ExportSqlDialect = w)
                 .Add("templateFolder=|t=", w => opts.TemplateFolder = w);
 
             p.Parse(args);
@@ -277,6 +279,10 @@ namespace Goliath.Data.CodeGenerator
         public string ExtensionMap { get; set; }
         public bool ExportDatabaseGeneratedColumns { get; set; }
         public bool ExportIdentityColumn { get; set; }
+
+        public string ImportSqlDialect { get; set; }
+
+        public string ExportSqlDialect { get; set; }
 
         public string[] ExcludedArray { get; set; }
     }

@@ -10,23 +10,28 @@ namespace Goliath.Data.DataAccess
     /// </summary>
     public class DataExporterAdapter
     {
-        private readonly SqlDialect dialect;
+        private readonly SqlDialect importDialect;
+        private readonly SqlDialect exportDialect;
         private readonly IDbConnector dbConnector;
         private readonly ITypeConverterStore typeConverter;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="DataExporterAdapter"/> class.
+        /// Initializes a new instance of the <see cref="DataExporterAdapter" /> class.
         /// </summary>
-        /// <param name="dialect">The dialect.</param>
+        /// <param name="importDialect">The dialect.</param>
+        /// <param name="exportDialect">The export dialect.</param>
         /// <param name="dbConnector">The database connector.</param>
-        /// <param name="typeConverter"></param>
-        public DataExporterAdapter(SqlDialect dialect, IDbConnector dbConnector, ITypeConverterStore typeConverter)
+        /// <param name="typeConverter">The type converter.</param>
+        /// <exception cref="System.ArgumentNullException">
+        /// </exception>
+        public DataExporterAdapter(SqlDialect importDialect, SqlDialect exportDialect, IDbConnector dbConnector, ITypeConverterStore typeConverter)
         {
-            if (dialect == null) throw new ArgumentNullException(nameof(dialect));
+            if (importDialect == null) throw new ArgumentNullException(nameof(importDialect));
             if (dbConnector == null) throw new ArgumentNullException(nameof(dbConnector));
             if (typeConverter == null) throw new ArgumentNullException(nameof(typeConverter));
 
-            this.dialect = dialect;
+            this.importDialect = importDialect;
+            this.exportDialect = exportDialect;
             this.dbConnector = dbConnector;
             this.typeConverter = typeConverter;
         }
@@ -40,7 +45,13 @@ namespace Goliath.Data.DataAccess
         /// <returns></returns>
         public ExportModel Export(EntityMap entityMap, bool exportIdentityColumn = true, bool exportDatabaseGeneratedColumn = true)
         {
-            var model = new ExportModel { Dialect = dialect, Map = entityMap, TypeConverterStore = typeConverter };
+            var model = new ExportModel
+            {
+                ImportDialect = importDialect,
+                ExportDialect = exportDialect,
+                Map = entityMap,
+                TypeConverterStore = typeConverter
+            };
             model.Options.ExportIdentityColumn = exportIdentityColumn;
             model.Options.ExportDatabaseGeneratedColumns = exportDatabaseGeneratedColumn;
 
