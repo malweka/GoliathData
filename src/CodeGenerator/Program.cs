@@ -18,6 +18,7 @@ namespace Goliath.Data.CodeGenerator
             logger = Logger.GetLogger(typeof(Program));
         }
 
+        
         static void Main(string[] args)
         {
 
@@ -156,6 +157,38 @@ namespace Goliath.Data.CodeGenerator
             Console.WriteLine("\nDone!");
         }
 
+        static SupportedRdbms GetRdbms(string rdbmsName)
+        {
+            var rdbms = SupportedRdbms.Mssql2008R2;
+
+            if (string.IsNullOrWhiteSpace(rdbmsName)) return rdbms;
+
+            switch (rdbmsName.ToUpper())
+            {
+                case "MSSQL2008":
+                    rdbms = SupportedRdbms.Mssql2008;
+                    break;
+                case "MSSQL2008R2":
+                    rdbms = SupportedRdbms.Mssql2008R2;
+                    break;
+                case "POSTGRESQL8":
+                    rdbms = SupportedRdbms.Postgresql8;
+                    break;
+                case "POSTGRESQL9":
+                    rdbms = SupportedRdbms.Postgresql9;
+                    break;
+                case "SQLITE3":
+                    rdbms = SupportedRdbms.Sqlite3;
+                    break;
+                default:
+                    rdbms = SupportedRdbms.Mssql2008R2;
+                    break;
+            }
+
+            return rdbms;
+        }
+
+
         static string GetCodeMapFile(AppOptionInfo opts, bool throwIfNotExist = true)
         {
             string codeMapFile = opts.MapFile;
@@ -235,8 +268,10 @@ namespace Goliath.Data.CodeGenerator
 
             var providerFactory = new ProviderFactory();
 
-            var dialect = providerFactory.CreateDialect(rdbms);
-            var dbConnector = providerFactory.CreateDbConnector(rdbms, opts.ConnectionString);
+            var importRdbms = GetRdbms(opts.ImportSqlDialect);
+            var exportRdbms = GetRdbms(opts.ExportSqlDialect);
+
+            var dbConnector = providerFactory.CreateDbConnector(importRdbms, opts.ConnectionString);
 
             if (string.IsNullOrWhiteSpace(opts.TemplateName))
                 throw new GoliathDataException("Template file to use is required for generate operation. Please make sure that -in=\"Template_File_name.razt\" argument is passed in.");
@@ -244,12 +279,15 @@ namespace Goliath.Data.CodeGenerator
             var template = Path.Combine(codeGenRunner.TemplateFolder, opts.TemplateName);
 
             if (!File.Exists(template))
-                throw new GoliathDataException(string.Format("template file {0} not found.", template));
+                throw new GoliathDataException($"template file {template} not found.");
 
             if (string.IsNullOrWhiteSpace(opts.OutputFile))
                 throw new GoliathDataException("Output file is required for generate operation. Please make sure that -out=\"YOUR_FILE.EXT\" argument is passed in.");
 
-            DataExporterAdapter exporter = new DataExporterAdapter(dialect, dbConnector, new TypeConverterStore());
+            
+
+            var exporter = new DataExporterAdapter(providerFactory.CreateDialect(importRdbms), providerFactory.CreateDialect(exportRdbms), 
+                dbConnector, new TypeConverterStore());
 
             var counter =0;
 
