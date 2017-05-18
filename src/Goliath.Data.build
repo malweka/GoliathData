@@ -21,7 +21,7 @@
     <Postgres>Providers\Postgres</Postgres>
   </PropertyGroup>
 
-  <UsingTask AssemblyFile="$(BuildTools)\Goliath.BuildTasks.dll" TaskName="Goliath.BuildTasks.AssignBuildVersion" />
+  <!-- <UsingTask AssemblyFile="$(BuildTools)\Goliath.BuildTasks.dll" TaskName="Goliath.BuildTasks.AssignBuildVersion" /> -->
 
   <Target Name="RestorePackages" Condition="Exists($(NuGetPath))">
     <Message Text="Restoring packages:  Solution ($(ProjectName).sln)" />
@@ -80,9 +80,9 @@
   </Target>
 
   <Target Name="_Version" >
-    <AssignBuildVersion  AssemblyVersionFile="$(MSBuildProjectDirectory)\AssemblyInfo.Shared.cs">
-      <Output TaskParameter="VersionNumber" PropertyName="Version"/>
-    </AssignBuildVersion>
+    <!-- <AssignBuildVersion  AssemblyVersionFile="$(MSBuildProjectDirectory)\AssemblyInfo.Shared.cs"> -->
+      <!-- <Output TaskParameter="VersionNumber" PropertyName="Version"/> -->
+    <!-- </AssignBuildVersion> -->
   </Target>
 
   <Target Name="Packaging" DependsOnTargets="Build;Copy">
