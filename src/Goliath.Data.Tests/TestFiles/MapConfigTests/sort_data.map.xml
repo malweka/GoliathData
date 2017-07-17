@@ -1,0 +1,439 @@
+﻿<goliath.data rdbms="Mssql2008R2" version="1.4.1.16" xmlns="http://schemas.hamsman.com/goliath/data/1.1">
+  <connectionString>Data Source=localhost;Initial Catalog=jwTalkScheduler;Integrated Security=True</connectionString>
+  <tablePrefixes />
+  <namespace>Goliath.Scheduler.Data</namespace>
+  <baseModel>BaseEntity</baseModel>
+  <generatedBy>Goliath.Data.Providers.SqlServer.MssqlSchemaDescriptor</generatedBy>
+  <entities>
+    <entity name="UserRole" extends="BaseEntity" order="13" linkTable="True" assembly="UserManagement.Core.Data" entityNamespace="Goliath.Scheduler.Data" table="user_roles" schema="dbo" alias="use3">
+      <primaryKey>
+        <key name="UserId" column="user_id" order="1" clrType="System.Int64" sqlType="bigint" precision="19" scale="0" unique="True" primaryKey="True" constraint="PK_user_roles" nullable="False" relation="ManyToOne" referenceProperty="Id" refConstraint="FK_user_roles_users" refEntity="Goliath.Scheduler.Data.User" dbType="Int64" data_editable="false" key_generator="Cms_Integer_keyGen" />
+        <key name="RoleId" column="role_id" order="2" clrType="System.Int64" sqlType="bigint" precision="19" scale="0" unique="True" primaryKey="True" constraint="PK_user_roles" nullable="False" relation="ManyToOne" referenceProperty="Id" refConstraint="FK_user_roles_roles" refEntity="Goliath.Scheduler.Data.Role" dbType="Int64" data_editable="false" key_generator="Cms_Integer_keyGen" />
+      </primaryKey>
+      <properties />
+    </entity>
+    <entity name="UserRolePerm" extends="BaseEntity" order="12" assembly="UserManagement.Core.Data" entityNamespace="Goliath.Scheduler.Data" table="user_role_perms" schema="dbo" alias="use2">
+      <primaryKey>
+        <key name="Id" column="id" order="1" clrType="System.Int64" sqlType="bigint" precision="19" scale="0" unique="True" primaryKey="True" constraint="PK_user_role_perms" nullable="False" dbType="Int64" data_editable="false" key_generator="Cms_Integer_keyGen" />
+      </primaryKey>
+      <properties>
+        <property name="ResourceId" column="resource_id" order="2" clrType="System.Int32" sqlType="int" precision="10" scale="0" nullable="False" dbType="Int32" />
+        <property name="RoleNumber" column="role_number" order="3" clrType="System.Int32" sqlType="int" precision="10" scale="0" nullable="False" dbType="Int32" />
+        <property name="PermValue" column="perm_value" order="4" clrType="System.Int32" sqlType="int" precision="10" scale="0" type="PermActionType" nullable="False" dbType="Int32" />
+        <property name="CreatedOn" column="created_on" order="5" clrType="System.DateTime" sqlType="datetime" ignoreOnUpdate="True" nullable="False" dbType="DateTime" data_editable="false" />
+        <property name="CreatedBy" column="created_by" order="6" clrType="System.String" sqlType="varchar" length="50" ignoreOnUpdate="True" dbType="AnsiString" data_editable="false" />
+        <property name="ModifiedOn" column="modified_on" order="7" clrType="System.Nullable`1[System.DateTime]" sqlType="datetime" dbType="DateTime" />
+        <property name="ModifiedBy" column="modified_by" order="8" clrType="System.String" sqlType="varchar" length="50" dbType="AnsiString" />
+      </properties>
+    </entity>
+    <entity name="User" extends="BaseEntity" order="15" assembly="UserManagement.Core.Data" entityNamespace="Goliath.Scheduler.Data" table="user_accounts" schema="dbo" alias="use1" data_display_description="System users">
+      <primaryKey>
+        <key name="Id" column="id" order="1" clrType="System.Int64" sqlType="bigint" precision="19" scale="0" unique="True" primaryKey="True" constraint="PK_users" nullable="False" dbType="Int64" data_display_description="The unique Identifier." data_editable="false" key_generator="Cms_Integer_keyGen" />
+      </primaryKey>
+      <properties>
+        <property name="UserName" column="user_name" order="2" clrType="System.String" sqlType="nvarchar" length="50" unique="True" constraint="IX_users" dbType="String" data_display_description="The user chosen name or nickname. The user will be identified by this name throughout the application." />
+        <property name="FirstName" column="first_name" order="3" clrType="System.String" sqlType="nvarchar" length="50" dbType="String" />
+        <property name="LastName" column="last_name" order="4" clrType="System.String" sqlType="nvarchar" length="50" dbType="String" />
+        <property name="EmailAddress" column="email_address" order="5" clrType="System.String" sqlType="nvarchar" length="150" dbType="String" />
+        <property name="PasswordHash" column="password_hash" order="6" clrType="System.String" sqlType="varchar" length="250" dbType="AnsiString" data_display_description="The salted hash of the user's password." />
+        <property name="AccessToken" column="access_token" order="7" clrType="System.String" sqlType="varchar" length="500" dbType="AnsiString" data_display_description="The user's private key" />
+        <property name="ExternalScreenName" column="external_screen_name" order="8" clrType="System.String" sqlType="varchar" length="50" dbType="AnsiString" data_display_description="The user's public key." />
+        <property name="ExternalUserId" column="external_user_id" order="9" clrType="System.String" sqlType="varchar" length="50" dbType="AnsiString" />
+        <property name="AuthenticationProvider" column="authentication_provider" order="10" clrType="System.String" sqlType="varchar" length="50" dbType="AnsiString" />
+        <property name="IsActive" column="is_active" order="11" clrType="System.Boolean" sqlType="bit" default="1" nullable="False" dbType="Boolean" />
+        <property name="UseGravatarProfile" column="use_gravatar_profile" order="12" clrType="System.Boolean" sqlType="bit" default="1" nullable="False" dbType="Boolean" />
+        <property name="ProfileImageUrl" column="profile_image_url" order="13" clrType="System.String" sqlType="nvarchar" length="250" dbType="String" />
+        <property name="LastLoginOn" column="last_login_on" order="14" clrType="System.Nullable`1[System.DateTime]" sqlType="datetime" dbType="DateTime" />
+        <property name="CreatedOn" column="created_on" order="15" clrType="System.DateTime" sqlType="datetime" default="GetUtcDate" ignoreOnUpdate="True" nullable="False" dbType="DateTime" data_editable="false" />
+        <property name="CreatedBy" column="created_by" order="16" clrType="System.String" sqlType="varchar" length="50" default="'System'" ignoreOnUpdate="True" nullable="False" dbType="AnsiString" data_editable="false" />
+        <property name="ModifiedOn" column="modified_on" order="17" clrType="System.Nullable`1[System.DateTime]" sqlType="datetime" dbType="DateTime" />
+        <property name="ModifiedBy" column="modified_by" order="18" clrType="System.String" sqlType="varchar" length="50" dbType="AnsiString" />
+        <list name="CallAssignments" column="id" scale="0" type="" lazy="True" relation="OneToMany" referenceProperty="AssignedTo" refEntity="Goliath.Scheduler.Data.CallAssignment" />
+        <list name="SecurityTokens" column="id" scale="0" type="" lazy="True" relation="OneToMany" referenceProperty="ForUser" refEntity="Goliath.Scheduler.Data.SecurityToken" />
+        <list name="Roles" column="id" scale="0" type="" lazy="True" relation="ManyToMany" referenceProperty="Id" refEntity="Goliath.Scheduler.Data.Role" inverse="True" mapTable="user_roles" mapColumn="user_id" propertyName="id" mapReferenceColumn="role_id" />
+      </properties>
+      <statements>
+        <insert name="associate_User_with_Role">
+          <inputParameters>
+            <input name="userId" type="Goliath.Scheduler.Data.User" />
+            <input name="roleId" type="Goliath.Scheduler.Data.Role" />
+          </inputParameters>
+          <body><![CDATA[INSERT INTO user_roles (user_id, role_id) VALUES(@{prop:userId.Id}, @{prop:roleId.Id});]]></body>
+        </insert>
+        <delete name="dissaciate_User_with_Role">
+          <inputParameters>
+            <input name="userId" type="Goliath.Scheduler.Data.User" />
+            <input name="roleId" type="Goliath.Scheduler.Data.Role" />
+          </inputParameters>
+          <body><![CDATA[DELETE FROM user_roles WHERE user_id = @{prop:userId.Id} AND role_id = @{prop:roleId.Id};]]></body>
+        </delete>
+      </statements>
+    </entity>
+    <entity name="UserAccessLog" extends="BaseEntity" order="16" assembly="UserManagement.Core.Data" entityNamespace="Goliath.Scheduler.Data" table="user_access_logs" schema="dbo" alias="useg_x">
+      <primaryKey>
+        <key name="Id" column="id" order="1" clrType="System.Int64" sqlType="bigint" precision="19" scale="0" unique="True" primaryKey="True" constraint="PK_user_activity_logs" nullable="False" dbType="Int64" data_editable="false" key_generator="Cms_Integer_keyGen" />
+      </primaryKey>
+      <properties>
+        <property name="UserName" column="user_name" order="2" clrType="System.String" sqlType="varchar" length="50" nullable="False" dbType="AnsiString" />
+        <property name="ActivityType" column="activity_type" order="3" clrType="System.String" sqlType="varchar" length="50" type="ActivityLogType" nullable="False" dbType="AnsiString" />
+        <property name="CreatedOn" column="created_on" order="4" clrType="System.DateTime" sqlType="datetime" ignoreOnUpdate="True" nullable="False" dbType="DateTime" data_editable="false" />
+        <property name="IpAddress" column="ip_address" order="5" clrType="System.String" sqlType="varchar" length="50" dbType="AnsiString" />
+      </properties>
+    </entity>
+    <entity name="Talk" extends="BaseEntity" order="11" assembly="UserManagement.Core.Data" entityNamespace="Goliath.Scheduler.Data" table="talks" schema="dbo" alias="tal" data_display_description="Public talks">
+      <primaryKey>
+        <key name="Id" column="id" order="1" clrType="System.Int64" sqlType="bigint" precision="19" scale="0" unique="True" primaryKey="True" constraint="PK_talks" nullable="False" dbType="Int64" data_display_description="The unique identifier." data_editable="false" key_generator="Cms_Integer_keyGen" />
+      </primaryKey>
+      <properties>
+        <property name="TalkNumber" column="talk_number" order="2" clrType="System.String" sqlType="varchar" length="50" unique="True" constraint="IX_talks" nullable="False" dbType="AnsiString" data_display_description="The talk number" />
+        <property name="Title" column="title" order="3" clrType="System.String" sqlType="nvarchar" length="100" nullable="False" dbType="String" data_display_description="The talk title or theme" />
+        <property name="CreatedOn" column="created_on" order="4" clrType="System.DateTime" sqlType="datetime" ignoreOnUpdate="True" nullable="False" dbType="DateTime" data_display_description="The date and time the talk was added into the system." data_editable="false" />
+        <property name="CreatedBy" column="created_by" order="5" clrType="System.String" sqlType="nvarchar" length="50" ignoreOnUpdate="True" nullable="False" dbType="String" data_display_description="The name of the user who added the talk to the system." data_editable="false" />
+        <property name="ModifiedOn" column="modified_on" order="6" clrType="System.Nullable`1[System.DateTime]" sqlType="datetime" dbType="DateTime" data_display_description="The date and time the talk was modified." />
+        <property name="ModifiedBy" column="modified_by" order="7" clrType="System.String" sqlType="nvarchar" length="50" dbType="String" data_display_description="The name of the user who modified the talk." />
+        <list name="AssignedTalks" column="id" scale="0" type="" lazy="True" relation="OneToMany" referenceProperty="Talk" refEntity="Goliath.Scheduler.Data.AssignedTalk" />
+        <list name="ScheduledMeetings" column="id" scale="0" type="" lazy="True" relation="OneToMany" referenceProperty="Talk" refEntity="Goliath.Scheduler.Data.ScheduledMeeting" />
+      </properties>
+    </entity>
+    <entity name="SpeakerLanguage" extends="BaseEntity" order="22" linkTable="True" assembly="UserManagement.Core.Data" entityNamespace="Goliath.Scheduler.Data" table="speaker_languages" schema="dbo" alias="spe">
+      <primaryKey>
+        <key name="LanguageId" column="language_id" order="1" clrType="System.Int64" sqlType="bigint" precision="19" scale="0" unique="True" primaryKey="True" constraint="PK_speaker_languages" nullable="False" relation="ManyToOne" referenceProperty="Id" refConstraint="FK_speaker_languages_languages" refEntity="Goliath.Scheduler.Data.Language" dbType="Int64" data_editable="false" key_generator="Cms_Integer_keyGen" />
+        <key name="ContactId" column="contact_id" order="2" clrType="System.Int64" sqlType="bigint" precision="19" scale="0" unique="True" primaryKey="True" constraint="PK_speaker_languages" nullable="False" relation="ManyToOne" referenceProperty="Id" refConstraint="FK_speaker_languages_contacts" refEntity="Goliath.Scheduler.Data.Contact" dbType="Int64" data_editable="false" key_generator="Cms_Integer_keyGen" />
+      </primaryKey>
+      <properties />
+    </entity>
+    <entity name="SecurityToken" extends="BaseEntity" order="17" assembly="UserManagement.Core.Data" entityNamespace="Goliath.Scheduler.Data" table="security_tokens" schema="dbo" alias="sec">
+      <primaryKey>
+        <key name="Id" column="id" order="1" clrType="System.Int64" sqlType="bigint" precision="19" scale="0" unique="True" primaryKey="True" constraint="PK_security_tokens" nullable="False" dbType="Int64" data_editable="false" key_generator="Cms_Integer_keyGen" />
+      </primaryKey>
+      <properties>
+        <property name="TokenType" column="token_type" order="2" clrType="System.String" sqlType="varchar" length="25" type="TokenType" default="'Reset'" nullable="False" dbType="AnsiString" />
+        <property name="CreatedOn" column="created_on" order="3" clrType="System.DateTime" sqlType="datetime" default="GetUtcDate" ignoreOnUpdate="True" nullable="False" dbType="DateTime" data_editable="false" />
+        <property name="ClosedOn" column="closed_on" order="4" clrType="System.Nullable`1[System.DateTime]" sqlType="datetime" dbType="DateTime" />
+        <property name="TokenValue" column="token_value" order="5" clrType="System.String" sqlType="varchar" length="50" nullable="False" dbType="AnsiString" />
+        <property name="ExpiresAfterHours" column="expires_after_hours" order="6" clrType="System.Nullable`1[System.Double]" sqlType="float" precision="53" dbType="Single" />
+        <property name="ForUserId" column="for_user_id" order="7" clrType="System.Nullable`1[System.Int64]" sqlType="bigint" precision="19" scale="0" constraint="FK_security_tokens_users" dbType="Int64" />
+        <reference name="ForUser" column="for_user_id" order="7" clrType="System.Nullable`1[System.Int64]" sqlType="bigint" precision="19" scale="0" constraint="FK_security_tokens_users" relation="ManyToOne" referenceProperty="Id" refConstraint="FK_security_tokens_users" refEntity="Goliath.Scheduler.Data.User" dbType="Int64" />
+      </properties>
+    </entity>
+    <entity name="Congregation" extends="BaseEntity" order="7" assembly="UserManagement.Core.Data" entityNamespace="Goliath.Scheduler.Data" table="congregations" schema="dbo" alias="con1" data_display_description="Entity that represent the congregation">
+      <primaryKey>
+        <key name="Id" column="id" order="1" clrType="System.Int64" sqlType="bigint" precision="19" scale="0" unique="True" primaryKey="True" constraint="PK_congregations" nullable="False" dbType="Int64" data_display_description="The unique identifier" data_editable="false" key_generator="Cms_Integer_keyGen" />
+      </primaryKey>
+      <properties>
+        <property name="CongregationName" column="congregation_name" order="2" clrType="System.String" sqlType="nvarchar" length="50" nullable="False" dbType="String" data_display_description="The name of the congregation." />
+        <property name="ShortName" column="short_name" order="3" clrType="System.String" sqlType="nvarchar" length="15" unique="True" constraint="IX_congregations" nullable="False" dbType="String" />
+        <property name="StreetAddress" column="street_address" order="4" clrType="System.String" sqlType="nvarchar" length="50" dbType="String" data_display_description="The street name" />
+        <property name="StreetAddress2" column="street_address2" order="5" clrType="System.String" sqlType="nvarchar" length="50" dbType="String" data_display_description="Extra information relating the street name or address" />
+        <property name="City" column="city" order="6" clrType="System.String" sqlType="nvarchar" length="50" dbType="String" data_display_description="The name of the city" />
+        <property name="Province" column="province" order="7" clrType="System.String" sqlType="nvarchar" length="50" dbType="String" data_display_description="The province or state name" />
+        <property name="PostalCode" column="postal_code" order="8" clrType="System.String" sqlType="nvarchar" length="50" dbType="String" data_display_description="The postal code or zip code" />
+        <property name="MeetingTime" column="meeting_time" order="9" clrType="System.String" sqlType="nvarchar" length="50" dbType="String" data_display_description="Day of the week and time when the meeting is held." />
+        <property name="CreatedOn" column="created_on" order="10" clrType="System.DateTime" sqlType="datetime" ignoreOnUpdate="True" nullable="False" dbType="DateTime" data_display_description="Date and time when the record was created." data_editable="false" />
+        <property name="CreatedBy" column="created_by" order="11" clrType="System.String" sqlType="nvarchar" length="50" ignoreOnUpdate="True" nullable="False" dbType="String" data_display_description="The name of the user who created the record" data_editable="false" />
+        <property name="ModifiedOn" column="modified_on" order="12" clrType="System.Nullable`1[System.DateTime]" sqlType="datetime" dbType="DateTime" data_display_description="The date and time when the record was modified" />
+        <property name="ModifiedBy" column="modified_by" order="13" clrType="System.String" sqlType="nvarchar" length="50" dbType="String" data_display_description="The user who last modified the record." />
+        <list name="AddressBooks" column="id" scale="0" type="" lazy="True" relation="OneToMany" referenceProperty="Congregation" refEntity="Goliath.Scheduler.Data.AddressBook" />
+        <list name="CongregationAssignments" column="id" scale="0" type="" lazy="True" relation="OneToMany" referenceProperty="Congregation" refEntity="Goliath.Scheduler.Data.CongregationAssignment" />
+      </properties>
+    </entity>
+    <entity name="AddressBook" extends="BaseEntity" order="1" assembly="UserManagement.Core.Data" entityNamespace="Goliath.Scheduler.Data" table="address_books" schema="dbo" alias="addg_x">
+      <primaryKey>
+        <key name="Id" column="id" order="1" clrType="System.Int64" sqlType="bigint" precision="19" scale="0" unique="True" primaryKey="True" constraint="PK_address_books" nullable="False" dbType="Int64" data_editable="false" key_generator="Cms_Integer_keyGen" />
+      </primaryKey>
+      <properties>
+        <property name="Name" column="name" order="2" clrType="System.String" sqlType="nvarchar" length="50" dbType="String" />
+        <property name="CreatedOn" column="created_on" order="4" clrType="System.DateTime" sqlType="datetime" ignoreOnUpdate="True" nullable="False" dbType="DateTime" data_editable="false" />
+        <property name="CreatedBy" column="created_by" order="5" clrType="System.String" sqlType="nvarchar" length="50" ignoreOnUpdate="True" nullable="False" dbType="String" data_editable="false" />
+        <property name="IsPublic" column="is_public" order="6" clrType="System.Boolean" sqlType="bit" default="0" nullable="False" dbType="Boolean" />
+        <property name="OwnerId" column="owner_id" order="7" clrType="System.Nullable`1[System.Int64]" sqlType="bigint" precision="19" scale="0" dbType="Int64" />
+        <property name="CongregationId" column="congregation_id" order="3" clrType="System.Nullable`1[System.Int64]" sqlType="bigint" precision="19" scale="0" constraint="FK_address_books_congregations" dbType="Int64" />
+        <reference name="Congregation" column="congregation_id" order="3" clrType="System.Nullable`1[System.Int64]" sqlType="bigint" precision="19" scale="0" constraint="FK_address_books_congregations" relation="ManyToOne" referenceProperty="Id" refConstraint="FK_address_books_congregations" refEntity="Goliath.Scheduler.Data.Congregation" dbType="Int64" />
+        <list name="Contacts" column="id" scale="0" type="" lazy="True" relation="OneToMany" referenceProperty="AddressBook" refEntity="Goliath.Scheduler.Data.Contact" />
+      </properties>
+    </entity>
+    <entity name="Contact" extends="BaseEntity" order="8" assembly="UserManagement.Core.Data" entityNamespace="Goliath.Scheduler.Data" table="contacts" schema="dbo" alias="con2" data_display_description="The contact information of brothers.">
+      <primaryKey>
+        <key name="Id" column="id" order="1" clrType="System.Int64" sqlType="bigint" precision="19" scale="0" unique="True" primaryKey="True" constraint="PK_contacts" nullable="False" dbType="Int64" data_display_description="The unique identifier." data_editable="false" key_generator="Cms_Integer_keyGen" />
+      </primaryKey>
+      <properties>
+        <property name="FirstName" column="first_name" order="2" clrType="System.String" sqlType="nvarchar" length="50" dbType="String" data_display_description="The contact's first or given name." />
+        <property name="LastName" column="last_name" order="3" clrType="System.String" sqlType="nvarchar" length="50" dbType="String" data_display_description="The last name or surname." />
+        <property name="EmailAddress" column="email_address" order="4" clrType="System.String" sqlType="nvarchar" length="250" dbType="String" data_display_description="The email address" />
+        <property name="CreatedOn" column="created_on" order="5" clrType="System.DateTime" sqlType="datetime" default="GetUtcDate" ignoreOnUpdate="True" nullable="False" dbType="DateTime" data_display_description="The date and time when the record was added" data_editable="false" />
+        <property name="CreatedBy" column="created_by" order="6" clrType="System.String" sqlType="nvarchar" length="50" default="N'System'" ignoreOnUpdate="True" nullable="False" dbType="String" data_display_description="The name of user who added the record." data_editable="false" />
+        <property name="ModifiedOn" column="modified_on" order="7" clrType="System.Nullable`1[System.DateTime]" sqlType="datetime" dbType="DateTime" data_display_description="The date and time when the record was modified." />
+        <property name="ModifiedBy" column="modified_by" order="8" clrType="System.String" sqlType="nvarchar" length="50" dbType="String" data_display_description="The name of the user who modified the record" />
+        <property name="PrivilegeType" column="privilege_type" order="9" clrType="System.Int32" sqlType="int" precision="10" scale="0" default="0" nullable="False" dbType="Int32" data_display_description="The Privileges type. Eg. Elder, Ministerial Servant, etc." />
+        <property name="AddressBookId" column="address_book_id" order="10" clrType="System.Nullable`1[System.Int64]" sqlType="bigint" precision="19" scale="0" constraint="FK_contacts_address_books" dbType="Int64" />
+        <reference name="AddressBook" column="address_book_id" order="10" clrType="System.Nullable`1[System.Int64]" sqlType="bigint" precision="19" scale="0" constraint="FK_contacts_address_books" relation="ManyToOne" referenceProperty="Id" refConstraint="FK_contacts_address_books" refEntity="Goliath.Scheduler.Data.AddressBook" dbType="Int64" />
+        <list name="Addresses" column="id" scale="0" type="" lazy="True" relation="OneToMany" referenceProperty="Contact" refEntity="Goliath.Scheduler.Data.Address" />
+        <list name="AssignedTalks" column="id" scale="0" type="" lazy="True" relation="OneToMany" referenceProperty="Contact" refEntity="Goliath.Scheduler.Data.AssignedTalk" />
+        <list name="CallAssignments" column="id" scale="0" type="" lazy="True" relation="OneToMany" referenceProperty="ContactToCallEntity" refEntity="Goliath.Scheduler.Data.CallAssignment" />
+        <list name="CongregationAssignments" column="id" scale="0" type="" lazy="True" relation="OneToMany" referenceProperty="Brother" refEntity="Goliath.Scheduler.Data.CongregationAssignment" />
+        <list name="Invitations" column="id" scale="0" type="" lazy="True" relation="OneToMany" referenceProperty="Contact" refEntity="Goliath.Scheduler.Data.Invitation" />
+        <list name="Phones" column="id" scale="0" type="" lazy="True" relation="OneToMany" referenceProperty="Contact" refEntity="Goliath.Scheduler.Data.Phone" />
+        <list name="ScheduledMeetings" column="id" scale="0" type="" lazy="True" relation="OneToMany" referenceProperty="Pres" refEntity="Goliath.Scheduler.Data.ScheduledMeeting" />
+        <list name="ScheduledMeetingsOnReaderId" column="id" scale="0" type="" lazy="True" relation="OneToMany" referenceProperty="Reader" refEntity="Goliath.Scheduler.Data.ScheduledMeeting" />
+        <list name="ScheduledMeetingsOnSpeakerId" column="id" scale="0" type="" lazy="True" relation="OneToMany" referenceProperty="Speaker" refEntity="Goliath.Scheduler.Data.ScheduledMeeting" />
+        <list name="Languages" column="id" scale="0" type="" lazy="True" relation="ManyToMany" referenceProperty="Id" refEntity="Goliath.Scheduler.Data.Language" mapTable="speaker_languages" mapColumn="contact_id" propertyName="id" mapReferenceColumn="language_id" />
+      </properties>
+      <statements>
+        <insert name="associate_Contact_with_Language">
+          <inputParameters>
+            <input name="languageId" type="Goliath.Scheduler.Data.Language" />
+            <input name="contactId" type="Goliath.Scheduler.Data.Contact" />
+          </inputParameters>
+          <body><![CDATA[INSERT INTO speaker_languages (language_id, contact_id) VALUES(@{prop:languageId.Id}, @{prop:contactId.Id});]]></body>
+        </insert>
+        <delete name="dissaciate_Contact_with_Language">
+          <inputParameters>
+            <input name="languageId" type="Goliath.Scheduler.Data.Language" />
+            <input name="contactId" type="Goliath.Scheduler.Data.Contact" />
+          </inputParameters>
+          <body><![CDATA[DELETE FROM speaker_languages WHERE language_id = @{prop:languageId.Id} AND contact_id = @{prop:contactId.Id};]]></body>
+        </delete>
+      </statements>
+    </entity>
+    <entity name="ScheduledMeeting" extends="BaseEntity" order="10" assembly="UserManagement.Core.Data" entityNamespace="Goliath.Scheduler.Data" table="scheduled_meetings" schema="dbo" alias="sch" data_display_description="Entity to represent a scheduled meeting.">
+      <primaryKey>
+        <key name="Id" column="id" order="1" clrType="System.Int64" sqlType="bigint" precision="19" scale="0" unique="True" primaryKey="True" constraint="PK_scheduled_meetings" nullable="False" dbType="Int64" data_display_description="The unique identifier" data_editable="false" key_generator="Cms_Integer_keyGen" />
+      </primaryKey>
+      <properties>
+        <property name="WeekNumber" column="week_number" order="2" clrType="System.Nullable`1[System.Int32]" sqlType="int" precision="10" scale="0" dbType="Int32" data_display_description="The week number " />
+        <property name="MeetingTime" column="meeting_time" order="3" clrType="System.Nullable`1[System.DateTime]" sqlType="datetime" dbType="DateTime" data_display_description="The calendar date and time of the scheduled meeting." />
+        <property name="Hospitality" column="hospitality" order="7" clrType="System.String" sqlType="nvarchar" length="50" dbType="String" data_display_description="The person or group responsible for hospitality." />
+        <property name="PresidentId" column="president_id" order="4" clrType="System.Nullable`1[System.Int64]" sqlType="bigint" precision="19" scale="0" constraint="FK_scheduled_meetings_contacts" dbType="Int64" />
+        <property name="ReaderId" column="reader_id" order="5" clrType="System.Nullable`1[System.Int64]" sqlType="bigint" precision="19" scale="0" constraint="FK_scheduled_meetings_contacts1" dbType="Int64" />
+        <property name="TalkId" column="talk_id" order="6" clrType="System.Nullable`1[System.Int64]" sqlType="bigint" precision="19" scale="0" constraint="FK_scheduled_meetings_talks" dbType="Int64" />
+        <property name="SpeakerId" column="speaker_id" order="8" clrType="System.Nullable`1[System.Int64]" sqlType="bigint" precision="19" scale="0" constraint="FK_scheduled_meetings_contacts2" dbType="Int64" />
+        <reference name="Pres" column="president_id" order="4" clrType="System.Nullable`1[System.Int64]" sqlType="bigint" precision="19" scale="0" constraint="FK_scheduled_meetings_contacts" relation="ManyToOne" referenceProperty="Id" refConstraint="FK_scheduled_meetings_contacts" refEntity="Goliath.Scheduler.Data.Contact" dbType="Int64" data_display_description="The brother who's presiding over the meeting." />
+        <reference name="Reader" column="reader_id" order="5" clrType="System.Nullable`1[System.Int64]" sqlType="bigint" precision="19" scale="0" constraint="FK_scheduled_meetings_contacts1" relation="ManyToOne" referenceProperty="Id" refConstraint="FK_scheduled_meetings_contacts1" refEntity="Goliath.Scheduler.Data.Contact" dbType="Int64" data_display_description="The Watchtower reader" />
+        <reference name="Talk" column="talk_id" order="6" clrType="System.Nullable`1[System.Int64]" sqlType="bigint" precision="19" scale="0" constraint="FK_scheduled_meetings_talks" relation="ManyToOne" referenceProperty="Id" refConstraint="FK_scheduled_meetings_talks" refEntity="Goliath.Scheduler.Data.Talk" dbType="Int64" data_display_description="The scheduled talk" />
+        <reference name="Speaker" column="speaker_id" order="8" clrType="System.Nullable`1[System.Int64]" sqlType="bigint" precision="19" scale="0" constraint="FK_scheduled_meetings_contacts2" relation="ManyToOne" referenceProperty="Id" refConstraint="FK_scheduled_meetings_contacts2" refEntity="Goliath.Scheduler.Data.Contact" dbType="Int64" data_display_description="The scheduled speaker" />
+      </properties>
+    </entity>
+    <entity name="Role" extends="BaseEntity" order="9" assembly="UserManagement.Core.Data" entityNamespace="Goliath.Scheduler.Data" table="roles" schema="dbo" alias="rol" data_display_description="Application role used for security and permissions.">
+      <primaryKey>
+        <key name="Id" column="id" order="1" clrType="System.Int64" sqlType="bigint" precision="19" scale="0" unique="True" primaryKey="True" constraint="PK_roles" nullable="False" dbType="Int64" data_display_description="The unique identifier." data_editable="false" key_generator="Cms_Integer_keyGen" />
+      </primaryKey>
+      <properties>
+        <property name="RoleNumber" column="role_number" order="2" clrType="System.Int32" sqlType="int" precision="10" scale="0" unique="True" constraint="IX_roles_numb" nullable="False" dbType="Int32" data_display_description="The role number" />
+        <property name="Name" column="role_name" order="3" clrType="System.String" sqlType="varchar" length="50" unique="True" constraint="IX_roles_name" nullable="False" dbType="AnsiString" data_display_description="The name of the role." />
+        <property name="Description" column="description" order="4" clrType="System.String" sqlType="nvarchar" length="500" dbType="String" data_display_description="A short description of the role." />
+        <list name="Users" column="id" scale="0" type="" lazy="True" relation="ManyToMany" referenceProperty="Id" refEntity="Goliath.Scheduler.Data.User" mapTable="user_roles" mapColumn="role_id" propertyName="id" mapReferenceColumn="user_id" />
+      </properties>
+      <statements>
+        <insert name="associate_Role_with_User">
+          <inputParameters>
+            <input name="userId" type="Goliath.Scheduler.Data.User" />
+            <input name="roleId" type="Goliath.Scheduler.Data.Role" />
+          </inputParameters>
+          <body><![CDATA[INSERT INTO user_roles (user_id, role_id) VALUES(@{prop:userId.Id}, @{prop:roleId.Id});]]></body>
+        </insert>
+        <delete name="dissaciate_Role_with_User">
+          <inputParameters>
+            <input name="userId" type="Goliath.Scheduler.Data.User" />
+            <input name="roleId" type="Goliath.Scheduler.Data.Role" />
+          </inputParameters>
+          <body><![CDATA[DELETE FROM user_roles WHERE user_id = @{prop:userId.Id} AND role_id = @{prop:roleId.Id};]]></body>
+        </delete>
+      </statements>
+    </entity>
+    <entity name="Phone" extends="BaseEntity" order="21" assembly="UserManagement.Core.Data" entityNamespace="Goliath.Scheduler.Data" table="phones" schema="dbo" alias="pho">
+      <primaryKey>
+        <key name="Id" column="id" order="1" clrType="System.Int64" sqlType="bigint" precision="19" scale="0" unique="True" primaryKey="True" constraint="PK_phones" nullable="False" dbType="Int64" data_editable="false" key_generator="Cms_Integer_keyGen" />
+      </primaryKey>
+      <properties>
+        <property name="PhoneType" column="phone_type" order="3" clrType="System.String" sqlType="varchar" length="50" dbType="AnsiString" />
+        <property name="PhoneNumber" column="phone_number" order="4" clrType="System.String" sqlType="varchar" length="50" dbType="AnsiString" />
+        <property name="ContactId" column="contact_id" order="2" clrType="System.Nullable`1[System.Int64]" sqlType="bigint" precision="19" scale="0" constraint="FK_phones_contacts" dbType="Int64" />
+        <reference name="Contact" column="contact_id" order="2" clrType="System.Nullable`1[System.Int64]" sqlType="bigint" precision="19" scale="0" constraint="FK_phones_contacts" relation="ManyToOne" referenceProperty="Id" refConstraint="FK_phones_contacts" refEntity="Goliath.Scheduler.Data.Contact" dbType="Int64" />
+      </properties>
+    </entity>
+    <entity name="Language" extends="BaseEntity" order="20" assembly="UserManagement.Core.Data" entityNamespace="Goliath.Scheduler.Data" table="languages" schema="dbo" alias="lan">
+      <primaryKey>
+        <key name="Id" column="id" order="1" clrType="System.Int64" sqlType="bigint" precision="19" scale="0" unique="True" primaryKey="True" constraint="PK_languages" nullable="False" dbType="Int64" data_editable="false" key_generator="Cms_Integer_keyGen" />
+      </primaryKey>
+      <properties>
+        <property name="Name" column="name" order="2" clrType="System.String" sqlType="varchar" length="10" unique="True" constraint="IX_languages" nullable="False" dbType="AnsiString" />
+        <property name="Description" column="description" order="3" clrType="System.String" sqlType="nvarchar" length="25" dbType="String" />
+        <list name="Contacts" column="id" scale="0" type="" lazy="True" relation="ManyToMany" referenceProperty="Id" refEntity="Goliath.Scheduler.Data.Contact" inverse="True" mapTable="speaker_languages" mapColumn="language_id" propertyName="id" mapReferenceColumn="contact_id" />
+      </properties>
+      <statements>
+        <insert name="associate_Language_with_Contact">
+          <inputParameters>
+            <input name="languageId" type="Goliath.Scheduler.Data.Language" />
+            <input name="contactId" type="Goliath.Scheduler.Data.Contact" />
+          </inputParameters>
+          <body><![CDATA[INSERT INTO speaker_languages (language_id, contact_id) VALUES(@{prop:languageId.Id}, @{prop:contactId.Id});]]></body>
+        </insert>
+        <delete name="dissaciate_Language_with_Contact">
+          <inputParameters>
+            <input name="languageId" type="Goliath.Scheduler.Data.Language" />
+            <input name="contactId" type="Goliath.Scheduler.Data.Contact" />
+          </inputParameters>
+          <body><![CDATA[DELETE FROM speaker_languages WHERE language_id = @{prop:languageId.Id} AND contact_id = @{prop:contactId.Id};]]></body>
+        </delete>
+      </statements>
+    </entity>
+    <entity name="Invitation" extends="BaseEntity" order="18" assembly="UserManagement.Core.Data" entityNamespace="Goliath.Scheduler.Data" table="invitations" schema="dbo" alias="inv">
+      <primaryKey>
+        <key name="Id" column="id" order="1" clrType="System.Int64" sqlType="bigint" precision="19" scale="0" unique="True" primaryKey="True" constraint="PK_invitations" nullable="False" dbType="Int64" data_editable="false" key_generator="Cms_Integer_keyGen" />
+      </primaryKey>
+      <properties>
+        <property name="InvitationNumber" column="invitation_number" order="2" clrType="System.String" sqlType="varchar" length="20" unique="True" constraint="IX_invitations" nullable="False" dbType="AnsiString" />
+        <property name="InvitationMessage" column="invitation_message" order="4" clrType="System.String" sqlType="nvarchar" length="1000" dbType="String" />
+        <property name="CreatedOn" column="created_on" order="5" clrType="System.DateTime" sqlType="datetime" ignoreOnUpdate="True" nullable="False" dbType="DateTime" data_editable="false" />
+        <property name="CreatedBy" column="created_by" order="6" clrType="System.String" sqlType="nvarchar" length="50" ignoreOnUpdate="True" nullable="False" dbType="String" data_editable="false" />
+        <property name="ContactId" column="contact_id" order="3" clrType="System.Nullable`1[System.Int64]" sqlType="bigint" precision="19" scale="0" constraint="FK_invitations_contacts" dbType="Int64" />
+        <reference name="Contact" column="contact_id" order="3" clrType="System.Nullable`1[System.Int64]" sqlType="bigint" precision="19" scale="0" constraint="FK_invitations_contacts" relation="ManyToOne" referenceProperty="Id" refConstraint="FK_invitations_contacts" refEntity="Goliath.Scheduler.Data.Contact" dbType="Int64" />
+      </properties>
+    </entity>
+    <entity name="CongregationAssignment" extends="BaseEntity" order="6" assembly="UserManagement.Core.Data" entityNamespace="Goliath.Scheduler.Data" table="congregation_assignments" schema="dbo" alias="con" data_display_description="Meeting assignment">
+      <primaryKey>
+        <key name="Id" column="id" order="1" clrType="System.Int64" sqlType="bigint" precision="19" scale="0" unique="True" primaryKey="True" constraint="PK_congregation_assignments" nullable="False" dbType="Int64" data_display_description="Unique Identifier" data_editable="false" key_generator="Cms_Integer_keyGen" />
+      </primaryKey>
+      <properties>
+        <property name="AssignmentType" column="assignment_type" order="2" clrType="System.String" sqlType="varchar" length="50" dbType="AnsiString" data_display_description="The type of assignment such as President, WatchTower reader, etc" />
+        <property name="BrotherId" column="brother_id" order="3" clrType="System.Nullable`1[System.Int64]" sqlType="bigint" precision="19" scale="0" constraint="FK_congregation_assignments_contacts" dbType="Int64" />
+        <property name="CongregationId" column="congregation_id" order="4" clrType="System.Nullable`1[System.Int64]" sqlType="bigint" precision="19" scale="0" constraint="FK_congregation_assignments_congregations" dbType="Int64" />
+        <reference name="Brother" column="brother_id" order="3" clrType="System.Nullable`1[System.Int64]" sqlType="bigint" precision="19" scale="0" constraint="FK_congregation_assignments_contacts" relation="ManyToOne" referenceProperty="Id" refConstraint="FK_congregation_assignments_contacts" refEntity="Goliath.Scheduler.Data.Contact" dbType="Int64" data_display_description="The brother being assigned" />
+        <reference name="Congregation" column="congregation_id" order="4" clrType="System.Nullable`1[System.Int64]" sqlType="bigint" precision="19" scale="0" constraint="FK_congregation_assignments_congregations" relation="ManyToOne" referenceProperty="Id" refConstraint="FK_congregation_assignments_congregations" refEntity="Goliath.Scheduler.Data.Congregation" dbType="Int64" />
+      </properties>
+    </entity>
+    <entity name="CallLog" extends="BaseEntity" order="5" assembly="UserManagement.Core.Data" entityNamespace="Goliath.Scheduler.Data" table="call_logs" schema="dbo" alias="cal1">
+      <primaryKey>
+        <key name="Id" column="id" order="1" clrType="System.Int64" sqlType="bigint" precision="19" scale="0" unique="True" primaryKey="True" constraint="PK_call_logs" nullable="False" dbType="Int64" data_editable="false" key_generator="Cms_Integer_keyGen" />
+      </primaryKey>
+      <properties>
+        <property name="AssignmentId" column="assignment_id" order="2" clrType="System.Nullable`1[System.Int64]" sqlType="bigint" precision="19" scale="0" dbType="Int64" />
+        <property name="CreatedOn" column="created_on" order="3" clrType="System.DateTime" sqlType="datetime" ignoreOnUpdate="True" nullable="False" dbType="DateTime" data_editable="false" />
+        <property name="CreatedBy" column="created_by" order="4" clrType="System.String" sqlType="nvarchar" length="50" ignoreOnUpdate="True" nullable="False" dbType="String" data_editable="false" />
+        <property name="LogMessage" column="log_message" order="5" clrType="System.String" sqlType="nvarchar" length="2000" dbType="String" />
+        <property name="LeftMessage" column="left_message" order="6" clrType="System.Boolean" sqlType="bit" default="0" nullable="False" dbType="Boolean" />
+      </properties>
+    </entity>
+    <entity name="CallAssignment" extends="BaseEntity" order="4" assembly="UserManagement.Core.Data" entityNamespace="Goliath.Scheduler.Data" table="call_assignments" schema="dbo" alias="cal">
+      <primaryKey>
+        <key name="Id" column="id" order="1" clrType="System.Int64" sqlType="bigint" precision="19" scale="0" unique="True" primaryKey="True" constraint="PK_call_assignments" nullable="False" dbType="Int64" data_editable="false" key_generator="Cms_Integer_keyGen" />
+      </primaryKey>
+      <properties>
+        <property name="AssignmentStatus" column="assignment_status" order="3" clrType="System.Nullable`1[System.Int32]" sqlType="int" precision="10" scale="0" dbType="Int32" />
+        <property name="CompleteBefore" column="complete_before" order="4" clrType="System.Nullable`1[System.DateTime]" sqlType="datetime" dbType="DateTime" />
+        <property name="CreatedOn" column="created_on" order="6" clrType="System.DateTime" sqlType="datetime" ignoreOnUpdate="True" nullable="False" dbType="DateTime" data_editable="false" />
+        <property name="CreatedBy" column="created_by" order="7" clrType="System.String" sqlType="nvarchar" length="50" ignoreOnUpdate="True" nullable="False" dbType="String" data_editable="false" />
+        <property name="AssignmentNotes" column="assignment_notes" order="8" clrType="System.String" sqlType="nvarchar" length="2000" dbType="String" />
+        <property name="AssignedToId" column="assigned_to_id" order="2" clrType="System.Nullable`1[System.Int64]" sqlType="bigint" precision="19" scale="0" constraint="FK_call_assignments_users" dbType="Int64" />
+        <property name="ContactToCall" column="contact_to_call" order="5" clrType="System.Nullable`1[System.Int64]" sqlType="bigint" precision="19" scale="0" constraint="FK_call_assignments_contacts" dbType="Int64" />
+        <reference name="AssignedTo" column="assigned_to_id" order="2" clrType="System.Nullable`1[System.Int64]" sqlType="bigint" precision="19" scale="0" constraint="FK_call_assignments_users" relation="ManyToOne" referenceProperty="Id" refConstraint="FK_call_assignments_users" refEntity="Goliath.Scheduler.Data.User" dbType="Int64" />
+        <reference name="ContactToCallEntity" column="contact_to_call" order="5" clrType="System.Nullable`1[System.Int64]" sqlType="bigint" precision="19" scale="0" constraint="FK_call_assignments_contacts" relation="ManyToOne" referenceProperty="Id" refConstraint="FK_call_assignments_contacts" refEntity="Goliath.Scheduler.Data.Contact" dbType="Int64" />
+      </properties>
+    </entity>
+    <entity name="AssignedTalk" extends="BaseEntity" order="3" assembly="UserManagement.Core.Data" entityNamespace="Goliath.Scheduler.Data" table="assigned_talks" schema="dbo" alias="ass" data_display_description="Talks assigned to a brother.">
+      <primaryKey>
+        <key name="Id" column="id" order="1" clrType="System.Int64" sqlType="bigint" precision="19" scale="0" unique="True" primaryKey="True" constraint="PK_assigned_talks" nullable="False" dbType="Int64" data_display_description="Unique Identifier" data_editable="false" key_generator="Cms_Integer_keyGen" />
+      </primaryKey>
+      <properties>
+        <property name="AssignedOn" column="assigned_on" order="4" clrType="System.DateTime" sqlType="datetime" nullable="False" dbType="DateTime" data_display_description="The date and time when the talk was assigned." />
+        <property name="ContactId" column="contact_id" order="2" clrType="System.Nullable`1[System.Int64]" sqlType="bigint" precision="19" scale="0" constraint="FK_assigned_talks_contacts" dbType="Int64" />
+        <property name="TalkId" column="talk_id" order="3" clrType="System.Nullable`1[System.Int64]" sqlType="bigint" precision="19" scale="0" constraint="FK_assigned_talks_talks" dbType="Int64" />
+        <reference name="Contact" column="contact_id" order="2" clrType="System.Nullable`1[System.Int64]" sqlType="bigint" precision="19" scale="0" constraint="FK_assigned_talks_contacts" relation="ManyToOne" referenceProperty="Id" refConstraint="FK_assigned_talks_contacts" refEntity="Goliath.Scheduler.Data.Contact" dbType="Int64" data_display_description="Brother who's been assigned the talk." />
+        <reference name="Talk" column="talk_id" order="3" clrType="System.Nullable`1[System.Int64]" sqlType="bigint" precision="19" scale="0" constraint="FK_assigned_talks_talks" relation="ManyToOne" referenceProperty="Id" refConstraint="FK_assigned_talks_talks" refEntity="Goliath.Scheduler.Data.Talk" dbType="Int64" data_display_description="The assigned talk." />
+      </properties>
+    </entity>
+    <entity name="AppSetting" extends="BaseEntity" order="2" assembly="UserManagement.Core.Data" entityNamespace="Goliath.Scheduler.Data" table="app_settings" schema="dbo" alias="app" data_display_description="application configuration settings">
+      <primaryKey>
+        <key name="Id" column="id" order="1" clrType="System.Int64" sqlType="bigint" precision="19" scale="0" unique="True" primaryKey="True" constraint="PK_app_config_settings" nullable="False" dbType="Int64" data_display_description="Identifier field" data_editable="false" key_generator="Cms_Integer_keyGen" />
+      </primaryKey>
+      <properties>
+        <property name="KeyName" column="key_name" order="2" clrType="System.String" sqlType="varchar" length="50" unique="True" constraint="IX_app_config_settings" nullable="False" dbType="AnsiString" data_display_description="Config key name: key name must be unique." />
+        <property name="VisualEditor" column="visual_editor" order="3" clrType="System.String" sqlType="varchar" length="50" type="VisualEditorType" default="'TextBox'" nullable="False" dbType="AnsiString" />
+        <property name="KeyValue" column="key_value" order="4" clrType="System.String" sqlType="nvarchar" length="4000" dbType="String" data_display_description="Config key value" />
+        <property name="CreatedOn" column="created_on" order="5" clrType="System.DateTime" sqlType="datetime" default="GetUtcDate" ignoreOnUpdate="True" nullable="False" dbType="DateTime" data_display_description="Date and time when setting was created." data_editable="false" />
+        <property name="CreatedBy" column="created_by" order="6" clrType="System.String" sqlType="nvarchar" length="50" ignoreOnUpdate="True" nullable="False" dbType="String" data_editable="false" />
+        <property name="ModifiedOn" column="modified_on" order="7" clrType="System.Nullable`1[System.DateTime]" sqlType="datetime" dbType="DateTime" data_display_description="Date and time setting was last modified." />
+        <property name="ModifiedBy" column="modified_by" order="8" clrType="System.String" sqlType="nvarchar" length="50" dbType="String" />
+      </properties>
+    </entity>
+    <entity name="Address" extends="BaseEntity" order="19" assembly="UserManagement.Core.Data" entityNamespace="Goliath.Scheduler.Data" table="addresses" schema="dbo" alias="add1">
+      <primaryKey>
+        <key name="Id" column="id" order="1" clrType="System.Int64" sqlType="bigint" precision="19" scale="0" unique="True" primaryKey="True" constraint="PK_addresses" nullable="False" dbType="Int64" data_editable="false" key_generator="Cms_Integer_keyGen" />
+      </primaryKey>
+      <properties>
+        <property name="AddressType" column="address_type" order="3" clrType="System.String" sqlType="varchar" length="50" dbType="AnsiString" />
+        <property name="StreetAddress" column="street_address" order="4" clrType="System.String" sqlType="nvarchar" length="250" dbType="String" />
+        <property name="StreetAddress2" column="street_address2" order="5" clrType="System.String" sqlType="nvarchar" length="250" dbType="String" />
+        <property name="StreetNumber" column="street_number" order="6" clrType="System.String" sqlType="nvarchar" length="20" dbType="String" />
+        <property name="City" column="city" order="7" clrType="System.String" sqlType="nvarchar" length="80" dbType="String" />
+        <property name="Province" column="province" order="8" clrType="System.String" sqlType="nvarchar" length="50" dbType="String" />
+        <property name="Country" column="country" order="9" clrType="System.String" sqlType="varchar" length="50" dbType="AnsiString" />
+        <property name="PostalCode" column="postal_code" order="10" clrType="System.String" sqlType="nvarchar" length="50" dbType="String" />
+        <property name="GeoLongitude" column="geo_longitude" order="11" clrType="System.Nullable`1[System.Double]" sqlType="float" precision="53" dbType="Single" />
+        <property name="GeoLatitude" column="geo_latitude" order="12" clrType="System.Nullable`1[System.Double]" sqlType="float" precision="53" dbType="Single" />
+        <property name="ContactId" column="contact_id" order="2" clrType="System.Nullable`1[System.Int64]" sqlType="bigint" precision="19" scale="0" constraint="FK_addresses_contacts" dbType="Int64" />
+        <reference name="Contact" column="contact_id" order="2" clrType="System.Nullable`1[System.Int64]" sqlType="bigint" precision="19" scale="0" constraint="FK_addresses_contacts" relation="ManyToOne" referenceProperty="Id" refConstraint="FK_addresses_contacts" refEntity="Goliath.Scheduler.Data.Contact" dbType="Int64" />
+      </properties>
+    </entity>
+  </entities>
+  <statements>
+    <query name="GetUserRoles" resultMap="Goliath.Scheduler.Models.RoleModel">
+      <dbParameters>
+        <param name="userId" dbType="Int64" />
+      </dbParameters>
+      <body><![CDATA[
+        select r.id "Id", r.role_number "RoleNumber", r.role_name "Name"
+        from roles r
+        inner join user_roles ur on ur.role_id = r.id
+        and ur.user_id = @userId]]></body>
+    </query>
+    <query name="GetAllUsersInRole" resultMap="Goliath.Scheduler.UserSession">
+      <dbParameters>
+        <param name="roleId" dbType="Int64" />
+        <param name="limit" dbType="Int32" />
+        <param name="offset" dbType="Int32" />
+      </dbParameters>
+      <body><![CDATA[select *  from 
+    (select  ROW_NUMBER() over (order by ua.user_name ) AS RowNumber, ua.id "Id", ua.user_name "UserName", ua.is_active "IsActive",
+    c.email_address "EmailAddress", c.first_name "FirstName", c.last_name "LastName"
+	 from user_accounts ua
+      left join user_roles ur on ur.user_id = ua.id
+      inner join roles r on r.id = ur.role_id
+      inner join contacts c on c.id = ua.contact_id
+	  where r.id = @roleId
+	  ) c
+      where RowNumber >= @offset and RowNumber < (@limit + @offset)]]></body>
+    </query>
+    <statement name="GetUserInRoleCount" resultMap="int" operationType="ExecuteScalar">
+      <dbParameters>
+        <param name="roleId" dbType="Int64" />
+      </dbParameters>
+      <body><![CDATA[
+      select count(ua.id) from user_accounts ua
+      left join user_roles ur on ur.user_id = ua.id
+      inner join roles r on r.id = ur.role_id
+      where r.id = @{roleId}
+    ]]></body>
+    </statement>
+    <query name="GetAllUsers" resultMap="Goliath.Scheduler.UserSession">
+      <dbParameters>
+        <param name="limit" dbType="Int32" />
+        <param name="offset" dbType="Int32" />
+      </dbParameters>
+      <body><![CDATA[select *  from 
+    (select  ROW_NUMBER() over (order by ua.user_name ) AS RowNumber, ua.id "Id", ua.user_name "UserName", ua.is_active "IsActive",
+    c.email_address "EmailAddress", c.first_name "FirstName", c.last_name "LastName"
+	 from user_accounts ua
+      inner join contacts c on c.id = ua.contact_id
+	  ) c
+      where RowNumber >= @offset and RowNumber < (@limit + @offset)]]></body>
+    </query>
+  </statements>
+  <complexTypes>
+    <type fullname="BaseEntity" enum="False">
+      <properties>
+        <property name="Id" column="Id" scale="0" unique="True" primaryKey="True" dbType="Int64" data_editable="false" />
+      </properties>
+    </type>
+  </complexTypes>
+</goliath.data>

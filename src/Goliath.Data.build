@@ -1,0 +1,99 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Project ToolsVersion="14.0" DefaultTargets="Release" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <SolutionDir Condition="$(SolutionDir)==''">$(MSBuildProjectDirectory)</SolutionDir>
+    <BuildPath Condition="$(BuildPath)==''">$(SolutionDir)\Build</BuildPath>
+    <PackageDirectory Condition="$(PackageDirectory)==''">$(BuildPath)\Package</PackageDirectory>
+    <Configuration Condition="$(Configuration)==''">Release</Configuration>
+    <DataSource>Goliath.Data</DataSource>
+    <CodegenSource>CodeGenerator</CodegenSource>
+    <PostgresSource>Goliath.Data.Providers.Postgres</PostgresSource>
+    <sqliteSource>Goliath.Data.Providers.Sqlite</sqliteSource>
+    <SourceExclusions>**\.svn\**\*.*;**\_svn\**\*.*;**\*.user;**\*.suo;**\*.db;**\bin\**\*.*;**\obj\**\*.*;</SourceExclusions>
+    <ProjectName>$(MSBuildProjectName)</ProjectName>
+    <NuGetPath>tools</NuGetPath>
+    <BuildTools>tools\build</BuildTools>
+    <!-- Build parameters provided by build server: values below are default values. They will be overwritten by the build service. -->
+    <Version Condition="$(Version)==''">1.4.3.0</Version>
+    <DataDestination>GoliathData</DataDestination>
+    <CodeGen>CodeGen</CodeGen>
+    <Sqlite>Providers\Sqlite</Sqlite>
+    <Postgres>Providers\Postgres</Postgres>
+  </PropertyGroup>
+
+  <UsingTask AssemblyFile="$(BuildTools)\Goliath.BuildTasks.dll" TaskName="Goliath.BuildTasks.AssignBuildVersion" />
+
+  <Target Name="RestorePackages" Condition="Exists($(NuGetPath))">
+    <Message Text="Restoring packages:  Solution ($(ProjectName).sln)" />
+    <Exec Command="&quot;$(NuGetPath)\nuget.exe&quot; restore &quot;$(ProjectName).sln&quot;" />
+  </Target>
+
+  <Target Name="Build" DependsOnTargets="RestorePackages">
+    <MSBuild Projects="$(ProjectName).sln" Targets="Build" Properties="Configuration=$(Configuration)"/>
+  </Target>
+
+  <Target Name="Clean">
+    <!-- <MSBuild Projects="$(ProjectName).sln" Targets="Clean" Properties="Configuration=$(Configuration)" />-->
+    <CreateItem Include="**/Debug/**/*.*;**/bin/**/*.*;**/Release/**/*.*">
+      <Output ItemName="_binaryFiles" TaskParameter="Include"/>
+    </CreateItem>
+
+    <Delete Files="@(_binaryFiles)" TreatErrorsAsWarnings="true"/>
+
+  </Target>
+
+  <Target Name="Rebuild" DependsOnTargets="Clean;Build;" />
+  <Target Name="Release" DependsOnTargets="_Version;Clean;Build;Packaging" />
+  <Target Name="Debug" DependsOnTargets="Clean;_Version;Build;Test;Copy" />
+
+  <Target Name="CopyCore" DependsOnTargets="Build">
+
+  </Target>
+
+  <Target Name="Copy" DependsOnTargets="Build;CopyCore">
+    <CreateItem Exclude="$(DataSource)\**\packages.config;$(DataSource)\**\app.config"
+		 Include="$(DataSource)\bin\$(Configuration)\*.dll;$(DataSource)\bin\$(Configuration)\*.pdb">
+      <Output ItemName="dataFiles" TaskParameter="Include"/>
+    </CreateItem>
+    <Copy SourceFiles="@(dataFiles)" DestinationFiles="@(dataFiles->'$(BuildPath)\$(DataDestination)\lib\%(RecursiveDir)%(Filename)%(Extension)')" />
+
+    <CreateItem Exclude="$(PostgresSource)\**\packages.config;$(PostgresSource)\**\app.config"
+       Include="$(PostgresSource)\bin\$(Configuration)\Goliath.Data.Providers.*.dll;$(PostgresSource)\bin\$(Configuration)\Goliath.Data.Providers.*.pdb">
+      <Output ItemName="postfiles" TaskParameter="Include"/>
+    </CreateItem>
+    <Copy SourceFiles="@(postfiles)" DestinationFiles="@(postfiles->'$(BuildPath)\$(Postgres)\lib\%(RecursiveDir)%(Filename)%(Extension)')" />
+
+    <CreateItem Exclude="$(sqliteSource)\**\packages.config;$(sqliteSource)\**\app.config"
+         Include="$(sqliteSource)\bin\$(Configuration)\Goliath.Data.Providers.*.dll;$(sqliteSource)\bin\$(Configuration)\Goliath.Data.Providers.*.pdb">
+      <Output ItemName="sqliteFiles" TaskParameter="Include"/>
+    </CreateItem>
+    <Copy SourceFiles="@(sqliteFiles)" DestinationFiles="@(sqliteFiles->'$(BuildPath)\$(Sqlite)\lib\%(RecursiveDir)%(Filename)%(Extension)')" />
+
+    <CreateItem Exclude="$(CodegenSource)\bin\$(Configuration)\*.vshost.*"
+           Include="$(CodegenSource)\bin\$(Configuration)\*.dll;$(CodegenSource)\bin\$(Configuration)\*.pdb;$(CodegenSource)\bin\$(Configuration)\*.exe;$(CodegenSource)\bin\$(Configuration)\*.config">
+      <Output ItemName="codegenFiles" TaskParameter="Include"/>
+    </CreateItem>
+    <Copy SourceFiles="@(codegenFiles)" DestinationFiles="@(codegenFiles->'$(BuildPath)\$(CodeGen)\tools\%(RecursiveDir)%(Filename)%(Extension)')" />
+
+  </Target>
+  <Target Name="Test" DependsOnTargets="Build;Copy">
+  </Target>
+
+  <Target Name="_Version" >
+    <AssignBuildVersion  AssemblyVersionFile="$(MSBuildProjectDirectory)\AssemblyInfo.Shared.cs">
+      <Output TaskParameter="VersionNumber" PropertyName="Version"/>
+    </AssignBuildVersion>
+  </Target>
+
+  <Target Name="Packaging" DependsOnTargets="Build;Copy">
+    <Message Text="Packing Goliath Data $(Version)" />
+    <Exec Command="&quot;$(NuGetPath)\nuget.exe&quot; pack  &quot;$(MSBuildProjectDirectory)\Goliath.Data.nuspec&quot; -version $(Version) -outputdirectory &quot;$(BuildPath)&quot;" />
+	<Message Text="Packing Goliath CodeGen Tools $(Version)" />
+    <Exec Command="&quot;$(NuGetPath)\nuget.exe&quot; pack  &quot;$(MSBuildProjectDirectory)\CodeGen.nuspec&quot; -version $(Version) -outputdirectory &quot;$(BuildPath)&quot;" />
+	<Message Text="Packing Postgres Provider $(Version)" />
+    <Exec Command="&quot;$(NuGetPath)\nuget.exe&quot; pack  &quot;$(MSBuildProjectDirectory)\Goliath.Data.Providers.Postgres.nuspec&quot; -version $(Version) -outputdirectory &quot;$(BuildPath)&quot;" />
+	<Message Text="Packing Sqlite Provider $(Version)" />
+    <Exec Command="&quot;$(NuGetPath)\nuget.exe&quot; pack  &quot;$(MSBuildProjectDirectory)\Goliath.Data.Providers.Sqlite.nuspec&quot; -version $(Version) -outputdirectory &quot;$(BuildPath)&quot;" />
+  </Target>
+
+</Project>

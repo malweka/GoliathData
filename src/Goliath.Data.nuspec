@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>Goliath.Data</id>
+	<title>Goliath.Data</title>
+    <version>$version$</version>
+    <authors>Emmanuel Hameyie</authors>
+    <owners>Emmanuel Hameyie</owners>
+    <licenseUrl>https://opensource.org/licenses/Apache-2.0</licenseUrl>
+    <projectUrl>https://bitbucket.org/malweka/goliathdata</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>ORM and database tool</description>
+    <releaseNotes> </releaseNotes>
+    <copyright>Copyright ©2016 Emmanuel Hameyie</copyright>
+    <tags>ORM SQL</tags>
+    <!--<dependencies>
+      <dependency id="SampleDependency" version="1.0" />
+    </dependencies>-->
+  </metadata>
+  <files>
+    <file src="build\GoliathData\**" target="" />
+  </files>
+</package>

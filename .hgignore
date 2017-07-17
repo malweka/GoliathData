@@ -1,0 +1,20 @@
+glob:bin/**
+glob:obj/**
+glob:Bin/**
+glob:*.user
+glob:*.suo
+glob:packages/**
+glob:TestResults/**
+glob:.DS_Store
+glob:src/Build/**
+glob:src/tools/**
+glob:*.sln.cache
+glob:*.orig
+glob:*.nunit
+glob:*.VisualState.xml
+glob:*.userprefs
+glob:*.pidb
+glob:security.config
+glob:_ReSharper*/
+glob:[Tt]humbs.db
+syntax: glob

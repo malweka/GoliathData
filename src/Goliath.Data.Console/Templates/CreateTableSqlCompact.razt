@@ -1,0 +1,46 @@
+﻿@using Goliath.Data.Mapping
+@using Goliath.Data.Diagnostics
+@using Goliath.Data.Providers.SqlCompact
+@{
+	ILogger logger = Logger.GetLogger(this.GetType());
+	var sqlMapper = new SqlCompactMapper();
+	string _extends = string.Empty;
+	List<string> cols = new List<string>();
+	if(!string.IsNullOrWhiteSpace(Model.Extends))
+		_extends = string.Format(": {0}", Model.Extends);
+}
+CREATE TABLE @(Model.TableName)(
+	@{
+		if(Model.PrimaryKey != null)
+		{
+			foreach(var k in Model.PrimaryKey.Keys)
+			{
+				Property p = k;
+				string identityTxt = "";
+				if(p.IsIdentity) 
+					identityTxt = sqlMapper.IdentitySql(1,1);
+				var pk = string.Format("{0} {1}", p.ToString(sqlMapper), identityTxt);
+				cols.Add(pk);
+			}
+		}
+
+		foreach(var p in Model.Properties)
+		{ 
+			cols.Add(p.ToString(sqlMapper));
+		}
+		foreach(var p in Model.Relations)
+		{
+			if((p.RelationType == RelationshipType.OneToMany) && (p.SqlType != null))
+				cols.Add(p.ToString(sqlMapper));
+		}
+
+		for(int i=0;i<cols.Count;i++)
+		{
+			string txt = cols[i];
+			if(i != (cols.Count - 1))
+				txt = txt+", ";
+		@:@(txt)
+		}
+	}
+);
+
