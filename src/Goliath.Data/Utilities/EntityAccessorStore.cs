@@ -24,7 +24,7 @@ namespace Goliath.Data.Utils
         internal void Add(string key, EntityAccessor entityAccessor)
         {
             if (entityAccessor == null)
-                throw new ArgumentNullException("entityAccessor");
+                throw new ArgumentNullException(nameof(entityAccessor));
 
             if (!store.ContainsKey(key))
             {
@@ -41,7 +41,7 @@ namespace Goliath.Data.Utils
         public EntityAccessor GetEntityAccessor(Type entityType)
         {
             if (entityType == null)
-                throw new ArgumentNullException("entityType");
+                throw new ArgumentNullException(nameof(entityType));
 
             return GetEntityAccessor(entityType, new DynamicEntityMap(entityType));
         }
@@ -56,7 +56,7 @@ namespace Goliath.Data.Utils
         public EntityAccessor GetEntityAccessor(Type entityType, IEntityMap entMap)
         {
             if (entityType == null)
-                throw new ArgumentNullException("entityType");
+                throw new ArgumentNullException(nameof(entityType));
 
             EntityAccessor entityAccessor = null;
             string key = entityType.FullName;

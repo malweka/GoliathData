@@ -89,7 +89,7 @@ namespace Goliath.Data.Utils
         public static Func<object, object> CreateDynamicGetMethodDelegate(this PropertyInfo property, string methodName)
         {
             if (property == null)
-                throw new ArgumentNullException("property");
+                throw new ArgumentNullException(nameof(property));
 
             Debug.Assert(property.DeclaringType != null, "property.DeclaringType != null");
             var method = new DynamicMethod(methodName, typeof(object), new[] { typeof(object) });
@@ -121,7 +121,7 @@ namespace Goliath.Data.Utils
         public static Action<object, object> CreateDynamicSetMethodDelegate(this PropertyInfo property, string methodName)
         {
             if (property == null)
-                throw new ArgumentNullException("property");
+                throw new ArgumentNullException(nameof(property));
 
             var setMethod = property.GetSetMethod();
             if (setMethod == null)
