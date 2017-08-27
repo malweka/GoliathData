@@ -86,7 +86,17 @@
     <Compile Include="..\AssemblyInfo.Shared.cs">
       <Link>Properties\AssemblyInfo.Shared.cs</Link>
     </Compile>
+    <Compile Include="Actions\ActionFactory.cs" />
+    <Compile Include="Actions\ActionRunner.cs" />
+    <Compile Include="Actions\CombineMapsAction.cs" />
+    <Compile Include="Actions\CreateMapAction.cs" />
+    <Compile Include="Actions\ExportAction.cs" />
+    <Compile Include="Actions\GenerateAllAction.cs" />
+    <Compile Include="Actions\GenerateEnum.cs" />
+    <Compile Include="Actions\GenerateFromTemplateAction.cs" />
     <Compile Include="AppOptionHandler.cs" />
+    <Compile Include="Actions\GenerateEntitiesAction.cs" />
+    <Compile Include="Actions\IActionRunner.cs" />
     <Compile Include="Options.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -120,6 +130,7 @@
       <Name>Goliath.Data</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\System.Data.SQLite.Core.1.0.104.0\build\net451\System.Data.SQLite.Core.targets" Condition="Exists('..\packages\System.Data.SQLite.Core.1.0.104.0\build\net451\System.Data.SQLite.Core.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

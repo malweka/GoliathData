@@ -52,6 +52,7 @@ namespace Goliath.Data.DataAccess
                 Map = entityMap,
                 TypeConverterStore = typeConverter
             };
+
             model.Options.ExportIdentityColumn = exportIdentityColumn;
             model.Options.ExportDatabaseGeneratedColumns = exportDatabaseGeneratedColumn;
 
