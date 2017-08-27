@@ -40,13 +40,15 @@ namespace Goliath.Data.CodeGenerator
 
                 .Add("createMap", w => opts.ActionName = w)
                 .Add("combineMaps", w => opts.ActionName = w)
+                .Add("export", w => opts.ActionName = w)
                 .Add("generate", w => opts.ActionName = w)
                 .Add("generateAll", w => opts.ActionName = w)
+                .Add("generateEnum", w => opts.ActionName = w)
                 .Add("generateEntities", w => opts.ActionName = w)
-                .Add("export", w => opts.ActionName = w)
                 .Add("namespace=|n=", w => opts.Namespace = w)
                 .Add("baseModel=", w => opts.BaseModelXml = w)
                 .Add("exclude=", w => opts.Excluded = w)
+                .Add("include=", w => opts.Include = w)
                 .Add("entity=", w => opts.EntityModel = w)
                 .Add("renameConfig=", w => opts.RenameConfig = w)
                 .Add("complexTypeMap=", w => opts.ComplexTypeMap = w)
@@ -271,6 +273,7 @@ namespace Goliath.Data.CodeGenerator
         public string ActionName { get; set; }
         public string BaseModelXml { get; set; }
         public string Excluded { get; set; }
+        public string Include { get; set; }
         public string RenameConfig { get; set; }
         public string EntityModel { get; set; }
         public string MappedStatementFile { get; set; }
@@ -279,11 +282,8 @@ namespace Goliath.Data.CodeGenerator
         public string ExtensionMap { get; set; }
         public bool ExportDatabaseGeneratedColumns { get; set; }
         public bool ExportIdentityColumn { get; set; }
-
         public string ImportSqlDialect { get; set; }
-
         public string ExportSqlDialect { get; set; }
-
         public string[] ExcludedArray { get; set; }
     }
 }

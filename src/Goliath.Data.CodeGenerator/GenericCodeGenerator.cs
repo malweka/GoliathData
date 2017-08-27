@@ -79,9 +79,9 @@ namespace Goliath.Data.CodeGenerator
                         name = fileNameFunction(table.Name, counter);
                     }
                     var fname = Path.Combine(workingFolder, name);
-
+                    logger.Log(LogLevel.Debug, $"Running Code gen for entity {table}");
                     interpreter.Generate(templatefile, fname, table);
-                    logger.Log(LogLevel.Debug, string.Format("File {0} generate from template {1} for entity {2}", fname, templatefile, table));
+                    logger.Log(LogLevel.Info, $"File {fname} generate from template {templatefile} for entity {table}");
                 }
                 catch (Exception ex)
                 {
