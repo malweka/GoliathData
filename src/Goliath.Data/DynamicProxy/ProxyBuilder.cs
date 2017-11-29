@@ -19,8 +19,8 @@ namespace Goliath.Data.DynamicProxy
 
         static ProxyBuilder()
         {
-            var proxyAssemblyName = new AssemblyName("goliathData_Proxy");
-            var asmBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly(proxyAssemblyName, AssemblyBuilderAccess.RunAndSave);
+            var proxyAssemblyName = new AssemblyName("GoliathData_Proxy" + Guid.NewGuid().ToString("N"));
+            var asmBuilder = AssemblyBuilder.DefineDynamicAssembly(proxyAssemblyName, AssemblyBuilderAccess.RunAndSave);
             moduleBuilder = asmBuilder.DefineDynamicModule("GoliathDataProxies");
         }
 

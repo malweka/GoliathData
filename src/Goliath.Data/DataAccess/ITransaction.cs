@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data.Common;
 
 namespace Goliath.Data
 {
@@ -7,6 +8,7 @@ namespace Goliath.Data
     /// </summary>
     public interface ITransaction : IDisposable
     {
+        DbTransaction InnerTransaction { get; }
         /// <summary>
         /// Gets a value indicating whether this instance is started.
         /// </summary>
