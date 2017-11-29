@@ -31,7 +31,7 @@ namespace Goliath.Data.Tests
             {
                 File.Delete(dbFileName);
             }
-            
+
             IDbConnector dbConnector = new SqliteDbConnector(config.Settings.ConnectionString);
             IDbAccess db = new DbAccess(dbConnector);
 
@@ -77,6 +77,8 @@ namespace Goliath.Data.Tests
             this.transaction = transaction;
         }
         #region ITransaction Members
+
+        public DbTransaction InnerTransaction => transaction;
 
         public bool IsStarted { get; private set; }
         public bool WasCommitted { get; private set; }

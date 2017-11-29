@@ -12,6 +12,7 @@ namespace Goliath.Data.CodeGen
         }
         #region ITransaction Members
 
+        public DbTransaction InnerTransaction => transaction;
         public bool IsStarted { get; private set; }
         public bool WasCommitted { get; private set; }
         public bool WasRolledBack { get; private set; }

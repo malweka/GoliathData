@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Data;
+using System.Data.Common;
 using Goliath.Data.Diagnostics;
 
 namespace Goliath.Data.DataAccess
@@ -8,7 +9,7 @@ namespace Goliath.Data.DataAccess
     class AdoTransaction : ITransaction
     {
 
-        IDbTransaction transaction;
+        DbTransaction transaction;
         ISession session;
         static ILogger logger;
 
@@ -32,6 +33,8 @@ namespace Goliath.Data.DataAccess
         public bool WasCommitted { get; private set; }
 
         public bool WasRolledBack { get; private set; }
+
+        public DbTransaction InnerTransaction => transaction;
 
         /// <summary>
         /// begin transaction with isolation level READ COMMiTTED

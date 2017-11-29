@@ -19,7 +19,7 @@
     </SccAuxPath>
     <SccProvider>
     </SccProvider>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
     <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -69,6 +69,7 @@
     <Compile Include="DataAccess\MappedStatementRunner.cs" />
     <Compile Include="DataAccess\SqlCommanRunner.cs" />
     <Compile Include="DataAccess\TypeConversionExtensions.cs" />
+    <Compile Include="DatabaseProvider.cs" />
     <Compile Include="DynamicProxy\TrackableProxyBuilder.cs" />
     <Compile Include="DynamicProxy\FakeProxyClass.cs" />
     <Compile Include="DynamicProxy\ILazyObject.cs" />
@@ -118,6 +119,7 @@
     <Compile Include="Generators\AutoIncrement.cs" />
     <Compile Include="Generators\GuidCombGenerator.cs" />
     <Compile Include="GoliathDataException.cs" />
+    <Compile Include="IDatabaseProvider.cs" />
     <Compile Include="ISessionStore.cs" />
     <Compile Include="Collections\ITrackableCollection.cs" />
     <Compile Include="Collections\KeyedCollectionBase.cs" />
