@@ -680,12 +680,14 @@ namespace Goliath.Data.Providers
                 case DbType.Date:
                 case DbType.DateTime:
                 case DbType.DateTime2:
-                case DbType.DateTimeOffset:
                     var datetime = (DateTime)value;
                     if (DateTime.MinValue.Equals(datetime))
                         return "NULL";
                     var dateString = datetime.ToString("yyyy-MM-dd HH:mm:ss");
                     return $"'{dateString}'";
+                case DbType.DateTimeOffset:
+                    var date = (DateTimeOffset) value;
+                    return date.ToString("O");
                 case DbType.Guid:
                 case DbType.Object:
                 case DbType.Time:
