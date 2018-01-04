@@ -106,6 +106,12 @@ namespace Goliath.Data.Mapping
                         xmlWriter.WriteString(entity.Order.ToString());
                         xmlWriter.WriteEndAttribute();
                     }
+                    if (entity.SortOrder > 0)
+                    {
+                        xmlWriter.WriteStartAttribute("sort");
+                        xmlWriter.WriteString(entity.SortOrder.ToString());
+                        xmlWriter.WriteEndAttribute();
+                    }
 
                     if (entity.IsLinkTable)
                     {

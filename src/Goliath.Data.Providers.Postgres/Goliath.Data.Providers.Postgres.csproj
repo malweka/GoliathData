@@ -41,22 +41,22 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.Extensions.DependencyInjection.Abstractions, Version=2.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
-      <HintPath>..\..\..\EmhSandbox\src\EnergyMonitor\packages\Microsoft.Extensions.DependencyInjection.Abstractions.2.0.0\lib\netstandard2.0\Microsoft.Extensions.DependencyInjection.Abstractions.dll</HintPath>
+      <HintPath>..\packages\Microsoft.Extensions.DependencyInjection.Abstractions.2.0.0\lib\netstandard2.0\Microsoft.Extensions.DependencyInjection.Abstractions.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Extensions.Logging, Version=2.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
-      <HintPath>..\..\..\EmhSandbox\src\EnergyMonitor\packages\Microsoft.Extensions.Logging.2.0.0\lib\netstandard2.0\Microsoft.Extensions.Logging.dll</HintPath>
+      <HintPath>..\packages\Microsoft.Extensions.Logging.2.0.0\lib\netstandard2.0\Microsoft.Extensions.Logging.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Extensions.Logging.Abstractions, Version=2.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
-      <HintPath>..\..\..\EmhSandbox\src\EnergyMonitor\packages\Microsoft.Extensions.Logging.Abstractions.2.0.0\lib\netstandard2.0\Microsoft.Extensions.Logging.Abstractions.dll</HintPath>
+      <HintPath>..\packages\Microsoft.Extensions.Logging.Abstractions.2.0.0\lib\netstandard2.0\Microsoft.Extensions.Logging.Abstractions.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Extensions.Options, Version=2.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
-      <HintPath>..\..\..\EmhSandbox\src\EnergyMonitor\packages\Microsoft.Extensions.Options.2.0.0\lib\netstandard2.0\Microsoft.Extensions.Options.dll</HintPath>
+      <HintPath>..\packages\Microsoft.Extensions.Options.2.0.0\lib\netstandard2.0\Microsoft.Extensions.Options.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Extensions.Primitives, Version=2.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
-      <HintPath>..\..\..\EmhSandbox\src\EnergyMonitor\packages\Microsoft.Extensions.Primitives.2.0.0\lib\netstandard2.0\Microsoft.Extensions.Primitives.dll</HintPath>
+      <HintPath>..\packages\Microsoft.Extensions.Primitives.2.0.0\lib\netstandard2.0\Microsoft.Extensions.Primitives.dll</HintPath>
     </Reference>
     <Reference Include="Npgsql, Version=3.1.10.0, Culture=neutral, PublicKeyToken=5d8b90d52f46fda7, processorArchitecture=MSIL">
-      <HintPath>..\..\..\EmhSandbox\src\EnergyMonitor\packages\Npgsql.3.1.10\lib\net451\Npgsql.dll</HintPath>
+      <HintPath>..\packages\Npgsql.3.1.10\lib\net451\Npgsql.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
@@ -82,7 +82,7 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="System.Net.Http">
-      <HintPath>..\..\..\EmhSandbox\src\EnergyMonitor\packages\System.Net.Http.4.3.3\lib\net46\System.Net.Http.dll</HintPath>
+      <HintPath>..\packages\System.Net.Http.4.3.3\lib\net46\System.Net.Http.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System.Numerics" />
@@ -95,7 +95,7 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=4.0.3.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\..\..\EmhSandbox\src\EnergyMonitor\packages\System.Runtime.CompilerServices.Unsafe.4.4.0\lib\netstandard2.0\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+      <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.4.4.0\lib\netstandard2.0\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
     </Reference>
     <Reference Include="System.Runtime.Extensions, Version=4.1.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Runtime.Extensions.4.3.0\lib\net462\System.Runtime.Extensions.dll</HintPath>
@@ -110,19 +110,19 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="System.Security.Cryptography.Algorithms">
-      <HintPath>..\..\..\EmhSandbox\src\EnergyMonitor\packages\System.Security.Cryptography.Algorithms.4.3.1\lib\net463\System.Security.Cryptography.Algorithms.dll</HintPath>
+      <HintPath>..\packages\System.Security.Cryptography.Algorithms.4.3.1\lib\net463\System.Security.Cryptography.Algorithms.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System.Security.Cryptography.Encoding">
-      <HintPath>..\..\..\EmhSandbox\src\EnergyMonitor\packages\System.Security.Cryptography.Encoding.4.3.0\lib\net46\System.Security.Cryptography.Encoding.dll</HintPath>
+      <HintPath>..\packages\System.Security.Cryptography.Encoding.4.3.0\lib\net46\System.Security.Cryptography.Encoding.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System.Security.Cryptography.Primitives">
-      <HintPath>..\..\..\EmhSandbox\src\EnergyMonitor\packages\System.Security.Cryptography.Primitives.4.3.0\lib\net46\System.Security.Cryptography.Primitives.dll</HintPath>
+      <HintPath>..\packages\System.Security.Cryptography.Primitives.4.3.0\lib\net46\System.Security.Cryptography.Primitives.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System.Security.Cryptography.X509Certificates">
-      <HintPath>..\..\..\EmhSandbox\src\EnergyMonitor\packages\System.Security.Cryptography.X509Certificates.4.3.2\lib\net461\System.Security.Cryptography.X509Certificates.dll</HintPath>
+      <HintPath>..\packages\System.Security.Cryptography.X509Certificates.4.3.2\lib\net461\System.Security.Cryptography.X509Certificates.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System.Text.RegularExpressions, Version=4.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
@@ -130,7 +130,7 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="System.Threading.Tasks.Extensions, Version=4.1.1.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
-      <HintPath>..\..\..\EmhSandbox\src\EnergyMonitor\packages\System.Threading.Tasks.Extensions.4.4.0\lib\netstandard2.0\System.Threading.Tasks.Extensions.dll</HintPath>
+      <HintPath>..\packages\System.Threading.Tasks.Extensions.4.4.0\lib\netstandard2.0\System.Threading.Tasks.Extensions.dll</HintPath>
     </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -164,12 +164,12 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
-  <Import Project="..\..\..\EmhSandbox\src\EnergyMonitor\packages\NETStandard.Library.2.0.1\build\netstandard2.0\NETStandard.Library.targets" Condition="Exists('..\..\..\EmhSandbox\src\EnergyMonitor\packages\NETStandard.Library.2.0.1\build\netstandard2.0\NETStandard.Library.targets')" />
+  <Import Project="..\packages\NETStandard.Library.2.0.1\build\netstandard2.0\NETStandard.Library.targets" Condition="Exists('..\packages\NETStandard.Library.2.0.1\build\netstandard2.0\NETStandard.Library.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\..\..\EmhSandbox\src\EnergyMonitor\packages\NETStandard.Library.2.0.1\build\netstandard2.0\NETStandard.Library.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\EmhSandbox\src\EnergyMonitor\packages\NETStandard.Library.2.0.1\build\netstandard2.0\NETStandard.Library.targets'))" />
+    <Error Condition="!Exists('..\packages\NETStandard.Library.2.0.1\build\netstandard2.0\NETStandard.Library.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\NETStandard.Library.2.0.1\build\netstandard2.0\NETStandard.Library.targets'))" />
   </Target>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

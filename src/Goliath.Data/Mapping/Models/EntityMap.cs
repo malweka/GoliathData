@@ -250,6 +250,13 @@ namespace Goliath.Data.Mapping
         /// The order.
         /// </value>
         public int Order { get; set; }
+        /// <summary>
+        /// Gets or sets the sort order.
+        /// </summary>
+        /// <value>
+        /// The sort order.
+        /// </value>
+        public int SortOrder { get; set; }
 
         /// <summary>
         /// Gets the property or relation

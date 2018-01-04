@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Goliath.Data.DataAccess;
 using Goliath.Data.Mapping;
 
@@ -46,13 +47,52 @@ namespace Goliath.Data.CodeGenerator.Actions
             var counter = 0;
 
             List<string> errors = new List<string>();
-            foreach (var entityMap in map.EntityConfigs)
+            List<EntityMap> mapsToImport = new List<EntityMap>();
+
+            if (!string.IsNullOrWhiteSpace(opts.Include))
+            {
+                var split = opts.Include.Split(new string[] { ",", "|" }, StringSplitOptions.RemoveEmptyEntries);
+                foreach (var s in split)
+                {
+
+                    if (s.StartsWith("*"))
+                    {
+                        var q = map.EntityConfigs.Where(c => c.Name.EndsWith(s.Trim().Replace("*", string.Empty))).ToList();
+                        if (q.Count > 0)
+                            mapsToImport.AddRange(q);
+                    }
+
+                    if (s.EndsWith("*"))
+                    {
+                        var q = map.EntityConfigs.Where(c => c.Name.StartsWith(s.Trim().Replace("*", string.Empty))).ToList();
+                        if (q.Count > 0)
+                            mapsToImport.AddRange(q);
+                    }
+
+                    var query = map.EntityConfigs.Where(c => c.Name.Equals(s.Trim()));
+                    mapsToImport.AddRange(query);
+                }
+            }
+            else 
+            {
+                string[] split = new string[] { };
+                if (!string.IsNullOrWhiteSpace(opts.Excluded))
+                    split = opts.Excluded.Split(new string[] { ",", "|" }, StringSplitOptions.RemoveEmptyEntries);
+
+                foreach (var mapEntityConfig in map.EntityConfigs)
+                {
+                    if (IsExcluded(mapEntityConfig.Name, split))
+                        continue;
+                    mapsToImport.Add(mapEntityConfig);
+                }
+            }
+
+            foreach (var entityMap in mapsToImport)
             {
                 try
                 {
-                    counter++;
                     var data = exporter.Export(entityMap, opts.ExportIdentityColumn, opts.ExportDatabaseGeneratedColumns);
-                    var fileName = GetFileName(entityMap.Name, counter, opts.OutputFile);
+                    var fileName = GetFileName(entityMap.Name, entityMap.SortOrder, opts.OutputFile);
 
                     if (data == null || data.DataBag.Count == 0)
                     {
@@ -82,6 +122,28 @@ namespace Goliath.Data.CodeGenerator.Actions
                 Console.ResetColor();
 
             }
+        }
+
+        bool IsExcluded(string entityName, string[] split)
+        {
+            foreach (var s in split)
+            {
+                if (s.StartsWith("*") && entityName.EndsWith(s.Trim().Replace("*", string.Empty)))
+                {
+                    return true;
+                }
+
+                else if (s.EndsWith("*") && entityName.StartsWith(s.Trim().Replace("*", string.Empty)))
+                {
+                    return true;
+                }
+                else if (entityName.Equals(s.Trim()))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
 }

@@ -596,6 +596,9 @@ namespace Goliath.Data.Mapping
                             case "order":
                                 entMap.Order = ReadInteger(reader.Value);
                                 break;
+                            case "sort":
+                                entMap.SortOrder = ReadInteger(reader.Value);
+                                break;
                             case "trackable":
                                 entMap.IsTrackable = ReadBool(reader.Value);
                                 break;

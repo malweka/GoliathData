@@ -84,6 +84,7 @@ namespace Goliath.Data.Mapping
             for (var j = 0; j < sortedIndex.Length; j++)
             {
                 var tbl = tableCollection[sortedIndex[j]];
+                tbl.SortOrder = j+1;
                 sortedDictionary.Add(tbl);
             }
 
