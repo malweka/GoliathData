@@ -14,7 +14,7 @@
     <NuGetPath>tools</NuGetPath>
     <BuildTools>tools\build</BuildTools>
     <!-- Build parameters provided by build server: values below are default values. They will be overwritten by the build service. -->
-    <Version Condition="$(Version)==''">1.4.3.0</Version>
+    <Version Condition="$(Version)==''">1.4.5.0</Version>
     <DataDestination>GoliathData</DataDestination>
     <CodeGen>CodeGen</CodeGen>
     <Sqlite>Providers\Sqlite</Sqlite>

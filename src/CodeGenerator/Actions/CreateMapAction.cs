@@ -46,7 +46,7 @@ namespace Goliath.Data.CodeGenerator.Actions
                 }
 
                 //let's try to read order from log if exists
-                string prima_orda = Path.Combine(opts.WorkingFolder, prima_orda_file);
+                string prima_orda = Path.Combine(opts.WorkingFolder, PrimaOrdaFile);
                 var previousOrderDict = new Dictionary<string, Tuple<int, string>>();
                 var orderCount = 0;
                 if (File.Exists(prima_orda))

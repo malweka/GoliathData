@@ -31,7 +31,7 @@ namespace Goliath.Data.CodeGenerator.Actions
 
             if (!string.IsNullOrWhiteSpace(opts.EntityModel))
             {
-                logger.Log(LogLevel.Debug, string.Format("Extracting model {0} from map entity models.", opts.EntityModel));
+                Logger.Log(LogLevel.Debug, string.Format("Extracting model {0} from map entity models.", opts.EntityModel));
 
                 EntityMap entMap;
                 if (map.EntityConfigs.TryGetValue(opts.EntityModel, out entMap))

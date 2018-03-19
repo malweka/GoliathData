@@ -8,12 +8,12 @@ namespace Goliath.Data.CodeGenerator.Actions
 {
     abstract class ActionRunner : IActionRunner
     {
-        protected static ILogger logger;
-        protected const string prima_orda_file = "prima_orda.log";
+        protected static ILogger Logger;
+        protected const string PrimaOrdaFile = "prima_orda.log";
 
         static ActionRunner()
         {
-            logger = Logger.GetLogger(typeof(ActionRunner));
+            Logger = Diagnostics.Logger.GetLogger(typeof(ActionRunner));
         }
 
         protected ActionRunner(string actionName)

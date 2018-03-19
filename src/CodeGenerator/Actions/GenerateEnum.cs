@@ -41,7 +41,7 @@ namespace Goliath.Data.CodeGenerator.Actions
 
             if (string.IsNullOrWhiteSpace(opts.Include))
             {
-                logger.Log(LogLevel.Warning, "No table to read for enum provided. Please make sure you set the include parameter properly");
+                Logger.Log(LogLevel.Warning, "No table to read for enum provided. Please make sure you set the include parameter properly");
                 return;
             }
 
@@ -59,7 +59,7 @@ namespace Goliath.Data.CodeGenerator.Actions
             {
                 try
                 {
-                    logger.Log(LogLevel.Info, $"Processing entity {tbl}");
+                    Logger.Log(LogLevel.Info, $"Processing entity {tbl}");
                     var entityMap = map.GetEntityMap($"{opts.Namespace}.{tbl}");
 
                     counter++;
@@ -68,7 +68,7 @@ namespace Goliath.Data.CodeGenerator.Actions
 
                     if (data == null || data.DataBag.Count == 0)
                     {
-                        logger.Log(LogLevel.Warning, $"No data found for {tbl}");
+                        Logger.Log(LogLevel.Warning, $"No data found for {tbl}");
                         continue;
                     }
 
@@ -81,7 +81,7 @@ namespace Goliath.Data.CodeGenerator.Actions
             }
 
             codeGenRunner.GenerateCodeFromTemplate(models, template, codeGenRunner.WorkingFolder, opts.OutputFile);
-            logger.Log(LogLevel.Info, $"Enums generated file: {opts.OutputFile}");
+            Logger.Log(LogLevel.Info, $"Enums generated file: {opts.OutputFile}");
 
             if (errors.Count > 0)
             {
