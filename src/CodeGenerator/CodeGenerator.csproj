@@ -141,6 +141,7 @@
     <Compile Include="Actions\CombineMapsAction.cs" />
     <Compile Include="Actions\CreateMapAction.cs" />
     <Compile Include="Actions\ExportAction.cs" />
+    <Compile Include="Actions\ExportedDataModel.cs" />
     <Compile Include="Actions\GenerateAllAction.cs" />
     <Compile Include="Actions\GenerateEnum.cs" />
     <Compile Include="Actions\GenerateFromTemplateAction.cs" />

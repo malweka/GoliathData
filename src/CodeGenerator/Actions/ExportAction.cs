@@ -27,24 +27,21 @@ namespace Goliath.Data.CodeGenerator.Actions
             var exportRdbms = GetRdbms(opts.ExportSqlDialect);
 
             var dbConnector = providerFactory.CreateDbConnector(importRdbms, opts.ConnectionString);
+            bool exportToxml = string.IsNullOrWhiteSpace(opts.TemplateName);
 
-            if (string.IsNullOrWhiteSpace(opts.TemplateName))
+            if (!exportToxml && string.IsNullOrWhiteSpace(opts.TemplateName))
                 throw new GoliathDataException("Template file to use is required for generate operation. Please make sure that -in=\"Template_File_name.razt\" argument is passed in.");
 
-            var template = Path.Combine(codeGenRunner.TemplateFolder, opts.TemplateName);
+            var template = Path.Combine(codeGenRunner.TemplateFolder, opts.TemplateName??"");
 
-            if (!File.Exists(template))
+            if (!exportToxml && !File.Exists(template))
                 throw new GoliathDataException($"template file {template} not found.");
 
             if (string.IsNullOrWhiteSpace(opts.OutputFile))
                 throw new GoliathDataException("Output file is required for generate operation. Please make sure that -out=\"YOUR_FILE.EXT\" argument is passed in.");
 
-
-
             var exporter = new DataExporterAdapter(providerFactory.CreateDialect(importRdbms), providerFactory.CreateDialect(exportRdbms),
                 dbConnector, new TypeConverterStore());
-
-            var counter = 0;
 
             List<string> errors = new List<string>();
             List<EntityMap> mapsToImport = new List<EntityMap>();
@@ -73,7 +70,7 @@ namespace Goliath.Data.CodeGenerator.Actions
                     mapsToImport.AddRange(query);
                 }
             }
-            else 
+            else
             {
                 string[] split = new string[] { };
                 if (!string.IsNullOrWhiteSpace(opts.Excluded))
@@ -92,22 +89,21 @@ namespace Goliath.Data.CodeGenerator.Actions
                 try
                 {
                     var data = exporter.Export(entityMap, opts.ExportIdentityColumn, opts.ExportDatabaseGeneratedColumns);
-                    var fileName = GetFileName(entityMap.Name, entityMap.SortOrder, opts.OutputFile);
-
                     if (data == null || data.DataBag.Count == 0)
                     {
                         continue;
                     }
 
-                    codeGenRunner.GenerateCodeFromTemplate(data, template, codeGenRunner.WorkingFolder, fileName);
+                    if (exportToxml)
+                        ExportToXml(data, opts, entityMap, codeGenRunner);
+                    else
+                        ExportToSql(data, opts, entityMap, codeGenRunner, template);
 
                 }
                 catch (Exception ex)
                 {
                     errors.Add($"Error table [{entityMap.TableName}]: {ex.ToString()}");
                 }
-
-
             }
 
             if (errors.Count > 0)
@@ -122,6 +118,26 @@ namespace Goliath.Data.CodeGenerator.Actions
                 Console.ResetColor();
 
             }
+        }
+
+        void ExportToXml(ExportModel data, AppOptionInfo opts, EntityMap entityMap, CodeGenRunner codeGenRunner)
+        {
+            var fileName = GetFileName(entityMap.Name, null, opts.OutputFile);
+            var exportedData = new ExportedDataModel
+            {
+                EntityName = entityMap.FullName,
+                Name = entityMap.TableName,
+                DataRows = data.DataBag
+            };
+            
+            exportedData.Save(Path.Combine(codeGenRunner.WorkingFolder, fileName));
+        }
+        
+
+        void ExportToSql(ExportModel data, AppOptionInfo opts, EntityMap entityMap, CodeGenRunner codeGenRunner, string template)
+        {
+            var fileName = GetFileName(entityMap.Name, entityMap.SortOrder, opts.OutputFile);
+            codeGenRunner.GenerateCodeFromTemplate(data, template, codeGenRunner.WorkingFolder, fileName);
         }
 
         bool IsExcluded(string entityName, string[] split)
