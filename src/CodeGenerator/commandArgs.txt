@@ -1,11 +1,7 @@
 -namespace="Testingo.Core" -baseModel="C:\junk\BaseModel.map.xml" -connectionstring="Data Source=localhost;Initial Catalog=DbZoo;Integrated Security=True" -templateFolder="C:\Development\Me\Sandbox\IrtDeploymentManager\CodeGenerator\Templates" -workingFolder="C:\junk\Goliath"
 
--generateEntities -namespace="Testingo.Core" -baseModel="C:\junk\BaseModel.map.xml" -connectionstring="Data Source=localhost;Initial Catalog=DbZoo;Integrated Security=True" -templateFolder="C:\Development\Me\Sandbox\IrtDeploymentManager\CodeGenerator\Templates" -workingFolder="C:\junk\Goliath"
+generateEntities -namespace="Testingo.Core" -baseModel="C:\junk\BaseModel.map.xml" -connectionstring="Data Source=localhost;Initial Catalog=DbZoo;Integrated Security=True" -templateFolder="C:\Development\Me\Sandbox\IrtDeploymentManager\CodeGenerator\Templates" -workingFolder="C:\junk\Goliath"
 
--generate -in="EntityResource.razt" -out="EntityResources.resx" -namespace="Testingo.Core" -baseModel="C:\junk\BaseModel.map.xml" -connectionstring="Data Source=localhost;Initial Catalog=DbZoo;Integrated Security=True" -templateFolder="C:\Development\Me\Sandbox\IrtDeploymentManager\CodeGenerator\Templates" -workingFolder="C:\junk\Goliath"
+generate -in="EntityResource.razt" -out="EntityResources.resx" -namespace="Testingo.Core" -baseModel="C:\junk\BaseModel.map.xml" -connectionstring="Data Source=localhost;Initial Catalog=DbZoo;Integrated Security=True" -templateFolder="C:\Development\Me\Sandbox\CodeGenerator\Templates" -workingFolder="C:\junk\Goliath"
 
--export  -in="InsertExport.razt" -out="(iteration)_(name).sql" -connectionstring="Data Source=localhost;Initial Catalog=MEx2;Integrated Security=True" -templateFolder="C:\dev\WarwickMuseumExperiences\CMS\Templates" -workingFolder="C:\Junk\Tests\Goliath" -includeGeneratedColumns=true -includeIdentityColumn=true
-
-
-
-C:\dev\WarwickMuseumExperiences\CMS\Templates\InsertExport.razt
+export  -in="InsertExport.razt" -out="(iteration)_(name).sql" -connectionstring="Data Source=localhost;Initial Catalog=DbZoo;Integrated Security=True" -templateFolder="C:\dev\CMS\Templates" -workingFolder="C:\Junk\Tests\Goliath" -includeGeneratedColumns=true -includeIdentityColumn=true

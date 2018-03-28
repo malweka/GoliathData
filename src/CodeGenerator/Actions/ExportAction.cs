@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Goliath.Data.DataAccess;
+using Goliath.Data.Diagnostics;
 using Goliath.Data.Mapping;
 
 namespace Goliath.Data.CodeGenerator.Actions
 {
     class ExportAction : ActionRunner
     {
+
         public const string Name = "EXPORT";
         public ExportAction() : base(Name)
         {
@@ -32,7 +34,7 @@ namespace Goliath.Data.CodeGenerator.Actions
             if (!exportToxml && string.IsNullOrWhiteSpace(opts.TemplateName))
                 throw new GoliathDataException("Template file to use is required for generate operation. Please make sure that -in=\"Template_File_name.razt\" argument is passed in.");
 
-            var template = Path.Combine(codeGenRunner.TemplateFolder, opts.TemplateName??"");
+            var template = Path.Combine(codeGenRunner.TemplateFolder, opts.TemplateName ?? "");
 
             if (!exportToxml && !File.Exists(template))
                 throw new GoliathDataException($"template file {template} not found.");
@@ -84,6 +86,8 @@ namespace Goliath.Data.CodeGenerator.Actions
                 }
             }
 
+            var files = new List<string>();
+
             foreach (var entityMap in mapsToImport)
             {
                 try
@@ -95,32 +99,55 @@ namespace Goliath.Data.CodeGenerator.Actions
                     }
 
                     if (exportToxml)
-                        ExportToXml(data, opts, entityMap, codeGenRunner);
+                        ExportToXml(data, opts, entityMap, codeGenRunner, files);
                     else
-                        ExportToSql(data, opts, entityMap, codeGenRunner, template);
+                        ExportToSql(data, opts, entityMap, codeGenRunner, template, files);
 
                 }
                 catch (Exception ex)
                 {
-                    errors.Add($"Error table [{entityMap.TableName}]: {ex.ToString()}");
+                    errors.Add($"Error table [{entityMap.TableName}]: {ex}");
                 }
             }
 
             if (errors.Count > 0)
             {
-                Console.WriteLine($"\n\nEncountered {errors.Count} Errors");
+                Logger.Log(LogLevel.Warning, $"\n\nEncountered {errors.Count} Errors");
                 Console.ForegroundColor = ConsoleColor.Red;
                 foreach (var err in errors)
                 {
-                    Console.WriteLine(err);
+                    Logger.Log(LogLevel.Error, err);
                 }
 
-                Console.ResetColor();
+                return;
+            }
 
+            if (opts.Compress)
+            {
+                var dbName = FileHelperMethods.GetDatabaseNameFromConnectionString(opts.ConnectionString);
+                Compress(opts,$"{dbName}_exports.zip", files);
+                DeleteAll(files);
             }
         }
 
-        void ExportToXml(ExportModel data, AppOptionInfo opts, EntityMap entityMap, CodeGenRunner codeGenRunner)
+        void Compress(AppOptionInfo opts, string zipFileName, List<string> files)
+        {
+            var zipPath = Path.Combine(opts.WorkingFolder, zipFileName);
+            using (var fs = File.Open(zipPath, FileMode.Create, FileAccess.Write))
+            {
+                fs.Zip(files.ToArray());
+            }
+        }
+
+        void DeleteAll(List<string> files)
+        {
+            foreach (var file in files)
+            {
+                File.Delete(file);
+            }
+        }
+
+        void ExportToXml(ExportModel data, AppOptionInfo opts, EntityMap entityMap, CodeGenRunner codeGenRunner, List<string> files)
         {
             var fileName = GetFileName(entityMap.Name, null, opts.OutputFile);
             var exportedData = new ExportedDataModel
@@ -129,15 +156,17 @@ namespace Goliath.Data.CodeGenerator.Actions
                 Name = entityMap.TableName,
                 DataRows = data.DataBag
             };
-            
-            exportedData.Save(Path.Combine(codeGenRunner.WorkingFolder, fileName));
-        }
-        
 
-        void ExportToSql(ExportModel data, AppOptionInfo opts, EntityMap entityMap, CodeGenRunner codeGenRunner, string template)
+            var filePath = Path.Combine(codeGenRunner.WorkingFolder, fileName);
+            exportedData.Save(filePath);
+            files.Add(filePath);
+        }
+
+        void ExportToSql(ExportModel data, AppOptionInfo opts, EntityMap entityMap, CodeGenRunner codeGenRunner, string template, List<string> files)
         {
             var fileName = GetFileName(entityMap.Name, entityMap.SortOrder, opts.OutputFile);
             codeGenRunner.GenerateCodeFromTemplate(data, template, codeGenRunner.WorkingFolder, fileName);
+            files.Add(Path.Combine(codeGenRunner.WorkingFolder, fileName));
         }
 
         bool IsExcluded(string entityName, string[] split)

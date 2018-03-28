@@ -12,6 +12,7 @@ namespace Goliath.Data.CodeGenerator.Actions
             runners.Add(CombineMapsAction.Name, new CombineMapsAction());
             runners.Add(CreateMapAction.Name, new CreateMapAction());
             runners.Add(ExportAction.Name, new ExportAction());
+            runners.Add(ImportAction.Name, new ImportAction());
             runners.Add(GenerateAllAction.Name, new GenerateAllAction());
             runners.Add(GenerateEntitiesAction.Name, new GenerateEntitiesAction());
             runners.Add(GenerateEnum.Name, new GenerateEnum());

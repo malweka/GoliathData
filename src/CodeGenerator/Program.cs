@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using Goliath.Data.CodeGenerator.Actions;
 using Goliath.Data.DataAccess;
 using Goliath.Data.Diagnostics;
