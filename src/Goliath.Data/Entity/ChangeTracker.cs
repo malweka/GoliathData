@@ -90,8 +90,7 @@ namespace Goliath.Data.Entity
         /// <param name="getInitialValuesMethod">The get initial values method.</param>
         public ChangeTracker(Func<IDictionary<string, object>> getInitialValuesMethod)
         {
-            if (getInitialValuesMethod == null) throw new ArgumentNullException(nameof(getInitialValuesMethod));
-            this.getInitialValuesMethod = getInitialValuesMethod;
+            this.getInitialValuesMethod = getInitialValuesMethod ?? throw new ArgumentNullException(nameof(getInitialValuesMethod));
             Version = DateTime.UtcNow.Ticks;
         }
 

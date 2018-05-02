@@ -14,7 +14,7 @@ namespace Goliath.Data.Mapping
     [DataContract]
     public class EntityMap : IEntityMap, IEquatable<EntityMap>
     {
-
+        [NonSerialized]
         MapConfig parent;
 
         //[IgnoreDataMember]
