@@ -33,9 +33,27 @@ namespace Goliath.Data.CodeGenerator.Actions
             }
 
             var rdbms = GetSupportedRdbms(opts);
+            string[] whiteList;
 
-            using (ISchemaDescriptor schemaDescriptor = providerFactory.CreateDbSchemaDescriptor(rdbms, codeGenRunner.Settings, opts.ExcludedArray))
+            if (!string.IsNullOrWhiteSpace(opts.Include))
             {
+                whiteList = opts.Include.Split(new string[] { ",", "|" }, StringSplitOptions.RemoveEmptyEntries);
+                //we have a white list it takes precedence
+                opts.ExcludedArray = new string[] { };
+            }
+            else
+            {
+                whiteList = new string[] { };
+            }
+
+            using (ISchemaDescriptor schemaDescriptor = providerFactory
+                .CreateDbSchemaDescriptor(rdbms, codeGenRunner.Settings, opts.ExcludedArray))
+            {
+                foreach (var table in whiteList)
+                {
+                    schemaDescriptor.TableWhiteList.Add(table);
+                }
+               
                 var map = codeGenRunner.CreateMap(schemaDescriptor, opts.EntitiesToRename, baseModel, mapFileName);
                 //Console.WriteLine("mapped statements: {0}", opts.MappedStatementFile);
                 if (!string.IsNullOrWhiteSpace(opts.MappedStatementFile) && File.Exists(opts.MappedStatementFile))

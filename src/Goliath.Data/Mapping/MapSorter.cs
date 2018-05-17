@@ -21,6 +21,11 @@ namespace Goliath.Data.Mapping
             logger = Logger.GetLogger(typeof(MapSorter));
         }
 
+        public static string GetIndexKey(EntityMap tbl)
+        {
+            return $"{tbl.SchemaName}.{tbl.TableName}";
+        }
+
         public EntityCollection Sort(EntityCollection tableCollection)
         {
             if (tableCollection == null)
@@ -49,7 +54,7 @@ namespace Goliath.Data.Mapping
             for (var i = 0; i < count; i++)
             {
                 var tbl = tableCollection[i];
-                indexes.Add(tbl.TableName, AddVertex(i));
+                indexes.Add(GetIndexKey(tbl), AddVertex(i));
             }
 
             for (var i = 0; i < count; i++)
@@ -115,13 +120,13 @@ namespace Goliath.Data.Mapping
             if (rf.RelationType != RelationshipType.ManyToOne) return;
 
             if(tbl.FullName.Equals(rf.ReferenceEntityName)) return; // we don't care if an entity references itself
-            
 
             logger.Log(LogLevel.Debug, string.Format("tb:{0} -> edge:{1}", tbl.TableName, rf.ReferenceTable));
 
             try
             {
-                AddEdge(indexes[rf.ReferenceTable], iteration);
+                var key = NamePostProcessor.GetTableKeyName(rf);
+                AddEdge(indexes[key], iteration);
             }
             catch (Exception ex)
             {

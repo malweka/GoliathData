@@ -67,6 +67,11 @@ namespace Goliath.Data.Mapping
 
         #endregion
 
+        public static string GetTableKeyName(Relation rel)
+        {
+            return $"{rel.ReferenceTableSchemaName}.{rel.ReferenceTable}";
+        }
+
         void ProcessTableNames(IDictionary<string, EntityMap> entities, IDictionary<string, string> entityRenames)
         {
             var tableNamer = transfactory.GetTransformer<EntityMap>();
@@ -87,7 +92,8 @@ namespace Goliath.Data.Mapping
                         var rel = (Relation)prop;
 
                         EntityMap refEnt;
-                        if (entities.TryGetValue(rel.ReferenceTable, out refEnt))
+                        var refTblKey = GetTableKeyName(rel);
+                        if (entities.TryGetValue(refTblKey, out refEnt))
                         {
                             rel.ReferenceEntityName = string.Format("{0}.{1}", refEnt.Namespace, GetRename(tableNamer.Transform(null, rel.ReferenceTable), entityRenames));
                         }

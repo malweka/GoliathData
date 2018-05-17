@@ -9,6 +9,8 @@ namespace Goliath.Data.Providers
     /// </summary>
     public interface ISchemaDescriptor : IDisposable
     {
+        IList<string> TableWhiteList { get; }
+
         /// <summary>
         /// Gets the name of the database provider.
         /// </summary>

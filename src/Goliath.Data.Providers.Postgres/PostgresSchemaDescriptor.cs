@@ -20,6 +20,8 @@ namespace Goliath.Data.Providers.Postgres
         readonly SqlDialect dialect;
         readonly IDbConnector dbConnector;
 
+        public override string DefaultSchemaName => "public";
+
         DbConnection connection;
         DbConnection Connection
         {
@@ -102,9 +104,9 @@ where c.contype = 'f'";
         /// <param name="dbConnector">The db connector.</param>
         /// <param name="dialect">The dialect.</param>
         /// <param name="settings">The settings.</param>
-        /// <param name="excludedTables">The excluded tables.</param>
-        public PostgresSchemaDescriptor(IDbAccess db, IDbConnector dbConnector, SqlDialect dialect, ProjectSettings settings, params string[] excludedTables)
-            : base(RdbmsBackend.SupportedSystemNames.Postgresql9, excludedTables)
+        /// <param name="tableBlackList">The excluded tables.</param>
+        public PostgresSchemaDescriptor(IDbAccess db, IDbConnector dbConnector, SqlDialect dialect, ProjectSettings settings, params string[] tableBlackList)
+            : base(RdbmsBackend.SupportedSystemNames.Postgresql9, tableBlackList)
         {
             this.db = db;
             this.dbConnector = dbConnector;
@@ -128,15 +130,16 @@ where c.contype = 'f'";
                     while (reader.Read())
                     {
                         string tablename = reader.GetValueAsString("table_name");
+                        string schemaName = reader.GetValueAsString("table_schema");
                         countOrder++;
 
-                        if (IsExcluded(tablename))
+                        if (IsExcluded(schemaName, tablename))
                             continue;
 
                         if (string.IsNullOrWhiteSpace(tablename) || (!string.IsNullOrWhiteSpace(tablename) && tablename.Equals("sysdiagrams", StringComparison.OrdinalIgnoreCase)))
                             continue;
 
-                        string schemaName = reader.GetValueAsString("table_schema");
+                       
                         logger.Log(LogLevel.Info, string.Format("reading table {0}", tablename));
                         var table = new EntityMap(tablename, tablename);
                         table.Namespace = ProjectSettings.Namespace;

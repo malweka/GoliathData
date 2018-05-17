@@ -242,7 +242,7 @@ namespace Goliath.Data.Mapping
         /// Gets the <see cref="Goliath.Data.Mapping.Property"/> at the specified index.
         /// </summary>
         public Property this[int index] => AllProperties[index];
-
+        internal string Id { get; set; }
         /// <summary>
         /// Gets or sets the order.
         /// </summary>

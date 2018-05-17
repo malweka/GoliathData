@@ -4,6 +4,7 @@ using System.Data;
 using System.Data.Common;
 using Goliath.Data.Diagnostics;
 using Goliath.Data.Mapping;
+using Goliath.Data.Utils;
 
 namespace Goliath.Data.Providers.SqlServer
 {
@@ -17,13 +18,13 @@ namespace Goliath.Data.Providers.SqlServer
         readonly IDbAccess db;
         readonly SqlDialect dialect;
         readonly IDbConnector dbConnector;
-        const string SelectTableFromSchema = "SELECT TABLE_NAME, TABLE_SCHEMA FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE' order by TABLE_NAME";
-        const string SelectColumns = "SELECT *, COLUMNPROPERTY(OBJECT_ID(TABLE_SCHEMA + '.' + TABLE_NAME), COLUMN_NAME, 'IsIdentity') AS IsIdentity, IDENT_SEED(TABLE_NAME) AS IdentitySeed, IDENT_INCR(TABLE_NAME) AS IdentityIncrement FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = @tableName ORDER BY ORDINAL_POSITION";
+        const string SelectTableFromSchema = "SELECT TABLE_NAME, TABLE_SCHEMA, OBJECT_ID(TABLE_SCHEMA +'.'+TABLE_NAME)  \"TableId\" FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE' order by TABLE_NAME";
+        const string SelectColumns = "SELECT *, COLUMNPROPERTY(OBJECT_ID(TABLE_SCHEMA + '.' + TABLE_NAME), COLUMN_NAME, 'IsIdentity') AS IsIdentity, IDENT_SEED(TABLE_NAME) AS IdentitySeed, IDENT_INCR(TABLE_NAME) AS IdentityIncrement FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = @tableName and TABLE_SCHEMA = @schema ORDER BY ORDINAL_POSITION";
         const string SelectConstraints = @"SELECT COLUMN_NAME, CONSTRAINT_TYPE, a.CONSTRAINT_NAME as ConstraintName,
 	(SELECT COUNT(*) FROM INFORMATION_SCHEMA.CONSTRAINT_COLUMN_USAGE c WHERE a.CONSTRAINT_NAME = c.CONSTRAINT_NAME) AS ColumnCount
 FROM INFORMATION_SCHEMA.CONSTRAINT_COLUMN_USAGE a
 INNER JOIN INFORMATION_SCHEMA.TABLE_CONSTRAINTS b ON a.CONSTRAINT_NAME = b.CONSTRAINT_NAME
-WHERE a.TABLE_NAME = @tableName";
+WHERE a.TABLE_NAME = @tableName and a.TABLE_SCHEMA = @schema";
         const string SelectReferences = @"SELECT
 COLUMN_NAME = FK_COLS.COLUMN_NAME,
 REFERENCED_TABLE_NAME = PK.TABLE_NAME,
@@ -42,7 +43,7 @@ AND REF_CONST.UNIQUE_CONSTRAINT_NAME = PK.CONSTRAINT_NAME
 AND PK.CONSTRAINT_TYPE = 'PRIMARY KEY'
 INNER JOIN INFORMATION_SCHEMA.KEY_COLUMN_USAGE FK_COLS ON REF_CONST.CONSTRAINT_NAME = FK_COLS.CONSTRAINT_NAME
 INNER JOIN INFORMATION_SCHEMA.KEY_COLUMN_USAGE PK_COLS ON PK.CONSTRAINT_NAME = PK_COLS.CONSTRAINT_NAME
-WHERE FK.TABLE_NAME = @tableName";
+WHERE FK.TABLE_NAME = @tableName and FK.TABLE_SCHEMA = @schema";
         const string FindForeignKeys = @"SELECT
 CONSTRAINT_NAME = FK.CONSTRAINT_NAME,
 COLUMN_NAME = FK_COLS.COLUMN_NAME,
@@ -61,7 +62,7 @@ AND REF_CONST.UNIQUE_CONSTRAINT_NAME = PK.CONSTRAINT_NAME
 AND PK.CONSTRAINT_TYPE = 'PRIMARY KEY'
 INNER JOIN INFORMATION_SCHEMA.KEY_COLUMN_USAGE FK_COLS ON REF_CONST.CONSTRAINT_NAME = FK_COLS.CONSTRAINT_NAME
 INNER JOIN INFORMATION_SCHEMA.KEY_COLUMN_USAGE PK_COLS ON PK.CONSTRAINT_NAME = PK_COLS.CONSTRAINT_NAME
-WHERE FK.TABLE_NAME = @tableName";
+WHERE FK.TABLE_NAME = @tableName and FK.TABLE_SCHEMA = @schema";
 
         const string TableDescriptionScript = @"select t.id as TableId, t.name as TableName, t.uid, ep.name, ep.value as TableDescription from sysobjects t, sys.extended_properties ep
 where t.type = 'u' and t.id = ep.major_id and ep.minor_id = 0";
@@ -88,6 +89,8 @@ and ep.minor_id = c.colid";
             logger = Logger.GetLogger(typeof(MssqlSchemaDescriptor));
         }
 
+        public override string DefaultSchemaName => "dbo";
+
         /// <summary>
         /// Initializes a new instance of the <see cref="MssqlSchemaDescriptor" /> class.
         /// </summary>
@@ -95,9 +98,9 @@ and ep.minor_id = c.colid";
         /// <param name="dbConnector">The db connector.</param>
         /// <param name="dialect">The dialect.</param>
         /// <param name="settings">The settings.</param>
-        /// <param name="excludedTables">The excluded tables.</param>
-        public MssqlSchemaDescriptor(IDbAccess db, IDbConnector dbConnector, SqlDialect dialect, ProjectSettings settings, params string[] excludedTables)
-            : base(RdbmsBackend.SupportedSystemNames.Mssql2008R2, excludedTables)
+        /// <param name="tableBlackList">The excluded tables.</param>
+        public MssqlSchemaDescriptor(IDbAccess db, IDbConnector dbConnector, SqlDialect dialect, ProjectSettings settings, params string[] tableBlackList)
+            : base(RdbmsBackend.SupportedSystemNames.Mssql2008R2, tableBlackList)
         {
             this.db = db;
             this.dbConnector = dbConnector;
@@ -120,24 +123,36 @@ and ep.minor_id = c.colid";
                     while (reader.Read())
                     {
                         string name = reader.GetValueAsString("TABLE_NAME");
+                        string schemaName = reader.GetValueAsString("TABLE_SCHEMA");
+
                         counterOrder++;
-                        if (IsExcluded(name))
+                        if (IsExcluded(schemaName, name))
                             continue;
 
                         if (!string.IsNullOrWhiteSpace(name) && name.Equals("sysdiagrams", StringComparison.OrdinalIgnoreCase))
                             continue;
 
-                        string schemaName = reader.GetValueAsString("TABLE_SCHEMA");
-                        logger.Log(LogLevel.Info, $"reading table {name}");
+                        
+                        string tableId = reader.GetValueAsString("TableId");
+
+                        logger.Log(LogLevel.Info, $"reading table {schemaName}.{name}");
+                        string @namespace = ProjectSettings.Namespace; 
+                        if (!"DBO".Equals(schemaName))
+                        {
+                            @namespace = $"{ProjectSettings.Namespace}.{schemaName.ToClrValPascal()}";
+                        }
+
                         var table = new EntityMap(name, name)
                         {
-                            Namespace = ProjectSettings.Namespace,
+                            Namespace = @namespace,
                             SchemaName = schemaName,
                             AssemblyName = ProjectSettings.AssemblyName,
                             TableAlias = name,
-                            Order = counterOrder
+                            Order = counterOrder,
+                            Id = tableId
                         };
-                        tables.Add(name, table);
+
+                        tables.Add($"{schemaName}.{name}", table);
                     }
                 }
                 var tableMetaDataDictionary = GetTableMetaData();
@@ -152,7 +167,7 @@ and ep.minor_id = c.colid";
                     table.AddColumnRange(columns.Values);
 
                     TableMetaData meta;
-                    if (tableMetaDataDictionary.TryGetValue(table.TableName, out meta))
+                    if (tableMetaDataDictionary.TryGetValue(table.Id, out meta))
                     {
                         if (!string.IsNullOrWhiteSpace(meta.Description))
                         {
@@ -168,8 +183,6 @@ and ep.minor_id = c.colid";
                             }
                         }
                     }
-
-
                 }
 
             }
@@ -189,7 +202,9 @@ and ep.minor_id = c.colid";
         protected virtual Dictionary<string, Property> ProcessColumns(EntityMap table)
         {
             Dictionary<string, Property> columnList = new Dictionary<string, Property>();
-            using (DbDataReader reader = db.ExecuteReader(Connection, SelectColumns, new QueryParam("tableName", table.TableName, DbType.String)))
+            using (DbDataReader reader = db.ExecuteReader(Connection, SelectColumns, 
+                new QueryParam("tableName", table.TableName, DbType.String), 
+                new QueryParam("schema", table.SchemaName, DbType.String)))
             {
                 int countOrder = 0;
                 while (reader.Read())
@@ -272,7 +287,9 @@ and ep.minor_id = c.colid";
         /// <param name="columnList">The column list.</param>
         protected virtual void ProcessConstraints(EntityMap table, Dictionary<string, Property> columnList)
         {
-            using (var reader = db.ExecuteReader(Connection, SelectConstraints, new QueryParam("tableName", table.TableName, DbType.String)))
+            using (var reader = db.ExecuteReader(Connection, SelectConstraints, 
+                new QueryParam("tableName", table.TableName, DbType.String),
+                new QueryParam("schema", table.SchemaName, DbType.String)))
             {
                 while (reader.Read())
                 {
@@ -303,7 +320,9 @@ and ep.minor_id = c.colid";
         /// <param name="columns">The columns.</param>
         protected virtual void ProcessReferences(EntityMap table, Dictionary<string, Property> columns)
         {
-            using (var reader = db.ExecuteReader(Connection, SelectReferences, new QueryParam("tableName", table.TableName, DbType.String)))
+            using (var reader = db.ExecuteReader(Connection, SelectReferences, 
+                new QueryParam("tableName", table.TableName, DbType.String),
+                new QueryParam("schema", table.SchemaName, DbType.String)))
             {
                 while (reader.Read())
                 {
@@ -323,6 +342,9 @@ and ep.minor_id = c.colid";
                         rel.ReferenceConstraintName = refconstName;
                         rel.RelationType = RelationshipType.ManyToOne;
 
+                        if(IsExcluded(refSchema, refTable))
+                            continue;
+
                         rel.ReferenceEntityName = refTable;
                         columns.Remove(colName);
                         columns.Add(colName, rel);
@@ -338,7 +360,9 @@ and ep.minor_id = c.colid";
 
         void ProcessForeignKeys(EntityMap table)
         {
-            using (var reader = db.ExecuteReader(Connection, FindForeignKeys, new QueryParam("tableName", table.TableName, DbType.String)))
+            using (var reader = db.ExecuteReader(Connection, FindForeignKeys, 
+                new QueryParam("tableName", table.TableName, DbType.String),
+                new QueryParam("schema", table.SchemaName, DbType.String)))
             {
                 while (reader.Read())
                 {
@@ -404,7 +428,7 @@ and ep.minor_id = c.colid";
                         Id = reader.GetValueAsLong("TableId"),
                         Description = reader.GetValueAsString("TableDescription")
                     };
-                    tables.Add(tbMetadata.Name, tbMetadata);
+                    tables.Add(tbMetadata.Id.ToString(), tbMetadata);
                 }
             }
 

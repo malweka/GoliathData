@@ -37,49 +37,58 @@ namespace Goliath.Data.Mapping
         /// <returns></returns>
         public MapConfig GenerateMap(ProjectSettings settings, IDictionary<string, string> entityRenames, params ComplexType[] additionalTypes)
         {
-            MapConfig builder = new MapConfig();
-            schemaDescriptor.ProjectSettings = settings;
-            IDictionary<string, EntityMap> tables = schemaDescriptor.GetTables();
-
-            if (entityRenames == null) entityRenames = new Dictionary<string, string>();
-
-            IPostGenerationProcessor nameProcessor = new NamePostProcessor(transfactory, tableAbbreviator);
-            IPostGenerationProcessor relationshipProcessor = new RelationshipProcessor();
-            IPostGenerationProcessor propRenameProcessor = new PropertiesRenameProcessor();
-
-            nameProcessor.Process(tables, builder.MappedStatements, entityRenames);
-            relationshipProcessor.Process(tables, builder.MappedStatements, entityRenames);
-            propRenameProcessor.Process(tables, builder.MappedStatements, entityRenames);
-
-            builder.Settings = settings;
-            builder.Settings.GeneratedBy = schemaDescriptor.ToString();
-            builder.Settings.Platform = schemaDescriptor.DatabaseProviderName;
-            builder.EntityConfigs.AddRange(tables.Values);
-
-            ComplexType baseModel = null;
-            if ((additionalTypes != null) && (additionalTypes.Length > 0))
+            try
             {
-                builder.ComplexTypes.AddRange(additionalTypes);
-                if (!string.IsNullOrWhiteSpace(settings.BaseModel) && builder.ComplexTypes.Contains(settings.BaseModel))
-                {
-                    baseModel = builder.ComplexTypes[settings.BaseModel];
-                }
-            }
+                MapConfig builder = new MapConfig();
+                schemaDescriptor.ProjectSettings = settings;
+                IDictionary<string, EntityMap> tables = schemaDescriptor.GetTables();
 
-            foreach (var ent in builder.EntityConfigs)
+                if (entityRenames == null) entityRenames = new Dictionary<string, string>();
+
+                IPostGenerationProcessor nameProcessor = new NamePostProcessor(transfactory, tableAbbreviator);
+                IPostGenerationProcessor relationshipProcessor = new RelationshipProcessor();
+                IPostGenerationProcessor propRenameProcessor = new PropertiesRenameProcessor();
+
+                nameProcessor.Process(tables, builder.MappedStatements, entityRenames);
+                relationshipProcessor.Process(tables, builder.MappedStatements, entityRenames);
+                propRenameProcessor.Process(tables, builder.MappedStatements, entityRenames);
+
+                builder.Settings = settings;
+                builder.Settings.GeneratedBy = schemaDescriptor.ToString();
+                builder.Settings.Platform = schemaDescriptor.DatabaseProviderName;
+                builder.EntityConfigs.AddRange(tables.Values);
+
+                ComplexType baseModel = null;
+                if ((additionalTypes != null) && (additionalTypes.Length > 0))
+                {
+                    builder.ComplexTypes.AddRange(additionalTypes);
+                    if (!string.IsNullOrWhiteSpace(settings.BaseModel) && builder.ComplexTypes.Contains(settings.BaseModel))
+                    {
+                        baseModel = builder.ComplexTypes[settings.BaseModel];
+                    }
+                }
+
+                foreach (var ent in builder.EntityConfigs)
+                {
+                    ent.Parent = builder;
+                    if (string.IsNullOrWhiteSpace(ent.Extends) && (baseModel != null))
+                    {
+                        ent.Extends = baseModel.FullName;
+                    }
+                    MapPrimaryKey(ent);
+                }
+
+                builder.IsLoaded = true;
+                Console.WriteLine("we found {0} tables", tables.Count);
+
+                return builder;
+            }
+            catch (Exception exception)
             {
-                ent.Parent = builder;
-                if (string.IsNullOrWhiteSpace(ent.Extends) && (baseModel != null))
-                {
-                    ent.Extends = baseModel.FullName;
-                }
-                MapPrimaryKey(ent);
+                Console.WriteLine(exception);
+                throw;
             }
-
-            builder.IsLoaded = true;
-            Console.WriteLine("we found {0} tables", tables.Count);
-
-            return builder;
+            
         }
 
         void MapPrimaryKey(EntityMap entMap)

@@ -35,10 +35,10 @@ namespace Goliath.Data.Mapping
                         ent.IsLinkTable = true;
 
                         EntityMap aEnt;
-                        if (entityList.TryGetValue(aRel.ReferenceTable, out aEnt))
+                        if (entityList.TryGetValue(NamePostProcessor.GetTableKeyName(aRel), out aEnt))
                         {
                             EntityMap bEnt;
-                            if (entityList.TryGetValue(bRel.ReferenceTable, out bEnt))
+                            if (entityList.TryGetValue(NamePostProcessor.GetTableKeyName(bRel), out bEnt))
                             {
                                 var aRepPropName = bEnt.Name.Pluralize();
                                 if (aEnt.Relations.Contains(aRepPropName))
@@ -166,7 +166,7 @@ namespace Goliath.Data.Mapping
                                     if (k != null && k.RelationType == RelationshipType.ManyToOne)
                                     {
                                         EntityMap other;
-                                        if (entityList.TryGetValue(k.ReferenceTable, out other))
+                                        if (entityList.TryGetValue(NamePostProcessor.GetTableKeyName(k), out other))
                                         {
                                             logger.Log(LogLevel.Debug, string.Format("Processing One-To-Many ent:{0} other:{1}.", ent.Name, other.Name));
 
@@ -207,7 +207,7 @@ namespace Goliath.Data.Mapping
                             }
 
                             EntityMap other;
-                            if (entityList.TryGetValue(reference.ReferenceTable, out other))
+                            if (entityList.TryGetValue(NamePostProcessor.GetTableKeyName(reference), out other))
                             {
                                 logger.Log(LogLevel.Debug, string.Format("Processing One-To-Many ent:{0} other:{1}.", ent.Name, other.Name));
                                 var aRepPropName = ent.Name.Pluralize();

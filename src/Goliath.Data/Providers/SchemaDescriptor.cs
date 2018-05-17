@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace Goliath.Data.Providers
 {
@@ -7,17 +8,20 @@ namespace Goliath.Data.Providers
     /// </summary>
     public abstract class SchemaDescriptor : ISchemaDescriptor
     {
-        protected string[] excludedTables;
+        protected string[] TableBlackList { get; }
+        public IList<string> TableWhiteList { get; } = new List<string>();
+
+        public abstract string DefaultSchemaName { get; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SchemaDescriptor" /> class.
         /// </summary>
         /// <param name="databaseProviderName">Name of the database provider.</param>
-        /// <param name="excludedTables">The execluded tables.</param>
-        protected SchemaDescriptor(string databaseProviderName, params string[] excludedTables)
+        /// <param name="tableBlackList">The execluded tables.</param>
+        protected SchemaDescriptor(string databaseProviderName, string[] tableBlackList)
         {
             DatabaseProviderName = databaseProviderName;
-            this.excludedTables = excludedTables ?? new string[] { };
+            TableBlackList = tableBlackList ?? new string[] { };
         }
 
         #region ISchemaDescriptor Members
@@ -57,15 +61,33 @@ namespace Goliath.Data.Providers
         /// <summary>
         /// Determines whether the specified table name is excluded.
         /// </summary>
+        /// <param name="tableSchema">The table schema.</param>
         /// <param name="tableName">Name of the table.</param>
-        /// <returns></returns>
-        protected bool IsExcluded(string tableName)
+        /// <returns>
+        ///   <c>true</c> if the specified table schema is excluded; otherwise, <c>false</c>.
+        /// </returns>
+        protected virtual bool IsExcluded(string tableSchema, string tableName)
         {
             if (string.IsNullOrWhiteSpace(tableName)) return false;
+            string tb = tableName.ToUpper();
 
-            foreach (var xtable in excludedTables)
+            if (!"DBO".Equals(tableSchema.ToUpper()))
+                tb = $"{tableSchema}.{tableName}".ToUpper();
+
+            if (TableWhiteList.Count > 0)
             {
-                var tb = tableName.ToUpper();
+                Dictionary<string,string> whiteList = new Dictionary<string, string>();
+                foreach (var table in TableWhiteList)
+                {
+                    if(!whiteList.ContainsKey(table.ToUpper()))
+                        whiteList.Add(table.ToUpper(), table);
+                }
+
+                return !whiteList.ContainsKey(tb);
+            }
+
+            foreach (var xtable in TableBlackList)
+            {
                 if (tb.Equals(xtable.ToUpper())) return true;
 
                 if (xtable.EndsWith("*"))

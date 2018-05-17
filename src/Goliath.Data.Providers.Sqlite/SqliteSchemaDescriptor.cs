@@ -20,6 +20,8 @@ namespace Goliath.Data.Providers.Sqlite
         const string IndexInfo = "pragma index_info('{0}')";
         DbConnection connection;
 
+        public override string DefaultSchemaName => "main";
+
         DbConnection Connection
         {
             get
@@ -41,9 +43,9 @@ namespace Goliath.Data.Providers.Sqlite
         /// <param name="dbConnector">The database connector.</param>
         /// <param name="dialect">The dialect.</param>
         /// <param name="settings">The settings.</param>
-        /// <param name="excludedTables">The excluded tables.</param>
-        public SqliteSchemaDescriptor(IDbAccess db, IDbConnector dbConnector, SqlDialect dialect, ProjectSettings settings, params string[] excludedTables)
-            : base(RdbmsBackend.SupportedSystemNames.Sqlite3, excludedTables)
+        /// <param name="tableBlackList">The excluded tables.</param>
+        public SqliteSchemaDescriptor(IDbAccess db, IDbConnector dbConnector, SqlDialect dialect, ProjectSettings settings, params string[] tableBlackList)
+            : base(RdbmsBackend.SupportedSystemNames.Sqlite3, tableBlackList)
         {
             this.db = db;
             this.dbConnector = dbConnector;
@@ -67,13 +69,12 @@ namespace Goliath.Data.Providers.Sqlite
                         string name = reader.GetValueAsString("tbl_name");
                         countOrder++;
 
-                        if (IsExcluded(name))
+                        if (IsExcluded(DefaultSchemaName, name))
                             continue;
-
-                        string schemaName = "main";
+ 
                         EntityMap table = new EntityMap(name, name);
                         table.Namespace = ProjectSettings.Namespace;
-                        table.SchemaName = schemaName;
+                        table.SchemaName = DefaultSchemaName;
                         table.AssemblyName = ProjectSettings.AssemblyName;
                         table.TableAlias = name;
                         table.Order = countOrder;
