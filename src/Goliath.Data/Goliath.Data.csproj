@@ -127,7 +127,7 @@
     <Compile Include="Generators\IKeyGenerator.cs" />
     <Compile Include="Generators\KeyGeneratorStore.cs" />
     <Compile Include="JoinColumnQueryMap.cs" />
-    <Compile Include="Mapping\ExportModel.cs" />
+    <Compile Include="Mapping\Models\ExportModel.cs" />
     <Compile Include="Mapping\ExportOptions.cs" />
     <Compile Include="Mapping\MapBuilderConfig.Read.cs" />
     <Compile Include="Mapping\MapBuilderConfig.Write.cs" />
@@ -141,6 +141,7 @@
     <Compile Include="Mapping\Models\RelationCollection.cs" />
     <Compile Include="Mapping\Models\StatementMap.cs" />
     <Compile Include="Mapping\Models\StatementStore.cs" />
+    <Compile Include="Mapping\Models\TableDataMigrationDefinition.cs" />
     <Compile Include="Mapping\Models\UnMappedTableMap.cs" />
     <Compile Include="Mapping\Models\View.cs" />
     <Compile Include="Mapping\PostGenProcessors\IPostGenerationProcessor.cs" />
