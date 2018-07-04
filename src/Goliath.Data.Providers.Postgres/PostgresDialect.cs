@@ -9,6 +9,8 @@ namespace Goliath.Data.Providers.Postgres
     [Serializable]
     public class PostgresDialect : SqlDialect
     {
+        public override string DefaultSchemaName => "public";
+
         /// <summary>
         /// Initializes a new instance of the <see cref="PostgresDialect"/> class.
         /// </summary>

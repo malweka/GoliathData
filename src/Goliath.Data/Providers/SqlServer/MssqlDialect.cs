@@ -13,6 +13,8 @@ namespace Goliath.Data.Providers.SqlServer
     [Serializable]
     public class Mssq2008Dialect : SqlDialect
     {
+        public override string DefaultSchemaName => "dbo";
+
         /// <summary>
         /// Initializes a new instance of the <see cref="Mssq2008Dialect"/> class.
         /// </summary>

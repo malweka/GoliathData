@@ -9,7 +9,13 @@ namespace Goliath.Data.Providers
     /// </summary>
     public interface ISchemaDescriptor : IDisposable
     {
-        IList<string> TableWhiteList { get; }
+        /// <summary>
+        /// Gets the dialect.
+        /// </summary>
+        /// <value>
+        /// The dialect.
+        /// </value>
+        SqlDialect Dialect { get; }
 
         /// <summary>
         /// Gets the name of the database provider.
@@ -18,6 +24,8 @@ namespace Goliath.Data.Providers
         /// The name of the database provider.
         /// </value>
         string DatabaseProviderName { get; }
+
+        IList<string> TableWhiteList { get; }
 
         /// <summary>
         /// Gets the tables.

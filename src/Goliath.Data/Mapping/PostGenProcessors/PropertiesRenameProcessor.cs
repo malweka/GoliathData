@@ -2,15 +2,23 @@
 using System.Collections.Generic;
 using System.Linq;
 using Goliath.Data.Diagnostics;
+using Goliath.Data.Providers;
 
 namespace Goliath.Data.Mapping
 {
     class PropertiesRenameProcessor : IPostGenerationProcessor
     {
         static readonly ILogger logger;
+        private SqlDialect dialect;
+
         static PropertiesRenameProcessor()
         {
             logger = Logger.GetLogger(typeof(RelationshipProcessor));
+        }
+
+        public PropertiesRenameProcessor(SqlDialect dialect)
+        {
+            this.dialect = dialect;
         }
 
         public void Process(IDictionary<string, EntityMap> entities, StatementStore mappedStatementStore, IDictionary<string, string> entityRenames)

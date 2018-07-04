@@ -44,10 +44,10 @@ namespace Goliath.Data.Mapping
                 IDictionary<string, EntityMap> tables = schemaDescriptor.GetTables();
 
                 if (entityRenames == null) entityRenames = new Dictionary<string, string>();
-
-                IPostGenerationProcessor nameProcessor = new NamePostProcessor(transfactory, tableAbbreviator);
-                IPostGenerationProcessor relationshipProcessor = new RelationshipProcessor();
-                IPostGenerationProcessor propRenameProcessor = new PropertiesRenameProcessor();
+                 
+                IPostGenerationProcessor nameProcessor = new NamePostProcessor(schemaDescriptor.Dialect, transfactory, tableAbbreviator);
+                IPostGenerationProcessor relationshipProcessor = new RelationshipProcessor(schemaDescriptor.Dialect);
+                IPostGenerationProcessor propRenameProcessor = new PropertiesRenameProcessor(schemaDescriptor.Dialect);
 
                 nameProcessor.Process(tables, builder.MappedStatements, entityRenames);
                 relationshipProcessor.Process(tables, builder.MappedStatements, entityRenames);

@@ -8,20 +8,21 @@ namespace Goliath.Data.Providers
     /// </summary>
     public abstract class SchemaDescriptor : ISchemaDescriptor
     {
+        public SqlDialect Dialect { get;  }
+
         protected string[] TableBlackList { get; }
         public IList<string> TableWhiteList { get; } = new List<string>();
-
-        public abstract string DefaultSchemaName { get; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SchemaDescriptor" /> class.
         /// </summary>
         /// <param name="databaseProviderName">Name of the database provider.</param>
         /// <param name="tableBlackList">The execluded tables.</param>
-        protected SchemaDescriptor(string databaseProviderName, string[] tableBlackList)
+        protected SchemaDescriptor(string databaseProviderName, string[] tableBlackList, SqlDialect dialect)
         {
             DatabaseProviderName = databaseProviderName;
             TableBlackList = tableBlackList ?? new string[] { };
+            Dialect = dialect;
         }
 
         #region ISchemaDescriptor Members
@@ -71,7 +72,7 @@ namespace Goliath.Data.Providers
             if (string.IsNullOrWhiteSpace(tableName)) return false;
             string tb = tableName.ToUpper();
 
-            if (!"DBO".Equals(tableSchema.ToUpper()))
+            if (!Dialect.DefaultSchemaName.ToUpper().Equals(tableSchema.ToUpper()))
                 tb = $"{tableSchema}.{tableName}".ToUpper();
 
             if (TableWhiteList.Count > 0)

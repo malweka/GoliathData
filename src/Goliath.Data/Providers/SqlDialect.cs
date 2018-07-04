@@ -26,6 +26,8 @@ namespace Goliath.Data.Providers
         protected Dictionary<string, string> translationTypeMap;
         protected static List<string> reservedWords = new List<string>();
 
+        public abstract string DefaultSchemaName { get;}
+
         /// <summary>
         /// Gets the name of the database provider.
         /// </summary>

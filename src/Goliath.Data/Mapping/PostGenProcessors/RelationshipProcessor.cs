@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Goliath.Data.Diagnostics;
+using Goliath.Data.Providers;
 
 namespace Goliath.Data.Mapping
 {
@@ -9,10 +10,16 @@ namespace Goliath.Data.Mapping
     class RelationshipProcessor : IPostGenerationProcessor
     {
         static readonly ILogger logger;
+        private SqlDialect dialect;
 
         static RelationshipProcessor()
         {
             logger = Logger.GetLogger(typeof(RelationshipProcessor));
+        }
+
+        public RelationshipProcessor(SqlDialect dialect)
+        {
+            this.dialect = dialect;
         }
 
         public virtual void Process(IDictionary<string, EntityMap> entityList, StatementStore mappedStatementStore, IDictionary<string, string> entityRenames)
@@ -74,9 +81,11 @@ namespace Goliath.Data.Mapping
                                 //build mapped statement for ease of adding and removing association
                                 var aInsertStatement = new StatementMap
                                                            {
-                                                               Name = string.Format("{0}_associate_{1}_with_{2}", aEnt.FullName, aEnt.Name, bEnt.Name),
+                                                               Name =
+                                                                   $"{aEnt.FullName}_{aColCamel}_associate_{aEnt.Name}_with_{bEnt.Name}",
                                                                OperationType = MappedStatementType.Insert,
-                                                               Body = string.Format("INSERT INTO {0} ({1}, {2}) VALUES({3}, {4});", ent.TableName, aRel.ColumnName, bRel.ColumnName, StatementMap.BuildPropTag(aColCamel, aRel.ReferenceProperty), StatementMap.BuildPropTag(bColCamel, bRel.ReferenceProperty)),
+                                                               Body =
+                                                                   $"INSERT INTO {ent.TableName} ({aRel.ColumnName}, {bRel.ColumnName}) VALUES({StatementMap.BuildPropTag(aColCamel, aRel.ReferenceProperty)}, {StatementMap.BuildPropTag(bColCamel, bRel.ReferenceProperty)});",
                                                                DependsOnEntity = aEnt.FullName
                                                            };
                                 aInsertStatement.InputParametersMap.Add(aColCamel, aEnt.FullName);
@@ -84,7 +93,7 @@ namespace Goliath.Data.Mapping
 
                                 var aDeleteStatement = new StatementMap
                                 {
-                                    Name = string.Format("{0}_dissaciate_{1}_with_{2}", aEnt.FullName, aEnt.Name, bEnt.Name),
+                                    Name = $"{aEnt.FullName}_{aColCamel}_dissaciate_{aEnt.Name}_with_{bEnt.Name}",
                                     OperationType = MappedStatementType.Delete,
                                     Body = string.Format("DELETE FROM {0} WHERE {1} = {3} AND {2} = {4};", ent.TableName, aRel.ColumnName, bRel.ColumnName, StatementMap.BuildPropTag(aColCamel, aRel.ReferenceProperty), StatementMap.BuildPropTag(bColCamel, bRel.ReferenceProperty)),
                                     DependsOnEntity = aEnt.FullName
@@ -97,7 +106,7 @@ namespace Goliath.Data.Mapping
 
                                 var bRepPropName = aEnt.Name.Pluralize();
                                 if (bEnt.Relations.Contains(aRepPropName))
-                                    bRepPropName = string.Format("{0}On{1}_{2}", aEnt.Name.Pluralize(), ent.Name, bRel.ColumnName.Pascalize());
+                                    bRepPropName = $"{aEnt.Name.Pluralize()}On{ent.Name}_{bRel.ColumnName.Pascalize()}";
 
                                 keyName = string.Format("{0}.{1}", bEnt.Name, bRepPropName);
                                 if (entityRenames.ContainsKey(keyName))
@@ -123,9 +132,10 @@ namespace Goliath.Data.Mapping
 
                                 var bInsertStatement = new StatementMap
                                 {
-                                    Name = string.Format("{0}_associate_{1}_with_{2}", bEnt.FullName, bEnt.Name, aEnt.Name),
+                                    Name = $"{bEnt.FullName}_{bColCamel}_associate_{bEnt.Name}_with_{aEnt.Name}",
                                     OperationType = MappedStatementType.Insert,
-                                    Body = string.Format("INSERT INTO {0} ({1}, {2}) VALUES({3}, {4});", ent.TableName, aRel.ColumnName, bRel.ColumnName, StatementMap.BuildPropTag(aColCamel, aRel.ReferenceProperty), StatementMap.BuildPropTag(bColCamel, bRel.ReferenceProperty)),
+                                    Body =
+                                        $"INSERT INTO {ent.TableName} ({aRel.ColumnName}, {bRel.ColumnName}) VALUES({StatementMap.BuildPropTag(aColCamel, aRel.ReferenceProperty)}, {StatementMap.BuildPropTag(bColCamel, bRel.ReferenceProperty)});",
                                     DependsOnEntity = bEnt.FullName
                                 };
                                 bInsertStatement.InputParametersMap.Add(aColCamel, aEnt.FullName);
@@ -133,7 +143,7 @@ namespace Goliath.Data.Mapping
 
                                 var bDeleteStatement = new StatementMap
                                 {
-                                    Name = string.Format("{0}_dissaciate_{1}_with_{2}", bEnt.FullName, bEnt.Name, aEnt.Name),
+                                    Name = $"{bEnt.FullName}_{bColCamel}_dissaciate_{bEnt.Name}_with_{aEnt.Name}",
                                     OperationType = MappedStatementType.Delete,
                                     Body = string.Format("DELETE FROM {0} WHERE {1} = {3} AND {2} = {4};", ent.TableName, aRel.ColumnName, bRel.ColumnName, StatementMap.BuildPropTag(aColCamel, aRel.ReferenceProperty), StatementMap.BuildPropTag(bColCamel, bRel.ReferenceProperty)),
                                     DependsOnEntity = bEnt.FullName

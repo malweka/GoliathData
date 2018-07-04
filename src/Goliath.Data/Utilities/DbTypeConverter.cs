@@ -130,13 +130,16 @@ namespace Goliath.Data.Utilities
 
         static object ConvertToGuid(object value)
         {
+            if (value is Guid)
+                return value;
+
             if (value is string)
                 return new Guid(value.ToString());
 
             if (value is byte[])
                 return new Guid((byte[])value);
 
-            throw new GoliathDataException($"Cannot convert {value.GetType()} type Guid.");
+            throw new GoliathDataException($"Cannot convert {value.GetType()} to type Guid.");
         }
 
         static object ConvertToShort(object value)
@@ -160,6 +163,8 @@ namespace Goliath.Data.Utilities
 
         static object ConvertToDateTimeOffset(object value)
         {
+            if (value is DateTimeOffset)
+                return value;
 
             DateTimeOffset date;
 
@@ -185,6 +190,9 @@ namespace Goliath.Data.Utilities
 
         static object ConvertToDouble(object value)
         {
+            if (value is double)
+                return value;
+
             return Convert.ToDouble(value);
         }
 

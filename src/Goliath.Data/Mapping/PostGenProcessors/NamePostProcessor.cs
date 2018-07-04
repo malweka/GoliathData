@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using Goliath.Data.Diagnostics;
+using Goliath.Data.Providers;
 using Goliath.Data.Transformers;
 using Goliath.Data.Utils;
 using Microsoft.SqlServer.Server;
@@ -13,8 +15,10 @@ namespace Goliath.Data.Mapping
     {
         NameTransformerFactory transfactory;
         ITableNameAbbreviator tableAbbreviator;
+        private SqlDialect dialect;
+        private ILogger logger = Logger.GetLogger(typeof(NamePostProcessor));
 
-        public NamePostProcessor(NameTransformerFactory transformerFactory, ITableNameAbbreviator tableAbbreviator)
+        public NamePostProcessor(SqlDialect dialect, NameTransformerFactory transformerFactory, ITableNameAbbreviator tableAbbreviator)
         {
             if (transformerFactory == null)
                 throw new ArgumentNullException("transformerFactory");
@@ -23,6 +27,7 @@ namespace Goliath.Data.Mapping
 
             transfactory = transformerFactory;
             this.tableAbbreviator = tableAbbreviator;
+            this.dialect = dialect;
         }
 
         private static readonly Regex rxCleanUp = new Regex(@"[^\w\d_]", RegexOptions.Compiled);
@@ -69,6 +74,10 @@ namespace Goliath.Data.Mapping
 
         public static string GetTableKeyName(Relation rel)
         {
+            //if (!string.IsNullOrWhiteSpace(rel.ReferenceTableSchemaName) && rel.ReferenceTableSchemaName.ToUpper()
+            //        .Equals(dialect.DefaultSchemaName.ToUpper()))
+            //    return rel.ReferenceTable;
+
             return $"{rel.ReferenceTableSchemaName}.{rel.ReferenceTable}";
         }
 
@@ -83,7 +92,7 @@ namespace Goliath.Data.Mapping
                 table.Name = GetRename(tableNamer.Transform(table, table.Name), entityRenames);
                 table.TableAlias = tableAbbreviator.Abbreviate(table.Name).ToLower();
                 var propertyListClone = table.ToArray();
-
+                logger.Log(LogLevel.Info, $"Processing table {table.SchemaName}.{table.TableName}");
                 foreach (var prop in propertyListClone)
                 {
 
@@ -105,7 +114,7 @@ namespace Goliath.Data.Mapping
                             rel.MapPropertyName = mapPropName;
                         }
 
-                        if ( !rel.IsPrimaryKey)
+                        if (!rel.IsPrimaryKey)
                         {
                             if (rel.RelationType == RelationshipType.ManyToOne)
                             {
@@ -114,11 +123,21 @@ namespace Goliath.Data.Mapping
                                 table.Remove(rel);
                                 rel.PropertyName = name;
 
+                                if (table.ContainsProperty(name))
+                                {
+                                    var pcount = table.Properties.Count(p =>
+                                                     p.PropertyName.StartsWith(newProperty.PropertyName))
+                                                 + table.Relations.Count(p =>
+                                                     p.PropertyName.StartsWith(newProperty.PropertyName));
+                                    rel.PropertyName = $"{name}{pcount + 1}";
+                                }
+
                                 if (rel.PropertyName.Equals(newProperty.PropertyName))
                                 {
                                     rel.PropertyName = string.Concat(name, "Entity");
                                 }
 
+                                logger.Log(LogLevel.Debug, $"\tRelationship {rel.PropertyName} | {newProperty.ColumnName} <-> {newProperty.PropertyName}");
                                 table.Add(rel);
                                 table.Add(newProperty);
                             }

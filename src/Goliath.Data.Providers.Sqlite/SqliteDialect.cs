@@ -12,6 +12,8 @@ namespace Goliath.Data.Providers.Sqlite
     [Serializable]
     public class SqliteDialect : SqlDialect
     {
+        public override string DefaultSchemaName => "main";
+
         /// <summary>
         /// Initializes a new instance of the <see cref="SqliteDialect"/> class.
         /// </summary>

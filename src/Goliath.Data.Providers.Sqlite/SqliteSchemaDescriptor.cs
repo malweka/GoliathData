@@ -10,7 +10,6 @@ namespace Goliath.Data.Providers.Sqlite
     public class SqliteSchemaDescriptor : SchemaDescriptor
     {
         IDbAccess db;
-        SqlDialect dialect;
         IDbConnector dbConnector;
 
         const string SELECT_TABLE_FROM_SCHEMA = @"select * from sqlite_master where type = 'table' and tbl_name not like 'sqlite_%'";
@@ -20,7 +19,6 @@ namespace Goliath.Data.Providers.Sqlite
         const string IndexInfo = "pragma index_info('{0}')";
         DbConnection connection;
 
-        public override string DefaultSchemaName => "main";
 
         DbConnection Connection
         {
@@ -45,11 +43,10 @@ namespace Goliath.Data.Providers.Sqlite
         /// <param name="settings">The settings.</param>
         /// <param name="tableBlackList">The excluded tables.</param>
         public SqliteSchemaDescriptor(IDbAccess db, IDbConnector dbConnector, SqlDialect dialect, ProjectSettings settings, params string[] tableBlackList)
-            : base(RdbmsBackend.SupportedSystemNames.Sqlite3, tableBlackList)
+            : base(RdbmsBackend.SupportedSystemNames.Sqlite3, tableBlackList, dialect)
         {
             this.db = db;
             this.dbConnector = dbConnector;
-            this.dialect = dialect;
             ProjectSettings = settings;
         }
 
@@ -69,12 +66,12 @@ namespace Goliath.Data.Providers.Sqlite
                         string name = reader.GetValueAsString("tbl_name");
                         countOrder++;
 
-                        if (IsExcluded(DefaultSchemaName, name))
+                        if (IsExcluded(Dialect.DefaultSchemaName, name))
                             continue;
  
                         EntityMap table = new EntityMap(name, name);
                         table.Namespace = ProjectSettings.Namespace;
-                        table.SchemaName = DefaultSchemaName;
+                        table.SchemaName = Dialect.DefaultSchemaName;
                         table.AssemblyName = ProjectSettings.AssemblyName;
                         table.TableAlias = name;
                         table.Order = countOrder;
@@ -138,10 +135,10 @@ namespace Goliath.Data.Providers.Sqlite
                     if (length.HasValue)
                     {
                         //col = new Property(table, colName, mapper.SqlStringToDbType(dataType), length.Value);
-                        col = new Property(colName, colName, dialect.SqlStringToDbType(dataType)) { Length = length.Value };
+                        col = new Property(colName, colName, Dialect.SqlStringToDbType(dataType)) { Length = length.Value };
                     }
                     else
-                        col = new Property(colName, colName, dialect.SqlStringToDbType(dataType));
+                        col = new Property(colName, colName, Dialect.SqlStringToDbType(dataType));
 
                     col.SqlType = dataType;
 
@@ -160,7 +157,7 @@ namespace Goliath.Data.Providers.Sqlite
 
                     col.IsNullable = isNullable;
                     col.DefaultValue = reader.GetValueAsString("dflt_value");
-                    col.ClrType = dialect.GetClrType(col.DbType, isNullable);
+                    col.ClrType = Dialect.GetClrType(col.DbType, isNullable);
 
                     columnList.Add(colName, col);
 

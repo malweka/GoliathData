@@ -16,7 +16,6 @@ namespace Goliath.Data.Providers.SqlServer
     {
         static readonly ILogger logger;
         readonly IDbAccess db;
-        readonly SqlDialect dialect;
         readonly IDbConnector dbConnector;
         const string SelectTableFromSchema = "SELECT TABLE_NAME, TABLE_SCHEMA, OBJECT_ID(TABLE_SCHEMA +'.'+TABLE_NAME)  \"TableId\" FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE' order by TABLE_NAME";
         const string SelectColumns = "SELECT *, COLUMNPROPERTY(OBJECT_ID(TABLE_SCHEMA + '.' + TABLE_NAME), COLUMN_NAME, 'IsIdentity') AS IsIdentity, IDENT_SEED(TABLE_NAME) AS IdentitySeed, IDENT_INCR(TABLE_NAME) AS IdentityIncrement FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = @tableName and TABLE_SCHEMA = @schema ORDER BY ORDINAL_POSITION";
@@ -89,7 +88,7 @@ and ep.minor_id = c.colid";
             logger = Logger.GetLogger(typeof(MssqlSchemaDescriptor));
         }
 
-        public override string DefaultSchemaName => "dbo";
+        
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MssqlSchemaDescriptor" /> class.
@@ -100,11 +99,10 @@ and ep.minor_id = c.colid";
         /// <param name="settings">The settings.</param>
         /// <param name="tableBlackList">The excluded tables.</param>
         public MssqlSchemaDescriptor(IDbAccess db, IDbConnector dbConnector, SqlDialect dialect, ProjectSettings settings, params string[] tableBlackList)
-            : base(RdbmsBackend.SupportedSystemNames.Mssql2008R2, tableBlackList)
+            : base(RdbmsBackend.SupportedSystemNames.Mssql2008R2, tableBlackList, dialect)
         {
             this.db = db;
             this.dbConnector = dbConnector;
-            this.dialect = dialect;
             ProjectSettings = settings;
         }
 
@@ -137,7 +135,8 @@ and ep.minor_id = c.colid";
 
                         logger.Log(LogLevel.Info, $"reading table {schemaName}.{name}");
                         string @namespace = ProjectSettings.Namespace; 
-                        if (!"DBO".Equals(schemaName))
+
+                        if ( !string.IsNullOrWhiteSpace(schemaName) && !Dialect.DefaultSchemaName.ToUpper().Equals(schemaName.ToUpper()))
                         {
                             @namespace = $"{ProjectSettings.Namespace}.{schemaName.ToClrValPascal()}";
                         }
@@ -233,10 +232,10 @@ and ep.minor_id = c.colid";
                                 length = 8000;
                             }
                         }
-                        col = new Property(colName, colName, dialect.SqlStringToDbType(dataType)) { Length = length.Value };
+                        col = new Property(colName, colName, Dialect.SqlStringToDbType(dataType)) { Length = length.Value };
                     }
                     else
-                        col = new Property(colName, colName, dialect.SqlStringToDbType(dataType));
+                        col = new Property(colName, colName, Dialect.SqlStringToDbType(dataType));
 
                     if (precision.HasValue)
                         col.Precision = precision.Value;
@@ -261,7 +260,7 @@ and ep.minor_id = c.colid";
 
                     col.IsNullable = isNullable;
                     col.DefaultValue = ProcessDefaultValue(reader.GetValueAsString("COLUMN_DEFAULT"));
-                    col.ClrType = dialect.GetClrType(col.DbType, isNullable);
+                    col.ClrType = Dialect.GetClrType(col.DbType, isNullable);
                     OnTableAddProperty(table, col);
                     columnList.Add(colName, col);
 

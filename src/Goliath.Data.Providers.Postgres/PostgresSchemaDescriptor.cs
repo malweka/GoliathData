@@ -17,10 +17,7 @@ namespace Goliath.Data.Providers.Postgres
     {
         static readonly ILogger logger;
         readonly IDbAccess db;
-        readonly SqlDialect dialect;
         readonly IDbConnector dbConnector;
-
-        public override string DefaultSchemaName => "public";
 
         DbConnection connection;
         DbConnection Connection
@@ -106,11 +103,10 @@ where c.contype = 'f'";
         /// <param name="settings">The settings.</param>
         /// <param name="tableBlackList">The excluded tables.</param>
         public PostgresSchemaDescriptor(IDbAccess db, IDbConnector dbConnector, SqlDialect dialect, ProjectSettings settings, params string[] tableBlackList)
-            : base(RdbmsBackend.SupportedSystemNames.Postgresql9, tableBlackList)
+            : base(RdbmsBackend.SupportedSystemNames.Postgresql9, tableBlackList, dialect)
         {
             this.db = db;
             this.dbConnector = dbConnector;
-            this.dialect = dialect;
             ProjectSettings = settings;
         }
 
@@ -199,10 +195,10 @@ where c.contype = 'f'";
                     {
                         if (length < 0)
                             length = 2000;
-                        col = new Property(colName, colName, dialect.SqlStringToDbType(dataType)) { Length = length.Value };
+                        col = new Property(colName, colName, Dialect.SqlStringToDbType(dataType)) { Length = length.Value };
                     }
                     else
-                        col = new Property(colName, colName, dialect.SqlStringToDbType(dataType));
+                        col = new Property(colName, colName, Dialect.SqlStringToDbType(dataType));
 
                     if (precision.HasValue)
                         col.Precision = precision.Value;
@@ -228,7 +224,7 @@ where c.contype = 'f'";
                     //TODO: implement ProcessDefaultValue
                     //TODO: implement metadata
                     //col.DefaultValue = ProcessDefaultValue(reader.GetValueAsString("COLUMN_DEFAULT"));
-                    col.ClrType = dialect.GetClrType(col.DbType, isNullable);
+                    col.ClrType = Dialect.GetClrType(col.DbType, isNullable);
                     //OnTableAddProperty(table, col);
 
                     //get constraints
