@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Xml;
 using Goliath.Data.Diagnostics;
@@ -146,6 +147,77 @@ namespace Goliath.Data.Mapping
             }
             else
                 return val;
+        }
+
+        /// <summary>
+        /// Creates the table.
+        /// </summary>
+        /// <param name="entityMap">The entity map.</param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException">entityMap</exception>
+        public static DataTable CreateTable(this EntityMap entityMap)
+        {
+            if (entityMap == null) throw new ArgumentNullException(nameof(entityMap));
+
+            var table = new DataTable(entityMap.TableName);
+            if (entityMap.PrimaryKey != null)
+            {
+                foreach (Property key in entityMap.PrimaryKey.Keys)
+                {
+                    var column = new DataColumn(key.ColumnName, SqlTypeHelper.GetClrType(key.DbType, key.IsNullable));
+                    table.Columns.Add(column);
+                }
+            }
+
+            foreach (var prop in entityMap.Properties)
+            {
+                var column = new DataColumn(prop.ColumnName, SqlTypeHelper.GetClrType(prop.DbType, prop.IsNullable));
+                table.Columns.Add(column);
+            }
+
+            foreach (var rel in entityMap.Relations)
+            {
+                if (rel.RelationType > RelationshipType.ManyToOne)
+                    continue;
+
+                if (table.Columns.Contains(rel.ColumnName))
+                    continue; //column has already been added 
+
+                DataColumn column = new DataColumn(rel.ColumnName, SqlTypeHelper.GetClrType(rel.DbType, rel.IsNullable));
+                table.Columns.Add(column);
+            }
+
+            return table;
+        }
+
+        /// <summary>
+        /// Creates the table.
+        /// </summary>
+        /// <param name="entityMap">The entity map.</param>
+        /// <param name="datababag">The datababag.</param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException">datababag</exception>
+        public static DataTable CreateTable(this EntityMap entityMap, IList<IDictionary<string, object>> datababag)
+        {
+            var table = CreateTable(entityMap);
+            if (datababag == null) throw new ArgumentNullException(nameof(datababag));
+
+            foreach (var row in datababag)
+            {
+                var dataRow = table.NewRow();
+                foreach (var keypair in row)
+                {
+                    if(!table.Columns.Contains(keypair.Key))
+                        continue;
+
+                    dataRow[keypair.Key] = keypair.Value ?? DBNull.Value;
+                }
+
+                table.Rows.Add(dataRow);
+                dataRow.AcceptChanges();
+            }
+
+            return table;
         }
 
     }
