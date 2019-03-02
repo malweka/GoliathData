@@ -29,6 +29,14 @@ namespace Goliath.Data.Mapping
         public bool SupportConnectionReset { get; private set; }
 
         /// <summary>
+        /// Gets or sets a value indicating whether [support many to many].
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if [support many to many]; otherwise, <c>false</c>.
+        /// </value>
+        public bool SupportManyToMany { get; set; } = true;
+
+        /// <summary>
         /// Gets or sets the connection string.
         /// </summary>
         /// <value>

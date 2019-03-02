@@ -65,7 +65,9 @@ namespace Goliath.Data.Mapping
 
         #region IPostGenerationProcessor Members
 
-        public void Process(IDictionary<string, EntityMap> entities, StatementStore mappedStatementStore, IDictionary<string, string> entityRenames)
+        public void Process(IDictionary<string, EntityMap> entities, 
+            StatementStore mappedStatementStore, 
+            IDictionary<string, string> entityRenames)
         {
             ProcessTableNames(entities, entityRenames);
         }
@@ -81,7 +83,8 @@ namespace Goliath.Data.Mapping
             return $"{rel.ReferenceTableSchemaName}.{rel.ReferenceTable}";
         }
 
-        void ProcessTableNames(IDictionary<string, EntityMap> entities, IDictionary<string, string> entityRenames)
+        void ProcessTableNames(IDictionary<string, EntityMap> entities, 
+            IDictionary<string, string> entityRenames)
         {
             var tableNamer = transfactory.GetTransformer<EntityMap>();
             var relNamer = transfactory.GetTransformer<Relation>();
@@ -95,7 +98,6 @@ namespace Goliath.Data.Mapping
                 logger.Log(LogLevel.Info, $"Processing table {table.SchemaName}.{table.TableName}");
                 foreach (var prop in propertyListClone)
                 {
-
                     if (prop is Relation)
                     {
                         var rel = (Relation)prop;
@@ -114,36 +116,35 @@ namespace Goliath.Data.Mapping
                             rel.MapPropertyName = mapPropName;
                         }
 
-                        if (!rel.IsPrimaryKey)
+                        if (rel.RelationType == RelationshipType.ManyToOne)
                         {
-                            if (rel.RelationType == RelationshipType.ManyToOne)
+                            Property newProperty = rel.Clone();
+                            if (rel.IsPrimaryKey)
                             {
-                                Property newProperty = rel.Clone();
-                                newProperty.PropertyName = propNamer.Transform(rel, rel.ColumnName);
-                                table.Remove(rel);
-                                rel.PropertyName = name;
-
-                                if (table.ContainsProperty(name))
-                                {
-                                    var pcount = table.Properties.Count(p =>
-                                                     p.PropertyName.StartsWith(newProperty.PropertyName))
-                                                 + table.Relations.Count(p =>
-                                                     p.PropertyName.StartsWith(newProperty.PropertyName));
-                                    rel.PropertyName = $"{name}{pcount + 1}";
-                                }
-
-                                if (rel.PropertyName.Equals(newProperty.PropertyName))
-                                {
-                                    rel.PropertyName = string.Concat(name, "Entity");
-                                }
-
-                                logger.Log(LogLevel.Debug, $"\tRelationship {rel.PropertyName} | {newProperty.ColumnName} <-> {newProperty.PropertyName}");
-                                table.Add(rel);
-                                table.Add(newProperty);
+                                newProperty.IsPrimaryKey = false;
                             }
-                        }
-                        else
+                            newProperty.PropertyName = propNamer.Transform(rel, rel.ColumnName);
+                            table.Remove(rel);
                             rel.PropertyName = name;
+
+                            if (table.ContainsProperty(name))
+                            {
+                                var pcount = table.Properties.Count(p =>
+                                                 p.PropertyName.StartsWith(newProperty.PropertyName))
+                                             + table.Relations.Count(p =>
+                                                 p.PropertyName.StartsWith(newProperty.PropertyName));
+                                rel.PropertyName = $"{name}{pcount + 1}";
+                            }
+
+                            if (rel.PropertyName.Equals(newProperty.PropertyName))
+                            {
+                                rel.PropertyName = string.Concat(name, "Entity");
+                            }
+
+                            logger.Log(LogLevel.Debug, $"\tRelationship {rel.PropertyName} | {newProperty.ColumnName} <-> {newProperty.PropertyName}");
+                            table.Add(rel);
+                            table.Add(newProperty);
+                        }
 
                         if (!string.IsNullOrWhiteSpace(rel.ReferenceProperty))
                         {

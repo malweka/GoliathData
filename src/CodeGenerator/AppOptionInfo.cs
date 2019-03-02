@@ -41,6 +41,7 @@ namespace Goliath.Data.CodeGenerator
         public string ExportSqlDialect { get; set; }
         public string[] ExcludedArray { get; set; }
         public bool Compress { get; set; }
+        public bool SupportManyToMany { get; set; } = true;
         public string FileSizeLimitInKb { get; set; }
 
 

@@ -11,15 +11,17 @@ namespace Goliath.Data.Mapping
     {
         static readonly ILogger logger;
         private SqlDialect dialect;
+        private ProjectSettings settings;
 
         static RelationshipProcessor()
         {
             logger = Logger.GetLogger(typeof(RelationshipProcessor));
         }
 
-        public RelationshipProcessor(SqlDialect dialect)
+        public RelationshipProcessor(SqlDialect dialect, ProjectSettings settings)
         {
             this.dialect = dialect;
+            this.settings = settings;
         }
 
         public virtual void Process(IDictionary<string, EntityMap> entityList, StatementStore mappedStatementStore, IDictionary<string, string> entityRenames)
@@ -29,10 +31,9 @@ namespace Goliath.Data.Mapping
                 try
                 {
                     //find link tables
-                    if ((ent.Properties.Count == 0) && (ent.Relations.Count == 0)
+                    if (settings.SupportManyToMany && (ent.Properties.Count == 0) && (ent.Relations.Count == 0)
                        && (ent.PrimaryKey != null) && (ent.PrimaryKey.Keys.Count == 2) && ent.PrimaryKey.Keys[0].Key.IsPrimaryKey && ent.PrimaryKey.Keys[1].Key.IsPrimaryKey)
                     {
-
                         var aRel = ent.PrimaryKey.Keys[0].Key as Relation;
                         var bRel = ent.PrimaryKey.Keys[1].Key as Relation;
 
@@ -168,43 +169,43 @@ namespace Goliath.Data.Mapping
                                 ent.Extends = pk.ReferenceEntityName;
                                 logger.Log(LogLevel.Debug, string.Format("Processing  {0} extends -> {1}.", ent.Name, ent.Extends));
                             }
-                            else if ((ent.PrimaryKey != null) && (ent.PrimaryKey.Keys.Count > 1))
+                        }
+                        else if (!settings.SupportManyToMany && (ent.PrimaryKey != null) && (ent.PrimaryKey.Keys.Count > 1))
+                        {
+                            for (var i = 0; i < ent.PrimaryKey.Keys.Count; i++)
                             {
-                                for (var i = 0; i < ent.PrimaryKey.Keys.Count; i++)
+                                var k = ent.PrimaryKey.Keys[i].Key as Relation;
+                                if (k != null && k.RelationType == RelationshipType.ManyToOne)
                                 {
-                                    var k = ent.PrimaryKey.Keys[i].Key as Relation;
-                                    if (k != null && k.RelationType == RelationshipType.ManyToOne)
+                                    EntityMap other;
+                                    if (entityList.TryGetValue(NamePostProcessor.GetTableKeyName(k), out other))
                                     {
-                                        EntityMap other;
-                                        if (entityList.TryGetValue(NamePostProcessor.GetTableKeyName(k), out other))
+                                        logger.Log(LogLevel.Debug, string.Format("Processing One-To-Many ent:{0} other:{1}.", ent.Name, other.Name));
+
+                                        var aRepPropName = ent.Name.Pluralize();
+                                        if (other.Relations.Contains(aRepPropName))
+                                            aRepPropName = string.Format("{0}On{1}", ent.Name.Pluralize(), k.ColumnName.Pascalize());
+
+                                        var keyName = string.Format("{0}.{1}", other.Name, aRepPropName);
+                                        if (entityRenames.ContainsKey(keyName))
+                                            aRepPropName = entityRenames[keyName];
+
+                                        other.Relations.Add(new Relation()
                                         {
-                                            logger.Log(LogLevel.Debug, string.Format("Processing One-To-Many ent:{0} other:{1}.", ent.Name, other.Name));
-
-                                            var aRepPropName = ent.Name.Pluralize();
-                                            if (other.Relations.Contains(aRepPropName))
-                                                aRepPropName = string.Format("{0}On{1}", ent.Name.Pluralize(), k.ColumnName.Pascalize());
-
-                                            var keyName = string.Format("{0}.{1}", other.Name, aRepPropName);
-                                            if (entityRenames.ContainsKey(keyName))
-                                                aRepPropName = entityRenames[keyName];
-
-                                            other.Relations.Add(new Relation()
-                                            {
-                                                IsComplexType = true,
-                                                LazyLoad = true,
-                                                ColumnName = k.ReferenceColumn,
-                                                ReferenceColumn = k.ColumnName,
-                                                ReferenceProperty = k.PropertyName,
-                                                PropertyName = aRepPropName,
-                                                ReferenceTable = ent.TableName,
-                                                RelationType = RelationshipType.OneToMany,
-                                                ReferenceEntityName = ent.FullName,
-                                                CollectionType = CollectionType.List,
-                                            });
-                                        }
+                                            IsComplexType = true,
+                                            LazyLoad = true,
+                                            ColumnName = k.ReferenceColumn,
+                                            ReferenceColumn = k.ColumnName,
+                                            ReferenceProperty = k.PropertyName,
+                                            PropertyName = aRepPropName,
+                                            ReferenceTable = ent.TableName,
+                                            RelationType = RelationshipType.OneToMany,
+                                            ReferenceEntityName = ent.FullName,
+                                            CollectionType = CollectionType.List,
+                                        });
                                     }
-
                                 }
+
                             }
                         }
 

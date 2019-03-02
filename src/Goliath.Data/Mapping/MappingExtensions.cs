@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
+using System.Text;
 using System.Xml;
 using Goliath.Data.Diagnostics;
 
@@ -30,6 +32,7 @@ namespace Goliath.Data.Mapping
         {
             if (entity == null)
                 return true;
+
             if (string.IsNullOrWhiteSpace(entity.Extends))
                 return true;
 
@@ -37,6 +40,12 @@ namespace Goliath.Data.Mapping
 
             if (baseModel == null)
                 return true;
+
+            if (property.MetaDataAttributes.TryGetValue("printable", out string val))
+            {
+                if (val.ToUpper() == "FALSE")
+                    return false;
+            }
 
             try
             {
@@ -129,6 +138,40 @@ namespace Goliath.Data.Mapping
                 return true;
             }
             return false;
+        }
+
+        public static bool IsMappingComplexType(this Property property)
+        {
+            if (property.MetaDataAttributes.TryGetValue("complexType", out string val))
+            {
+                if (val.ToUpper() == "TRUE")
+                    return true;
+            }
+
+            return false;
+        }
+
+        public static bool IsMarkedPrintable(this Property property)
+        {
+            if (property.MetaDataAttributes.TryGetValue("printable", out string val))
+            {
+                if (val.ToUpper() == "FALSE")
+                    return false;
+            }
+
+            return true;
+        }
+
+        public static ICollection<Property> GetPropertiesNotInComplexType(this ComplexType complexType, EntityMap entity)
+        {
+            var props = complexType.Properties.Except(entity);
+            return props.ToList();
+        }
+
+        public static ICollection<Property> GetPropertiesInCommonWithComplexType(this ComplexType complexType, EntityMap entity)
+        {
+            var props = complexType.Properties.Intersect(entity);
+            return props.ToList();
         }
 
         /// <summary>

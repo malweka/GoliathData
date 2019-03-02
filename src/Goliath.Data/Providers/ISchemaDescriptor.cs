@@ -25,7 +25,8 @@ namespace Goliath.Data.Providers
         /// </value>
         string DatabaseProviderName { get; }
 
-        IList<string> TableWhiteList { get; }
+        FilterSettings FilterSettings { get; }
+
 
         /// <summary>
         /// Gets the tables.
@@ -52,5 +53,11 @@ namespace Goliath.Data.Providers
         /// The project settings.
         /// </value>
         ProjectSettings ProjectSettings { get; set; }
+    }
+
+    public class FilterSettings
+    {
+        public bool Exclude { get; set; } = true;
+        public string[] TableFilterList { get; set; } = new string[] { };
     }
 }

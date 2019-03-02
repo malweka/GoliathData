@@ -76,7 +76,21 @@ namespace Goliath.Data.CodeGenerator
             Console.Write("Activated.");
             Console.WriteLine("\n\nLoading settings...");
 
-            var codeGenRunner = new CodeGenRunner(rdbms, new GenericCodeGenerator()) { TemplateFolder = opts.TemplateFolder, ScriptFolder = AppDomain.CurrentDomain.BaseDirectory, DatabaseFolder = AppDomain.CurrentDomain.BaseDirectory, WorkingFolder = opts.WorkingFolder, QueryProviderName = opts.QueryProviderName, Settings = { Namespace = opts.Namespace, AssemblyName = opts.AssemblyName, ConnectionString = opts.ConnectionString, Platform = rdbms.ToString() } };
+            var codeGenRunner = new CodeGenRunner(rdbms, new GenericCodeGenerator())
+            {
+                TemplateFolder = opts.TemplateFolder,
+                ScriptFolder = AppDomain.CurrentDomain.BaseDirectory,
+                DatabaseFolder = AppDomain.CurrentDomain.BaseDirectory,
+                WorkingFolder = opts.WorkingFolder,
+                QueryProviderName = opts.QueryProviderName,
+                Settings = {
+                    Namespace = opts.Namespace,
+                    AssemblyName = opts.AssemblyName,
+                    ConnectionString = opts.ConnectionString,
+                    SupportManyToMany = opts.SupportManyToMany,
+                    Platform = rdbms.ToString()
+                }
+            };
 
 
             var action = opts.ActionName.ToUpper();

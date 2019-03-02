@@ -32,16 +32,12 @@ namespace Goliath.Data.Transformers
                 string prefix = "Id";
                 if (prefix.Equals(original, StringComparison.OrdinalIgnoreCase))
                 {
-                    //mapModel.KeyFieldName = original;
-                    //mapModel.PropertyName = original;
                     return original.ToClrValPascal();
                 }
 
                 if (original.EndsWith(prefix, StringComparison.InvariantCultureIgnoreCase) && !mapModel.IsPrimaryKey)
                 {
-                    string name = original.Substring(0, original.IndexOf("Id", StringComparison.OrdinalIgnoreCase));
-                    //mapModel.PropertyName = name;
-                    //mapModel.KeyFieldName = original;
+                    string name = original.Substring(0, original.Length - prefix.Length);
                     return name.ToClrValPascal().Replace("_", string.Empty);
                 }
                 else

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Numerics;
 using Goliath.Data.Mapping;
 using Goliath.Data.Providers;
 
@@ -19,10 +21,10 @@ namespace Goliath.Data.CodeGenerator.Actions
             var providerFactory = new ProviderFactory();
             ComplexType baseModel = null;
             var mapFileName = Path.Combine(opts.WorkingFolder, opts.MapFile);
+            var baseMap = new MapConfig();
 
             if (!string.IsNullOrWhiteSpace(opts.BaseModelXml) && File.Exists(opts.BaseModelXml))
             {
-                var baseMap = new MapConfig();
                 Console.WriteLine("\n\nRead base model.");
                 baseMap.Load(opts.BaseModelXml);
                 if (baseMap.ComplexTypes.Count > 0)
@@ -35,25 +37,23 @@ namespace Goliath.Data.CodeGenerator.Actions
             var rdbms = GetSupportedRdbms(opts);
             string[] whiteList;
 
+            FilterSettings filterSettings = new FilterSettings();
+
             if (!string.IsNullOrWhiteSpace(opts.Include))
             {
                 whiteList = opts.Include.Split(new string[] { ",", "|" }, StringSplitOptions.RemoveEmptyEntries);
-                //we have a white list it takes precedence
-                opts.ExcludedArray = new string[] { };
+                filterSettings.Exclude = false;
+                filterSettings.TableFilterList = whiteList;
             }
             else
             {
-                whiteList = new string[] { };
+                filterSettings.Exclude = true;
+                filterSettings.TableFilterList = opts.ExcludedArray;
             }
 
             using (ISchemaDescriptor schemaDescriptor = providerFactory
-                .CreateDbSchemaDescriptor(rdbms, codeGenRunner.Settings, opts.ExcludedArray))
+                .CreateDbSchemaDescriptor(rdbms, codeGenRunner.Settings, filterSettings))
             {
-                foreach (var table in whiteList)
-                {
-                    schemaDescriptor.TableWhiteList.Add(table);
-                }
-               
                 var map = codeGenRunner.CreateMap(schemaDescriptor, opts.EntitiesToRename, baseModel, mapFileName);
                 //Console.WriteLine("mapped statements: {0}", opts.MappedStatementFile);
                 if (!string.IsNullOrWhiteSpace(opts.MappedStatementFile) && File.Exists(opts.MappedStatementFile))
@@ -85,6 +85,8 @@ namespace Goliath.Data.CodeGenerator.Actions
                         }
                     }
                 }
+
+                map.MergeMap(baseMap);
 
                 foreach (var ent in map.EntityConfigs)
                 {
@@ -131,9 +133,14 @@ namespace Goliath.Data.CodeGenerator.Actions
                             {
                                 prop.ComplexTypeName = complextType;
                                 prop.IsComplexType = true;
+                                opts.ComplexTypesTypeMap.Remove(key);
                             }
                         }
                     }
+
+                    var unprocessedComplexTypes = opts.ComplexTypesTypeMap.Where(c => c.Key.StartsWith($"{ent.Name}.")).ToList();
+                    if (unprocessedComplexTypes.Count > 0)
+                        ProcessComplexTypes(unprocessedComplexTypes, ent, map);
 
                 }
 
@@ -144,6 +151,43 @@ namespace Goliath.Data.CodeGenerator.Actions
                     {
                         file.WriteLine(tbOrder);
                     }
+                }
+            }
+        }
+
+        void ProcessComplexTypes(List<KeyValuePair<string, string>> complexTypes, EntityMap entity, MapConfig map)
+        {
+            foreach (var keyValuePair in complexTypes)
+            {
+                var key = keyValuePair.Key;
+                var propertyName = key.Substring(key.IndexOf('.') + 1);
+                var complexTypeName = keyValuePair.Value;
+
+                if (map.ComplexTypes.TryGetValue(complexTypeName, out var complexType))
+                {
+                    var prop = new Property
+                    {
+                        ColumnName = propertyName,
+                        PropertyName = propertyName,
+                        ComplexTypeName = complexTypeName,
+                        IsComplexType = true
+                    };
+
+                    prop.MetaDataAttributes.Add("mapped", "false");
+                    prop.MetaDataAttributes.Add("complexType", "true");
+                    entity.Properties.Add(prop);
+                    foreach (var property in entity)
+                    {
+                        if (complexType.ContainsProperty(property.PropertyName))
+                        {
+                            property.MetaDataAttributes.Add("printable", "false");
+                        }
+                    }
+
+                    //var props = complexType.GetPropertiesNotInComplexType(entity);
+                    //var intersects = complexType.GetPropertiesInCommonWithComplexType(entity);
+                    //Console.WriteLine(props.Count);
+                    //Console.WriteLine(intersects.Count);
                 }
             }
         }

@@ -103,11 +103,34 @@ where c.contype = 'f'";
         /// <param name="settings">The settings.</param>
         /// <param name="tableBlackList">The excluded tables.</param>
         public PostgresSchemaDescriptor(IDbAccess db, IDbConnector dbConnector, SqlDialect dialect, ProjectSettings settings, params string[] tableBlackList)
-            : base(RdbmsBackend.SupportedSystemNames.Postgresql9, tableBlackList, dialect)
+            : base(RdbmsBackend.SupportedSystemNames.Postgresql9, dialect)
         {
             this.db = db;
             this.dbConnector = dbConnector;
             ProjectSettings = settings;
+
+            if (tableBlackList != null)
+            {
+                FilterSettings = new FilterSettings { TableFilterList = tableBlackList };
+            }
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PostgresSchemaDescriptor"/> class.
+        /// </summary>
+        /// <param name="db">The database.</param>
+        /// <param name="dbConnector">The database connector.</param>
+        /// <param name="dialect">The dialect.</param>
+        /// <param name="settings">The settings.</param>
+        /// <param name="filterSettings">The filter settings.</param>
+        public PostgresSchemaDescriptor(IDbAccess db, IDbConnector dbConnector, SqlDialect dialect, 
+            ProjectSettings settings, FilterSettings filterSettings)
+            : base(RdbmsBackend.SupportedSystemNames.Postgresql9, dialect, filterSettings)
+        {
+            this.db = db;
+            this.dbConnector = dbConnector;
+            ProjectSettings = settings;
+
         }
 
         /// <summary>
@@ -129,7 +152,7 @@ where c.contype = 'f'";
                         string schemaName = reader.GetValueAsString("table_schema");
                         countOrder++;
 
-                        if (IsExcluded(schemaName, tablename))
+                        if (IsTableInFilterList(schemaName, tablename))
                             continue;
 
                         if (string.IsNullOrWhiteSpace(tablename) || (!string.IsNullOrWhiteSpace(tablename) && tablename.Equals("sysdiagrams", StringComparison.OrdinalIgnoreCase)))

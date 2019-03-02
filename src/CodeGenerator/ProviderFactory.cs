@@ -63,10 +63,10 @@ namespace Goliath.Data.CodeGenerator
         /// </summary>
         /// <param name="platform">The platform.</param>
         /// <param name="settings">The settings.</param>
-        /// <param name="excludedTables">The excluded tables.</param>
+        /// <param name="filterSettings">The filter settings.</param>
         /// <returns></returns>
-        /// <exception cref="Goliath.Data.GoliathDataException"></exception>
-        public ISchemaDescriptor CreateDbSchemaDescriptor(SupportedRdbms platform, ProjectSettings settings, params string[] excludedTables)
+        /// <exception cref="GoliathDataException"></exception>
+        public ISchemaDescriptor CreateDbSchemaDescriptor(SupportedRdbms platform, ProjectSettings settings, FilterSettings filterSettings)
         {
             var dbConnector = CreateDbConnector(platform, settings.ConnectionString);
             var dialect = CreateDialect(platform);
@@ -77,12 +77,12 @@ namespace Goliath.Data.CodeGenerator
                 case SupportedRdbms.Mssql2005:
                 case SupportedRdbms.Mssql2008:
                 case SupportedRdbms.Mssql2008R2:
-                    return new MssqlSchemaDescriptor(dbAccess, dbConnector, dialect, settings, excludedTables);
+                    return new MssqlSchemaDescriptor(dbAccess, dbConnector, dialect, settings, filterSettings);
                 case SupportedRdbms.Postgresql8:
                 case SupportedRdbms.Postgresql9:
-                    return new PostgresSchemaDescriptor(dbAccess, dbConnector, dialect, settings, excludedTables);
+                    return new PostgresSchemaDescriptor(dbAccess, dbConnector, dialect, settings, filterSettings);
                 case SupportedRdbms.Sqlite3:
-                    return new SqliteSchemaDescriptor(dbAccess, dbConnector, dialect, settings, excludedTables);
+                    return new SqliteSchemaDescriptor(dbAccess, dbConnector, dialect, settings, filterSettings);
             }
 
             throw new GoliathDataException(string.Format("Platform not {0} supported", platform));

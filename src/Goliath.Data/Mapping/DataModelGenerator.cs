@@ -35,7 +35,9 @@ namespace Goliath.Data.Mapping
         /// <param name="entityRenames">The entity renames.</param>
         /// <param name="additionalTypes">The additional types.</param>
         /// <returns></returns>
-        public MapConfig GenerateMap(ProjectSettings settings, IDictionary<string, string> entityRenames, params ComplexType[] additionalTypes)
+        public MapConfig GenerateMap(ProjectSettings settings, 
+            IDictionary<string, string> entityRenames, 
+            params ComplexType[] additionalTypes)
         {
             try
             {
@@ -46,7 +48,7 @@ namespace Goliath.Data.Mapping
                 if (entityRenames == null) entityRenames = new Dictionary<string, string>();
                  
                 IPostGenerationProcessor nameProcessor = new NamePostProcessor(schemaDescriptor.Dialect, transfactory, tableAbbreviator);
-                IPostGenerationProcessor relationshipProcessor = new RelationshipProcessor(schemaDescriptor.Dialect);
+                IPostGenerationProcessor relationshipProcessor = new RelationshipProcessor(schemaDescriptor.Dialect, settings);
                 IPostGenerationProcessor propRenameProcessor = new PropertiesRenameProcessor(schemaDescriptor.Dialect);
 
                 nameProcessor.Process(tables, builder.MappedStatements, entityRenames);

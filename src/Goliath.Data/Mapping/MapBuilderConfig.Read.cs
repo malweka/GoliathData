@@ -982,9 +982,9 @@ namespace Goliath.Data.Mapping
                             case "generatedBy":
                                 config.Settings.GeneratedBy = reader.Value;
                                 break;
-                            //case "rdbms":
-                            //    ReadRdbms(reader, config);
-                            //    break;
+                            case "supportManyToMany":
+                                config.Settings.SupportManyToMany = ReadBool(reader.Value);
+                                break;
                             default:
                                 break;
                         }

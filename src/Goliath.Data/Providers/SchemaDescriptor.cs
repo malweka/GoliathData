@@ -8,20 +8,17 @@ namespace Goliath.Data.Providers
     /// </summary>
     public abstract class SchemaDescriptor : ISchemaDescriptor
     {
-        public SqlDialect Dialect { get;  }
+        public SqlDialect Dialect { get; }
 
-        protected string[] TableBlackList { get; }
-        public IList<string> TableWhiteList { get; } = new List<string>();
+        public FilterSettings FilterSettings { get; protected set; }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="SchemaDescriptor" /> class.
-        /// </summary>
-        /// <param name="databaseProviderName">Name of the database provider.</param>
-        /// <param name="tableBlackList">The execluded tables.</param>
-        protected SchemaDescriptor(string databaseProviderName, string[] tableBlackList, SqlDialect dialect)
+        //public IList<string> TableWhiteList { get; } = new List<string>();
+
+
+        protected SchemaDescriptor(string databaseProviderName, SqlDialect dialect, FilterSettings filterSettings = null)
         {
             DatabaseProviderName = databaseProviderName;
-            TableBlackList = tableBlackList ?? new string[] { };
+            FilterSettings = filterSettings ?? new FilterSettings();
             Dialect = dialect;
         }
 
@@ -67,29 +64,22 @@ namespace Goliath.Data.Providers
         /// <returns>
         ///   <c>true</c> if the specified table schema is excluded; otherwise, <c>false</c>.
         /// </returns>
-        protected virtual bool IsExcluded(string tableSchema, string tableName)
+        protected virtual bool IsTableInFilterList(string tableSchema, string tableName)
         {
             if (string.IsNullOrWhiteSpace(tableName)) return false;
+
             string tb = tableName.ToUpper();
 
             if (!Dialect.DefaultSchemaName.ToUpper().Equals(tableSchema.ToUpper()))
                 tb = $"{tableSchema}.{tableName}".ToUpper();
 
-            if (TableWhiteList.Count > 0)
+
+            foreach (var xtable in FilterSettings.TableFilterList)
             {
-                Dictionary<string,string> whiteList = new Dictionary<string, string>();
-                foreach (var table in TableWhiteList)
+                if (tb.Equals(xtable.ToUpper()))
                 {
-                    if(!whiteList.ContainsKey(table.ToUpper()))
-                        whiteList.Add(table.ToUpper(), table);
+                    return true;
                 }
-
-                return !whiteList.ContainsKey(tb);
-            }
-
-            foreach (var xtable in TableBlackList)
-            {
-                if (tb.Equals(xtable.ToUpper())) return true;
 
                 if (xtable.EndsWith("*"))
                 {

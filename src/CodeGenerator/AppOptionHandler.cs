@@ -52,6 +52,7 @@ namespace Goliath.Data.CodeGenerator
                 .Add("baseModel=", w => opts.BaseModelXml = w)
                 .Add("exclude=", w => opts.Excluded = w)
                 .Add("include=", w => opts.Include = w)
+                .Add("mapLinkTable", w => opts.SupportManyToMany = false)
                 .Add("entity=", w => opts.EntityModel = w)
                 .Add("renameConfig=", w => opts.RenameConfig = w)
                 .Add("complexTypeMap=", w => opts.ComplexTypeMap = w)

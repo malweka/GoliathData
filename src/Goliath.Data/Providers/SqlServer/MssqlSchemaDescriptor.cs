@@ -99,7 +99,21 @@ and ep.minor_id = c.colid";
         /// <param name="settings">The settings.</param>
         /// <param name="tableBlackList">The excluded tables.</param>
         public MssqlSchemaDescriptor(IDbAccess db, IDbConnector dbConnector, SqlDialect dialect, ProjectSettings settings, params string[] tableBlackList)
-            : base(RdbmsBackend.SupportedSystemNames.Mssql2008R2, tableBlackList, dialect)
+            : base(RdbmsBackend.SupportedSystemNames.Mssql2008R2, dialect)
+        {
+            this.db = db;
+            this.dbConnector = dbConnector;
+            ProjectSettings = settings;
+
+            if (tableBlackList != null)
+            {
+                FilterSettings = new FilterSettings {TableFilterList = tableBlackList};
+            }
+        }
+
+        public MssqlSchemaDescriptor(IDbAccess db, IDbConnector dbConnector, SqlDialect dialect, 
+            ProjectSettings settings, FilterSettings filterSettings)
+            : base(RdbmsBackend.SupportedSystemNames.Mssql2008R2, dialect, filterSettings)
         {
             this.db = db;
             this.dbConnector = dbConnector;
@@ -124,8 +138,16 @@ and ep.minor_id = c.colid";
                         string schemaName = reader.GetValueAsString("TABLE_SCHEMA");
 
                         counterOrder++;
-                        if (IsExcluded(schemaName, name))
-                            continue;
+                        if (FilterSettings.Exclude)
+                        {
+                            if (IsTableInFilterList(schemaName, name))
+                                continue;
+                        }
+                        else
+                        {
+                            if(!IsTableInFilterList(schemaName, name))
+                                continue;
+                        }
 
                         if (!string.IsNullOrWhiteSpace(name) && name.Equals("sysdiagrams", StringComparison.OrdinalIgnoreCase))
                             continue;
@@ -341,8 +363,16 @@ and ep.minor_id = c.colid";
                         rel.ReferenceConstraintName = refconstName;
                         rel.RelationType = RelationshipType.ManyToOne;
 
-                        if(IsExcluded(refSchema, refTable))
-                            continue;
+                        if (FilterSettings.Exclude)
+                        {
+                            if (IsTableInFilterList(refSchema, refTable))
+                                continue;
+                        }
+                        else
+                        {
+                            if (!IsTableInFilterList(refSchema, refTable))
+                                continue;
+                        }
 
                         rel.ReferenceEntityName = refTable;
                         columns.Remove(colName);

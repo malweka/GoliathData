@@ -43,7 +43,21 @@ namespace Goliath.Data.Providers.Sqlite
         /// <param name="settings">The settings.</param>
         /// <param name="tableBlackList">The excluded tables.</param>
         public SqliteSchemaDescriptor(IDbAccess db, IDbConnector dbConnector, SqlDialect dialect, ProjectSettings settings, params string[] tableBlackList)
-            : base(RdbmsBackend.SupportedSystemNames.Sqlite3, tableBlackList, dialect)
+            : base(RdbmsBackend.SupportedSystemNames.Sqlite3, dialect)
+        {
+            this.db = db;
+            this.dbConnector = dbConnector;
+            ProjectSettings = settings;
+
+            if (tableBlackList != null)
+            {
+                FilterSettings = new FilterSettings { TableFilterList = tableBlackList };
+            }
+        }
+
+        public SqliteSchemaDescriptor(IDbAccess db, IDbConnector dbConnector, SqlDialect dialect, 
+            ProjectSettings settings, FilterSettings filterSettings)
+            : base(RdbmsBackend.SupportedSystemNames.Sqlite3, dialect, filterSettings)
         {
             this.db = db;
             this.dbConnector = dbConnector;
@@ -66,7 +80,7 @@ namespace Goliath.Data.Providers.Sqlite
                         string name = reader.GetValueAsString("tbl_name");
                         countOrder++;
 
-                        if (IsExcluded(Dialect.DefaultSchemaName, name))
+                        if (IsTableInFilterList(Dialect.DefaultSchemaName, name))
                             continue;
  
                         EntityMap table = new EntityMap(name, name);

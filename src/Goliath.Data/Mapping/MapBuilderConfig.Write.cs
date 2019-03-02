@@ -49,6 +49,13 @@ namespace Goliath.Data.Mapping
                 xmlWriter.WriteString(Settings.ConnectionString);
                 xmlWriter.WriteEndElement();
 
+                if (!Settings.SupportManyToMany)
+                {
+                    xmlWriter.WriteStartElement("supportManyToMany");
+                    xmlWriter.WriteString(Settings.SupportManyToMany.ToString());
+                    xmlWriter.WriteEndElement();
+                }
+
                 xmlWriter.WriteStartElement("tablePrefixes");
                 xmlWriter.WriteString(Settings.TablePrefixes);
                 xmlWriter.WriteEndElement();
