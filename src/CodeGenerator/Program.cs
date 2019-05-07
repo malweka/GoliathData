@@ -108,9 +108,11 @@ namespace Goliath.Data.CodeGenerator
             catch (Exception ex)
             {
                 PrintError("Exception thrown while trying to generate all.", ex);
+                Environment.Exit(2);
             }
 
             Console.WriteLine("\nDone!");
+            Environment.Exit(0);
         }
 
         static void PrintError(string errorMessage, Exception ex)

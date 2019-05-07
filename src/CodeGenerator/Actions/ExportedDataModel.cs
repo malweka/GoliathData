@@ -14,6 +14,7 @@ namespace Goliath.Data.CodeGenerator.Actions
         public string EntityName { get; set; }
         public string PreRunCommand { get; set; }
         public string PostRunCommand { get; set; }
+        public int RowCount { get; set; }
 
         public IList<IDictionary<string, object>> DataRows { get; set; } = new List<IDictionary<string, object>>();
 
@@ -26,6 +27,8 @@ namespace Goliath.Data.CodeGenerator.Actions
 
             if (!string.IsNullOrWhiteSpace(EntityName))
                 tableElement.SetAttribute("entity", EntityName);
+
+            tableElement.SetAttribute("rows", DataRows.Count.ToString());
 
             if (!string.IsNullOrWhiteSpace(PreRunCommand))
             {
@@ -46,10 +49,12 @@ namespace Goliath.Data.CodeGenerator.Actions
                 var rowElement = doc.CreateElement("row");
                 foreach (var dr in dataRow)
                 {
+                    if (dr.Value == null)
+                        continue;
+
                     var fieldElement = doc.CreateElement("field");
                     fieldElement.SetAttribute("name", dr.Key);
-                    if (dr.Value != null)
-                        fieldElement.InnerText = dr.Value.ToString();
+                    fieldElement.InnerText = dr.Value.ToString();
                     rowElement.AppendChild(fieldElement);
                 }
 
@@ -69,6 +74,12 @@ namespace Goliath.Data.CodeGenerator.Actions
             var name = elm.Attribute("name");
             if (name == null)
                 throw new SerializationException("table name attribute is mandatory.");
+
+            var rowCountAtt = elm.Attribute("rows");
+            if (rowCountAtt != null && int.TryParse(rowCountAtt.Value, out var rowCount))
+            {
+                RowCount = rowCount;
+            }
 
             var entityName = elm.Attribute("entity");
             Name = name.Value;

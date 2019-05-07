@@ -192,6 +192,7 @@ namespace Goliath.Data.Mapping
                 return val;
         }
 
+
         /// <summary>
         /// Creates the table.
         /// </summary>
@@ -207,14 +208,17 @@ namespace Goliath.Data.Mapping
             {
                 foreach (Property key in entityMap.PrimaryKey.Keys)
                 {
-                    var column = new DataColumn(key.ColumnName, SqlTypeHelper.GetClrType(key.DbType, key.IsNullable));
+                    var column = new DataColumn(key.ColumnName, SqlTypeHelper.GetClrType(key.DbType,false)){ AllowDBNull = key.IsNullable };
                     table.Columns.Add(column);
                 }
             }
 
             foreach (var prop in entityMap.Properties)
             {
-                var column = new DataColumn(prop.ColumnName, SqlTypeHelper.GetClrType(prop.DbType, prop.IsNullable));
+                if(table.Columns.Contains(prop.ColumnName))
+                    continue;
+                
+                var column = new DataColumn(prop.ColumnName, SqlTypeHelper.GetClrType(prop.DbType, false)){ AllowDBNull = prop.IsNullable };
                 table.Columns.Add(column);
             }
 
@@ -226,7 +230,7 @@ namespace Goliath.Data.Mapping
                 if (table.Columns.Contains(rel.ColumnName))
                     continue; //column has already been added 
 
-                DataColumn column = new DataColumn(rel.ColumnName, SqlTypeHelper.GetClrType(rel.DbType, rel.IsNullable));
+                DataColumn column = new DataColumn(rel.ColumnName, SqlTypeHelper.GetClrType(rel.DbType, false)){ AllowDBNull = rel.IsNullable };
                 table.Columns.Add(column);
             }
 
