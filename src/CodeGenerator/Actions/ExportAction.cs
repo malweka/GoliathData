@@ -119,7 +119,7 @@ namespace Goliath.Data.CodeGenerator.Actions
                     Logger.Log(LogLevel.Error, err);
                 }
 
-                return;
+                throw new Exception($"Export completed with {errors.Count} errors.");
             }
 
             if (opts.Compress)
