@@ -114,7 +114,7 @@ namespace Goliath.Data.Mapping
 
                 var colName = ImportDialect.Escape(prop.ColumnName);
                 logger.Log(LogLevel.Debug, $"adding column: {colName} - property: {prop.PropertyName}");
-                if (!columns.ContainsKey(colName) || prop.IsMappingComplexType())
+                if (!columns.ContainsKey(colName) && !prop.IsMappingComplexType())
                     columns.Add(colName, prop.PropertyName);
             }
 

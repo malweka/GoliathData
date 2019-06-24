@@ -215,7 +215,7 @@ namespace Goliath.Data.Mapping
 
             foreach (var prop in entityMap.Properties)
             {
-                if(table.Columns.Contains(prop.ColumnName))
+                if(table.Columns.Contains(prop.ColumnName) || prop.IsMappingComplexType())
                     continue;
                 
                 var column = new DataColumn(prop.ColumnName, SqlTypeHelper.GetClrType(prop.DbType, false)){ AllowDBNull = prop.IsNullable };

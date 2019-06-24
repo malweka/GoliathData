@@ -24,7 +24,7 @@ namespace Goliath.Data.CodeGenerator
 
 #if DEBUG
             Console.WriteLine("Press enter to continue.");
-            Console.ReadLine();
+            //Console.ReadLine();
 #endif
             var opts = AppOptionHandler.ParseOptions(args);
 
