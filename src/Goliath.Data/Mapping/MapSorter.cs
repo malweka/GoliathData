@@ -62,15 +62,10 @@ namespace Goliath.Data.Mapping
                 var tbl = tableCollection[i];
                 //var idx = indexes[tbl.TableName];
 
-                if (tbl.IsLinkTable)
+                foreach (var pk in tbl.PrimaryKey.Keys)
                 {
-                    foreach (var pk in tbl.PrimaryKey.Keys)
-                    {
-                        var rel = pk.Key as Relation;
-                        AddEdge(indexes, tbl, rel, i);
-                    }
-
-                    continue;
+                    var rel = pk.Key as Relation;
+                    AddEdge(indexes, tbl, rel, i);
                 }
 
                 if (tbl.Relations.Count <= 0) continue;

@@ -22,11 +22,11 @@ namespace Goliath.Data.CodeGenerator
         /// <typeparam name="TModel">The type of the model.</typeparam>
         /// <param name="template">The template.</param>
         /// <param name="outputStream">The output stream.</param>
-        /// <param name="mapfile">The mapfile.</param>
-        public void Generate<TModel>(Stream template, Stream outputStream, TModel mapfile)
+        /// <param name="model">The model.</param>
+        public void Generate<TModel>(Stream template, Stream outputStream, TModel model)
         {
             string templateAsString = template.ConvertToString();
-            Generate(templateAsString, outputStream, mapfile);
+            Generate(templateAsString, outputStream, model);
         }
 
 
@@ -36,17 +36,28 @@ namespace Goliath.Data.CodeGenerator
         /// <typeparam name="TModel">The type of the model.</typeparam>
         /// <param name="templateText">The template text.</param>
         /// <param name="outputStream">The output stream.</param>
-        /// <param name="mapfile">The mapfile.</param>
-        public void Generate<TModel>(string templateText, Stream outputStream, TModel mapfile)
+        /// <param name="model">The model.</param>
+        public void Generate<TModel>(string templateText, Stream outputStream, TModel model)
         {
-            var config = new TemplateServiceConfiguration();
-            config.DisableTempFileLocking = true; // loads the files in-memory (gives the templates full-trust permissions)
-            config.CachingProvider = new DefaultCachingProvider(t => { }); //disables the warnings
-
-            var service = RazorEngineService.Create(config);
-            var result = service.RunCompile(templateText, "key", typeof(TModel), mapfile);
+            var result = CompileTemplate(templateText, model);
             byte[] fileArray = Encoding.UTF8.GetBytes(result);
             outputStream.Write(fileArray, 0, fileArray.Length);
+        }
+
+        public string CompileTemplate<TModel>(string templateText, TModel model)
+        {
+            var config = new TemplateServiceConfiguration
+            {
+                DisableTempFileLocking = true,
+                CachingProvider = new DefaultCachingProvider(t => { })
+            };
+
+            // loads the files in-memory (gives the templates full-trust permissions)
+            //disables the warnings
+
+            var service = RazorEngineService.Create(config);
+            var result = service.RunCompile(templateText, "key", typeof(TModel), model);
+            return result;
         }
 
 
@@ -56,14 +67,14 @@ namespace Goliath.Data.CodeGenerator
         /// <typeparam name="TModel">The type of the model.</typeparam>
         /// <param name="template">The template.</param>
         /// <param name="outputFile">The output file.</param>
-        /// <param name="mapfile">The mapfile.</param>
-        public void Generate<TModel>(string template, string outputFile, TModel mapfile)
+        /// <param name="model">The model.</param>
+        public void Generate<TModel>(string template, string outputFile, TModel model)
         {
             using (var stream = File.OpenRead(template))
             {
                 using (var output = File.Create(outputFile))
                 {
-                    Generate(stream, output, mapfile);
+                    Generate(stream, output, model);
                 }
             }
         }

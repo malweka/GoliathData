@@ -1,0 +1,43 @@
+@using System.Text
+@using System.Data
+@using Goliath.Data.Mapping
+@using Goliath.Data.Diagnostics
+@using Goliath.Data.Providers.SqlServer
+@using Goliath.Data.Utils
+@using Goliath.Data.CodeGenerator
+@{
+	var sqlMapper = new Mssq2008Dialect();
+	int counter = 0;
+	List<string> pks = new List<string>();
+	Dictionary<string,string> props = new Dictionary<string, string>();
+	var uniqueConstrainst = new Dictionary<string, List<string>>();
+	var sortedProps = new System.Collections.Generic.SortedList<int,Property>();
+	var ent = Model;
+
+	if(ent.PrimaryKey != null)
+		{
+			foreach(var k in ent.PrimaryKey.Keys)
+			{
+				Property p = k;
+				pks.Add(string.Format("TARGET.[{0}] = SOURCE.[{0}]", p.ColumnName));
+				props.Add(string.Format("[{0}]", p.ColumnName), string.Format("SOURCE.[{0}]", p.ColumnName));
+				counter++;
+			}
+		}
+	foreach(var p in ent.Properties)
+		{
+			var pkey = string.Format("[{0}]", p.ColumnName);
+			if(p.IsMappingComplexType() || props.ContainsKey(pkey))
+			{
+				continue;
+			}
+			props.Add(pkey, string.Format("SOURCE.[{0}]", p.ColumnName));
+		}
+
+	@:MERGE [@(ent.SchemaName)].[@(ent.TableName)] AS TARGET
+	@:USING [@(ent.SchemaName)].[#@(ent.TableName)] AS SOURCE
+	@:ON @(string.Join(" AND ", pks))
+	@:WHEN NOT MATCHED BY TARGET
+	@:THEN INSERT (@(string.Join(",", props.Keys))) VALUES (@(string.Join(",", props.Values)))
+	@:;
+}

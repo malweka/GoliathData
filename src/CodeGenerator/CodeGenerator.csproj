@@ -160,6 +160,11 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ProviderFactory.cs" />
+    <Compile Include="Templates.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Templates.resx</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config">
@@ -170,6 +175,9 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="commandArgs.txt" />
+    <None Include="Resources\Merge.txt" />
+    <None Include="Resources\CreateTempTable.txt" />
+    <None Include="Resources\CreateTable.txt" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Goliath.Data.CodeGenerator\Goliath.Data.CodeGenerator.csproj">
@@ -189,7 +197,12 @@
       <Name>Goliath.Data</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <EmbeddedResource Include="Templates.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Templates.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\..\..\packages\NETStandard.Library.2.0.3\build\netstandard2.0\NETStandard.Library.targets" Condition="Exists('..\..\..\packages\NETStandard.Library.2.0.3\build\netstandard2.0\NETStandard.Library.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

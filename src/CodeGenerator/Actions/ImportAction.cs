@@ -34,7 +34,7 @@ namespace Goliath.Data.CodeGenerator.Actions
             var importRdbms = GetRdbms(opts.ImportSqlDialect);
             var providerFactory = new ProviderFactory();
             var dbConnector = providerFactory.CreateDbConnector(importRdbms, opts.ConnectionString);
-            var dialect = providerFactory.CreateDialect(importRdbms);
+            //var dialect = providerFactory.CreateDialect(importRdbms);
 
             Logger.Log(LogLevel.Debug, $"Importing using {importRdbms}");
 
@@ -89,11 +89,33 @@ namespace Goliath.Data.CodeGenerator.Actions
             var exportedData = ExportedDataModel.LoadFromFile(filePath);
             var ent = mapConfig.GetEntityMap(exportedData.EntityName);
             Logger.Log(LogLevel.Debug, $"[{ent.FullName}] - table: {ent.TableName} - rows: {exportedData.DataRows.Count}");
+            string destinationTableName = $"[{ent.SchemaName}].[{ent.TableName}]";
 
             try
             {
                 DataTable table = ent.CreateTable();
+                RazorInterpreter interpreter = new RazorInterpreter();
                 int count = 0;
+
+                if (opts.Merge)
+                {
+                    //create table
+
+                    var tableCreate = interpreter.CompileTemplate(Templates.CreateTempTable, ent);
+                    destinationTableName = $"[{ent.SchemaName}].[#{ent.TableName}]";
+
+                    using (var outputFile = File.Create($"C:\\Junk\\Test\\{ent.TableName}Create.sql"))
+                    {
+                        interpreter.Generate(Templates.CreateTempTable, outputFile, ent);
+                    }
+
+                    using (var sf = File.Create($"C:\\Junk\\Test\\{ent.TableName}Merge.sql"))
+                    {
+                        interpreter.Generate(Templates.Merge, sf, ent);
+                    }
+
+                    ExecuteCommand(tableCreate, conn, transaction);
+                }
 
                 using (SqlBulkCopy sqlBulkCopy = new SqlBulkCopy(conn, SqlBulkCopyOptions.Default, transaction))
                 {
@@ -127,19 +149,38 @@ namespace Goliath.Data.CodeGenerator.Actions
                         dataRow.AcceptChanges();
                     }
 
-                    sqlBulkCopy.DestinationTableName = $"[{ent.SchemaName}].[{ent.TableName}]";
+                    sqlBulkCopy.DestinationTableName = destinationTableName;
                     Logger.Log(LogLevel.Debug, $"Data table [{sqlBulkCopy.DestinationTableName}] loaded. Will now write to the database.");
                     sqlBulkCopy.WriteToServer(table);
+
+                    if (opts.Merge)
+                    {
+                        var mergeScript = interpreter.CompileTemplate(Templates.Merge, ent);
+                        ExecuteCommand(mergeScript, conn, transaction);
+                        ExecuteCommand($"DROP TABLE {destinationTableName}", conn, transaction);
+                    }
+
                     table.Clear();
                 }
             }
             catch (Exception ex)
             {
+                Logger.Log(LogLevel.Error, $"Error trying to import data to {ent.TableName}...");
                 throw;
             }
 
         }
 
+        void ExecuteCommand(string commandText, SqlConnection conn, SqlTransaction transaction)
+        {
+            using (var cmd = conn.CreateCommand())
+            {
+                cmd.CommandText = commandText;
+                cmd.Connection = conn;
+                cmd.Transaction = transaction;
+                cmd.ExecuteNonQuery();
+            }
+        }
 
     }
 }

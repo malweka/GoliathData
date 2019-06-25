@@ -48,6 +48,7 @@ namespace Goliath.Data.CodeGenerator
                 .Add("generateAll", w => opts.ActionName = w)
                 .Add("generateEnum", w => opts.ActionName = w)
                 .Add("generateEntities", w => opts.ActionName = w)
+                .Add("merge", w => opts.Merge = true)
                 .Add("namespace=|n=", w => opts.Namespace = w)
                 .Add("baseModel=", w => opts.BaseModelXml = w)
                 .Add("exclude=", w => opts.Excluded = w)
