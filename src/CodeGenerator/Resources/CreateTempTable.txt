@@ -1,0 +1,53 @@
+@using System.Text
+@using System.Data
+@using Goliath.Data.Mapping
+@using Goliath.Data.Diagnostics
+@using Goliath.Data.Providers.SqlServer
+@using Goliath.Data.Utils
+@using Goliath.Data.CodeGenerator
+@{
+	var sqlMapper = new Mssq2008Dialect();
+	int counter = 0;
+	List<string> pks = new List<string>();
+	Dictionary<string,string> props = new Dictionary<string, string>();
+	var uniqueConstrainst = new Dictionary<string, List<string>>();
+	var sortedProps = new System.Collections.Generic.SortedList<int,Property>();
+	var ent = Model;
+	@:CREATE TABLE [@(ent.SchemaName)].[#@(ent.TableName)](
+		if(ent.PrimaryKey != null)
+		{
+			foreach(var k in ent.PrimaryKey.Keys)
+			{
+				Property p = k;
+				pks.Add(string.Format("[{0}]", p.ColumnName));
+				props.Add(p.ColumnName, p.ColumnName);
+@:	@Raw(p.ToString(sqlMapper)),
+				counter++;
+			}
+		}
+		foreach(var p in ent.Properties)
+		{
+			if(p.IsMappingComplexType() || props.ContainsKey(p.ColumnName) ){ continue; }
+			props.Add(p.ColumnName, p.ColumnName);
+			sortedProps.Add(p.Order, p);
+		}
+		foreach(var keypair in sortedProps)
+		{
+			var p = keypair.Value;
+			if(p.IsUnique)
+			{
+				List<string> uconstraints;
+				if(!uniqueConstrainst.TryGetValue(p.ConstraintName, out uconstraints))
+				{
+					uconstraints = new List<string>(){ };
+					uniqueConstrainst.Add(p.ConstraintName, uconstraints);
+				}
+
+				uconstraints.Add(string.Format("[{0}] ASC", p.ColumnName));
+			}
+@:	@Raw(p.ToString(sqlMapper)),
+			counter++;
+		}
+@:	CONSTRAINT [PK_@(ent.TableName)] PRIMARY KEY (@(string.Join(",", pks)))
+	@:);
+}

@@ -100,19 +100,8 @@ namespace Goliath.Data.CodeGenerator.Actions
                 if (opts.Merge)
                 {
                     //create table
-
                     var tableCreate = interpreter.CompileTemplate(Templates.CreateTempTable, ent);
                     destinationTableName = $"[{ent.SchemaName}].[#{ent.TableName}]";
-
-                    using (var outputFile = File.Create($"C:\\Junk\\Test\\{ent.TableName}Create.sql"))
-                    {
-                        interpreter.Generate(Templates.CreateTempTable, outputFile, ent);
-                    }
-
-                    using (var sf = File.Create($"C:\\Junk\\Test\\{ent.TableName}Merge.sql"))
-                    {
-                        interpreter.Generate(Templates.Merge, sf, ent);
-                    }
 
                     ExecuteCommand(tableCreate, conn, transaction);
                 }
