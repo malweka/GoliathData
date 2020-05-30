@@ -22,7 +22,7 @@ namespace Goliath.Data.CodeGenerator.Actions
         {
         }
 
-        public override void Exetute(AppOptionInfo opts, CodeGenRunner codeGenRunner)
+        public override void Execute(AppOptionInfo opts, CodeGenRunner codeGenRunner)
         {
             bool zipFile = false || !string.IsNullOrWhiteSpace(opts.TemplateName) && opts.TemplateName.ToUpper().EndsWith(".ZIP");
 

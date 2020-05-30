@@ -141,54 +141,61 @@ namespace Goliath.Data.Providers.SqlServer
         /// <returns></returns>
         protected override string OnTranslateToSqlTypeString(Mapping.Property fromType)
         {
+            if (fromType == null)
+                throw new ArgumentNullException(nameof(fromType));
+
+            if (fromType.IsMappingComplexType())
+                return string.Empty;
 
             StringBuilder sqlSb = new StringBuilder();
-            sqlSb.Append(Escape(fromType.ColumnName));
-            string to = null;
-            string fType = fromType.SqlType.ToLower();
-            if (!string.IsNullOrWhiteSpace(fType))
+            try
             {
-                translationTypeMap.TryGetValue(fType, out to);
-                if ((fromType.Length > 0) && !fType.Equals("text") && !fType.Equals("ntext") && !fType.Equals("image"))
+                sqlSb.Append(Escape(fromType.ColumnName));
+                string to = null;
+                string fType = fromType.SqlType.ToLower();
+                if (!string.IsNullOrWhiteSpace(fType))
                 {
-                    if (!string.IsNullOrWhiteSpace(to) && !to.ToUpper().Equals("NTEXT"))
+                    translationTypeMap.TryGetValue(fType, out to);
+                    if ((fromType.Length > 0) && !fType.Equals("text") && !fType.Equals("ntext") && !fType.Equals("image"))
                     {
-                        to = string.Format("{0}({1})", to, fromType.Length);
+                        if (!string.IsNullOrWhiteSpace(to) && !to.ToUpper().Equals("NTEXT"))
+                        {
+                            to = string.Format("{0}({1})", to, fromType.Length);
+                        }
                     }
                 }
+
+                var sType = to ?? fromType.SqlType;
+                sqlSb.AppendFormat(" {0}", sType);
+
+                if (fromType.IsIdentity)
+                {
+                    sqlSb.AppendFormat(" IDENTITY(1,1)");
+                }
+
+                //if (fromType.IsPrimaryKey)
+                //{
+                //    sqlSb.AppendFormat(" {0}", PrimarykeySql().ToUpper());
+                //}
+                if (!string.IsNullOrWhiteSpace(fromType.DefaultValue))
+                {
+                    string dVal = fromType.DefaultValue;
+                    var sfunc = GetFunction(fromType.DefaultValue);
+                    if (sfunc != null)
+                        dVal = sfunc.ToString();
+                    sqlSb.AppendFormat(" DEFAULT({0})", dVal);
+                }
+                if (!fromType.IsNullable)
+                {
+                    sqlSb.Append(" NOT NULL");
+                }
+
+                return sqlSb.ToString();
             }
-
-            var sType = to ?? fromType.SqlType;
-            sqlSb.AppendFormat(" {0}", sType);
-
-            if (fromType.IsIdentity)
+            catch (Exception exception)
             {
-                sqlSb.AppendFormat(" IDENTITY(1,1)");
+                throw new GoliathDataException($"Could no get sql type for property {fromType.PropertyName} - {fromType.ColumnName}", exception);
             }
-
-            //if (fromType.IsPrimaryKey)
-            //{
-            //    sqlSb.AppendFormat(" {0}", PrimarykeySql().ToUpper());
-            //}
-            if (!string.IsNullOrWhiteSpace(fromType.DefaultValue))
-            {
-                string dVal = fromType.DefaultValue;
-                var sfunc = GetFunction(fromType.DefaultValue);
-                if (sfunc != null)
-                    dVal = sfunc.ToString();
-                sqlSb.AppendFormat(" DEFAULT({0})", dVal);
-            }
-            if (!fromType.IsNullable)
-            {
-                sqlSb.Append(" NOT NULL");
-            }
-
-            return sqlSb.ToString();
-
-
         }
-
-
-       
     }
 }

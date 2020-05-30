@@ -51,6 +51,7 @@ namespace Goliath.Data.CodeGenerator
                 .Add("merge", w => opts.Merge = true)
                 .Add("namespace=|n=", w => opts.Namespace = w)
                 .Add("baseModel=", w => opts.BaseModelXml = w)
+                .Add("pluginFolder=", w => opts.PluginFolder = w)
                 .Add("exclude=", w => opts.Excluded = w)
                 .Add("include=", w => opts.Include = w)
                 .Add("mapLinkTable", w => opts.SupportManyToMany = false)

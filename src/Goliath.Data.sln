@@ -15,6 +15,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Goliath.Data.Providers.Post
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeGenerator", "CodeGenerator\CodeGenerator.csproj", "{9F2FA986-8C55-42E4-B8AB-1B8E2F29CA96}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DummyDataGenerator", "DummyDataGenerator\DummyDataGenerator.csproj", "{7A764BA6-19AA-4AA6-95CB-737881D51E7B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -85,6 +87,18 @@ Global
 		{9F2FA986-8C55-42E4-B8AB-1B8E2F29CA96}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{9F2FA986-8C55-42E4-B8AB-1B8E2F29CA96}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{9F2FA986-8C55-42E4-B8AB-1B8E2F29CA96}.Release|x86.ActiveCfg = Release|Any CPU
+		{7A764BA6-19AA-4AA6-95CB-737881D51E7B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7A764BA6-19AA-4AA6-95CB-737881D51E7B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7A764BA6-19AA-4AA6-95CB-737881D51E7B}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{7A764BA6-19AA-4AA6-95CB-737881D51E7B}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{7A764BA6-19AA-4AA6-95CB-737881D51E7B}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{7A764BA6-19AA-4AA6-95CB-737881D51E7B}.Debug|x86.Build.0 = Debug|Any CPU
+		{7A764BA6-19AA-4AA6-95CB-737881D51E7B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7A764BA6-19AA-4AA6-95CB-737881D51E7B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7A764BA6-19AA-4AA6-95CB-737881D51E7B}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{7A764BA6-19AA-4AA6-95CB-737881D51E7B}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{7A764BA6-19AA-4AA6-95CB-737881D51E7B}.Release|x86.ActiveCfg = Release|Any CPU
+		{7A764BA6-19AA-4AA6-95CB-737881D51E7B}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

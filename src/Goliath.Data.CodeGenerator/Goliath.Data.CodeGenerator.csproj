@@ -64,8 +64,11 @@
     <Compile Include="..\AssemblyInfo.Shared.cs">
       <Link>Properties\AssemblyInfo.Shared.cs</Link>
     </Compile>
+    <Compile Include="ActionRunner.cs" />
+    <Compile Include="AppOptionInfo.cs" />
     <Compile Include="CodeGenRunner.cs" />
     <Compile Include="GenericCodeGenerator.cs" />
+    <Compile Include="IActionRunner.cs" />
     <Compile Include="ICodeGenRunner.cs" />
     <Compile Include="IGenerator.cs" />
     <Compile Include="PrintHelper.cs" />

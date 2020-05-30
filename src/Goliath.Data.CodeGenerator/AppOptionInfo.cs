@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Goliath.Data.CodeGenerator
 {
-    class AppOptionInfo
+    public class AppOptionInfo
     {
         readonly Dictionary<string, string> entitiesToRename = new Dictionary<string, string>();
         readonly Dictionary<string, List<Tuple<string, string>>> metadataDictionary = new Dictionary<string, List<Tuple<string, string>>>();
@@ -44,6 +44,7 @@ namespace Goliath.Data.CodeGenerator
         public bool Merge { get; set; }
         public bool SupportManyToMany { get; set; } = true;
         public string FileSizeLimitInKb { get; set; }
+        public string PluginFolder { get; set; }
 
 
     }

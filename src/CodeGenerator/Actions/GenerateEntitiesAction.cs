@@ -11,7 +11,7 @@ namespace Goliath.Data.CodeGenerator.Actions
         {
         }
 
-        public override void Exetute(AppOptionInfo opts, CodeGenRunner codeGenRunner)
+        public override void Execute(AppOptionInfo opts, CodeGenRunner codeGenRunner)
         {
             Console.WriteLine("\n\nGenerating Entities...");
 

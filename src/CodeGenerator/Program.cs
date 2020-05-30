@@ -1,5 +1,9 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Reflection;
 using Goliath.Data.CodeGenerator.Actions;
 using Goliath.Data.DataAccess;
 using Goliath.Data.Diagnostics;
@@ -36,6 +40,8 @@ namespace Goliath.Data.CodeGenerator
             var sqlite = new Goliath.Data.Providers.Sqlite.SqliteDialect();
             Console.WriteLine("Loading postgresql provider");
             var postgres = new Goliath.Data.Providers.Postgres.PostgresDialect();
+
+            var rng = new Goliath.Security.RandomStringGenerator();
 
             SupportedRdbms rdbms;
 
@@ -92,13 +98,14 @@ namespace Goliath.Data.CodeGenerator
                 }
             };
 
-
             var action = opts.ActionName.ToUpper();
+            var actionFactory = new ActionFactory(opts.PluginFolder);
+            var actionRunner = actionFactory.GetRunner(action);
 
-            var actionRunner = ActionFactory.GetRunner(action);
             try
             {
-                actionRunner.Exetute(opts, codeGenRunner);
+
+                actionRunner.Execute(opts, codeGenRunner);
                 logger.Log(LogLevel.Debug, $"Action {actionRunner.ActionName} complete.{Environment.NewLine}-- Working Folder:{opts.WorkingFolder}"
 
                     + $"{Environment.NewLine}-- Map file:{opts.MapFile}"

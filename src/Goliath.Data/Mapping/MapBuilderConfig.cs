@@ -299,15 +299,12 @@ namespace Goliath.Data.Mapping
         {
             foreach (var entMap in EntityConfigs)
             {
-                if (entMap.IsLinkTable)
+                foreach (var pk in entMap.PrimaryKey.Keys)
                 {
-                    foreach (var pk in entMap.PrimaryKey.Keys)
-                    {
-                        var rel = pk.Key as Relation;
-                        RetrieveAllRelationProperties(entMap, rel);
-                    }
-
-                    continue;
+                    var rel = pk.Key as Relation;
+                    if(rel == null)
+                        continue;
+                    RetrieveAllRelationProperties(entMap, rel);
                 }
 
                 foreach (var rel in entMap.Relations)
