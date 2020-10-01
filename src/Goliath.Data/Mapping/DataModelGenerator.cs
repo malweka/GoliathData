@@ -81,6 +81,7 @@ namespace Goliath.Data.Mapping
                 }
 
                 builder.IsLoaded = true;
+                builder.Settings.ConnectionString = "Data Source=[DB_Server];Initial Catalog=[DatabaseName];Integrated Security=True";
                 Console.WriteLine("we found {0} tables", tables.Count);
 
                 return builder;

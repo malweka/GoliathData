@@ -150,7 +150,6 @@ namespace Goliath.Data
         /// <returns></returns>
         public DbDataReader ExecuteReader(DbConnection conn, string sql, params QueryParam[] parameters)
         {
-            logger.Log(LogLevel.Debug, sql);
             return ExecuteReader(conn, null, sql, parameters);
         }
 
