@@ -38,6 +38,9 @@ namespace Goliath.Data.CodeGenerator.Actions
 
             Logger.Log(LogLevel.Debug, $"Importing using {importRdbms}");
 
+            if (!Directory.Exists(codeGenRunner.WorkingFolder))
+                Directory.CreateDirectory(codeGenRunner.WorkingFolder);
+
             if (zipFile)
             {
                 var inputFile = Path.Combine(opts.WorkingFolder, opts.TemplateName);

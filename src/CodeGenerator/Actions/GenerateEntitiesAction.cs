@@ -22,6 +22,9 @@ namespace Goliath.Data.CodeGenerator.Actions
             if (!File.Exists(template))
                 throw new GoliathDataException($"template file {template} not found.");
 
+            if (!Directory.Exists(codeGenRunner.WorkingFolder))
+                Directory.CreateDirectory(codeGenRunner.WorkingFolder);
+
             var map = MapConfig.Create(codeMapFile, true);
             map.Settings.AssemblyName = opts.AssemblyName;
             map.Settings.Namespace = opts.Namespace;

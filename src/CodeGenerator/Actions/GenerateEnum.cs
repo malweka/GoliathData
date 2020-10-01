@@ -80,6 +80,9 @@ namespace Goliath.Data.CodeGenerator.Actions
                 }
             }
 
+            if (!Directory.Exists(codeGenRunner.WorkingFolder))
+                Directory.CreateDirectory(codeGenRunner.WorkingFolder);
+
             codeGenRunner.GenerateCodeFromTemplate(models, template, codeGenRunner.WorkingFolder, opts.OutputFile);
             Logger.Log(LogLevel.Info, $"Enums generated file: {opts.OutputFile}");
 

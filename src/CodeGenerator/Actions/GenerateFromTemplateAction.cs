@@ -29,6 +29,9 @@ namespace Goliath.Data.CodeGenerator.Actions
             if (string.IsNullOrWhiteSpace(opts.OutputFile))
                 throw new GoliathDataException("Output file is required for generate operation. Please make sure that -out=\"YOUR_FILE.EXT\" argument is passed in.");
 
+            if (!Directory.Exists(codeGenRunner.WorkingFolder))
+                Directory.CreateDirectory(codeGenRunner.WorkingFolder);
+
             if (!string.IsNullOrWhiteSpace(opts.EntityModel))
             {
                 Logger.Log(LogLevel.Debug, string.Format("Extracting model {0} from map entity models.", opts.EntityModel));

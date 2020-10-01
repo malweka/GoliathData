@@ -26,6 +26,9 @@ namespace Goliath.Data.CodeGenerator.Actions
             map.Settings.AssemblyName = opts.AssemblyName;
             map.Settings.Namespace = opts.Namespace;
 
+            if (!Directory.Exists(codeGenRunner.WorkingFolder))
+                Directory.CreateDirectory(codeGenRunner.WorkingFolder);
+
             codeGenRunner.GenerateClassesFromTemplate(map, template, codeGenRunner.WorkingFolder, (name, iteration) => GetFileName(name, iteration, opts.OutputFile), opts.ExcludedArray);
 
         }
