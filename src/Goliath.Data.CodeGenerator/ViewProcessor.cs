@@ -312,5 +312,33 @@ namespace Goliath.Data.CodeGenerator
             return viewInfo;
         }
 
+        public static bool IsEditable(this Property property)
+        {
+            if (property == null)
+                return false;
+
+            if (property.MetaDataAttributes.TryGetValue("editable", out string val))
+            {
+                if (val.ToUpper().Equals("FALSE"))
+                    return false;
+            }
+
+            return true;
+        }
+
+        public static bool IsInsertable(this Property property)
+        {
+            if (property == null)
+                return false;
+
+            if (property.MetaDataAttributes.TryGetValue("insertable", out string val))
+            {
+                if (val.ToUpper().Equals("FALSE"))
+                    return false;
+            }
+
+            return true;
+        }
+
     }
 }

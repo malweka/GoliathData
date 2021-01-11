@@ -130,7 +130,7 @@ namespace Goliath.Data.Mapping
                     columns.Add(colName, prop.PropertyName);
             }
 
-            return $"SELECT {string.Join(", ", columns.Keys)} FROM {ImportDialect.Escape(Map.TableName)}";
+            return $"SELECT TOP 20 {string.Join(", ", columns.Keys)} FROM {ImportDialect.Escape(Map.SchemaName)}.{ImportDialect.Escape(Map.TableName)}";
         }
 
         /// <summary>
