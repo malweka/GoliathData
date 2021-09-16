@@ -25,11 +25,13 @@ namespace Goliath.Data.CodeGenerator.Actions
             var map = MapConfig.Create(codeMapFile, true);
             map.Settings.AssemblyName = opts.AssemblyName;
             map.Settings.Namespace = opts.Namespace;
+            map.Settings.AdditionalNamespaces = codeGenRunner.Settings.AdditionalNamespaces;
 
             if (!Directory.Exists(codeGenRunner.WorkingFolder))
                 Directory.CreateDirectory(codeGenRunner.WorkingFolder);
 
-            codeGenRunner.GenerateClassesFromTemplate(map, template, codeGenRunner.WorkingFolder, (name, iteration) => GetFileName(name, iteration, opts.OutputFile), opts.ExcludedArray);
+            codeGenRunner.GenerateClassesFromTemplate(map, template, codeGenRunner.WorkingFolder, 
+                (name, iteration) => GetFileName(name, iteration, opts.OutputFile), opts.ExtendedProperties, opts.ExcludedArray);
 
         }
     }

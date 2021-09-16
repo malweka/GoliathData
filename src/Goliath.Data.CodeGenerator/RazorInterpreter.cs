@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using Goliath.Data.Generators;
 using RazorEngine;
@@ -23,10 +24,11 @@ namespace Goliath.Data.CodeGenerator
         /// <param name="template">The template.</param>
         /// <param name="outputStream">The output stream.</param>
         /// <param name="model">The model.</param>
-        public void Generate<TModel>(Stream template, Stream outputStream, TModel model)
+        /// <param name="properties"></param>
+        public void Generate<TModel>(Stream template, Stream outputStream, TModel model, IDictionary<string, string> properties = null)
         {
             string templateAsString = template.ConvertToString();
-            Generate(templateAsString, outputStream, model);
+            Generate(templateAsString, outputStream, model, properties);
         }
 
 
@@ -37,14 +39,15 @@ namespace Goliath.Data.CodeGenerator
         /// <param name="templateText">The template text.</param>
         /// <param name="outputStream">The output stream.</param>
         /// <param name="model">The model.</param>
-        public void Generate<TModel>(string templateText, Stream outputStream, TModel model)
+        /// <param name="properties"></param>
+        public void Generate<TModel>(string templateText, Stream outputStream, TModel model, IDictionary<string, string> properties = null)
         {
-            var result = CompileTemplate(templateText, model);
+            var result = CompileTemplate(templateText, model, properties);
             byte[] fileArray = Encoding.UTF8.GetBytes(result);
             outputStream.Write(fileArray, 0, fileArray.Length);
         }
 
-        public string CompileTemplate<TModel>(string templateText, TModel model)
+        public string CompileTemplate<TModel>(string templateText, TModel model, IDictionary<string, string> properties = null)
         {
             var config = new TemplateServiceConfiguration
             {
@@ -52,11 +55,17 @@ namespace Goliath.Data.CodeGenerator
                 CachingProvider = new DefaultCachingProvider(t => { })
             };
 
-            // loads the files in-memory (gives the templates full-trust permissions)
-            //disables the warnings
-
+            DynamicViewBag bag = new DynamicViewBag();
+            if (properties != null)
+            {
+                foreach (var property in properties)
+                {
+                    bag.AddValue(property.Key, property.Value);
+                }
+            }
+         
             var service = RazorEngineService.Create(config);
-            var result = service.RunCompile(templateText, "key", typeof(TModel), model);
+            var result = service.RunCompile(templateText, "key", typeof(TModel), model, bag);
             return result;
         }
 
@@ -68,13 +77,14 @@ namespace Goliath.Data.CodeGenerator
         /// <param name="template">The template.</param>
         /// <param name="outputFile">The output file.</param>
         /// <param name="model">The model.</param>
-        public void Generate<TModel>(string template, string outputFile, TModel model)
+        /// <param name="properties"></param>
+        public void Generate<TModel>(string template, string outputFile, TModel model, IDictionary<string, string> properties = null)
         {
             using (var stream = File.OpenRead(template))
             {
                 using (var output = File.Create(outputFile))
                 {
-                    Generate(stream, output, model);
+                    Generate(stream, output, model, properties);
                 }
             }
         }

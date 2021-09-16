@@ -124,8 +124,7 @@ namespace Goliath.Data.CodeGenerator
 
         protected static void ProcessMetadata(AppOptionInfo opts, EntityMap ent)
         {
-            List<Tuple<string, string>> metadata;
-            if (opts.MetadataDictionary.TryGetValue(ent.Name, out metadata))
+            if (opts.MetadataDictionary.TryGetValue(ent.Name, out var metadata))
             {
                 foreach (var tuple in metadata)
                 {
@@ -137,8 +136,8 @@ namespace Goliath.Data.CodeGenerator
         protected static void ProcessMetadata(AppOptionInfo opts, EntityMap ent, Property prop)
         {
             var key = string.Concat(ent.Name, ".", prop.Name);
-            List<Tuple<string, string>> metadata;
-            if (opts.MetadataDictionary.TryGetValue(key, out metadata))
+
+            if (opts.MetadataDictionary.TryGetValue(key, out var metadata))
             {
                 foreach (var tuple in metadata)
                 {
@@ -150,6 +149,18 @@ namespace Goliath.Data.CodeGenerator
             {
                 prop.MetaDataAttributes.Add("editable", "false");
             }
+
+            key = string.Concat("*.", prop.Name);
+            if (opts.MetadataDictionary.TryGetValue(key, out metadata))
+            {
+                foreach (var tuple in metadata)
+                {
+                    var metaDataAttributeName = tuple.Item1.Replace("data_", string.Empty);
+                    if (prop.MetaDataAttributes.ContainsKey(metaDataAttributeName))
+                        continue;
+                    prop.MetaDataAttributes.Add(metaDataAttributeName, tuple.Item2);
+                }
+            }
         }
 
         protected static void ProcessActivatedProperties(AppOptionInfo opts, EntityMap ent)
@@ -158,21 +169,21 @@ namespace Goliath.Data.CodeGenerator
             var extends = string.Concat(ent.Name, ".Extends");
             var tableAlias = string.Concat(ent.Name, ".TableAlias");
 
-            if (opts.ActivatedProperties.ContainsKey(isTrackable))
+            if (opts.ActivatedActivatedProperties.ContainsKey(isTrackable))
             {
                 bool val;
-                bool.TryParse(opts.ActivatedProperties[isTrackable], out val);
+                bool.TryParse(opts.ActivatedActivatedProperties[isTrackable], out val);
                 ent.IsTrackable = val;
             }
 
-            if (opts.ActivatedProperties.ContainsKey(extends))
+            if (opts.ActivatedActivatedProperties.ContainsKey(extends))
             {
-                ent.Extends = opts.ActivatedProperties[extends];
+                ent.Extends = opts.ActivatedActivatedProperties[extends];
             }
 
-            if (opts.ActivatedProperties.ContainsKey(tableAlias))
+            if (opts.ActivatedActivatedProperties.ContainsKey(tableAlias))
             {
-                ent.TableAlias = opts.ActivatedProperties[tableAlias];
+                ent.TableAlias = opts.ActivatedActivatedProperties[tableAlias];
             }
         }
 
@@ -183,31 +194,31 @@ namespace Goliath.Data.CodeGenerator
             var isNullable = string.Concat(ent.Name, ".", prop.Name, ".IsNullable");
             var isUnique = string.Concat(ent.Name, ".", prop.Name, ".IsUnique");
 
-            if (opts.ActivatedProperties.ContainsKey(ignoreOnUpdate))
+            if (opts.ActivatedActivatedProperties.ContainsKey(ignoreOnUpdate))
             {
                 bool val;
-                bool.TryParse(opts.ActivatedProperties[ignoreOnUpdate], out val);
+                bool.TryParse(opts.ActivatedActivatedProperties[ignoreOnUpdate], out val);
                 prop.IgnoreOnUpdate = val;
             }
 
-            if (opts.ActivatedProperties.ContainsKey(lazyload))
+            if (opts.ActivatedActivatedProperties.ContainsKey(lazyload))
             {
                 bool val;
-                bool.TryParse(opts.ActivatedProperties[lazyload], out val);
+                bool.TryParse(opts.ActivatedActivatedProperties[lazyload], out val);
                 prop.LazyLoad = val;
             }
 
-            if (opts.ActivatedProperties.ContainsKey(isNullable))
+            if (opts.ActivatedActivatedProperties.ContainsKey(isNullable))
             {
                 bool val;
-                bool.TryParse(opts.ActivatedProperties[isNullable], out val);
+                bool.TryParse(opts.ActivatedActivatedProperties[isNullable], out val);
                 prop.IsNullable = val;
             }
 
-            if (opts.ActivatedProperties.ContainsKey(isUnique))
+            if (opts.ActivatedActivatedProperties.ContainsKey(isUnique))
             {
                 bool val;
-                bool.TryParse(opts.ActivatedProperties[isUnique], out val);
+                bool.TryParse(opts.ActivatedActivatedProperties[isUnique], out val);
                 prop.IsUnique = val;
             }
 

@@ -17,6 +17,7 @@ namespace Goliath.Data.CodeGenerator.Actions
             var map = MapConfig.Create(codeMapFile, true);
             map.Settings.AssemblyName = opts.AssemblyName;
             map.Settings.Namespace = opts.Namespace;
+            map.Settings.AdditionalNamespaces = codeGenRunner.Settings.AdditionalNamespaces;
 
             if (string.IsNullOrWhiteSpace(opts.TemplateName))
                 throw new GoliathDataException("Template file to use is required for generate operation. Please make sure that -in=\"Template_File_name.razt\" argument is passed in.");
@@ -24,7 +25,7 @@ namespace Goliath.Data.CodeGenerator.Actions
             var template = Path.Combine(codeGenRunner.TemplateFolder, opts.TemplateName);
 
             if (!File.Exists(template))
-                throw new GoliathDataException(string.Format("template file {0} not found.", template));
+                throw new GoliathDataException($"template file {template} not found.");
 
             if (string.IsNullOrWhiteSpace(opts.OutputFile))
                 throw new GoliathDataException("Output file is required for generate operation. Please make sure that -out=\"YOUR_FILE.EXT\" argument is passed in.");
@@ -34,19 +35,16 @@ namespace Goliath.Data.CodeGenerator.Actions
 
             if (!string.IsNullOrWhiteSpace(opts.EntityModel))
             {
-                Logger.Log(LogLevel.Debug, string.Format("Extracting model {0} from map entity models.", opts.EntityModel));
+                Logger.Log(LogLevel.Debug, $"Extracting model {opts.EntityModel} from map entity models.");
 
-                EntityMap entMap;
-                if (map.EntityConfigs.TryGetValue(opts.EntityModel, out entMap))
+                if (map.EntityConfigs.TryGetValue(opts.EntityModel, out var entMap))
                 {
                     codeGenRunner.GenerateCodeFromTemplate(entMap, template, codeGenRunner.WorkingFolder, opts.OutputFile);
                 }
-
-                //TODO: nice to have feature is to use reflection to load a type from an external assembly.
             }
             else
             {
-                codeGenRunner.GenerateCodeFromTemplate(map, template, codeGenRunner.WorkingFolder, opts.OutputFile);
+                codeGenRunner.GenerateCodeFromTemplate(map, template, codeGenRunner.WorkingFolder, opts.OutputFile, opts.ExtendedProperties);
             }
         }
     }

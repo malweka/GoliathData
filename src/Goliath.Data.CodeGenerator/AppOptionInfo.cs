@@ -5,15 +5,11 @@ namespace Goliath.Data.CodeGenerator
 {
     public class AppOptionInfo
     {
-        readonly Dictionary<string, string> entitiesToRename = new Dictionary<string, string>();
-        readonly Dictionary<string, List<Tuple<string, string>>> metadataDictionary = new Dictionary<string, List<Tuple<string, string>>>();
-        public Dictionary<string, string> EntitiesToRename { get { return entitiesToRename; } }
-        private readonly Dictionary<string, string> complexTypesTypeMap = new Dictionary<string, string>();
-        public Dictionary<string, string> ComplexTypesTypeMap { get { return complexTypesTypeMap; } }
-        public Dictionary<string, List<Tuple<string, string>>> MetadataDictionary { get { return metadataDictionary; } }
-        readonly Dictionary<string, string> properties = new Dictionary<string, string>();
-
-        public Dictionary<string, string> ActivatedProperties { get { return properties; } }
+        public Dictionary<string, string> EntitiesToRename { get; } = new Dictionary<string, string>();
+        public Dictionary<string, string> ComplexTypesTypeMap { get; } = new Dictionary<string, string>();
+        public Dictionary<string, List<Tuple<string, string>>> MetadataDictionary { get; } = new Dictionary<string, List<Tuple<string, string>>>();
+        public Dictionary<string, string> ActivatedActivatedProperties { get; } = new Dictionary<string, string>();
+        public Dictionary<string, string> ExtendedProperties { get; } = new Dictionary<string, string>();
 
         public string ConnectionString { get; set; }
         public string ProviderName { get; set; }
@@ -45,6 +41,7 @@ namespace Goliath.Data.CodeGenerator
         public bool SupportManyToMany { get; set; } = true;
         public string FileSizeLimitInKb { get; set; }
         public string PluginFolder { get; set; }
+        public string AdditionalNameSpaces { get; set; }
 
 
     }

@@ -108,6 +108,8 @@ namespace Goliath.Data.Mapping
         [DataMember]
         public string BaseModel { get; set; }
 
+        public List<string> AdditionalNamespaces { get; set; } = new List<string>();
+
 
         readonly Dictionary<string, string> properties = new Dictionary<string, string>();
 

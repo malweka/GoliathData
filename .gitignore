@@ -208,3 +208,5 @@ pingme.txt
 .nuget
 *.vsext
 Settings.StyleCop
+/src/CopyToCodeGen.cmd
+/src/DummyDataGenerator

@@ -131,7 +131,6 @@ namespace Goliath.Data.Mapping
                 IsPrimaryKey = IsPrimaryKey,
                 SqlType = SqlType
             };
-
             return prop;
         }
 

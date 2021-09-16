@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Goliath.Data.Mapping;
 using Goliath.Data.Providers;
 
@@ -64,14 +65,16 @@ namespace Goliath.Data.CodeGenerator
         /// </summary>
         /// <param name="mapFilename">The map filename.</param>
         /// <param name="excludedEntities">The excluded entities.</param>
-        void GenerateClasses(string mapFilename, params string[] excludedEntities);
+        /// <param name="properties"></param>
+        void GenerateClasses(string mapFilename, IDictionary<string, string> properties = null, params string[] excludedEntities);
 
         /// <summary>
         /// Generates the classes.
         /// </summary>
         /// <param name="config">The config.</param>
         /// <param name="excludedEntities">The excluded entities.</param>
-        void GenerateClasses(MapConfig config, params string[] excludedEntities);
+        /// <param name="properties"></param>
+        void GenerateClasses(MapConfig config, IDictionary<string, string> properties = null, params string[] excludedEntities);
 
         /// <summary>
         /// Generates the code from template.
@@ -81,7 +84,9 @@ namespace Goliath.Data.CodeGenerator
         /// <param name="workingFolder">The working folder.</param>
         /// <param name="fileNameFunction">The file name function.</param>
         /// <param name="excludedEntities">The excluded entities.</param>
-        void GenerateClassesFromTemplate(string mapFile, string templateFile, string workingFolder, Func<string,int?, string> fileNameFunction = null, params string[] excludedEntities);
+        /// <param name="properties"></param>
+        void GenerateClassesFromTemplate(string mapFile, string templateFile, string workingFolder, 
+            Func<string,int?, string> fileNameFunction = null, IDictionary<string, string> properties = null, params string[] excludedEntities);
 
         /// <summary>
         /// Generates the code from template.
@@ -91,7 +96,9 @@ namespace Goliath.Data.CodeGenerator
         /// <param name="workingFolder">The working folder.</param>
         /// <param name="fileNameFunction">The file name function.</param>
         /// <param name="excludedEntities">The excluded entities.</param>
-        void GenerateClassesFromTemplate(MapConfig config, string templateFile, string workingFolder, Func<string, int?, string> fileNameFunction = null, params string[] excludedEntities);
+        /// <param name="properties"></param>
+        void GenerateClassesFromTemplate(MapConfig config, string templateFile, string workingFolder, 
+            Func<string, int?, string> fileNameFunction = null, IDictionary<string, string> properties = null, params string[] excludedEntities);
 
         /// <summary>
         /// Generates the code from template.
@@ -101,6 +108,7 @@ namespace Goliath.Data.CodeGenerator
         /// <param name="templateFile">The template file.</param>
         /// <param name="workingFolder">The working folder.</param>
         /// <param name="fileName">Name of the file.</param>
-        void GenerateCodeFromTemplate<T>(T model, string templateFile, string workingFolder, string fileName);
+        /// <param name="properties"></param>
+        void GenerateCodeFromTemplate<T>(T model, string templateFile, string workingFolder, string fileName, IDictionary<string, string> properties = null);
     }
 }

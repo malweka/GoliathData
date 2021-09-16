@@ -20,6 +20,7 @@ namespace Goliath.Data.CodeGenerator.Actions
             var map = MapConfig.Create(codeMapFile, true);
             map.Settings.AssemblyName = opts.AssemblyName;
             map.Settings.Namespace = opts.Namespace;
+            map.Settings.AdditionalNamespaces = codeGenRunner.Settings.AdditionalNamespaces;
 
             var providerFactory = new ProviderFactory();
 
@@ -83,7 +84,7 @@ namespace Goliath.Data.CodeGenerator.Actions
             if (!Directory.Exists(codeGenRunner.WorkingFolder))
                 Directory.CreateDirectory(codeGenRunner.WorkingFolder);
 
-            codeGenRunner.GenerateCodeFromTemplate(models, template, codeGenRunner.WorkingFolder, opts.OutputFile);
+            codeGenRunner.GenerateCodeFromTemplate(models, template, codeGenRunner.WorkingFolder, opts.OutputFile, opts.ExtendedProperties);
             Logger.Log(LogLevel.Info, $"Enums generated file: {opts.OutputFile}");
 
             if (errors.Count > 0)

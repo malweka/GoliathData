@@ -199,6 +199,38 @@ namespace Goliath.Data.CodeGenerator
                 return string.Format("prop_group_{0}_label", propertyGroupName);
         }
 
+        public static string PrintPropertyAsParameter(this Property prop, SqlDialect dialect, EntityMap entity)
+        {
+            return $"{prop.GetClrTypeAsString(dialect, entity)} {prop.Name.Uncapitalize()}";
+        }
+
+        public static string PrintPropertyAsParameter(this IEnumerable<Property> properties, SqlDialect dialect,
+            EntityMap entity)
+        {
+            List<string> parameters = new List<string>();
+            foreach (var property in properties)
+            {
+                parameters.Add(property.PrintPropertyAsParameter(dialect, entity));
+            }
+
+            return string.Join(", ", parameters);
+        }
+
+        public static string PrintPropertyAsWhereClause(this Property prop, string linqParamName = "c", string prefix = "", bool capitalize = false)
+        {
+            string propName = !capitalize ? prop.Name.Uncapitalize() : prop.Name;
+            return $"c.{prop.Name} == {prefix}{propName}";
+        }
+
+        public static string PrintPropertyAsWhereClause(this IEnumerable<Property> properties, string linqParamName = "c", string prefix = "", bool capitalize = false)
+        {
+            List<string> parameters = new List<string>();
+            foreach (var property in properties)
+                parameters.Add(property.PrintPropertyAsWhereClause(linqParamName, prefix, capitalize));
+
+            return string.Join(" && ", parameters);
+        }
+
         static string GetResourceName(string rname, ResourceItemType resourceType)
         {
             switch (resourceType)

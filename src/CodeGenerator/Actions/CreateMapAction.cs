@@ -172,7 +172,6 @@ namespace Goliath.Data.CodeGenerator.Actions
                         ComplexTypeName = complexTypeName,
                         IsComplexType = true
                     };
-
                     prop.MetaDataAttributes.Add("mapped", "false");
                     prop.MetaDataAttributes.Add("complexType", "true");
                     entity.Properties.Add(prop);
@@ -183,11 +182,6 @@ namespace Goliath.Data.CodeGenerator.Actions
                             property.MetaDataAttributes.Add("printable", "false");
                         }
                     }
-
-                    //var props = complexType.GetPropertiesNotInComplexType(entity);
-                    //var intersects = complexType.GetPropertiesInCommonWithComplexType(entity);
-                    //Console.WriteLine(props.Count);
-                    //Console.WriteLine(intersects.Count);
                 }
             }
         }

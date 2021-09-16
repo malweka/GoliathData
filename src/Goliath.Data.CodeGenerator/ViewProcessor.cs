@@ -340,5 +340,33 @@ namespace Goliath.Data.CodeGenerator
             return true;
         }
 
+        public static bool IsReadable(this Property property)
+        {
+            if (property == null)
+                return false;
+
+            if (property.MetaDataAttributes.TryGetValue("readable", out string val))
+            {
+                if (val.ToUpper().Equals("FALSE"))
+                    return false;
+            }
+
+            return true;
+        }
+
+        public static bool IsDataMapped(this Property property)
+        {
+            if (property == null)
+                return false;
+
+            if (property.MetaDataAttributes.TryGetValue("mapped", out string val))
+            {
+                if (val.ToUpper().Equals("FALSE"))
+                    return false;
+            }
+
+            return true;
+        }
+
     }
 }

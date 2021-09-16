@@ -73,7 +73,25 @@ namespace Goliath.Data.CodeGenerator
                 .Add("exportDialect=", w => opts.ExportSqlDialect = w)
                 .Add("compress", w => opts.Compress = true)
                 .Add("fileLimit=", w => opts.FileSizeLimitInKb = w)
-                .Add("templateFolder=|t=", w => opts.TemplateFolder = w);
+                .Add("additiontalNamespaces=", w => opts.AdditionalNameSpaces = w)
+                .Add("templateFolder=|t=", w => opts.TemplateFolder = w)
+                .Add("props=|properties=", w =>
+                {
+                    if(string.IsNullOrWhiteSpace(w))
+                        return;
+                    var propertyPairs = w.Split(new string[] {","}, StringSplitOptions.RemoveEmptyEntries);
+                    foreach (var propertyPair in propertyPairs)
+                    {
+                        var propArray = propertyPair.Split(new string[] {":"}, StringSplitOptions.RemoveEmptyEntries);
+                        if(propArray.Length < 2)
+                            continue;
+
+                        if (opts.ExtendedProperties.ContainsKey(propArray[0]))
+                            throw new InvalidOperationException($"Property {propArray[0]} already added.");
+
+                        opts.ExtendedProperties.Add(propArray[0].Trim(), propArray[1].Trim());
+                    }
+                });
 
             p.Parse(args);
 
@@ -119,7 +137,7 @@ namespace Goliath.Data.CodeGenerator
                 opts.ExcludedArray = opts.Excluded.Split(new string[] { ",", ";", "|" }, StringSplitOptions.RemoveEmptyEntries);
 
             ProcessRenames(opts);
-            ProcessCompleTypeMap(opts);
+            ProcessComplexTypeMap(opts);
             ProcessExtensionMap(opts);
 
             return opts;
@@ -161,7 +179,7 @@ namespace Goliath.Data.CodeGenerator
             }
         }
 
-        private static void ProcessCompleTypeMap(AppOptionInfo opts)
+        private static void ProcessComplexTypeMap(AppOptionInfo opts)
         {
             if (string.IsNullOrWhiteSpace(opts.ComplexTypeMap)) return;
 
@@ -239,8 +257,8 @@ namespace Goliath.Data.CodeGenerator
                             }
                             else
                             {
-                                if (!opts.ActivatedProperties.ContainsKey(name))
-                                    opts.ActivatedProperties.Add(name, value);
+                                if (!opts.ActivatedActivatedProperties.ContainsKey(name))
+                                    opts.ActivatedActivatedProperties.Add(name, value);
                             }
 
                         }

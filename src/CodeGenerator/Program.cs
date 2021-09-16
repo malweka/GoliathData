@@ -98,6 +98,17 @@ namespace Goliath.Data.CodeGenerator
                 }
             };
 
+            if (!string.IsNullOrWhiteSpace(opts.AdditionalNameSpaces))
+            {
+                var split = opts.AdditionalNameSpaces.Split(new string[] {",", "|"},
+                    StringSplitOptions.RemoveEmptyEntries);
+
+                foreach (var s in split)
+                {
+                    codeGenRunner.Settings.AdditionalNamespaces.Add(s);
+                }
+            }
+
             var action = opts.ActionName.ToUpper();
             var actionFactory = new ActionFactory(opts.PluginFolder);
             var actionRunner = actionFactory.GetRunner(action);

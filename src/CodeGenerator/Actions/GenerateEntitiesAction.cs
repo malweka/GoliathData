@@ -28,8 +28,9 @@ namespace Goliath.Data.CodeGenerator.Actions
             var map = MapConfig.Create(codeMapFile, true);
             map.Settings.AssemblyName = opts.AssemblyName;
             map.Settings.Namespace = opts.Namespace;
+            map.Settings.AdditionalNamespaces = codeGenRunner.Settings.AdditionalNamespaces;
 
-            codeGenRunner.GenerateClasses(map, opts.ExcludedArray);
+            codeGenRunner.GenerateClasses(map, opts.ExtendedProperties, opts.ExcludedArray);
         }
     }
 }

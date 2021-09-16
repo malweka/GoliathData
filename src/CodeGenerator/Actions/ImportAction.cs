@@ -30,6 +30,7 @@ namespace Goliath.Data.CodeGenerator.Actions
             var map = MapConfig.Create(codeMapFile, true);
             map.Settings.AssemblyName = opts.AssemblyName;
             map.Settings.Namespace = opts.Namespace;
+            map.Settings.AdditionalNamespaces = codeGenRunner.Settings.AdditionalNamespaces;
 
             var importRdbms = GetRdbms(opts.ImportSqlDialect);
             var providerFactory = new ProviderFactory();

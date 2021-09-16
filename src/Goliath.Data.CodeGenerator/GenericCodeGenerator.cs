@@ -43,26 +43,30 @@ namespace Goliath.Data.CodeGenerator
         /// <summary>
         /// Generates the code for each entity map.
         /// </summary>
-        /// <param name="templatefile">The templatefile.</param>
+        /// <param name="templateFile">The templateFile.</param>
         /// <param name="workingFolder">The working folder.</param>
         /// <param name="mapfile">The mapfile.</param>
         /// <param name="fileNameFunction">The file name function.</param>
         /// <param name="excludedTables">The excluded tables.</param>
-        public void GenerateCodeForEachEntityMap(string templatefile, string workingFolder, string mapfile, Func<string, int?, string> fileNameFunction = null, params string[] excludedTables)
+        /// <param name="properties"></param>
+        public void GenerateCodeForEachEntityMap(string templateFile, string workingFolder, string mapfile,
+            Func<string, int?, string> fileNameFunction = null, IDictionary<string, string> properties = null, params string[] excludedTables)
         {
             var project = MapConfig.Create(mapfile, true);
-            GenerateCodeForEachEntityMap(templatefile, workingFolder, project, fileNameFunction, excludedTables);
+            GenerateCodeForEachEntityMap(templateFile, workingFolder, project, fileNameFunction, properties, excludedTables);
         }
 
         /// <summary>
         /// Generates the code for each entity map.
         /// </summary>
-        /// <param name="templatefile">The templatefile.</param>
+        /// <param name="templateFile">The templateFile.</param>
         /// <param name="workingFolder">The working folder.</param>
         /// <param name="config">The config.</param>
         /// <param name="fileNameFunction">The file name function.</param>
         /// <param name="excludedTables">The excluded tables.</param>
-        public void GenerateCodeForEachEntityMap(string templatefile, string workingFolder, MapConfig config, Func<string, int?, string> fileNameFunction = null, params string[] excludedTables)
+        /// <param name="properties"></param>
+        public void GenerateCodeForEachEntityMap(string templateFile, string workingFolder, MapConfig config,
+            Func<string, int?, string> fileNameFunction = null, IDictionary<string, string> properties = null, params string[] excludedTables)
         {
             var counter = 0;
             foreach (var table in config.EntityConfigs)
@@ -78,10 +82,11 @@ namespace Goliath.Data.CodeGenerator
                     {
                         name = fileNameFunction(table.Name, counter);
                     }
+
                     var fname = Path.Combine(workingFolder, name);
                     logger.Log(LogLevel.Debug, $"Running Code gen for entity {table}");
-                    interpreter.Generate(templatefile, fname, table);
-                    logger.Log(LogLevel.Info, $"File {fname} generate from template {templatefile} for entity {table}");
+                    interpreter.Generate(templateFile, fname, table, properties);
+                    logger.Log(LogLevel.Info, $"File {fname} generate from template {templateFile} for entity {table}");
                 }
                 catch (Exception ex)
                 {
@@ -95,12 +100,13 @@ namespace Goliath.Data.CodeGenerator
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="model">The model.</param>
-        /// <param name="templatefile">The templatefile.</param>
+        /// <param name="templateFile">The templateFile.</param>
         /// <param name="workingFolder">The working folder.</param>
         /// <param name="filename">The filename.</param>
-        public void GenerateCodeFromModel<T>(T model, string templatefile, string workingFolder, string filename)
+        /// <param name="properties"></param>
+        public void GenerateCodeFromModel<T>(T model, string templateFile, string workingFolder, string filename, IDictionary<string, string> properties = null)
         {
-            interpreter.Generate(templatefile, Path.Combine(workingFolder, filename), model);
+            interpreter.Generate(templateFile, Path.Combine(workingFolder, filename), model, properties);
         }
 
         /// <summary>
