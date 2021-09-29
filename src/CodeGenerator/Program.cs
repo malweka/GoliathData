@@ -94,6 +94,7 @@ namespace Goliath.Data.CodeGenerator
                     AssemblyName = opts.AssemblyName,
                     ConnectionString = opts.ConnectionString,
                     SupportManyToMany = opts.SupportManyToMany,
+                    SupportTableInheritance = opts.SupportTableInheritance,
                     Platform = rdbms.ToString()
                 }
             };

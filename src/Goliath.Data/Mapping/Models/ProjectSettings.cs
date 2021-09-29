@@ -99,6 +99,9 @@ namespace Goliath.Data.Mapping
 
         }
 
+        [DataMember] 
+        public bool SupportTableInheritance { get; set; } = false;
+
         /// <summary>
         /// Gets or sets the base model.
         /// </summary>
@@ -109,7 +112,6 @@ namespace Goliath.Data.Mapping
         public string BaseModel { get; set; }
 
         public List<string> AdditionalNamespaces { get; set; } = new List<string>();
-
 
         readonly Dictionary<string, string> properties = new Dictionary<string, string>();
 

@@ -61,6 +61,11 @@ namespace Goliath.Data.Mapping
             {
                 var tbl = tableCollection[i];
                 //var idx = indexes[tbl.TableName];
+                if (tbl.PrimaryKey == null)
+                {
+                    logger.Log(LogLevel.Warning, $"Table {tbl.TableName} has no primary key.");
+                    continue;
+                }
 
                 foreach (var pk in tbl.PrimaryKey.Keys)
                 {

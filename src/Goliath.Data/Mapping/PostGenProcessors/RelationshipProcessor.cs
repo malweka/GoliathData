@@ -11,7 +11,7 @@ namespace Goliath.Data.Mapping
     {
         static readonly ILogger logger;
         private SqlDialect dialect;
-        private ProjectSettings settings;
+        private readonly ProjectSettings settings;
 
         static RelationshipProcessor()
         {
@@ -160,7 +160,7 @@ namespace Goliath.Data.Mapping
                     }
                     else
                     {
-                        if ((ent.PrimaryKey != null) && (ent.PrimaryKey.Keys.Count == 1))
+                        if ((ent.PrimaryKey != null) && (ent.PrimaryKey.Keys.Count == 1) && settings.SupportTableInheritance)
                         {
                             var key = ent.PrimaryKey.Keys[0];
                             if ((key != null) && (key.Key is Relation))

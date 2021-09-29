@@ -39,6 +39,7 @@ namespace Goliath.Data.CodeGenerator
         public bool Compress { get; set; }
         public bool Merge { get; set; }
         public bool SupportManyToMany { get; set; } = true;
+        public bool SupportTableInheritance { get; set; }
         public string FileSizeLimitInKb { get; set; }
         public string PluginFolder { get; set; }
         public string AdditionalNameSpaces { get; set; }
