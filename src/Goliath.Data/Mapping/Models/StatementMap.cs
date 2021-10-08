@@ -98,19 +98,19 @@ namespace Goliath.Data.Mapping
         /// Gets the name.
         /// </summary>
         /// <value>The name.</value>
-        public string Name { get; internal set; }
+        public string Name { get; set; }
 
         /// <summary>
         /// Gets the name of the db.
         /// </summary>
         /// <value>The name of the db.</value>
-        public string DbName { get; internal set; }
+        public string DbName { get; set; }
 
         /// <summary>
         /// Gets or sets the body.
         /// </summary>
         /// <value>The body.</value>
-        public string Body { get; internal set; }
+        public string Body { get; set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="StatementMap"/> class.

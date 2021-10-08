@@ -340,7 +340,7 @@ namespace Goliath.Data.Mapping
         /// Maps the statements.
         /// </summary>
         /// <param name="platform">The platform.</param>
-        internal void MapStatements(string platform)
+        public void MapStatements(string platform)
         {
             MappedStatements.SetPlatform(platform);
             Settings.Platform = platform;

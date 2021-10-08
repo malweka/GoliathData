@@ -6,8 +6,7 @@ using System.Text.RegularExpressions;
 using Goliath.Data.Diagnostics;
 using Goliath.Data.Providers;
 using Goliath.Data.Transformers;
-using Goliath.Data.Utils;
-using Microsoft.SqlServer.Server;
+
 
 namespace Goliath.Data.Mapping
 {
