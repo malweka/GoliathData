@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Goliath.Data.DataAccess;
-using Goliath.Data.Diagnostics;
+
 using Goliath.Data.Mapping;
 using Goliath.Data.Sql;
 
@@ -102,7 +102,7 @@ namespace Goliath.Data.Collections
                 }
                 catch (Exception ex)
                 {
-                    logger.LogException("serialization failed", ex);
+                    logger.Error("serialization failed", ex);
                 }
             }
                 

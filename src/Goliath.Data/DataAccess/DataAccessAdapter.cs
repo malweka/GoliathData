@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Goliath.Data.DataAccess;
-using Goliath.Data.Diagnostics;
+
 using Goliath.Data.Entity;
 using Goliath.Data.Mapping;
 using Goliath.Data.Sql;

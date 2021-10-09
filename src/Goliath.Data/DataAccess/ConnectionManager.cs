@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Data;
 using System.Data.Common;
-using Goliath.Data.Diagnostics;
+
 
 namespace Goliath.Data.DataAccess
 {
@@ -102,7 +102,7 @@ namespace Goliath.Data.DataAccess
                     }
                     catch (Exception ex)
                     {
-                        logger.LogException("Closing broken connection failed.", ex);
+                        logger.Error("Closing broken connection failed.", ex);
                     }
 
                     currentConn = dbConnector.CreateNewConnection();

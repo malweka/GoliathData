@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization;
 using System.Xml;
-using Goliath.Data.Diagnostics;
+
 
 namespace Goliath.Data.Mapping
 {

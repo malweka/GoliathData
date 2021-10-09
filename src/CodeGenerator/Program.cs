@@ -1,30 +1,17 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Reflection;
 using Goliath.Data.CodeGenerator.Actions;
-using Goliath.Data.DataAccess;
-using Goliath.Data.Diagnostics;
-using Goliath.Data.Mapping;
-using Goliath.Data.Providers;
 
 
 namespace Goliath.Data.CodeGenerator
 {
     class Program
     {
-        static readonly ILogger logger;
-
-        static Program()
-        {
-            logger = Logger.GetLogger(typeof(Program));
-        }
 
 
         static void Main(string[] args)
         {
+            Logger.RegisterCurrentLogger(sourceContext => new ConsoleLogger(sourceContext));
+            var logger = Logger.GetLogger(typeof(Program));
 
             var opts = AppOptionHandler.ParseOptions(args);
 

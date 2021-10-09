@@ -1,5 +1,5 @@
 ﻿using System.IO;
-using Goliath.Data.Diagnostics;
+
 using Goliath.Data.Mapping;
 
 namespace Goliath.Data.CodeGenerator.Actions

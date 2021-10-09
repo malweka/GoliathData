@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Data;
 using System.Data.SQLite;
-using Goliath.Data.Diagnostics;
+
 using Goliath.Data.Providers;
 
 namespace Goliath.Data.Sqlite

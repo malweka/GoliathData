@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq.Expressions;
 using System.Runtime.InteropServices;
-using Goliath.Data.Diagnostics;
+
 
 namespace Goliath.Data.CodeGenerator
 {
@@ -98,9 +98,9 @@ namespace Goliath.Data.CodeGenerator
 
             if (string.IsNullOrWhiteSpace(opts.ConnectionString))
             {
-                string providerName;
-                opts.ConnectionString = ExtractConnectionString("default", out providerName);
-                opts.ProviderName = providerName;
+                //string providerName;
+                //opts.ConnectionString = ExtractConnectionString("default", out providerName);
+                //opts.ProviderName = providerName;
             }
 
             if (string.IsNullOrWhiteSpace(opts.Namespace))
@@ -144,14 +144,14 @@ namespace Goliath.Data.CodeGenerator
             return opts;
         }
 
-        static string ExtractConnectionString(string cnName, out string providerName)
-        {
-            providerName = string.Empty;
-            var cnn = System.Configuration.ConfigurationManager.ConnectionStrings[cnName];
-            if (cnn != null)
-                return cnn.ConnectionString;
-            else return null;
-        }
+        //static string ExtractConnectionString(string cnName, out string providerName)
+        //{
+        //    providerName = string.Empty;
+        //    var cnn = System.Configuration.ConfigurationManager.ConnectionStrings[cnName];
+        //    if (cnn != null)
+        //        return cnn.ConnectionString;
+        //    else return null;
+        //}
 
         private static void ProcessRenames(AppOptionInfo opts)
         {
@@ -176,7 +176,7 @@ namespace Goliath.Data.CodeGenerator
             }
             catch (Exception ex)
             {
-                logger.LogException("Could not process rename config file.", ex);
+                logger.Error("Could not process rename config file.", ex);
             }
         }
 
@@ -203,7 +203,7 @@ namespace Goliath.Data.CodeGenerator
             }
             catch (Exception ex)
             {
-                logger.LogException("Could not process complex type map file.", ex);
+                logger.Error("Could not process complex type map file.", ex);
             }
         }
 
@@ -268,7 +268,7 @@ namespace Goliath.Data.CodeGenerator
             }
             catch (Exception ex)
             {
-                logger.LogException("Could not process complex type map file.", ex);
+                logger.Error("Could not process complex type map file.", ex);
             }
         }
 

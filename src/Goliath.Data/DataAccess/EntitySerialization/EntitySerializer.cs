@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
 using Goliath.Data.Collections;
-using Goliath.Data.Diagnostics;
+
 using Goliath.Data.DynamicProxy;
 using Goliath.Data.Entity;
 using Goliath.Data.Mapping;

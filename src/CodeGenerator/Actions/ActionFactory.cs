@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using Goliath.Data.Diagnostics;
+
 
 namespace Goliath.Data.CodeGenerator.Actions
 {
@@ -66,7 +66,7 @@ namespace Goliath.Data.CodeGenerator.Actions
                 }
                 catch (Exception ex)
                 {
-                    logger.LogException("Failed to load plugin.", ex);
+                    logger.Error("Failed to load plugin.", ex);
                 }
             }
         }

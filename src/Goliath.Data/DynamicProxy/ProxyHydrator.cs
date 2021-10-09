@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Goliath.Data.DataAccess;
-using Goliath.Data.Diagnostics;
+
 using Goliath.Data.Mapping;
 using Goliath.Data.Sql;
 
@@ -48,7 +48,7 @@ namespace Goliath.Data.DynamicProxy
                 try { serializer.Hydrate(instance, type, entityMap, sqlbody.QueryMap, dataReader); }
                 catch (Exception ex)
                 {
-                    logger.LogException("Hydrate failed", ex);
+                    logger.Error("Hydrate failed", ex);
                 }
             }
         }

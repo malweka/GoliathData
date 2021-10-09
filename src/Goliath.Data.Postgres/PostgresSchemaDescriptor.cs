@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
-using Goliath.Data.Diagnostics;
+
 using Goliath.Data.Mapping;
 using Goliath.Data.Providers;
 
@@ -180,7 +180,7 @@ where c.contype = 'f'";
             }
             catch (Exception ex)
             {
-                logger.LogException("Error while getting table structure", ex);
+                logger.Error("Error while getting table structure", ex);
                 throw;
             }
             return tables;
@@ -361,7 +361,7 @@ where c.contype = 'f'";
             }
             catch (Exception ex)
             {
-                logger.LogException("Error while getting table structure", ex);
+                logger.Error("Error while getting table structure", ex);
                 throw;
             }
         }

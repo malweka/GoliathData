@@ -11,9 +11,12 @@
     <RepositoryUrl>https://github.com/malweka/GoliathData</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <AssemblyVersion>2.0.0.1</AssemblyVersion>
+    <FileVersion>2.0.0.1</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Goliath.Utilities" Version="2.1.0.2" />
     <PackageReference Include="Microsoft.Data.SqlClient" Version="3.0.1" />
   </ItemGroup>
 

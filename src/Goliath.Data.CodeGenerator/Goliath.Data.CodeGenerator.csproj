@@ -11,6 +11,8 @@
 		<RepositoryUrl>https://github.com/malweka/GoliathData</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<AssemblyVersion>2.0.0.1</AssemblyVersion>
+		<FileVersion>2.0.0.1</FileVersion>
 	</PropertyGroup>
 
 	<ItemGroup>

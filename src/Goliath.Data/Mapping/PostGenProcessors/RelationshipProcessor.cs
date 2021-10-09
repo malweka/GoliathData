@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using Goliath.Data.Diagnostics;
+
 using Goliath.Data.Providers;
 
 namespace Goliath.Data.Mapping
@@ -42,17 +42,15 @@ namespace Goliath.Data.Mapping
 
                         ent.IsLinkTable = true;
 
-                        EntityMap aEnt;
-                        if (entityList.TryGetValue(NamePostProcessor.GetTableKeyName(aRel), out aEnt))
+                        if (entityList.TryGetValue(NamePostProcessor.GetTableKeyName(aRel), out EntityMap aEnt))
                         {
-                            EntityMap bEnt;
-                            if (entityList.TryGetValue(NamePostProcessor.GetTableKeyName(bRel), out bEnt))
+                            if (entityList.TryGetValue(NamePostProcessor.GetTableKeyName(bRel), out EntityMap bEnt))
                             {
                                 var aRepPropName = bEnt.Name.Pluralize();
                                 if (aEnt.Relations.Contains(aRepPropName))
-                                    aRepPropName = string.Format("{0}On{1}_{2}", bEnt.Name.Pluralize(), ent.Name, aRel.ColumnName.Pascalize());
+                                    aRepPropName = $"{bEnt.Name.Pluralize()}On{ent.Name}_{aRel.ColumnName.Pascalize()}";
 
-                                var keyName = string.Format("{0}.{1}", aEnt.Name, aRepPropName);
+                                var keyName = $"{aEnt.Name}.{aRepPropName}";
                                 if (entityRenames.ContainsKey(keyName))
                                     aRepPropName = entityRenames[keyName];
 
@@ -78,23 +76,23 @@ namespace Goliath.Data.Mapping
                                 string aColCamel = aRel.ColumnName.Camelize();
                                 string bColCamel = bRel.ColumnName.Camelize();
 
-                                logger.Log(LogLevel.Debug, string.Format("Processing map table {0} statements -> {1}, {2}", ent.TableName, aColCamel, bColCamel));
+                                logger.Log(LogLevel.Debug, $"Processing map table {ent.TableName} statements -> {aColCamel}, {bColCamel}");
                                 //build mapped statement for ease of adding and removing association
                                 var aInsertStatement = new StatementMap
-                                                           {
-                                                               Name =
+                                {
+                                    Name =
                                                                    $"{aEnt.FullName}_{aColCamel}_associate_{aEnt.Name}_with_{bEnt.Name}",
-                                                               OperationType = MappedStatementType.Insert,
-                                                               Body =
+                                    OperationType = MappedStatementType.Insert,
+                                    Body =
                                                                    $"INSERT INTO {ent.TableName} ({aRel.ColumnName}, {bRel.ColumnName}) VALUES({StatementMap.BuildPropTag(aColCamel, aRel.ReferenceProperty)}, {StatementMap.BuildPropTag(bColCamel, bRel.ReferenceProperty)});",
-                                                               DependsOnEntity = aEnt.FullName
-                                                           };
+                                    DependsOnEntity = aEnt.FullName
+                                };
                                 aInsertStatement.InputParametersMap.Add(aColCamel, aEnt.FullName);
                                 aInsertStatement.InputParametersMap.Add(bColCamel, bEnt.FullName);
 
                                 var aDeleteStatement = new StatementMap
                                 {
-                                    Name = $"{aEnt.FullName}_{aColCamel}_dissaciate_{aEnt.Name}_with_{bEnt.Name}",
+                                    Name = $"{aEnt.FullName}_{aColCamel}_disassociate_{aEnt.Name}_with_{bEnt.Name}",
                                     OperationType = MappedStatementType.Delete,
                                     Body = string.Format("DELETE FROM {0} WHERE {1} = {3} AND {2} = {4};", ent.TableName, aRel.ColumnName, bRel.ColumnName, StatementMap.BuildPropTag(aColCamel, aRel.ReferenceProperty), StatementMap.BuildPropTag(bColCamel, bRel.ReferenceProperty)),
                                     DependsOnEntity = aEnt.FullName
@@ -167,7 +165,7 @@ namespace Goliath.Data.Mapping
                             {
                                 var pk = (Relation)key.Key;
                                 ent.Extends = pk.ReferenceEntityName;
-                                logger.Log(LogLevel.Debug, string.Format("Processing  {0} extends -> {1}.", ent.Name, ent.Extends));
+                                logger.Log(LogLevel.Debug, $"Processing  {ent.Name} extends -> {ent.Extends}.");
                             }
                         }
                         else if (!settings.SupportManyToMany && (ent.PrimaryKey != null) && (ent.PrimaryKey.Keys.Count > 1))
@@ -177,16 +175,15 @@ namespace Goliath.Data.Mapping
                                 var k = ent.PrimaryKey.Keys[i].Key as Relation;
                                 if (k != null && k.RelationType == RelationshipType.ManyToOne)
                                 {
-                                    EntityMap other;
-                                    if (entityList.TryGetValue(NamePostProcessor.GetTableKeyName(k), out other))
+                                    if (entityList.TryGetValue(NamePostProcessor.GetTableKeyName(k), out EntityMap other))
                                     {
-                                        logger.Log(LogLevel.Debug, string.Format("Processing One-To-Many ent:{0} other:{1}.", ent.Name, other.Name));
+                                        logger.Log(LogLevel.Debug, $"Processing One-To-Many ent:{ent.Name} other:{other.Name}.");
 
                                         var aRepPropName = ent.Name.Pluralize();
                                         if (other.Relations.Contains(aRepPropName))
-                                            aRepPropName = string.Format("{0}On{1}", ent.Name.Pluralize(), k.ColumnName.Pascalize());
+                                            aRepPropName = $"{ent.Name.Pluralize()}On{k.ColumnName.Pascalize()}";
 
-                                        var keyName = string.Format("{0}.{1}", other.Name, aRepPropName);
+                                        var keyName = $"{other.Name}.{aRepPropName}";
                                         if (entityRenames.ContainsKey(keyName))
                                             aRepPropName = entityRenames[keyName];
 
@@ -217,17 +214,27 @@ namespace Goliath.Data.Mapping
                                 continue;
                             }
 
-                            EntityMap other;
-                            if (entityList.TryGetValue(NamePostProcessor.GetTableKeyName(reference), out other))
+                            if (entityList.TryGetValue(NamePostProcessor.GetTableKeyName(reference), out EntityMap other))
                             {
-                                logger.Log(LogLevel.Debug, string.Format("Processing One-To-Many ent:{0} other:{1}.", ent.Name, other.Name));
+                                logger.Log(LogLevel.Debug, $"Processing One-To-Many ent:{ent.Name} other:{other.Name}.");
                                 var aRepPropName = ent.Name.Pluralize();
+                                var aNameByRelationPropName = $"{ent.Name.Pluralize()}On{reference.PropertyName.Pascalize()}";
                                 if (other.Relations.Contains(aRepPropName))
-                                    aRepPropName = string.Format("{0}On{1}", ent.Name.Pluralize(), reference.ColumnName.Pascalize());
+                                {
+                                    aRepPropName = aNameByRelationPropName;
+                                }
 
-                                var keyName = string.Format("{0}.{1}", other.Name, aRepPropName);
+                                var keyName = $"{other.Name}.{aRepPropName}";
                                 if (entityRenames.ContainsKey(keyName))
+                                {
                                     aRepPropName = entityRenames[keyName];
+                                }
+
+                                keyName = $"{other.Name}.{aNameByRelationPropName}";
+                                if (!aRepPropName.Equals(aNameByRelationPropName) && entityRenames.ContainsKey(keyName))
+                                {
+                                    aRepPropName = entityRenames[keyName];
+                                }
 
                                 other.Relations.Add(new Relation()
                                 {
@@ -248,7 +255,7 @@ namespace Goliath.Data.Mapping
                 }
                 catch (Exception ex)
                 {
-                    logger.LogException("Processing exception", ex);
+                    logger.Error("Processing exception", ex);
                 }
             }
         }

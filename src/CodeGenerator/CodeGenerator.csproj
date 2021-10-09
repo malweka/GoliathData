@@ -6,17 +6,19 @@
     <RootNamespace>Goliath.Data.CodeGenerator</RootNamespace>
     <Authors>Emmanuel</Authors>
     <Version>2.0.1</Version>
-    <AssemblyVersion>2.0.1.0</AssemblyVersion>
-    <FileVersion>2.0.1.0</FileVersion>
+    <AssemblyVersion>2.0.1.1</AssemblyVersion>
+    <FileVersion>2.0.1.1</FileVersion>
     <Company>malweka.com</Company>
     <Product>Goliath Data</Product>
     <Copyright>Copyright © Emmanuel Hameyie 2009-2021</Copyright>
     <PackageProjectUrl>https://github.com/malweka/GoliathData</PackageProjectUrl>
     <RepositoryUrl>https://github.com/malweka/GoliathData</RepositoryUrl>
+    <PackageId>GoliathData</PackageId>
+    <AssemblyName>GoliathData</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Goliath.Utilities" Version="2.0.1.8" />
+    <PackageReference Include="Spectre.Console" Version="0.42.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -24,6 +26,21 @@
     <ProjectReference Include="..\Goliath.Data.Postgres\Goliath.Data.Postgres.csproj" />
     <ProjectReference Include="..\Goliath.Data.Sqlite\Goliath.Data.Sqlite.csproj" />
     <ProjectReference Include="..\Goliath.Data\Goliath.Data.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Templates.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Templates.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Templates.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>Templates.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
   </ItemGroup>
 
 </Project>

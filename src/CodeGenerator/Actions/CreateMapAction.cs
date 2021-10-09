@@ -55,7 +55,6 @@ namespace Goliath.Data.CodeGenerator.Actions
                 .CreateDbSchemaDescriptor(rdbms, codeGenRunner.Settings, filterSettings))
             {
                 var map = codeGenRunner.CreateMap(schemaDescriptor, opts.EntitiesToRename, baseModel, mapFileName);
-                //Console.WriteLine("mapped statements: {0}", opts.MappedStatementFile);
                 if (!string.IsNullOrWhiteSpace(opts.MappedStatementFile) && File.Exists(opts.MappedStatementFile))
                 {
                     Console.WriteLine("Load mapped statements from {0} into {1}", opts.MappedStatementFile, mapFileName);
@@ -64,12 +63,12 @@ namespace Goliath.Data.CodeGenerator.Actions
                 }
 
                 //let's try to read order from log if exists
-                string prima_orda = Path.Combine(opts.WorkingFolder, PrimaOrdaFile);
+                string primaOrda = Path.Combine(opts.WorkingFolder, PrimaOrdaFile);
                 var previousOrderDict = new Dictionary<string, Tuple<int, string>>();
                 var orderCount = 0;
-                if (File.Exists(prima_orda))
+                if (File.Exists(primaOrda))
                 {
-                    using (var sr = new StreamReader(prima_orda))
+                    using (var sr = new StreamReader(primaOrda))
                     {
                         var contentLog = sr.ReadToEnd();
                         if (!string.IsNullOrWhiteSpace(contentLog))
@@ -145,7 +144,7 @@ namespace Goliath.Data.CodeGenerator.Actions
                 }
 
                 map.Save(mapFileName, true, true);
-                using (var file = new StreamWriter(prima_orda))
+                using (var file = new StreamWriter(primaOrda))
                 {
                     foreach (var tbOrder in previousOrderDict.Keys)
                     {

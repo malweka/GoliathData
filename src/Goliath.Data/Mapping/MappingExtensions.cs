@@ -4,7 +4,7 @@ using System.Data;
 using System.Linq;
 using System.Text;
 using System.Xml;
-using Goliath.Data.Diagnostics;
+
 
 namespace Goliath.Data.Mapping
 {

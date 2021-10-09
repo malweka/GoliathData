@@ -1,6 +1,5 @@
 ﻿using System;
 using Goliath.Data.DataAccess;
-using Goliath.Data.Diagnostics;
 using Goliath.Data.Mapping;
 using Goliath.Data.Providers;
 
@@ -180,7 +179,7 @@ namespace Goliath.Data.Config
 
             if (LoggerFactory == null)
             {
-                LoggerFactory = x => new ConsoleLogger();
+                LoggerFactory = x => new NullLogger();
             }
 
             if (entitySerializerFactory == null)

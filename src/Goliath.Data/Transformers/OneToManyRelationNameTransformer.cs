@@ -1,5 +1,5 @@
 ﻿using System;
-using Goliath.Data.Diagnostics;
+
 using Goliath.Data.Mapping;
 using Goliath.Data.Utils;
 
@@ -35,7 +35,7 @@ namespace Goliath.Data.Transformers
                     return original.ToClrValPascal();
                 }
 
-                if (original.EndsWith(prefix, StringComparison.InvariantCultureIgnoreCase) && !mapModel.IsPrimaryKey)
+                if (original.EndsWith(prefix, StringComparison.InvariantCultureIgnoreCase))
                 {
                     string name = original.Substring(0, original.Length - prefix.Length);
                     return name.ToClrValPascal().Replace("_", string.Empty);
@@ -50,7 +50,7 @@ namespace Goliath.Data.Transformers
             }
             catch (Exception ex)
             {
-                logger.LogException(string.Format("Transform: {0} -> {1}", original, mapModel.Name), ex);
+                logger.Error(string.Format("Transform: {0} -> {1}", original, mapModel.Name), ex);
                 return original;
             }
         }

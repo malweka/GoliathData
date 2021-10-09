@@ -7,9 +7,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Goliath.Data.DataAccess;
-using Goliath.Data.Diagnostics;
+
 using Goliath.Data.Mapping;
 using Goliath.Data.Providers;
+using Microsoft.Data.SqlClient;
 
 namespace Goliath.Data.CodeGenerator.Actions
 {

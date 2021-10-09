@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
-using Goliath.Data.Diagnostics;
+
 using Goliath.Data.Generators;
 using Goliath.Data.Mapping;
 using Goliath.Data.Providers;
@@ -90,7 +90,7 @@ namespace Goliath.Data.CodeGenerator
                 }
                 catch (Exception ex)
                 {
-                    logger.LogException("Couldn't generate code file for " + table.Name, ex);
+                    logger.Error("Couldn't generate code file for " + table.Name, ex);
                 }
             }
         }

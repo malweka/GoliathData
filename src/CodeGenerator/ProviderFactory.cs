@@ -1,9 +1,9 @@
 ﻿using System;
 using Goliath.Data.Mapping;
+using Goliath.Data.Postgres;
 using Goliath.Data.Providers;
 using Goliath.Data.Providers.SqlServer;
-using Goliath.Data.Providers.Postgres;
-using Goliath.Data.Providers.Sqlite;
+using Goliath.Data.Sqlite;
 
 namespace Goliath.Data.CodeGenerator
 {

@@ -2,10 +2,11 @@
 using System.Data;
 using System.Collections.Generic;
 using System.Linq;
-using Goliath.Data.Diagnostics;
+
 using Goliath.Data.Sql;
 using Goliath.Data.Mapping;
 using Goliath.Data.Utils;
+using Goliath.Security;
 
 namespace Goliath.Data.DataAccess
 {
@@ -34,9 +35,8 @@ namespace Goliath.Data.DataAccess
         {
             if (sessionFactory == null) throw new ArgumentNullException(nameof(sessionFactory));
             if (connectionManager == null) throw new ArgumentNullException(nameof(connectionManager));
-
-            Id = Guid.NewGuid().ToString().Replace("-", string.Empty).ToLower();
-            SessionFactory = sessionFactory;
+            UniqueLongGenerator uniqueIdGenerator = new UniqueLongGenerator();
+            Id = uniqueIdGenerator.GetNextId();
             ConnectionManager = connectionManager;
         }
 
@@ -52,7 +52,7 @@ namespace Goliath.Data.DataAccess
 
         #region Properties
 
-        public string Id { get; }
+        public long Id { get; }
 
         public IDbAccess DataAccess => SessionFactory.DbSettings.DbAccess;
 
