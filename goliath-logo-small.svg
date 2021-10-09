@@ -7,20 +7,15 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="210mm"
-   height="297mm"
-   viewBox="0 0 744.09448819 1052.3622047"
-   id="svg4152"
+   width="128"
+   height="128"
+   viewBox="0 0 33.866666 33.866664"
    version="1.1"
+   id="svg855"
    inkscape:version="1.0.2 (e86c870879, 2021-01-15, custom)"
-   sodipodi:docname="GoliathDataLogo.svg"
-   inkscape:export-filename="C:\dev\GoliathData\GoliathDataLogo.png"
-   inkscape:export-xdpi="39.120998"
-   inkscape:export-ydpi="39.120998">
-  <title
-     id="title4743">oracleDataLogo</title>
+   sodipodi:docname="goliath-logo-small.svg">
   <defs
-     id="defs4154" />
+     id="defs849" />
   <sodipodi:namedview
      id="base"
      pagecolor="#ffffff"
@@ -28,27 +23,28 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.40727392"
-     inkscape:cx="315.72636"
-     inkscape:cy="542.74913"
+     inkscape:zoom="3.06"
+     inkscape:cx="83.108698"
+     inkscape:cy="63.965333"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
+     inkscape:document-rotation="0"
      showgrid="false"
-     inkscape:window-width="1920"
-     inkscape:window-height="1017"
-     inkscape:window-x="-8"
-     inkscape:window-y="-8"
-     inkscape:window-maximized="1"
-     inkscape:document-rotation="0" />
+     units="px"
+     inkscape:window-width="1267"
+     inkscape:window-height="948"
+     inkscape:window-x="109"
+     inkscape:window-y="24"
+     inkscape:window-maximized="0" />
   <metadata
-     id="metadata4157">
+     id="metadata852">
     <rdf:RDF>
       <cc:Work
          rdf:about="">
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title>oracleDataLogo</dc:title>
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -57,7 +53,11 @@
      inkscape:groupmode="layer"
      id="layer1">
     <g
-       id="g847">
+       id="g847"
+       transform="matrix(0.07203663,0,0,0.07747293,-11.185059,-22.418882)"
+       inkscape:export-filename="C:\dev\Misc\GoliathUtilities\src\logo.png"
+       inkscape:export-xdpi="107.28645"
+       inkscape:export-ydpi="107.28645">
       <path
          inkscape:connector-curvature="0"
          id="path6"
@@ -66,25 +66,25 @@
       <path
          inkscape:connector-curvature="0"
          id="path8"
-         d="m 186.60572,365.37737 0,97.05064 c 0,55.28697 403.78579,57.42036 403.78579,0 l 0,-97.05064 c 0,57.45654 -403.78579,55.35935 -403.78579,0 z m 0,0"
+         d="m 186.60572,365.37737 v 97.05064 c 0,55.28697 403.78579,57.42036 403.78579,0 v -97.05064 c 0,57.45654 -403.78579,55.35935 -403.78579,0 z m 0,0"
          style="fill:#ffd42a;fill-opacity:1;fill-rule:nonzero;stroke:none" />
       <path
          inkscape:connector-curvature="0"
          id="path10"
-         d="m 187.06107,467.69175 0,97.01445 c 0,55.35936 403.78579,57.45655 403.78579,0 l 0,-97.01445 c 0,57.45655 -403.78579,55.32316 -403.78579,0 z m 0,0"
+         d="m 187.06107,467.69175 v 97.01445 c 0,55.35936 403.78579,57.45655 403.78579,0 v -97.01445 c 0,57.45655 -403.78579,55.32316 -403.78579,0 z m 0,0"
          style="fill:#3771c8;fill-opacity:1;fill-rule:nonzero;stroke:none" />
       <path
          inkscape:connector-curvature="0"
          id="path12"
-         d="m 187.06107,569.60838 0,97.01445 c 0,55.32325 403.78579,57.45655 403.78579,0 l 0,-97.01445 c 0,57.42044 -403.78579,55.32325 -403.78579,0 z m 0,0"
+         d="m 187.06107,569.60838 v 97.01445 c 0,55.32325 403.78579,57.45655 403.78579,0 v -97.01445 c 0,57.42044 -403.78579,55.32325 -403.78579,0 z m 0,0"
          style="fill:#d35f5f;fill-opacity:1;fill-rule:nonzero;stroke:none" />
       <flowRoot
          xml:space="preserve"
          id="flowRoot4735"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:condensed;line-height:0.01%;font-family:'Gill Sans Ultra Bold Condensed';-inkscape-font-specification:'Gill Sans Ultra Bold Condensed, Condensed';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;opacity:0.91;fill:#f9f9f9;fill-opacity:1;stroke:#464646;stroke-width:1.50043387;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:0.95882344;stroke-miterlimit:4;stroke-dasharray:none"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:condensed;line-height:0.01%;font-family:'Gill Sans Ultra Bold Condensed';-inkscape-font-specification:'Gill Sans Ultra Bold Condensed, Condensed';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;opacity:0.91;fill:#f9f9f9;fill-opacity:1;stroke:#464646;stroke-width:1.50043;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.958823"
          transform="matrix(9.1853568,0,0,5.8101911,-378.0958,-3835.6795)"><flowRegion
            id="flowRegion4737"
-           style="stroke:#464646;stroke-opacity:0.95882344;stroke-width:1.50043387;stroke-miterlimit:4;stroke-dasharray:none"><rect
+           style="stroke:#464646;stroke-width:1.50043;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.958823"><rect
              id="rect4739"
              width="321.875"
              height="309.375"
@@ -92,7 +92,7 @@
              y="724.23718"
              style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:condensed;font-size:50px;line-height:125%;font-family:'Gill Sans Ultra Bold Condensed';-inkscape-font-specification:'Gill Sans Ultra Bold Condensed, Condensed';text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#f9f9f9;stroke:#464646;stroke-opacity:0.95882344;stroke-width:1.50043387;stroke-miterlimit:4;stroke-dasharray:none" /></flowRegion><flowPara
            id="flowPara4741"
-           style="font-size:50px;line-height:1.25;stroke:#464646;stroke-opacity:0.95882344;stroke-width:1.50043387;stroke-miterlimit:4;stroke-dasharray:none">G</flowPara></flowRoot>
+           style="font-size:50px;line-height:1.25;stroke:#464646;stroke-width:1.50043;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.958823">G</flowPara></flowRoot>
     </g>
   </g>
 </svg>
