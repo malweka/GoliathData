@@ -1,7 +1,7 @@
 ﻿using System;
-using System.Data.SqlClient;
 using System.IO;
 using System.IO.Compression;
+using Microsoft.Data.SqlClient;
 
 namespace Goliath.Data.CodeGenerator
 {

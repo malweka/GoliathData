@@ -6,7 +6,7 @@ using System.Linq.Expressions;
 using System.Text;
 using Goliath.Data.Collections;
 using Goliath.Data.DataAccess;
-using Goliath.Data.Diagnostics;
+
 using Goliath.Data.Entity;
 using Goliath.Data.Mapping;
 using Goliath.Data.Utils;

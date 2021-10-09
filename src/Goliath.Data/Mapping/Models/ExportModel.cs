@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using Goliath.Data.DataAccess;
-using Goliath.Data.Diagnostics;
+
 using Goliath.Data.Providers;
 using Goliath.Data.Utilities;
 

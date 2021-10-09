@@ -10,8 +10,7 @@ namespace Goliath.Data.Transformers
 
         public string Transform(Property mapModel, string original)
         {
-            var val = NamePostProcessor.CleanUpString(original).ToClrValPascal();
-            //string val = original.Titleize();
+            var val = NamePostProcessor.CleanUpString(original).ToClrValPascal(); ;
             return val;
         }
 

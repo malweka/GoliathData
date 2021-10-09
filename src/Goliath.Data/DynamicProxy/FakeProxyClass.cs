@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using Goliath.Data.Entity;
+using Goliath.Entity;
 
 namespace Goliath.Data.DynamicProxy
 {

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization;
 using System.Xml;
-using Goliath.Data.Diagnostics;
+
 
 namespace Goliath.Data.Mapping
 {
@@ -340,7 +340,7 @@ namespace Goliath.Data.Mapping
         /// Maps the statements.
         /// </summary>
         /// <param name="platform">The platform.</param>
-        internal void MapStatements(string platform)
+        public void MapStatements(string platform)
         {
             MappedStatements.SetPlatform(platform);
             Settings.Platform = platform;

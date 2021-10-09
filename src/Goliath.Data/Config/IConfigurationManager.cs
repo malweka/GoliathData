@@ -25,7 +25,7 @@ namespace Goliath.Data.Config
         /// </summary>
         /// <param name="createLogger">The create logger.</param>
         /// <returns></returns>
-        IConfigurationManager LoggerFactoryMethod(Func<Type, Diagnostics.ILogger> createLogger);
+        IConfigurationManager LoggerFactoryMethod(Func<Type, ILogger> createLogger);
 
         /// <summary>
         /// Registers the provider.

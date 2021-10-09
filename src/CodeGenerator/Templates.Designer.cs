@@ -19,10 +19,10 @@ namespace Goliath.Data.CodeGenerator {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    internal class Templates {
+    public class Templates {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
@@ -36,7 +36,7 @@ namespace Goliath.Data.CodeGenerator {
         ///   Returns the cached ResourceManager instance used by this class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Resources.ResourceManager ResourceManager {
+        public static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
                     global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Goliath.Data.CodeGenerator.Templates", typeof(Templates).Assembly);
@@ -51,7 +51,7 @@ namespace Goliath.Data.CodeGenerator {
         ///   resource lookups using this strongly typed resource class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Globalization.CultureInfo Culture {
+        public static global::System.Globalization.CultureInfo Culture {
             get {
                 return resourceCulture;
             }
@@ -77,7 +77,7 @@ namespace Goliath.Data.CodeGenerator {
         ///	var ent = Model;
         ///	@:CREATE TABLE [@(ent.SchemaName)].[@ [rest of string was truncated]&quot;;.
         /// </summary>
-        internal static string CreateTable {
+        public static string CreateTable {
             get {
                 return ResourceManager.GetString("CreateTable", resourceCulture);
             }
@@ -95,12 +95,11 @@ namespace Goliath.Data.CodeGenerator {
         ///	var sqlMapper = new Mssq2008Dialect();
         ///	int counter = 0;
         ///	List&lt;string&gt; pks = new List&lt;string&gt;();
+        ///	Dictionary&lt;string,string&gt; props = new Dictionary&lt;string, string&gt;();
         ///	var uniqueConstrainst = new Dictionary&lt;string, List&lt;string&gt;&gt;();
-        ///	var sortedProps = new System.Collections.Generic.SortedList&lt;int,Property&gt;();
-        ///	var ent = Model;
-        ///	@:CREATE TABLE [@(ent.SchemaName)].[# [rest of string was truncated]&quot;;.
+        ///	var sortedProps = new System.Collections.Generic.SortedList&lt;int,P [rest of string was truncated]&quot;;.
         /// </summary>
-        internal static string CreateTempTable {
+        public static string CreateTempTable {
             get {
                 return ResourceManager.GetString("CreateTempTable", resourceCulture);
             }
@@ -122,7 +121,7 @@ namespace Goliath.Data.CodeGenerator {
         ///	var uniqueConstrainst = new Dictionary&lt;string, List&lt;string&gt;&gt;();
         ///	var sortedProps = new System.Collections.Generic.SortedList&lt;int,P [rest of string was truncated]&quot;;.
         /// </summary>
-        internal static string Merge {
+        public static string Merge {
             get {
                 return ResourceManager.GetString("Merge", resourceCulture);
             }

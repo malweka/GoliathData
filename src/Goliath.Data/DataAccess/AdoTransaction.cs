@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Data;
 using System.Data.Common;
-using Goliath.Data.Diagnostics;
+
 
 namespace Goliath.Data.DataAccess
 {
@@ -56,7 +56,7 @@ namespace Goliath.Data.DataAccess
                 var currConnection = session.ConnectionManager.OpenConnection();
                 //if (currConnection.State != ConnectionState.Open)
                 //    currConnection.Open();
-                
+
                 if (isolatedLevel == IsolationLevel.Unspecified)
                     transaction = currConnection.BeginTransaction();
                 else
@@ -64,7 +64,7 @@ namespace Goliath.Data.DataAccess
             }
             catch (Exception ex)
             {
-                logger.LogException(session.Id, "could not begin session", ex);
+                logger.Error(ex, session.Id);
                 throw new DataAccessException("could not begin session", ex);
             }
 
@@ -86,7 +86,7 @@ namespace Goliath.Data.DataAccess
             }
             catch (Exception ex)
             {
-                logger.LogException(session.Id, "Commit failed", ex);
+                logger.Error(ex, session.Id);
                 throw new DataAccessException("Commit failed", ex);
             }
 
@@ -107,7 +107,7 @@ namespace Goliath.Data.DataAccess
             }
             catch (Exception ex)
             {
-                logger.LogException(session.Id, "Rollback failed", ex);
+                logger.Error(message: "Rollback failed", ex, session.Id);
                 throw new DataAccessException("Rollback failed", ex);
             }
         }

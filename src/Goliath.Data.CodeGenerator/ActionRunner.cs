@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using Goliath.Data.Diagnostics;
+
 using Goliath.Data.Mapping;
 
 namespace Goliath.Data.CodeGenerator
@@ -13,7 +13,7 @@ namespace Goliath.Data.CodeGenerator
 
         static ActionRunner()
         {
-            Logger = Diagnostics.Logger.GetLogger(typeof(ActionRunner));
+            Logger = Goliath.Logger.GetLogger(typeof(ActionRunner));
         }
 
         protected ActionRunner(string actionName)

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Dynamic;
-using Goliath.Data.Diagnostics;
+
 
 namespace Goliath.Data
 {

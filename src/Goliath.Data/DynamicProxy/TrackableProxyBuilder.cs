@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Reflection;
 using System.Reflection.Emit;
 using Goliath.Data.Entity;
+using Goliath.Entity;
 
 namespace Goliath.Data.DynamicProxy
 {

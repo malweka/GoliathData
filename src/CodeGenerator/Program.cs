@@ -1,35 +1,18 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Reflection;
 using Goliath.Data.CodeGenerator.Actions;
-using Goliath.Data.DataAccess;
-using Goliath.Data.Diagnostics;
-using Goliath.Data.Mapping;
-using Goliath.Data.Providers;
 
 
 namespace Goliath.Data.CodeGenerator
 {
     class Program
     {
-        static readonly ILogger logger;
-
-        static Program()
-        {
-            logger = Logger.GetLogger(typeof(Program));
-        }
 
 
         static void Main(string[] args)
         {
+            Logger.RegisterCurrentLogger(sourceContext => new ConsoleLogger(sourceContext));
+            var logger = Logger.GetLogger(typeof(Program));
 
-#if DEBUG
-            Console.WriteLine("Press enter to continue.");
-            //Console.ReadLine();
-#endif
             var opts = AppOptionHandler.ParseOptions(args);
 
             Console.WriteLine("Starting application. Generated files will be saved on Folder: {0} ", opts.WorkingFolder);
@@ -37,9 +20,9 @@ namespace Goliath.Data.CodeGenerator
 
             //can we load sqlite
             Console.WriteLine("Loading sqlite provider");
-            var sqlite = new Goliath.Data.Providers.Sqlite.SqliteDialect();
+            var sqlite = new Goliath.Data.Sqlite.SqliteDialect();
             Console.WriteLine("Loading postgresql provider");
-            var postgres = new Goliath.Data.Providers.Postgres.PostgresDialect();
+            var postgres = new Goliath.Data.Postgres.PostgresDialect();
 
             var rng = new Goliath.Security.RandomStringGenerator();
 

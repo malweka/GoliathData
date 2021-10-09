@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Goliath.Data.Diagnostics;
+
 using Goliath.Data.Providers;
 
 namespace Goliath.Data.Mapping
@@ -30,13 +30,13 @@ namespace Goliath.Data.Mapping
             {
                 foreach (var prop in ent)
                 {
-                    string keyName = string.Format("{0}.{1}", ent.Name, prop.Name);
+                    string keyName = $"{ent.Name}.{prop.PropertyName}";
                     string renameVal;
                     if (entityRenames.TryGetValue(keyName, out renameVal))
                     {
                         var oldName = prop.PropertyName;
                         prop.PropertyName = renameVal;
-                        logger.Log(LogLevel.Debug, string.Format("Renamed {0}.{1} to {2}", ent.Name, oldName, renameVal));
+                        logger.Log(LogLevel.Debug, $"Renamed {ent.Name}.{oldName} to {renameVal}");
 
                         var rel = prop as Relation;
                         if (rel != null)

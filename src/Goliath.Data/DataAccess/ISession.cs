@@ -27,7 +27,7 @@ namespace Goliath.Data
         /// Gets the id.
         /// </summary>
         /// <value>The id.</value>
-        string Id { get; }
+        long Id { get; }
 
         /// <summary>
         /// Gets the current transaction.

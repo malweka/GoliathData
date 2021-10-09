@@ -10,17 +10,16 @@ namespace Goliath.Data.DynamicProxy
     /// </summary>
     public class ProxyBuilder : IProxyBuilder
     {
-
-        const string LazyObjectTriggerFieldName = "_lazyObjectLoaded";
-        const string LazyObjectProxyFieldName = "_lazyObjectProxyOf";
-        const string LazyObjectProxyHydrator = "_lazyObjectHydrator";
+        internal const string LazyObjectTriggerFieldName = "_lazyObjectLoaded";
+        internal const string LazyObjectProxyFieldName = "_lazyObjectProxyOf";
+        internal const string LazyObjectProxyHydrator = "_lazyObjectHydrator";
 
         static readonly ModuleBuilder moduleBuilder;
 
         static ProxyBuilder()
         {
             var proxyAssemblyName = new AssemblyName("GoliathData_Proxy" + Guid.NewGuid().ToString("N"));
-            var asmBuilder = AssemblyBuilder.DefineDynamicAssembly(proxyAssemblyName, AssemblyBuilderAccess.RunAndSave);
+            var asmBuilder = AssemblyBuilder.DefineDynamicAssembly(proxyAssemblyName, AssemblyBuilderAccess.RunAndCollect);
             moduleBuilder = asmBuilder.DefineDynamicModule("GoliathDataProxies");
         }
 
@@ -41,11 +40,10 @@ namespace Goliath.Data.DynamicProxy
         /// <returns></returns> 
         public virtual Type CreateProxyType(Type typeToProxy, EntityMap entityMap)
         {
-            Type proxyType;
-            var pcache = ProxyCache.GetProxyCache(GetType());
-            if (!pcache.TryGetProxyType(typeToProxy, out proxyType))
+            var proxyCache = ProxyCache.GetProxyCache(GetType());
+            if (!proxyCache.TryGetProxyType(typeToProxy, out var proxyType))
             {
-                var typeBuilder = moduleBuilder.DefineType(string.Format("LazyObject_{0}{1}", typeToProxy.Name, Guid.NewGuid().ToString("N")), TypeAttributes.Public);
+                var typeBuilder = moduleBuilder.DefineType($"LazyObject_{typeToProxy.Name}{Guid.NewGuid():N}", TypeAttributes.Public);
 
                 var fieldBuilderIsLoaded = typeBuilder.DefineField(LazyObjectTriggerFieldName, typeof(bool), FieldAttributes.Private);
                 var fieldBuilderProxyOf = typeBuilder.DefineField(LazyObjectProxyFieldName, typeof(Type), FieldAttributes.Private);
@@ -71,7 +69,7 @@ namespace Goliath.Data.DynamicProxy
                 }
 
                 proxyType = typeBuilder.CreateType();
-                pcache.Add(typeToProxy, proxyType);
+                proxyCache.Add(typeToProxy, proxyType);
             }
 
             return proxyType;
