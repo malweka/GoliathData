@@ -1,9 +1,9 @@
-#Metadata Attributes
+# Metadata Attributes
 
 Attributes can be added to entity definition for carrying more meta data about entities or entity properties. In XMl, the meta data attribute must be prefixed
 with a *data_* prefix.
 
-##Data validation Attributes
+## Data validation Attributes
 
 These attributes are useful for data validation.
 
@@ -15,7 +15,7 @@ These attributes are useful for data validation.
 | max | int | maximum value |
 
 
-##Visual Display Attributes
+## Visual Display Attributes
 
 These attributes are only useful during view or control generations
 
