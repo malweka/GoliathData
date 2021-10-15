@@ -541,11 +541,11 @@ namespace Goliath.Data.Mapping
                 //xmlWriter.WriteString(rel.ReferenceTable);
                 //xmlWriter.WriteEndAttribute();
 
-                if (!string.IsNullOrWhiteSpace(rel.ReferenceColumn))
+                if (!string.IsNullOrWhiteSpace(rel.ManyToManyPropertyName))
                 {
-                    //xmlWriter.WriteStartAttribute("referenceColumn");
-                    //xmlWriter.WriteString(rel.ReferenceColumn);
-                    //xmlWriter.WriteEndAttribute();
+                    xmlWriter.WriteStartAttribute("manyToManyPropertyName");
+                    xmlWriter.WriteString(rel.ManyToManyPropertyName);
+                    xmlWriter.WriteEndAttribute();
                 }
 
                 if (!string.IsNullOrWhiteSpace(rel.ReferenceProperty))

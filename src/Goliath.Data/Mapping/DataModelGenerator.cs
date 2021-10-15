@@ -47,7 +47,7 @@ namespace Goliath.Data.Mapping
 
                 if (entityRenames == null) entityRenames = new Dictionary<string, string>();
                  
-                IPostGenerationProcessor nameProcessor = new NamePostProcessor(schemaDescriptor.Dialect, transfactory, tableAbbreviator);
+                IPostGenerationProcessor nameProcessor = new NamePostProcessor(schemaDescriptor.Dialect, transfactory, tableAbbreviator, settings);
                 IPostGenerationProcessor relationshipProcessor = new RelationshipProcessor(schemaDescriptor.Dialect, settings);
                 IPostGenerationProcessor propRenameProcessor = new PropertiesRenameProcessor(schemaDescriptor.Dialect);
 

@@ -18,6 +18,7 @@ namespace Goliath.Data.CodeGenerator.Actions
             map.Settings.AssemblyName = opts.AssemblyName;
             map.Settings.Namespace = opts.Namespace;
             map.Settings.AdditionalNamespaces = codeGenRunner.Settings.AdditionalNamespaces;
+            map.Settings.GenerateLinkTable = codeGenRunner.Settings.GenerateLinkTable;
 
             if (string.IsNullOrWhiteSpace(opts.TemplateName))
                 throw new GoliathDataException("Template file to use is required for generate operation. Please make sure that -in=\"Template_File_name.razt\" argument is passed in.");

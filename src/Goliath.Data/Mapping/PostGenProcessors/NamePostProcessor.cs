@@ -15,9 +15,10 @@ namespace Goliath.Data.Mapping
         NameTransformerFactory transfactory;
         ITableNameAbbreviator tableAbbreviator;
         private SqlDialect dialect;
+        private ProjectSettings settings;
         private ILogger logger = Logger.GetLogger(typeof(NamePostProcessor));
 
-        public NamePostProcessor(SqlDialect dialect, NameTransformerFactory transformerFactory, ITableNameAbbreviator tableAbbreviator)
+        public NamePostProcessor(SqlDialect dialect, NameTransformerFactory transformerFactory, ITableNameAbbreviator tableAbbreviator, ProjectSettings settings)
         {
             if (transformerFactory == null)
                 throw new ArgumentNullException("transformerFactory");
@@ -26,6 +27,7 @@ namespace Goliath.Data.Mapping
 
             transfactory = transformerFactory;
             this.tableAbbreviator = tableAbbreviator;
+            this.settings = settings;
             this.dialect = dialect;
         }
 
@@ -75,10 +77,6 @@ namespace Goliath.Data.Mapping
 
         public static string GetTableKeyName(Relation rel)
         {
-            //if (!string.IsNullOrWhiteSpace(rel.ReferenceTableSchemaName) && rel.ReferenceTableSchemaName.ToUpper()
-            //        .Equals(dialect.DefaultSchemaName.ToUpper()))
-            //    return rel.ReferenceTable;
-
             return $"{rel.ReferenceTableSchemaName}.{rel.ReferenceTable}";
         }
 
@@ -95,6 +93,7 @@ namespace Goliath.Data.Mapping
                 table.TableAlias = tableAbbreviator.Abbreviate(table.Name).ToLower();
                 var propertyListClone = table.ToArray();
                 logger.Log(LogLevel.Info, $"Processing table {table.SchemaName}.{table.TableName}");
+                List<Property> additionalProperties = new List<Property>();
                 foreach (var prop in propertyListClone)
                 {
                     if (prop is Relation)
@@ -141,7 +140,7 @@ namespace Goliath.Data.Mapping
 
                             logger.Log(LogLevel.Debug, $"\tRelationship {rel.PropertyName} | {newProperty.ColumnName} <-> {newProperty.PropertyName}");
                             table.Add(rel);
-                            table.Add(newProperty);
+                            additionalProperties.Add(newProperty);
                         }
 
                         if (!string.IsNullOrWhiteSpace(rel.ReferenceProperty))
@@ -160,6 +159,9 @@ namespace Goliath.Data.Mapping
                         prop.PropertyName = prop.PropertyName + "Property";
                     }
                 }
+
+                table.IsLinkTable = IsLinkTable(table);
+                table.AddColumnRange(additionalProperties);
 
                 if (!table.IsLinkTable && table.PrimaryKey != null)
                 {
@@ -188,6 +190,14 @@ namespace Goliath.Data.Mapping
                 return newName;
 
             return tableNamer.Transform(table, table.Name);
+        }
+
+        static bool IsLinkTable(EntityMap ent)
+        {
+            return (ent.Properties.Count == 0) && (ent.Relations.Count == 0)
+                                               && (ent.PrimaryKey != null) && (ent.PrimaryKey.Keys.Count == 2) &&
+                                               ent.PrimaryKey.Keys[0].Key.IsPrimaryKey &&
+                                               ent.PrimaryKey.Keys[1].Key.IsPrimaryKey;
         }
 
     }

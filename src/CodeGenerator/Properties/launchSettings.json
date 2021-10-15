@@ -1,8 +1,7 @@
 {
   "profiles": {
     "CodeGenerator": {
-      "commandName": "Project",
-      "commandLineArgs": "createMap -mapLinkTable -namespace=\"Endpoint.Edrs.Data\" -workingFolder=\"C:\\Junk\" -baseModel=\"C:\\dev\\Repos\\EDRS\\CodeGen\\baseModel.xml\" -exclude=\"AuditColumns|AuditConfig|AuditLog|AuditLogAutoKeys|AuditLogDetail|AuditLogImage|AuditLogNText|AuditLogText|AuditLookups|AuditRelationships|AuditTables|EPC_HiloStore\" -assembly=\"Endpoint.CentralServices.Data\" -connectionstring=\"Data Source=localhost;Initial Catalog=EDRS;Integrated Security=True\" -defaultKeygen=\"Cms_Integer_keyGen\" -extension=\"C:\\dev\\Repos\\EDRS\\CodeGen\\extensions.txt\" -complexTypeMap=\"C:\\dev\\Repos\\EDRS\\CodeGen\\ComplexTypeMap.txt\" -renameConfig=\"C:\\dev\\Repos\\EDRS\\CodeGen\\Renames.txt\" -m=\"C:\\dev\\Repos\\EDRS\\CodeGen\\data_edrs.map.xml\" -statementMap=\"C:\\dev\\Repos\\EDRS\\CodeGen\\mappedStatements.xml\""
+      "commandName": "Project"
     }
   }
 }

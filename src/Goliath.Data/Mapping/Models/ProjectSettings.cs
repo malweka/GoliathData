@@ -36,6 +36,8 @@ namespace Goliath.Data.Mapping
         /// </value>
         public bool SupportManyToMany { get; set; } = true;
 
+        public bool GenerateLinkTable { get; set; }
+
         /// <summary>
         /// Gets or sets the connection string.
         /// </summary>

@@ -29,6 +29,7 @@ namespace Goliath.Data.CodeGenerator.Actions
             map.Settings.AssemblyName = opts.AssemblyName;
             map.Settings.Namespace = opts.Namespace;
             map.Settings.AdditionalNamespaces = codeGenRunner.Settings.AdditionalNamespaces;
+            map.Settings.GenerateLinkTable = codeGenRunner.Settings.GenerateLinkTable;
 
             codeGenRunner.GenerateClasses(map, opts.ExtendedProperties, opts.ExcludedArray);
         }

@@ -78,6 +78,7 @@ namespace Goliath.Data.CodeGenerator
                     ConnectionString = opts.ConnectionString,
                     SupportManyToMany = opts.SupportManyToMany,
                     SupportTableInheritance = opts.SupportTableInheritance,
+                    GenerateLinkTable = opts.GenerateLinkTable,
                     Platform = rdbms.ToString()
                 }
             };

@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-
+using System.Linq;
 using Goliath.Data.Providers;
 
 namespace Goliath.Data.Mapping
@@ -31,16 +31,13 @@ namespace Goliath.Data.Mapping
                 try
                 {
                     //find link tables
-                    if (settings.SupportManyToMany && (ent.Properties.Count == 0) && (ent.Relations.Count == 0)
-                       && (ent.PrimaryKey != null) && (ent.PrimaryKey.Keys.Count == 2) && ent.PrimaryKey.Keys[0].Key.IsPrimaryKey && ent.PrimaryKey.Keys[1].Key.IsPrimaryKey)
+                    if (settings.SupportManyToMany && ent.IsLinkTable)
                     {
                         var aRel = ent.PrimaryKey.Keys[0].Key as Relation;
                         var bRel = ent.PrimaryKey.Keys[1].Key as Relation;
 
                         if ((aRel == null) || (bRel == null))
                             continue;
-
-                        ent.IsLinkTable = true;
 
                         if (entityList.TryGetValue(NamePostProcessor.GetTableKeyName(aRel), out EntityMap aEnt))
                         {
@@ -54,7 +51,11 @@ namespace Goliath.Data.Mapping
                                 if (entityRenames.ContainsKey(keyName))
                                     aRepPropName = entityRenames[keyName];
 
-                                aEnt.Relations.Add(new Relation()
+                                keyName = $"{aEnt.Name}.{bEnt.Name.Pluralize()}On{ent.Name}_{aRel.ColumnName.Pascalize()}";
+                                if (entityRenames.ContainsKey(keyName))
+                                    aRepPropName = entityRenames[keyName];
+
+                                var aRelationProp = new Relation()
                                 {
                                     IsComplexType = true,
                                     LazyLoad = true,
@@ -71,7 +72,8 @@ namespace Goliath.Data.Mapping
                                     ReferenceTable = bEnt.TableName,
                                     RelationType = RelationshipType.ManyToMany,
                                     Inverse = true,
-                                });
+                                };
+                                aEnt.Relations.Add(aRelationProp);
 
                                 string aColCamel = aRel.ColumnName.Camelize();
                                 string bColCamel = bRel.ColumnName.Camelize();
@@ -80,11 +82,9 @@ namespace Goliath.Data.Mapping
                                 //build mapped statement for ease of adding and removing association
                                 var aInsertStatement = new StatementMap
                                 {
-                                    Name =
-                                                                   $"{aEnt.FullName}_{aColCamel}_associate_{aEnt.Name}_with_{bEnt.Name}",
+                                    Name = $"{aEnt.FullName}_{aColCamel}_associate_{aEnt.Name}_with_{bEnt.Name}",
                                     OperationType = MappedStatementType.Insert,
-                                    Body =
-                                                                   $"INSERT INTO {ent.TableName} ({aRel.ColumnName}, {bRel.ColumnName}) VALUES({StatementMap.BuildPropTag(aColCamel, aRel.ReferenceProperty)}, {StatementMap.BuildPropTag(bColCamel, bRel.ReferenceProperty)});",
+                                    Body = $"INSERT INTO {ent.TableName} ({aRel.ColumnName}, {bRel.ColumnName}) VALUES({StatementMap.BuildPropTag(aColCamel, aRel.ReferenceProperty)}, {StatementMap.BuildPropTag(bColCamel, bRel.ReferenceProperty)});",
                                     DependsOnEntity = aEnt.FullName
                                 };
                                 aInsertStatement.InputParametersMap.Add(aColCamel, aEnt.FullName);
@@ -107,9 +107,14 @@ namespace Goliath.Data.Mapping
                                 if (bEnt.Relations.Contains(aRepPropName))
                                     bRepPropName = $"{aEnt.Name.Pluralize()}On{ent.Name}_{bRel.ColumnName.Pascalize()}";
 
-                                keyName = string.Format("{0}.{1}", bEnt.Name, bRepPropName);
+                                keyName = $"{bEnt.Name}.{bRepPropName}";
                                 if (entityRenames.ContainsKey(keyName))
                                     bRepPropName = entityRenames[keyName];
+
+                                keyName = $"{bEnt.Name}.{aEnt.Name.Pluralize()}On{ent.Name}_{bRel.ColumnName.Pascalize()}";
+                                if (entityRenames.ContainsKey(keyName))
+                                    bRepPropName = entityRenames[keyName];
+
 
                                 bEnt.Relations.Add(new Relation()
                                 {
@@ -126,8 +131,10 @@ namespace Goliath.Data.Mapping
                                     PropertyName = bRepPropName,
                                     ReferenceEntityName = aEnt.FullName,
                                     ReferenceTable = aEnt.TableName,
+                                    ManyToManyPropertyName = aRelationProp.PropertyName,
                                     RelationType = RelationshipType.ManyToMany,
                                 });
+                                aRelationProp.ManyToManyPropertyName = bRepPropName;
 
                                 var bInsertStatement = new StatementMap
                                 {

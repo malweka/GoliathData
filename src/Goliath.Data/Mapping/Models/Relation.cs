@@ -159,6 +159,9 @@ namespace Goliath.Data.Mapping
         [DataMember]
         public CollectionType CollectionType { get; set; }
 
+        [DataMember]
+        public string ManyToManyPropertyName { get; set; }
+
         /// <summary>
         /// Gets the CLR type as string.
         /// </summary>

@@ -55,6 +55,7 @@ namespace Goliath.Data.CodeGenerator
                 .Add("exclude=", w => opts.Excluded = w)
                 .Add("include=", w => opts.Include = w)
                 .Add("mapLinkTable", w => opts.SupportManyToMany = false)
+                .Add("generateLinkTable", w => opts.GenerateLinkTable = true)
                 .Add("tableInheritance", w => opts.SupportTableInheritance = true)
                 .Add("entity=", w => opts.EntityModel = w)
                 .Add("renameConfig=", w => opts.RenameConfig = w)

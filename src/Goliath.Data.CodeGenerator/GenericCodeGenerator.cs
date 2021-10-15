@@ -71,7 +71,7 @@ namespace Goliath.Data.CodeGenerator
             var counter = 0;
             foreach (var table in config.EntityConfigs)
             {
-                if (table.IsLinkTable || SchemaDescriptor.IsExcludedEntity(excludedTables, table.Name))
+                if ((table.IsLinkTable || SchemaDescriptor.IsExcludedEntity(excludedTables, table.Name)) && !config.Settings.GenerateLinkTable)
                     continue;
                 try
                 {

@@ -503,6 +503,10 @@ namespace Goliath.Data.Mapping
                                 loadedRel = true;
                                 rel.MapReferenceColumn = reader.Value;
                                 break;
+                            case "manyToManyPropertyName":
+                                loadedRel = true;
+                                rel.ManyToManyPropertyName = reader.Value;
+                                break;
                             case "propertyName":
                                 loadedRel = true;
                                 rel.MapPropertyName = reader.Value;
