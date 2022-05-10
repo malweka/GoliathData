@@ -48,7 +48,7 @@ namespace Goliath.Data.CodeGenerator
                 if (sessionId.HasValue)
                     sessionText = $"Session {sessionId} -";
 
-                AnsiConsole.MarkupLine($"[#005f00]{DateTime.Now:s}[/] {FormatLevel(logLevel)} [#005fd7]{sessionText} {sourceContext}[/] {message}");
+                AnsiConsole.MarkupLine($"[#005f00]{DateTime.Now:s}[/] {FormatLevel(logLevel)} [#005fd7]{sessionText} {Markup.Escape(sourceContext)}[/] {Markup.Escape(message)}");
 
                 if (exception != null)
                 {
