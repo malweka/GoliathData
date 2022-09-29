@@ -6,7 +6,7 @@
 *.user
 *.sln.docstates
 .vs
-
+.DS_Store
 # Build results
 [Dd]ebug/
 [Dd]ebugPublic/
