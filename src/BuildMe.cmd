@@ -8,6 +8,6 @@ if [%build%]==[] set build="1"
 dotnet publish CodeGenerator/CodeGenerator.csproj -p:PublishProfile=FolderProfile -p:PackageVersion=%version%.%build% -p:Version=%version%.%build% -p:AssemblyVersion=%version%.%build% -p:FileVersion=%version%.%build%
 IF NOT EXIST %PkgFolder% mkdir %PkgFolder%
 
-xcopy %~dp0CodeGenerator\bin\Release\publish %PkgFolder%\GoliathData\tools\net5.0\any  /y /f /i /e
+xcopy %~dp0CodeGenerator\bin\Release\publish %PkgFolder%\GoliathData\tools\net6.0\any  /y /f /i /e
 REM xcopy %~dp0DotnetToolSettings.xml %PkgFolder%\GoliathData\tools\netcoreapp3.1\any  /y /f /i
 pause

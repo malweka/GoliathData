@@ -150,6 +150,11 @@ namespace Goliath.Data.CodeGenerator
                 prop.MetaDataAttributes.Add("editable", "false");
             }
 
+            if (prop.PropertyName.Equals("DisplayName") || prop.PropertyName.Equals("Description"))
+            {
+                prop.MetaDataAttributes.Add("localizable", "true");
+            }
+
             key = string.Concat("*.", prop.Name);
             if (opts.MetadataDictionary.TryGetValue(key, out metadata))
             {

@@ -48,6 +48,7 @@ namespace Goliath.Data.Mapping
             IsUnique = prop.IsUnique;
             IsPrimaryKey = prop.IsPrimaryKey;
             SqlType = prop.SqlType;
+            metadataAttributes = prop.MetaDataAttributes;
         }
 
         /// <summary>

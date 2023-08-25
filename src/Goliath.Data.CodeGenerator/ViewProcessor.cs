@@ -368,5 +368,19 @@ namespace Goliath.Data.CodeGenerator
             return true;
         }
 
+        public static bool HasBooleanMetaData(this Property property, string attributeName, out bool value)
+        {
+            value = false;
+            if (property == null || string.IsNullOrWhiteSpace(attributeName))
+            {
+                return false;
+            }
+
+            if (!property.MetaDataAttributes.TryGetValue(attributeName, out string val)) return false;
+
+            bool.TryParse(val, out value);
+            return true;
+        }
+
     }
 }

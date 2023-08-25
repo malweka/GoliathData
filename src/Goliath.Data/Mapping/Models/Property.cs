@@ -90,7 +90,7 @@ namespace Goliath.Data.Mapping
         [DataMember]
         public int Scale { get; set; }
 
-        readonly Dictionary<string, string> metadataAttributes = new Dictionary<string, string>();
+        protected Dictionary<string, string> metadataAttributes = new Dictionary<string, string>();
 
         /// <summary>
         /// Gets the meta data attributes.
